@@ -1,8 +1,7 @@
 use crate::{
   chunk::Chunk,
-  ctx::Blocks,
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
-  pos::ChunkRelPos,
+  pos::{ChunkRelPos, Pos},
   ChunkContext,
 };
 
@@ -25,11 +24,10 @@ impl Generator {
   pub fn generate(&self, ctx: &ChunkContext, chunk: &mut Chunk) {
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
-        let x: i32 = ctx.chunk_x * 16 + i32::from(rel_x);
-        let z: i32 = ctx.chunk_z * 16 + i32::from(rel_z);
+        let pos = ctx.chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
 
         let height =
-          ((self.height_map.generate(x as f64, z as f64, self.seed) + 1.0) * 64.0) as i32;
+          ((self.height_map.generate(pos.x as f64, pos.z as f64, self.seed) + 1.0) * 64.0) as i32;
 
         for y in 0..height as u8 {
           chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
@@ -43,7 +41,10 @@ impl Generator {
 
 #[cfg(test)]
 mod tests {
-  use crate::ctx::Block;
+  use crate::{
+    ctx::{Block, Blocks},
+    pos::ChunkPos,
+  };
 
   use super::*;
 
@@ -55,7 +56,7 @@ mod tests {
     let blocks = blocks();
     let generator = Generator::new(1);
 
-    let ctx = ChunkContext { chunk_x: 0, chunk_z: 0, blocks: &blocks };
+    let ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks };
 
     generator.generate(&ctx, &mut chunk);
   }

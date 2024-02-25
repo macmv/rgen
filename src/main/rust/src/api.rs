@@ -6,7 +6,7 @@ use jni::{
   JNIEnv,
 };
 
-use crate::{chunk::Chunk, ctx::Context, ChunkContext};
+use crate::{chunk::Chunk, ctx::Context, pos::ChunkPos, ChunkContext};
 
 #[cfg(not(feature = "obf-names"))]
 fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
@@ -116,7 +116,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   let mut chunk = Chunk::new();
 
   Context::run(|ctx| {
-    let chunk_ctx = ChunkContext { chunk_x, chunk_z, blocks: &ctx.blocks };
+    let chunk_ctx =
+      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.blocks };
 
     ctx.generator.generate(&chunk_ctx, &mut chunk);
   });
