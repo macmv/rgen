@@ -19,8 +19,15 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
 
   // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
 
+  let name = env.new_string("dirt").unwrap();
+
   let stone = env
-    .get_static_field("net/minecraft/init/Blocks", "STONE", "Lnet/minecraft/block/Block;")
+    .call_static_method(
+      "net/minecraft/block/Block",
+      "getBlockFromName",
+      "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
+      &[JValue::Object(&name.into())],
+    )
     .unwrap()
     .l()
     .unwrap();
@@ -37,7 +44,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
     .i()
     .unwrap();
 
-  println!("stone id: {}", stone_id);
+  println!("dirt id: {}", stone_id);
 
   println!("===========================");
 }
