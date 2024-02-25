@@ -8,10 +8,8 @@ use jni::{
 
 use crate::{chunk::Chunk, ctx::Context};
 
-// TODO: Need a feature for if we're targetting the obfuscated or deobfuscated
-// names.
-#[allow(unused)]
-fn lookup_id_opt_deobf(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
+#[cfg(not(feature = "obf-names"))]
+fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
 
   // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
@@ -46,6 +44,7 @@ fn lookup_id_opt_deobf(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Opt
   Some(id)
 }
 
+#[cfg(feature = "obf-names")]
 fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
   let Ok(jname) = env.new_string(name) else { return Some(0) };
 
