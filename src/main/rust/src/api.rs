@@ -6,7 +6,7 @@ use jni::{
   JNIEnv,
 };
 
-use crate::{chunk::Chunk, gen::Generator, pos::ChunkRelPos};
+use crate::{chunk::Chunk, ctx::Context, pos::ChunkRelPos};
 
 fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
@@ -56,7 +56,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   _class: JClass,
   block_ids: JObject, // ObjectIntIdentityMap<IBlockState>
 ) {
-  Generator::init(|name| lookup_id(&mut env, &block_ids, name));
+  Context::init(|name| lookup_id(&mut env, &block_ids, name));
 }
 
 #[no_mangle]
@@ -72,12 +72,12 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
 
   let mut chunk = Chunk::new();
 
-  Generator::run(|gen| {
-    chunk.set(ChunkRelPos::new(0, 5, 0), gen.blocks.dirt);
+  Context::run(|ctx| {
+    chunk.set(ChunkRelPos::new(0, 5, 0), ctx.blocks.dirt);
 
     for x in 0..16 {
       for z in 0..16 {
-        chunk.set(ChunkRelPos::new(x, 0, z), gen.blocks.stone);
+        chunk.set(ChunkRelPos::new(x, 0, z), ctx.blocks.stone);
       }
     }
   });

@@ -1,22 +1,22 @@
 use std::sync::RwLock;
 
-pub struct Generator {
+pub struct Context {
   pub blocks: Blocks,
 }
 
-static GENERATOR: RwLock<Option<Generator>> = RwLock::new(None);
+static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
 
-impl Generator {
+impl Context {
   pub fn init(lookup_id: impl FnMut(&str) -> i32) {
-    let gen = Generator { blocks: Blocks::init(lookup_id) };
+    let ctx = Context { blocks: Blocks::init(lookup_id) };
 
-    GENERATOR.write().unwrap().replace(gen);
+    CONTEXT.write().unwrap().replace(ctx);
   }
 
-  pub fn run<R>(f: impl FnOnce(&Generator) -> R) -> R {
-    let gen = GENERATOR.read().unwrap();
-    let gen = gen.as_ref().expect("Generator not initialized");
-    f(gen)
+  pub fn run<R>(f: impl FnOnce(&Context) -> R) -> R {
+    let ctx = CONTEXT.read().unwrap();
+    let ctx = ctx.as_ref().expect("Context not initialized");
+    f(ctx)
   }
 }
 
