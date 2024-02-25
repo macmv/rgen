@@ -1,4 +1,5 @@
 use crate::{
+  biome::BiomeGenerator,
   chunk::Chunk,
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
   pos::{ChunkRelPos, Pos},
@@ -34,6 +35,10 @@ impl Generator {
         }
       }
     }
+
+    let biome = crate::biome::Plains;
+
+    biome.generate(ctx, chunk);
 
     chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }
