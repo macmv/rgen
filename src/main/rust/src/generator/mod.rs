@@ -3,6 +3,7 @@ use crate::{
   ctx::Blocks,
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
   pos::ChunkRelPos,
+  ChunkContext,
 };
 
 mod climate;
@@ -21,22 +22,22 @@ impl Generator {
     }
   }
 
-  pub fn generate(&self, chunk_x: i32, chunk_z: i32, blocks: &Blocks, chunk: &mut Chunk) {
+  pub fn generate(&self, ctx: &ChunkContext, chunk: &mut Chunk) {
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
-        let x: i32 = chunk_x * 16 + i32::from(rel_x);
-        let z: i32 = chunk_z * 16 + i32::from(rel_z);
+        let x: i32 = ctx.chunk_x * 16 + i32::from(rel_x);
+        let z: i32 = ctx.chunk_z * 16 + i32::from(rel_z);
 
         let height =
           ((self.height_map.generate(x as f64, z as f64, self.seed) + 1.0) * 64.0) as i32;
 
         for y in 0..height as u8 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), blocks.stone);
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
         }
       }
     }
 
-    chunk.set(ChunkRelPos::new(0, 6, 0), blocks.dirt);
+    chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }
 }
 
@@ -54,6 +55,8 @@ mod tests {
     let blocks = blocks();
     let generator = Generator::new(1);
 
-    generator.generate(0, 0, &blocks, &mut chunk);
+    let ctx = ChunkContext { chunk_x: 0, chunk_z: 0, blocks: &blocks };
+
+    generator.generate(&ctx, &mut chunk);
   }
 }
