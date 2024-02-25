@@ -1,23 +1,37 @@
-use std::sync::Mutex;
+use std::sync::RwLock;
 
 pub struct Generator {
   pub blocks: Blocks,
 }
 
-static GENERATOR: Mutex<Option<Generator>> = Mutex::new(None);
+static GENERATOR: RwLock<Option<Generator>> = RwLock::new(None);
 
 impl Generator {
-  pub fn init<F>(lookup_id: F)
-  where
-    F: FnMut(&str) -> i32,
-  {
+  pub fn init(lookup_id: impl FnMut(&str) -> i32) {
     let gen = Generator { blocks: Blocks::init(lookup_id) };
 
-    GENERATOR.lock().unwrap().replace(gen);
+    GENERATOR.write().unwrap().replace(gen);
+  }
+
+  pub fn run<R>(f: impl FnOnce(&Generator) -> R) -> R {
+    let gen = GENERATOR.read().unwrap();
+    let gen = gen.as_ref().expect("Generator not initialized");
+    f(gen)
   }
 }
 
-pub struct Block(i32);
+#[derive(Clone, Copy)]
+pub struct Block(u16);
+
+impl Block {
+  pub fn from_raw_id(id: i32) -> Block {
+    assert!(id >= 0 && id < 4096);
+    Block(id as u16)
+  }
+
+  /// The raw ID used in the chunk data (air is 0, dirt is 16, etc).
+  pub fn raw_id(&self) -> u16 { self.0 }
+}
 
 macro_rules! blocks {
   ($($id:ident => $name:expr,)*) => {
@@ -31,7 +45,7 @@ macro_rules! blocks {
         F: FnMut(&str) -> i32,
       {
         Blocks {
-          $($id: Block(lookup_id($name)),)*
+          $($id: Block::from_raw_id(lookup_id($name)),)*
         }
       }
     }
@@ -39,5 +53,6 @@ macro_rules! blocks {
 }
 
 blocks! {
+  stone => "minecraft:stone",
   dirt => "minecraft:dirt",
 }

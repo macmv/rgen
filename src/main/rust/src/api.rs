@@ -72,15 +72,15 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
 
   let mut chunk = Chunk::new();
 
-  // dirt
-  chunk.set(ChunkRelPos::new(0, 5, 0), 3, 0);
+  Generator::run(|gen| {
+    chunk.set(ChunkRelPos::new(0, 5, 0), gen.blocks.dirt);
 
-  for x in 0..16 {
-    for z in 0..16 {
-      // stone
-      chunk.set(ChunkRelPos::new(x, 0, z), 1, 0);
+    for x in 0..16 {
+      for z in 0..16 {
+        chunk.set(ChunkRelPos::new(x, 0, z), gen.blocks.stone);
+      }
     }
-  }
+  });
 
   env.set_char_array_region(data, 0, chunk.data()).unwrap();
 }

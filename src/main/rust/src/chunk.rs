@@ -1,4 +1,4 @@
-use crate::pos::ChunkRelPos;
+use crate::{gen::Block, pos::ChunkRelPos};
 
 // Mirrors a ChunkPrimer in minecraft.
 pub struct Chunk {
@@ -27,10 +27,10 @@ impl Chunk {
     }
   }
 
-  pub fn set(&mut self, pos: ChunkRelPos, block_id: u16, block_data: u8) {
-    assert!(block_id < 4096);
+  pub fn set(&mut self, pos: ChunkRelPos, block: Block) { self.set_data(pos, block, 0); }
+  pub fn set_data(&mut self, pos: ChunkRelPos, block: Block, block_data: u8) {
     assert!(block_data < 16);
-    self.data[pos_to_index(pos)] = block_id << 4 | (block_data as u16);
+    self.data[pos_to_index(pos)] = block.raw_id() | (block_data as u16);
   }
 
   pub fn data(&self) -> &[u16] { &self.data }
