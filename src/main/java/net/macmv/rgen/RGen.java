@@ -1,6 +1,5 @@
 package net.macmv.rgen;
 
-import net.macmv.rgen.rust.RustGenerator;
 import net.macmv.rgen.world.WorldTypeRGen;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -18,7 +17,5 @@ public class RGen {
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent e) {
     worldType = new WorldTypeRGen();
-
-    RustGenerator.foo();
   }
 }

@@ -1,5 +1,6 @@
 package net.macmv.rgen.world;
 
+import net.macmv.rgen.rust.RustGenerator;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
@@ -23,6 +24,9 @@ public class RGenChunkGenerator implements IChunkGenerator {
 
   @Override
   public Chunk generateChunk(int x, int z) {
+
+    RustGenerator.make_chunk(x, z);
+
     ChunkPrimer primer = new ChunkPrimer();
 
     IBlockState[] blockIds = new IBlockState[]{Blocks.STONE.getDefaultState(), Blocks.GRASS.getDefaultState()};
