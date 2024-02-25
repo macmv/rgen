@@ -12,6 +12,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +29,17 @@ public class RGenChunkGenerator implements IChunkGenerator {
     RustGenerator.make_chunk(x, z);
 
     ChunkPrimer primer = new ChunkPrimer();
+
+    try {
+      // FIXME: Use an access transformer instead.
+      Field dataField = ChunkPrimer.class.getDeclaredField("data");
+      dataField.setAccessible(true);
+
+      char[] data = (char[]) dataField.get(primer);
+      data[5] = 0x20;
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
 
     IBlockState[] blockIds = new IBlockState[]{Blocks.STONE.getDefaultState(), Blocks.GRASS.getDefaultState()};
 
