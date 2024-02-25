@@ -19,6 +19,8 @@ public class RGenChunkGenerator implements IChunkGenerator {
 
   public RGenChunkGenerator(World world) {
     this.world = world;
+
+    RustGenerator.init();
   }
 
   @Override

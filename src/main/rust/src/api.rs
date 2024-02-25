@@ -1,12 +1,46 @@
 //! Defines the JNI interface.
 
 use jni::{
-  objects::{JCharArray, JClass},
+  objects::{JCharArray, JClass, JObject, JValue},
   sys::jint,
   JNIEnv,
 };
 
 use crate::{chunk::Chunk, pos::ChunkRelPos};
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
+  mut env: JNIEnv,
+  _class: JClass,
+  block_ids: JObject, // ObjectIntIdentityMap<IBlockState>
+) {
+  println!("===========================");
+  println!("initializing generator");
+
+  // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
+
+  let stone = env
+    .get_static_field("net/minecraft/init/Blocks", "STONE", "Lnet/minecraft/block/Block;")
+    .unwrap()
+    .l()
+    .unwrap();
+
+  let stone_state = env
+    .call_method(&stone, "getDefaultState", "()Lnet/minecraft/block/state/IBlockState;", &[])
+    .unwrap()
+    .l()
+    .unwrap();
+
+  let stone_id = env
+    .call_method(block_ids, "get", "(Ljava/lang/Object;)I", &[JValue::Object(&stone_state)])
+    .unwrap()
+    .i()
+    .unwrap();
+
+  println!("stone id: {}", stone_id);
+
+  println!("===========================");
+}
 
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
