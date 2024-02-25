@@ -6,7 +6,7 @@ pub struct Chunk {
 }
 
 fn pos_to_index(pos: ChunkRelPos) -> usize {
-  ((pos.z() as usize) << 12) | ((pos.x() as usize) << 8) | (pos.y() as usize)
+  ((pos.x() as usize) << 12) | ((pos.z() as usize) << 8) | (pos.y() as usize)
 }
 
 impl Chunk {
