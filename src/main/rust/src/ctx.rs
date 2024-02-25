@@ -7,7 +7,8 @@ pub struct Context {
 static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
 
 impl Context {
-  pub fn init(lookup_id: impl FnMut(&str) -> i32) {
+  pub fn init(lookup_id: impl FnMut(&str) -> i32, seed: i64) {
+    println!("got seed {seed}");
     let ctx = Context { blocks: Blocks::init(lookup_id) };
 
     CONTEXT.write().unwrap().replace(ctx);

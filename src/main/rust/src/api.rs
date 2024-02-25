@@ -2,7 +2,7 @@
 
 use jni::{
   objects::{JCharArray, JClass, JObject, JValue},
-  sys::jint,
+  sys::{jint, jlong},
   JNIEnv,
 };
 
@@ -55,8 +55,9 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   mut env: JNIEnv,
   _class: JClass,
   block_ids: JObject, // ObjectIntIdentityMap<IBlockState>
+  seed: jlong,
 ) {
-  Context::init(|name| lookup_id(&mut env, &block_ids, name));
+  Context::init(|name| lookup_id(&mut env, &block_ids, name), seed);
 }
 
 #[no_mangle]
