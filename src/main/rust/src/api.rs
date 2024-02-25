@@ -8,7 +8,10 @@ use jni::{
 
 use crate::{chunk::Chunk, ctx::Context};
 
-fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
+// TODO: Need a feature for if we're targetting the obfuscated or deobfuscated
+// names.
+#[allow(unused)]
+fn lookup_id_opt_deobf(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
 
   // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
@@ -41,6 +44,46 @@ fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i3
     .unwrap();
 
   Some(id)
+}
+
+fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
+  let Ok(jname) = env.new_string(name) else { return Some(0) };
+
+  // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
+
+  let block = match env.call_static_method(
+    "net/minecraft/block/Block",
+    "func_149684_b", // getBlockFromName
+    "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
+    &[JValue::Object(&jname.into())],
+  ) {
+    Ok(block) => block.l().unwrap(),
+    Err(_) => return Some(0),
+  };
+
+  if block.is_null() {
+    return None;
+  }
+
+  let state = match env.call_method(
+    &block,
+    "func_176223_P", // getDefaultState
+    "()Lnet/minecraft/block/state/IBlockState;",
+    &[],
+  ) {
+    Ok(state) => state.l().unwrap(),
+    Err(_) => return Some(0),
+  };
+
+  match env.call_method(
+    block_ids,
+    "func_148747_b", // get
+    "(Ljava/lang/Object;)I",
+    &[JValue::Object(&state)],
+  ) {
+    Ok(id) => Some(id.i().unwrap()),
+    Err(_) => return Some(0),
+  }
 }
 
 fn lookup_id(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> i32 {

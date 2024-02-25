@@ -29,7 +29,7 @@ public class RGenChunkGenerator implements IChunkGenerator {
 
     try {
       // FIXME: Use an access transformer instead.
-      Field dataField = ChunkPrimer.class.getDeclaredField("data");
+      Field dataField = ChunkPrimer.class.getDeclaredField("field_177860_a");
       dataField.setAccessible(true);
 
       char[] data = (char[]) dataField.get(primer);
