@@ -8,6 +8,46 @@ use jni::{
 
 use crate::{chunk::Chunk, pos::ChunkRelPos};
 
+fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
+  let jname = env.new_string(name).unwrap();
+
+  let block = env
+    .call_static_method(
+      "net/minecraft/block/Block",
+      "getBlockFromName",
+      "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
+      &[JValue::Object(&jname.into())],
+    )
+    .unwrap()
+    .l()
+    .unwrap();
+
+  if block.is_null() {
+    return None;
+  }
+
+  let state = env
+    .call_method(&block, "getDefaultState", "()Lnet/minecraft/block/state/IBlockState;", &[])
+    .unwrap()
+    .l()
+    .unwrap();
+
+  let id = env
+    .call_method(block_ids, "get", "(Ljava/lang/Object;)I", &[JValue::Object(&state)])
+    .unwrap()
+    .i()
+    .unwrap();
+
+  Some(id)
+}
+
+fn lookup_id(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> i32 {
+  match lookup_id_opt(env, block_ids, name) {
+    Some(id) => id,
+    None => panic!("block not found: {}", name),
+  }
+}
+
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   mut env: JNIEnv,
@@ -17,36 +57,13 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   println!("===========================");
   println!("initializing generator");
 
+  let _stone_id = dbg!(lookup_id(&mut env, &block_ids, "minecraft:stone"));
+  let _grass_id = dbg!(lookup_id(&mut env, &block_ids, "minecraft:grass"));
+  let _dirt_id = dbg!(lookup_id(&mut env, &block_ids, "minecraft:dirt"));
+
   // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
 
-  let name = env.new_string("dirt").unwrap();
-
-  let stone = env
-    .call_static_method(
-      "net/minecraft/block/Block",
-      "getBlockFromName",
-      "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
-      &[JValue::Object(&name.into())],
-    )
-    .unwrap()
-    .l()
-    .unwrap();
-
-  let stone_state = env
-    .call_method(&stone, "getDefaultState", "()Lnet/minecraft/block/state/IBlockState;", &[])
-    .unwrap()
-    .l()
-    .unwrap();
-
-  let stone_id = env
-    .call_method(block_ids, "get", "(Ljava/lang/Object;)I", &[JValue::Object(&stone_state)])
-    .unwrap()
-    .i()
-    .unwrap();
-
-  println!("dirt id: {}", stone_id);
-
-  println!("===========================");
+  println!("==========================");
 }
 
 #[no_mangle]
