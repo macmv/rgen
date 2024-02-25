@@ -5,6 +5,8 @@ use crate::{
   pos::ChunkRelPos,
 };
 
+mod climate;
+
 pub struct Generator {
   seed: u64,
 
