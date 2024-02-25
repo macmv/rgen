@@ -27,16 +27,7 @@ public class RGenChunkGenerator implements IChunkGenerator {
   public Chunk generateChunk(int x, int z) {
     ChunkPrimer primer = new ChunkPrimer();
 
-    try {
-      // FIXME: Use an access transformer instead.
-      Field dataField = ChunkPrimer.class.getDeclaredField("field_177860_a");
-      dataField.setAccessible(true);
-
-      char[] data = (char[]) dataField.get(primer);
-      RustGenerator.make_chunk(data, x, z);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
+    build_rust_chunk(primer, x, z);
 
     Chunk chunk = new Chunk(this.world, primer, x, z);
     Biome[] biomes = this.world.getBiomeProvider().getBiomes(null, x * 16, z * 16, 16, 16);
@@ -48,6 +39,24 @@ public class RGenChunkGenerator implements IChunkGenerator {
 
     chunk.generateSkylightMap();
     return chunk;
+  }
+
+  private void build_rust_chunk(ChunkPrimer primer, int x, int z) {
+    try {
+      // FIXME: Use an access transformer instead.
+      Field dataField;
+      try {
+        dataField = ChunkPrimer.class.getDeclaredField("field_177860_a");
+      } catch (NoSuchFieldException e) {
+        dataField = ChunkPrimer.class.getDeclaredField("data");
+      }
+      dataField.setAccessible(true);
+
+      char[] data = (char[]) dataField.get(primer);
+      RustGenerator.make_chunk(data, x, z);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
