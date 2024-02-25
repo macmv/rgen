@@ -6,7 +6,7 @@ use jni::{
   JNIEnv,
 };
 
-use crate::{chunk::Chunk, ctx::Context, pos::ChunkRelPos};
+use crate::{chunk::Chunk, ctx::Context};
 
 fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
