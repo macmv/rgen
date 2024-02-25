@@ -2,6 +2,7 @@ use ctx::Blocks;
 use pos::ChunkPos;
 
 mod api;
+mod biome;
 mod chunk;
 mod ctx;
 mod generator;
