@@ -28,7 +28,7 @@ impl ClimateMap {
 
     macro_rules! biome {
       ($name:ident) => {
-        BiomeBuilder::build(blocks, $name::$name)
+        BiomeBuilder::build(stringify!($name), blocks, $name::$name)
       };
     }
 

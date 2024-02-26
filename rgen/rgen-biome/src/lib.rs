@@ -9,6 +9,8 @@ mod biome;
 mod climate;
 
 pub struct BiomeBuilder {
+  pub name: &'static str,
+
   pub top_block: Block,
 
   placers: Vec<Box<dyn Placer>>,
@@ -22,7 +24,9 @@ pub enum PlacerStage {
 }
 
 impl BiomeBuilder {
-  pub fn new(blocks: &Blocks) -> Self { Self { top_block: blocks.grass, placers: vec![] } }
+  pub fn new(name: &'static str, blocks: &Blocks) -> Self {
+    Self { name, top_block: blocks.grass, placers: vec![] }
+  }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
     // TODO: Do we even need name? Its a pain to add them later, so I'm keeping them
@@ -60,8 +64,8 @@ pub struct Biomes {
 }
 
 impl BiomeBuilder {
-  fn build(blocks: &Blocks, build: impl FnOnce(&Blocks, &mut Self)) -> Self {
-    let mut builder = BiomeBuilder::new(blocks);
+  fn build(name: &'static str, blocks: &Blocks, build: impl FnOnce(&Blocks, &mut Self)) -> Self {
+    let mut builder = BiomeBuilder::new(name, blocks);
     build(blocks, &mut builder);
     builder
   }
@@ -109,6 +113,8 @@ impl Biomes {
     // FIXME: How do we switch up biomes within a given climate?
     let mut rng = Rng::new(seed);
     let biome = self.climates.choose(&mut rng, climate);
+
+    println!("biome: {:?}", biome.name);
 
     biome.decorate(blocks, &mut rng, chunk_pos, &mut world);
   }
