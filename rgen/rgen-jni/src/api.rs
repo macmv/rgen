@@ -1,7 +1,7 @@
 //! Defines the JNI interface.
 
 use jni::{
-  objects::{JCharArray, JClass, JObject, JValue},
+  objects::{JCharArray, JClass, JValue},
   sys::{jint, jlong},
   JNIEnv,
 };
@@ -9,40 +9,27 @@ use jni::{
 use crate::{ctx::Context, ChunkContext};
 use rgen_base::{Chunk, ChunkPos};
 
+// TODO: Do we need to worry about obfuscated names anymore?
 #[cfg(not(feature = "obf-names"))]
-fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
+fn lookup_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
-
-  // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
 
   let block = env
     .call_static_method(
-      "net/minecraft/block/Block",
-      "getBlockFromName",
-      "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
+      "net/macmv/rgen/rust/RustGenerator",
+      "block_name_to_id",
+      "(Ljava/lang/String;)I",
       &[JValue::Object(&jname.into())],
     )
-    .unwrap()
-    .l()
-    .unwrap();
-
-  if block.is_null() {
-    return None;
-  }
-
-  let state = env
-    .call_method(&block, "getDefaultState", "()Lnet/minecraft/block/state/IBlockState;", &[])
-    .unwrap()
-    .l()
-    .unwrap();
-
-  let id = env
-    .call_method(block_ids, "get", "(Ljava/lang/Object;)I", &[JValue::Object(&state)])
     .unwrap()
     .i()
     .unwrap();
 
-  Some(id)
+  if block == 0 {
+    None
+  } else {
+    Some(block)
+  }
 }
 
 #[cfg(feature = "obf-names")]
@@ -86,8 +73,8 @@ fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i3
   }
 }
 
-fn lookup_id(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> i32 {
-  match lookup_id_opt(env, block_ids, name) {
+fn lookup_id(env: &mut JNIEnv, name: &str) -> i32 {
+  match lookup_id_opt(env, name) {
     Some(id) => id,
     None => panic!("block not found: {}", name),
   }
@@ -97,10 +84,9 @@ fn lookup_id(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> i32 {
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   mut env: JNIEnv,
   _class: JClass,
-  block_ids: JObject, // ObjectIntIdentityMap<IBlockState>
   seed: jlong,
 ) {
-  Context::init(|name| lookup_id(&mut env, &block_ids, name), seed);
+  Context::init(|name| lookup_id(&mut env, name), seed);
 }
 
 #[no_mangle]
