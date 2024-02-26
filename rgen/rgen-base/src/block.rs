@@ -30,6 +30,14 @@ macro_rules! blocks {
           $($id: Block::from_raw_id(lookup_id($name)),)*
         }
       }
+
+      /// Only public for testing.
+      pub fn test_blocks() -> Blocks {
+        let mut id = 0;
+        Blocks {
+          $($id: Block::from_raw_id({ id += 1; id }),)*
+        }
+      }
     }
   };
 }
@@ -37,4 +45,5 @@ macro_rules! blocks {
 blocks! {
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
+  grass => "minecraft:grass",
 }

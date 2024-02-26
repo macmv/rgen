@@ -1,5 +1,5 @@
 use biome::ClimateMap;
-use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{self, NoiseGenerator},
   Placer, Random, Rng, World,
@@ -9,6 +9,8 @@ mod biome;
 mod climate;
 
 pub struct BiomeBuilder {
+  pub top_block: Block,
+
   placers: Vec<Box<dyn Placer>>,
 }
 
@@ -20,7 +22,7 @@ pub enum PlacerStage {
 }
 
 impl BiomeBuilder {
-  pub fn new() -> Self { Self { placers: vec![] } }
+  pub fn new(blocks: &Blocks) -> Self { Self { top_block: blocks.grass, placers: vec![] } }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
     // TODO: Do we even need name? Its a pain to add them later, so I'm keeping them
@@ -69,8 +71,8 @@ pub struct Biomes {
 
 impl BiomeBuilder {
   fn build(blocks: &Blocks, build: impl FnOnce(&Blocks, &mut Self)) -> Self {
-    let mut builder = BiomeBuilder::new();
-    build(&blocks, &mut builder);
+    let mut builder = BiomeBuilder::new(blocks);
+    build(blocks, &mut builder);
     builder
   }
 }

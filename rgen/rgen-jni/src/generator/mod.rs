@@ -42,16 +42,14 @@ impl Generator {
 
 #[cfg(test)]
 mod tests {
-  use rgen_base::{Block, Blocks, ChunkPos};
+  use rgen_base::{Blocks, ChunkPos};
 
   use super::*;
-
-  fn blocks() -> Blocks { Blocks { stone: Block::from_raw_id(1), dirt: Block::from_raw_id(2) } }
 
   #[test]
   fn test_generator() {
     let mut chunk = Chunk::new();
-    let blocks = blocks();
+    let blocks = Blocks::test_blocks();
     let generator = Generator::new(&blocks, 1);
 
     let ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks };
