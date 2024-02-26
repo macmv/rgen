@@ -11,12 +11,12 @@ impl Random for Rng {
   // This is the wyhash generator. See
   // https://lemire.me/blog/2019/03/19/the-fastest-conventional-random-number-generator-that-can-pass-big-crush/
   fn next(&mut self) -> u64 {
-    self.seed += 0x60bee2bee120fc15;
+    self.seed = self.seed.wrapping_add(0x60bee2bee120fc15);
 
-    let t1 = (self.seed as u128) * 0xa3b195354a39b70d;
+    let t1 = (self.seed as u128).wrapping_mul(0xa3b195354a39b70d);
     let m1 = ((t1 >> 64) ^ t1) as u64;
 
-    let t2 = (m1 as u128) * 0x1b03738712fad5c9;
+    let t2 = (m1 as u128).wrapping_mul(0x1b03738712fad5c9);
     let m2 = ((t2 >> 64) ^ t2) as u64;
 
     m2
@@ -36,5 +36,19 @@ pub trait Random {
     let range = max - min;
     let rand = self.next() as i32;
     return min + (rand % range);
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn rng_basic() {
+    let mut rng = Rng::new(1234);
+
+    assert_eq!(rng.next(), 15262463794981090671);
+    assert_eq!(rng.next(), 12585898128285935653);
+    assert_eq!(rng.next(), 5637883660013241997);
   }
 }
