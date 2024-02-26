@@ -3,7 +3,7 @@ use crate::{
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
   ChunkContext,
 };
-use rgen_base::{Chunk, ChunkRelPos, Pos};
+use rgen_base::{Blocks, Chunk, ChunkRelPos, Pos};
 
 mod climate;
 
@@ -11,13 +11,17 @@ pub struct Generator {
   seed: u64,
 
   height_map: OctavedNoise<PerlinNoise>,
+
+  biomes: rgen_biome::Biomes,
 }
 
 impl Generator {
-  pub fn new(seed: u64) -> Generator {
+  pub fn new(blocks: &Blocks, seed: u64) -> Generator {
     Generator {
       seed,
       height_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+
+      biomes: rgen_biome::Biomes::new(blocks),
     }
   }
 
@@ -35,9 +39,7 @@ impl Generator {
       }
     }
 
-    let mut biome = rgen_biome::BiomeBuilder::new();
-    rgen_biome::biome::lush_swamp(ctx.blocks, &mut biome);
-    biome.generate(ctx.blocks, ctx.chunk_pos, chunk);
+    self.biomes.generate(ctx.blocks, ctx.chunk_pos, chunk);
 
     chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }
@@ -55,7 +57,7 @@ mod tests {
   fn test_generator() {
     let mut chunk = Chunk::new();
     let blocks = blocks();
-    let generator = Generator::new(1);
+    let generator = Generator::new(&blocks, 1);
 
     let ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks };
 

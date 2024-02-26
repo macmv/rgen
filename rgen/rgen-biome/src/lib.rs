@@ -1,4 +1,4 @@
-use rgen_base::{Blocks, ChunkPos, Pos};
+use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{Placer, Random, Rng, World};
 
 pub mod biome;
@@ -47,5 +47,17 @@ impl BiomeBuilder {
         placer.place(&mut world, &mut rng, pos);
       }
     }
+  }
+}
+
+pub struct Biomes {}
+
+impl Biomes {
+  pub fn new(blocks: &Blocks) -> Self { Biomes {} }
+
+  pub fn generate(&self, blocks: &Blocks, pos: ChunkPos, chunk: &mut Chunk) {
+    let mut biome = BiomeBuilder::new();
+    biome::lush_swamp(blocks, &mut biome);
+    biome.generate(blocks, pos, chunk);
   }
 }

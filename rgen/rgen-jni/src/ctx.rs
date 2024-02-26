@@ -13,8 +13,10 @@ static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
 
 impl Context {
   pub fn init(lookup_id: impl FnMut(&str) -> i32, seed: i64) {
-    let ctx =
-      Context { generator: Generator::new(seed as u64), blocks: Blocks::init(lookup_id) };
+    let blocks = Blocks::init(lookup_id);
+    let generator = Generator::new(&blocks, seed as u64);
+
+    let ctx = Context { generator, blocks };
 
     CONTEXT.write().unwrap().replace(ctx);
   }
