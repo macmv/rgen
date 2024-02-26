@@ -39,7 +39,7 @@ impl BiomeBuilder {
       for _ in 0..placer.amount_per_chunk() {
         let mut pos = chunk_pos.min_block_pos()
           + Pos::new(rng.rand_exclusive(0, 16), 255, rng.rand_exclusive(0, 16));
-        while pos.y > 0 && world.get(pos) != rgen_base::Block::AIR {
+        while pos.y > 0 && world.get(pos) == rgen_base::Block::AIR {
           pos.y -= 1;
         }
         println!("placing at {:?}", pos);
