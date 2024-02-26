@@ -42,12 +42,13 @@ impl BiomeBuilder {
     self.placers.push(placer);
   }
 
-  pub fn decorate(&self, _blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
+  pub fn decorate(&self, blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
     for placer in &self.placers {
       for _ in 0..placer.amount_per_chunk() {
-        let pos = world.top_block(
+        let pos = world.top_block_excluding(
           chunk_pos.min_block_pos()
             + Pos::new(rng.rand_exclusive(0, 16), 0, rng.rand_exclusive(0, 16)),
+          &[blocks.leaves],
         );
 
         placer.place(world, rng, pos);

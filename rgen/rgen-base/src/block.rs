@@ -1,6 +1,11 @@
 // TODO: If there's a static context set, Debug should print the block name.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Eq)]
 pub struct Block(pub(crate) u16);
+
+// FIXME: Need to cleanup the block state interactions so this isn't a thing.
+impl PartialEq for Block {
+  fn eq(&self, other: &Block) -> bool { self.0 >> 4 == other.0 >> 4 }
+}
 
 impl Block {
   // This is hardcoded to make my life easier. In reality it'll always be zero.

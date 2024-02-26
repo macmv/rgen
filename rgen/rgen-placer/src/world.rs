@@ -24,9 +24,16 @@ impl<'a> World<'a> {
     }
   }
 
-  pub fn top_block(&self, pos: Pos) -> Pos {
+  pub fn top_block(&self, pos: Pos) -> Pos { self.top_block_excluding(pos, &[]) }
+
+  /// Returns the highest block that is not air and not in the `exclude` list.
+  pub fn top_block_excluding(&self, pos: Pos, exclude: &[Block]) -> Pos {
     let mut y = 255;
-    while y > 0 && self.get(pos.with_y(y)) == Block::AIR {
+    while y > 0 {
+      let block = self.get(pos.with_y(y));
+      if block != Block::AIR && !exclude.contains(&block) {
+        break;
+      }
       y -= 1;
     }
     pos.with_y(y)
