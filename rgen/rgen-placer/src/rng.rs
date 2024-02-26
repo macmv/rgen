@@ -37,6 +37,16 @@ pub trait Random {
     let rand = self.next() as i32;
     return min + (rand % range);
   }
+
+  #[track_caller]
+  fn choose<'a, T>(&mut self, choices: &'a [T]) -> &'a T {
+    if choices.is_empty() {
+      panic!("Can't choose from an empty list");
+    }
+
+    let index = self.rand_exclusive(0, choices.len() as i32);
+    &choices[index as usize]
+  }
 }
 
 #[cfg(test)]

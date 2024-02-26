@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use climate::Climate;
 use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
-use rgen_placer::{Placer, Random, Rng, World};
+use rgen_placer::{
+  noise::{self, NoiseGenerator},
+  Placer, Random, Rng, World,
+};
 
 mod biome;
 mod climate;
@@ -35,9 +38,14 @@ impl BiomeBuilder {
     self.placers.push(placer);
   }
 
-  pub fn generate(&self, _blocks: &Blocks, chunk_pos: ChunkPos, chunk: &mut rgen_base::Chunk) {
+  pub fn generate(
+    &self,
+    _blocks: &Blocks,
+    rng: &mut Rng,
+    chunk_pos: ChunkPos,
+    chunk: &mut rgen_base::Chunk,
+  ) {
     let mut world = World::new(chunk_pos, chunk);
-    let mut rng = Rng::new(1234);
 
     for placer in &self.placers {
       for _ in 0..placer.amount_per_chunk() {
@@ -48,7 +56,7 @@ impl BiomeBuilder {
         }
         println!("placing at {:?}", pos);
 
-        placer.place(&mut world, &mut rng, pos);
+        placer.place(&mut world, rng, pos);
       }
     }
   }
@@ -56,20 +64,51 @@ impl BiomeBuilder {
 
 pub struct Biomes {
   climates: HashMap<Climate, Vec<BiomeBuilder>>,
+
+  temperature_map: noise::OctavedNoise<noise::PerlinNoise>,
+  rainfall_map:    noise::OctavedNoise<noise::PerlinNoise>,
+}
+
+impl BiomeBuilder {
+  fn build(blocks: &Blocks, build: impl FnOnce(&Blocks, &mut Self)) -> Self {
+    let mut builder = BiomeBuilder::new();
+    build(&blocks, &mut builder);
+    builder
+  }
 }
 
 impl Biomes {
   pub fn new(blocks: &Blocks) -> Self {
     let mut climates = HashMap::new();
 
-    climates.insert(Climate::Tundra, vec![]);
+    macro_rules! biome {
+      ($build:expr) => {
+        BiomeBuilder::build(blocks, $build)
+      };
+    }
 
-    Biomes { climates }
+    climates.insert(Climate::Tundra, vec![biome!(biome::lush_swamp)]);
+
+    Biomes {
+      climates,
+      temperature_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      rainfall_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+    }
   }
 
-  pub fn generate(&self, blocks: &Blocks, pos: ChunkPos, chunk: &mut Chunk) {
-    let mut biome = BiomeBuilder::new();
-    biome::lush_swamp(blocks, &mut biome);
-    biome.generate(blocks, pos, chunk);
+  pub fn generate(&self, blocks: &Blocks, chunk_pos: ChunkPos, chunk: &mut Chunk) {
+    let pos = chunk_pos.min_block_pos();
+
+    let climate = climate::from_temperature_and_rainfall(
+      self.temperature_map.generate(pos.x as f64, pos.z as f64, 1234),
+      self.rainfall_map.generate(pos.x as f64, pos.z as f64, 1234),
+    );
+    dbg!(&climate);
+
+    let mut rng = Rng::new(1234);
+
+    let biomes = self.climates.get(&climate).unwrap();
+    let biome = rng.choose(biomes);
+    biome.generate(blocks, &mut rng, chunk_pos, chunk);
   }
 }
