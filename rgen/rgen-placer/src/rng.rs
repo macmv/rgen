@@ -1,4 +1,5 @@
 // An insecure, fast random number generator.
+#[derive(Debug, Copy, Clone)]
 pub struct Rng {
   seed: u64,
 }

@@ -53,11 +53,11 @@ impl BiomeBuilder {
     self.placers.push(PlacerBuilder::new(placer));
   }
 
+  /// Decorates the given chunk. The `rng` passed in should only be seeded with
+  /// the world seed.
   pub fn decorate(&self, blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
-    let seeds = self.placers.iter().map(|_| rng.next()).collect::<Vec<_>>();
-
-    for (i, placer) in self.placers.iter().enumerate() {
-      let seed = seeds[i];
+    for placer in self.placers.iter() {
+      let seed = rng.next();
 
       const SCALE: f64 = 1.0 / 4.0;
 
@@ -71,9 +71,11 @@ impl BiomeBuilder {
           Pos::new((point.0 / SCALE) as i32, 0, (point.1 / SCALE) as i32),
           &[blocks.leaves],
         );
-        assert!(pos.in_chunk(chunk_pos));
 
-        placer.placer.place(world, rng, pos);
+        // This builds a unique seed for each placer. This gives the placer the same
+        // seed if it crosses chunk boundaries.
+        let seed = rng.next() ^ (pos.x as u64).wrapping_add(pos.z as u64) << 32;
+        placer.placer.place(world, &mut Rng::new(seed), pos);
       }
     }
   }
