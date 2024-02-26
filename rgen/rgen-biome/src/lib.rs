@@ -1,7 +1,8 @@
 use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{Placer, Random, Rng, World};
 
-pub mod biome;
+mod biome;
+mod climate;
 
 pub struct BiomeBuilder {
   placers: Vec<Box<dyn Placer>>,

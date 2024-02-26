@@ -1,11 +1,8 @@
 use crate::{
-  biome::BiomeGenerator,
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
   ChunkContext,
 };
 use rgen_base::{Blocks, Chunk, ChunkRelPos, Pos};
-
-mod climate;
 
 pub struct Generator {
   seed: u64,
