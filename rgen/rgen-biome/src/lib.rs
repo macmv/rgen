@@ -1,6 +1,7 @@
 use biome::ClimateMap;
 use rgen_base::{Biome, Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
+  grid::PointGrid,
   noise::{self, NoiseGenerator},
   Placer, Random, Rng, World,
 };
@@ -14,7 +15,16 @@ pub struct BiomeBuilder {
 
   pub top_block: Block,
 
-  placers: Vec<Box<dyn Placer>>,
+  placers: Vec<PlacerBuilder>,
+}
+
+struct PlacerBuilder {
+  placer: Box<dyn Placer>,
+  grid:   PointGrid,
+}
+
+impl PlacerBuilder {
+  fn new(placer: Box<dyn Placer>) -> Self { Self { placer, grid: PointGrid::new() } }
 }
 
 pub enum PlacerStage {
@@ -40,19 +50,30 @@ impl BiomeBuilder {
   // Don't monomorphise this.
   fn place0(&mut self, _stage: PlacerStage, placer: Box<dyn Placer>) {
     // TODO: Using the stage, insert this at the right spot.
-    self.placers.push(placer);
+    self.placers.push(PlacerBuilder::new(placer));
   }
 
   pub fn decorate(&self, blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
-    for placer in &self.placers {
-      for _ in 0..placer.amount_per_chunk() {
+    let seeds = self.placers.iter().map(|_| rng.next()).collect::<Vec<_>>();
+
+    for (i, placer) in self.placers.iter().enumerate() {
+      let seed = seeds[i];
+
+      const SCALE: f64 = 1.0 / 4.0;
+
+      let min_x = chunk_pos.min_block_pos().x as f64 * SCALE;
+      let min_y = chunk_pos.min_block_pos().z as f64 * SCALE;
+      let max_x = (chunk_pos.min_block_pos().x + 15) as f64 * SCALE;
+      let max_y = (chunk_pos.min_block_pos().z + 15) as f64 * SCALE;
+
+      for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
         let pos = world.top_block_excluding(
-          chunk_pos.min_block_pos()
-            + Pos::new(rng.rand_exclusive(0, 16), 0, rng.rand_exclusive(0, 16)),
+          Pos::new((point.0 / SCALE) as i32, 0, (point.1 / SCALE) as i32),
           &[blocks.leaves],
         );
+        assert!(pos.in_chunk(chunk_pos));
 
-        placer.place(world, rng, pos);
+        placer.placer.place(world, rng, pos);
       }
     }
   }
