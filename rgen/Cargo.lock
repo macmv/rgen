@@ -89,6 +89,9 @@ version = "0.1.0"
 [[package]]
 name = "rgen-biome"
 version = "0.1.0"
+dependencies = [
+ "rgen-base",
+]
 
 [[package]]
 name = "rgen-jni"
