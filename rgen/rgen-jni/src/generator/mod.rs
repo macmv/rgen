@@ -1,8 +1,6 @@
-use crate::{
-  noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
-  ChunkContext,
-};
+use crate::ChunkContext;
 use rgen_base::{Blocks, Chunk, ChunkRelPos, Pos};
+use rgen_placer::noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator};
 
 pub struct Generator {
   seed: u64,

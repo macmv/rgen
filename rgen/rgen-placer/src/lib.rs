@@ -1,3 +1,4 @@
+pub mod noise;
 pub mod placer;
 mod rng;
 mod world;
@@ -10,7 +11,7 @@ pub use world::World;
 ///
 /// Placers are chunk-agnostic, and they will be called multiple times for a
 /// single feature, so that a placer may build accross chunks easily.
-pub trait Placer {
+pub trait Placer: Send + Sync {
   /// The maximum radius, in blocks in the X-Z axis, that this placer will
   /// place. This is a square around the position passed to `place`.
   fn radius(&self) -> u8;
