@@ -39,8 +39,16 @@ pub fn from_temperature_and_rainfall(temperature: f64, rainfall: f64) -> Climate
   let temperature = temperature.clamp(0.0, 1.0);
   let rainfall = rainfall.clamp(0.0, 1.0);
 
-  let t = (temperature * 9.0) as usize;
-  let r = (rainfall * 12.0) as usize;
+  let mut t = (temperature * 9.0) as usize;
+  let mut r = (rainfall * 12.0) as usize;
+
+  // FIXME: THis should be exclusive on 1.
+  if t == 9 {
+    t -= 1;
+  }
+  if r == 12 {
+    r -= 1;
+  }
 
   CLIMATE_MAP[t][r]
 }

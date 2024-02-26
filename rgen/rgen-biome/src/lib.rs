@@ -79,14 +79,17 @@ impl Biomes {
   pub fn generate(&self, blocks: &Blocks, seed: u64, chunk_pos: ChunkPos, chunk: &mut Chunk) {
     let mut world = World::new(chunk_pos, chunk);
 
+    let temperature_seed = seed.wrapping_add(1);
+    let rainfall_seed = seed.wrapping_add(2);
+
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
         let pos = world.top_block(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
         let climate = climate::from_temperature_and_rainfall(
-          self.temperature_map.generate(pos.x as f64, pos.z as f64, seed),
-          self.rainfall_map.generate(pos.x as f64, pos.z as f64, seed),
+          (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
+          (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
         );
 
         let mut rng = Rng::new(seed);
@@ -99,8 +102,8 @@ impl Biomes {
     // FIXME: Need to decorate with all biomes in a chunk.
     let pos = chunk_pos.min_block_pos();
     let climate = climate::from_temperature_and_rainfall(
-      self.temperature_map.generate(pos.x as f64, pos.z as f64, seed),
-      self.rainfall_map.generate(pos.x as f64, pos.z as f64, seed),
+      (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
+      (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
     );
 
     // FIXME: How do we switch up biomes within a given climate?
