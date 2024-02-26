@@ -10,6 +10,7 @@ crate_type = ["cdylib"]
 
 [dependencies]
 rgen-base.workspace = true
+rgen-biome.workspace = true
 
 jni = "0.21.1"
 

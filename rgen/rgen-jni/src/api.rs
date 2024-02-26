@@ -120,6 +120,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
     let chunk_ctx =
       ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.blocks };
 
+    println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
     ctx.generator.generate(&chunk_ctx, &mut chunk);
   });
 

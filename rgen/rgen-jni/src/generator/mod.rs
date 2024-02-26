@@ -35,9 +35,9 @@ impl Generator {
       }
     }
 
-    let biome = crate::biome::Plains;
-
-    biome.generate(ctx, chunk);
+    let mut biome = rgen_biome::BiomeBuilder::new();
+    rgen_biome::biome::lush_swamp(ctx.blocks, &mut biome);
+    biome.generate(ctx.blocks, ctx.chunk_pos, chunk);
 
     chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }

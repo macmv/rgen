@@ -3,6 +3,10 @@ pub struct Rng {
   seed: u64,
 }
 
+impl Rng {
+  pub fn new(seed: u64) -> Rng { Rng { seed } }
+}
+
 impl Random for Rng {
   // This is the wyhash generator. See
   // https://lemire.me/blog/2019/03/19/the-fastest-conventional-random-number-generator-that-can-pass-big-crush/
@@ -26,5 +30,11 @@ pub trait Random {
     let range = max - min;
     let rand = self.next() as i32;
     return min + (rand % (range + 1));
+  }
+
+  fn rand_exclusive(&mut self, min: i32, max: i32) -> i32 {
+    let range = max - min;
+    let rand = self.next() as i32;
+    return min + (rand % range);
   }
 }

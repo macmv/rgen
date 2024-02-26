@@ -8,6 +8,8 @@ pub struct World<'a> {
 }
 
 impl<'a> World<'a> {
+  pub fn new(chunk_pos: ChunkPos, chunk: &'a mut Chunk) -> World<'a> { World { chunk_pos, chunk } }
+
   pub fn get(&self, pos: Pos) -> Block {
     if pos.in_chunk(self.chunk_pos) {
       self.chunk.get(pos.chunk_rel())

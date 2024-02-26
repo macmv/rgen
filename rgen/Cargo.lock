@@ -100,6 +100,7 @@ version = "0.1.0"
 dependencies = [
  "jni",
  "rgen-base",
+ "rgen-biome",
 ]
 
 [[package]]
