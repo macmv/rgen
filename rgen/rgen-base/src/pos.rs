@@ -72,6 +72,16 @@ impl Pos {
   pub fn chunk_rel(&self) -> ChunkRelPos {
     ChunkRelPos::new(((self.x % 16 + 16) % 16) as u8, self.y, ((self.z % 16 + 16) % 16) as u8)
   }
+
+  /// Returns the current position, with the Y set to the given value.
+  ///
+  /// ```
+  /// # use rgen_base::Pos;
+  /// let pos = Pos::new(3, 4, 5);
+  ///
+  /// assert_eq!(pos.with_y(6), Pos::new(3, 6, 5));
+  /// ```
+  pub fn with_y(&self, y: u8) -> Pos { Pos { x: self.x, y, z: self.z } }
 }
 
 /// The position of a chunk in the world.

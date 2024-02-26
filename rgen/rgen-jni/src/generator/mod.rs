@@ -34,7 +34,7 @@ impl Generator {
       }
     }
 
-    self.biomes.generate(ctx.blocks, ctx.chunk_pos, chunk);
+    self.biomes.generate(ctx.blocks, self.seed, ctx.chunk_pos, chunk);
 
     chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }

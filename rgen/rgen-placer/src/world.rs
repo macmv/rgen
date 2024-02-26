@@ -23,4 +23,12 @@ impl<'a> World<'a> {
       self.chunk.set(pos.chunk_rel(), block);
     }
   }
+
+  pub fn top_block(&self, pos: Pos) -> Pos {
+    let mut y = 255;
+    while y > 0 && self.get(pos.with_y(y)) == Block::AIR {
+      y -= 1;
+    }
+    pos.with_y(y)
+  }
 }

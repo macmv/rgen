@@ -38,25 +38,15 @@ impl BiomeBuilder {
     self.placers.push(placer);
   }
 
-  pub fn generate(
-    &self,
-    _blocks: &Blocks,
-    rng: &mut Rng,
-    chunk_pos: ChunkPos,
-    chunk: &mut rgen_base::Chunk,
-  ) {
-    let mut world = World::new(chunk_pos, chunk);
-
+  pub fn decorate(&self, _blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
     for placer in &self.placers {
       for _ in 0..placer.amount_per_chunk() {
-        let mut pos = chunk_pos.min_block_pos()
-          + Pos::new(rng.rand_exclusive(0, 16), 255, rng.rand_exclusive(0, 16));
-        while pos.y > 0 && world.get(pos) == rgen_base::Block::AIR {
-          pos.y -= 1;
-        }
-        println!("placing at {:?}", pos);
+        let pos = world.top_block(
+          chunk_pos.min_block_pos()
+            + Pos::new(rng.rand_exclusive(0, 16), 0, rng.rand_exclusive(0, 16)),
+        );
 
-        placer.place(&mut world, rng, pos);
+        placer.place(world, rng, pos);
       }
     }
   }
@@ -86,18 +76,37 @@ impl Biomes {
     }
   }
 
-  pub fn generate(&self, blocks: &Blocks, chunk_pos: ChunkPos, chunk: &mut Chunk) {
+  pub fn generate(&self, blocks: &Blocks, seed: u64, chunk_pos: ChunkPos, chunk: &mut Chunk) {
+    let mut world = World::new(chunk_pos, chunk);
+
+    // For each column in the chunk, fill in the top layers.
+    for x in 0..16 {
+      for z in 0..16 {
+        let pos = world.top_block(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+
+        let climate = climate::from_temperature_and_rainfall(
+          self.temperature_map.generate(pos.x as f64, pos.z as f64, seed),
+          self.rainfall_map.generate(pos.x as f64, pos.z as f64, seed),
+        );
+
+        let mut rng = Rng::new(seed);
+        let biome = self.climates.choose(&mut rng, climate);
+
+        world.set(pos, biome.top_block);
+      }
+    }
+
+    // FIXME: Need to decorate with all biomes in a chunk.
     let pos = chunk_pos.min_block_pos();
-
     let climate = climate::from_temperature_and_rainfall(
-      self.temperature_map.generate(pos.x as f64, pos.z as f64, 1234),
-      self.rainfall_map.generate(pos.x as f64, pos.z as f64, 1234),
+      self.temperature_map.generate(pos.x as f64, pos.z as f64, seed),
+      self.rainfall_map.generate(pos.x as f64, pos.z as f64, seed),
     );
-    dbg!(&climate);
 
-    let mut rng = Rng::new(1234);
-
+    // FIXME: How do we switch up biomes within a given climate?
+    let mut rng = Rng::new(seed);
     let biome = self.climates.choose(&mut rng, climate);
-    biome.generate(blocks, &mut rng, chunk_pos, chunk);
+
+    biome.decorate(blocks, &mut rng, chunk_pos, &mut world);
   }
 }
