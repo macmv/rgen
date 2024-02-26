@@ -1,3 +1,4 @@
+pub mod placer;
 mod world;
 
 use rgen_base::Pos;

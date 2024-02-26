@@ -8,9 +8,19 @@ pub struct World<'a> {
 }
 
 impl<'a> World<'a> {
+  pub fn get(&self, pos: Pos) -> Block {
+    if pos.in_chunk(self.chunk_pos) {
+      self.chunk.get(pos.chunk_rel())
+    } else {
+      Block::AIR
+    }
+  }
+
   pub fn set(&mut self, pos: Pos, block: Block) {
     if pos.in_chunk(self.chunk_pos) {
       self.chunk.set(pos.chunk_rel(), block);
     }
   }
+
+  pub fn rand_inclusive(&self, min: i32, max: i32) -> i32 { 0 }
 }
