@@ -48,4 +48,6 @@ blocks! {
   grass => "minecraft:grass",
   snow => "minecraft:snow",
   gravel => "minecraft:gravel",
+  log => "minecraft:log",
+  leaves => "minecraft:leaves",
 }

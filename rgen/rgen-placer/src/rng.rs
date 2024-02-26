@@ -26,15 +26,21 @@ impl Random for Rng {
 pub trait Random {
   fn next(&mut self) -> u64;
 
+  #[track_caller]
   fn rand_inclusive(&mut self, min: i32, max: i32) -> i32 {
+    assert!(min <= max, "min must be less than or equal to max");
+
     let range = max - min;
-    let rand = self.next() as i32;
+    let rand = (self.next() & 0x7fffffff) as i32;
     return min + (rand % (range + 1));
   }
 
+  #[track_caller]
   fn rand_exclusive(&mut self, min: i32, max: i32) -> i32 {
+    assert!(min < max, "min must be less than max");
+
     let range = max - min;
-    let rand = self.next() as i32;
+    let rand = (self.next() & 0x7fffffff) as i32;
     return min + (rand % range);
   }
 

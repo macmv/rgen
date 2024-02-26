@@ -106,6 +106,7 @@ impl ChunkPos {
 impl Add for Pos {
   type Output = Pos;
 
+  #[track_caller]
   fn add(self, other: Pos) -> Pos { Pos::new(self.x + other.x, self.y + other.y, self.z + other.z) }
 }
 
