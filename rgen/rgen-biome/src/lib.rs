@@ -9,7 +9,8 @@ mod biome;
 mod climate;
 
 pub struct BiomeBuilder {
-  pub name: &'static str,
+  pub name:   &'static str,
+  pub raw_id: u8,
 
   pub top_block: Block,
 
@@ -24,8 +25,8 @@ pub enum PlacerStage {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, blocks: &Blocks) -> Self {
-    Self { name, top_block: blocks.grass, placers: vec![] }
+  pub fn new(name: &'static str, biome: rgen_base::Biome, blocks: &Blocks) -> Self {
+    Self { name, raw_id: biome.raw_id(), top_block: blocks.grass, placers: vec![] }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
@@ -65,17 +66,22 @@ pub struct Biomes {
 }
 
 impl BiomeBuilder {
-  fn build(name: &'static str, blocks: &Blocks, build: impl FnOnce(&Blocks, &mut Self)) -> Self {
-    let mut builder = BiomeBuilder::new(name, blocks);
+  fn build(
+    name: &'static str,
+    blocks: &Blocks,
+    biomes: &rgen_base::Biomes,
+    build: impl FnOnce(&Blocks, &mut Self),
+  ) -> Self {
+    let mut builder = BiomeBuilder::new(name, biomes.savanna, blocks);
     build(blocks, &mut builder);
     builder
   }
 }
 
 impl Biomes {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     Biomes {
-      climates:        ClimateMap::new(blocks),
+      climates:        ClimateMap::new(blocks, biome_ids),
       temperature_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       rainfall_map:    noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
     }
@@ -118,5 +124,27 @@ impl Biomes {
     println!("biome: {:?}", biome.name);
 
     biome.decorate(blocks, &mut rng, chunk_pos, &mut world);
+  }
+
+  pub fn generate_ids(&self, seed: u64, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
+    let temperature_seed = seed.wrapping_add(1);
+    let rainfall_seed = seed.wrapping_add(2);
+
+    for x in 0..16 {
+      for z in 0..16 {
+        let i = (x * 16 + z) as usize;
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+
+        let climate = climate::from_temperature_and_rainfall(
+          (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
+          (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
+        );
+
+        let mut rng = Rng::new(seed);
+        let biome = self.climates.choose(&mut rng, climate);
+
+        biomes[i] = biome.raw_id;
+      }
+    }
   }
 }

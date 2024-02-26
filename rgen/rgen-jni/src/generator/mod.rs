@@ -11,12 +11,12 @@ pub struct Generator {
 }
 
 impl Generator {
-  pub fn new(blocks: &Blocks, seed: u64) -> Generator {
+  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> Generator {
     Generator {
       seed,
       height_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
-      biomes: rgen_biome::Biomes::new(blocks),
+      biomes: rgen_biome::Biomes::new(blocks, biome_ids),
     }
   }
 
@@ -38,11 +38,15 @@ impl Generator {
 
     chunk.set(ChunkRelPos::new(0, 6, 0), ctx.blocks.dirt);
   }
+
+  pub fn generate_biomes(&self, ctx: &ChunkContext, biomes: &mut [u8; 256]) {
+    self.biomes.generate_ids(self.seed, ctx.chunk_pos, biomes);
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use rgen_base::{Blocks, ChunkPos};
+  use rgen_base::{Biomes, Blocks, ChunkPos};
 
   use super::*;
 
@@ -50,7 +54,8 @@ mod tests {
   fn test_generator() {
     let mut chunk = Chunk::new();
     let blocks = Blocks::test_blocks();
-    let generator = Generator::new(&blocks, 1);
+    let biomes = Biomes::test_blocks();
+    let generator = Generator::new(&blocks, &biomes, 1);
 
     let ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks };
 

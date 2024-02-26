@@ -8,6 +8,7 @@ import net.minecraftforge.registries.GameData;
 public class RustGenerator {
   private static native void init_generator(long seed);
   private static native void build_chunk(char[] data, int x, int z);
+  private static native void build_biomes(byte[] data, int x, int z);
 
   // Helpers for the rust code.
 
@@ -39,5 +40,8 @@ public class RustGenerator {
 
   public static void make_chunk(char[] data, int x, int z) {
     build_chunk(data, x, z);
+  }
+  public static void make_biomes(byte[] biomes, int x, int z) {
+    build_biomes(biomes, x, z);
   }
 }

@@ -23,12 +23,12 @@ pub struct ClimateMap {
 }
 
 impl ClimateMap {
-  pub fn new(blocks: &Blocks) -> ClimateMap {
+  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> ClimateMap {
     let mut biomes = HashMap::new();
 
     macro_rules! biome {
       ($name:ident) => {
-        BiomeBuilder::build(stringify!($name), blocks, $name::$name)
+        BiomeBuilder::build(stringify!($name), blocks, biome_ids, $name::$name)
       };
     }
 

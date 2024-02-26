@@ -1,7 +1,7 @@
 //! Defines the JNI interface.
 
 use jni::{
-  objects::{JCharArray, JClass, JValue},
+  objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jint, jlong},
   JNIEnv,
 };
@@ -141,4 +141,30 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   });
 
   env.set_char_array_region(data, 0, chunk.data()).unwrap();
+}
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
+  env: JNIEnv,
+  _class: JClass,
+  biomes: JByteArray,
+  chunk_x: jint,
+  chunk_z: jint,
+) {
+  let len = env.get_array_length(&biomes).unwrap();
+  assert_eq!(len, 256, "biomes array must be 256 elements long");
+
+  let mut biome_out = [0; 256];
+
+  Context::run(|ctx| {
+    let chunk_ctx =
+      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.blocks };
+
+    println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
+    ctx.generator.generate_biomes(&chunk_ctx, &mut biome_out);
+  });
+
+  let biome_i8s = unsafe { &*(&biome_out as *const [u8] as *const [i8]) };
+
+  env.set_byte_array_region(biomes, 0, &biome_i8s).unwrap();
 }

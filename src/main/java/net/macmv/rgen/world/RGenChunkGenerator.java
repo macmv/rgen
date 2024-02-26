@@ -30,12 +30,8 @@ public class RGenChunkGenerator implements IChunkGenerator {
     build_rust_chunk(primer, x, z);
 
     Chunk chunk = new Chunk(this.world, primer, x, z);
-    Biome[] biomes = this.world.getBiomeProvider().getBiomes(null, x * 16, z * 16, 16, 16);
 
-    byte[] bytes = chunk.getBiomeArray();
-    for (int i = 0; i < bytes.length; ++i) {
-      bytes[i] = (byte) Biome.getIdForBiome(biomes[i]);
-    }
+    RustGenerator.make_biomes(chunk.getBiomeArray(), x, z);
 
     chunk.generateSkylightMap();
     return chunk;

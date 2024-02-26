@@ -14,7 +14,7 @@ static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
 
 impl Context {
   pub fn init(blocks: Blocks, biomes: Biomes, seed: i64) {
-    let generator = Generator::new(&blocks, seed as u64);
+    let generator = Generator::new(&blocks, &biomes, seed as u64);
 
     let ctx = Context { generator, blocks, biomes };
 
