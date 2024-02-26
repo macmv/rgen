@@ -4,6 +4,7 @@ use std::ops::Add;
 ///
 /// The x and z coordinates are in the range 0..16, and the y coordinate is in
 /// the range 0..256.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkRelPos {
   x: u8,
   y: u8,
@@ -26,6 +27,7 @@ impl ChunkRelPos {
 ///
 /// The X and Z coordinates are unbounded, and the Y coordinate is in the range
 /// 0..256.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Pos {
   pub x: i32,
   pub y: u8,
@@ -38,12 +40,44 @@ impl Pos {
   pub fn x(&self) -> i32 { self.x }
   pub fn y(&self) -> u8 { self.y }
   pub fn z(&self) -> i32 { self.z }
+
+  /// Returns `true` if the position is in the given chunk position.
+  ///
+  /// ```
+  /// # use rgen_base::{Pos, ChunkPos};
+  /// let pos = Pos::new(13, 0, 19);
+  ///
+  /// assert!(pos.in_chunk(ChunkPos::new(0, 1)));
+  /// assert!(!pos.in_chunk(ChunkPos::new(0, 0)));
+  /// assert!(!pos.in_chunk(ChunkPos::new(0, 2)));
+  /// ```
+  pub fn in_chunk(&self, chunk_pos: ChunkPos) -> bool {
+    self.x >= chunk_pos.x * 16
+      && self.x < (chunk_pos.x + 1) * 16
+      && self.z >= chunk_pos.z * 16
+      && self.z < (chunk_pos.z + 1) * 16
+  }
+
+  /// Returns the position of this block in the chunk it is in.
+  ///
+  /// ```
+  /// # use rgen_base::Pos;
+  /// let pos = Pos::new(13, 0, 19);
+  /// let chunk_pos = pos.chunk_rel();
+  ///
+  /// assert_eq!(chunk_pos.x(), 13);
+  /// assert_eq!(chunk_pos.z(), 3);
+  /// ```
+  pub fn chunk_rel(&self) -> ChunkRelPos {
+    ChunkRelPos::new((self.x % 16) as u8, self.y, (self.z % 16) as u8)
+  }
 }
 
 /// The position of a chunk in the world.
 ///
 /// The X and Z coordinates are unbounded, and they are 16 times smaller than a
 /// block position. To get block position of this chunk, use `min_block_pos`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkPos {
   pub x: i32,
   pub z: i32,
