@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use climate::Climate;
 use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{Placer, Random, Rng, World};
 
@@ -51,10 +54,18 @@ impl BiomeBuilder {
   }
 }
 
-pub struct Biomes {}
+pub struct Biomes {
+  climates: HashMap<Climate, Vec<BiomeBuilder>>,
+}
 
 impl Biomes {
-  pub fn new(blocks: &Blocks) -> Self { Biomes {} }
+  pub fn new(blocks: &Blocks) -> Self {
+    let mut climates = HashMap::new();
+
+    climates.insert(Climate::Tundra, vec![]);
+
+    Biomes { climates }
+  }
 
   pub fn generate(&self, blocks: &Blocks, pos: ChunkPos, chunk: &mut Chunk) {
     let mut biome = BiomeBuilder::new();
