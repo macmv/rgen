@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use climate::Climate;
+use biome::ClimateMap;
 use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{self, NoiseGenerator},
@@ -63,7 +61,7 @@ impl BiomeBuilder {
 }
 
 pub struct Biomes {
-  climates: HashMap<Climate, Vec<BiomeBuilder>>,
+  climates: ClimateMap,
 
   temperature_map: noise::OctavedNoise<noise::PerlinNoise>,
   rainfall_map:    noise::OctavedNoise<noise::PerlinNoise>,
@@ -79,20 +77,10 @@ impl BiomeBuilder {
 
 impl Biomes {
   pub fn new(blocks: &Blocks) -> Self {
-    let mut climates = HashMap::new();
-
-    macro_rules! biome {
-      ($build:expr) => {
-        BiomeBuilder::build(blocks, $build)
-      };
-    }
-
-    climates.insert(Climate::Tundra, vec![biome!(biome::lush_swamp)]);
-
     Biomes {
-      climates,
+      climates:        ClimateMap::new(blocks),
       temperature_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
-      rainfall_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      rainfall_map:    noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
     }
   }
 
@@ -107,8 +95,7 @@ impl Biomes {
 
     let mut rng = Rng::new(1234);
 
-    let biomes = self.climates.get(&climate).unwrap();
-    let biome = rng.choose(biomes);
+    let biome = self.climates.choose(&mut rng, climate);
     biome.generate(blocks, &mut rng, chunk_pos, chunk);
   }
 }
