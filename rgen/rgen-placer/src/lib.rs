@@ -1,7 +1,9 @@
 pub mod placer;
+mod rng;
 mod world;
 
 use rgen_base::Pos;
+pub use rng::Rng;
 pub use world::World;
 
 /// A Placer places a set of blocks at a position in the world.
@@ -14,5 +16,5 @@ pub trait Placer {
   fn radius(&self) -> u8;
 
   /// Places the blocks in the world at the given position.
-  fn place(&self, world: &mut World, pos: Pos);
+  fn place(&self, world: &mut World, rng: &mut Rng, pos: Pos);
 }

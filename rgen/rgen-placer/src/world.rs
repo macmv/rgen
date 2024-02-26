@@ -21,6 +21,4 @@ impl<'a> World<'a> {
       self.chunk.set(pos.chunk_rel(), block);
     }
   }
-
-  pub fn rand_inclusive(&self, min: i32, max: i32) -> i32 { 0 }
 }
