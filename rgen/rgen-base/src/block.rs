@@ -1,4 +1,5 @@
-#[derive(Clone, Copy, PartialEq, Eq)]
+// TODO: If there's a static context set, Debug should print the block name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Block(pub(crate) u16);
 
 impl Block {
