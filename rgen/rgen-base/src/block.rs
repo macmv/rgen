@@ -1,7 +1,10 @@
-#[derive(Clone, Copy)]
-pub struct Block(u16);
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct Block(pub(crate) u16);
 
 impl Block {
+  // This is hardcoded to make my life easier. In reality it'll always be zero.
+  pub const AIR: Block = Block(0);
+
   pub fn from_raw_id(id: i32) -> Block {
     assert!(id >= 0 && id < 4096);
     Block(id as u16)
