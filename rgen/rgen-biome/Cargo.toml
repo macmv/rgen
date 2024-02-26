@@ -1,0 +1,4 @@
+[package]
+name = "rgen-biome"
+version = "0.1.0"
+edition = "2021"

@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "rgen-base",
+  "rgen-placer",
+  "rgen-biome",
+  "rgen-jni",
+]

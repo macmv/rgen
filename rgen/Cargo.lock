@@ -83,11 +83,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "rgen"
+name = "rgen-base"
+version = "0.1.0"
+
+[[package]]
+name = "rgen-biome"
+version = "0.1.0"
+
+[[package]]
+name = "rgen-jni"
 version = "0.1.0"
 dependencies = [
  "jni",
 ]
+
+[[package]]
+name = "rgen-placer"
+version = "0.1.0"
 
 [[package]]
 name = "same-file"
