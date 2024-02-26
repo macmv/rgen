@@ -1,4 +1,5 @@
-use crate::{chunk::Chunk, pos::ChunkRelPos, ChunkContext};
+use crate::ChunkContext;
+use rgen_base::{Chunk, ChunkRelPos};
 
 pub trait BiomeGenerator {
   fn generate(&self, ctx: &ChunkContext, chunk: &mut Chunk);

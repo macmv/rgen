@@ -9,6 +9,8 @@ edition = "2021"
 crate_type = ["cdylib"]
 
 [dependencies]
+rgen-base.workspace = true
+
 jni = "0.21.1"
 
 [features]

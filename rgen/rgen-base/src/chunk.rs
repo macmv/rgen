@@ -1,4 +1,4 @@
-use crate::{ctx::Block, pos::ChunkRelPos};
+use crate::{Block, ChunkRelPos};
 
 // Mirrors a ChunkPrimer in minecraft.
 pub struct Chunk {

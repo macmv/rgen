@@ -1,7 +1,13 @@
 [workspace]
+resolver = "2"
 members = [
   "rgen-base",
   "rgen-placer",
   "rgen-biome",
   "rgen-jni",
 ]
+
+[workspace.dependencies]
+rgen-base = { path = "rgen-base" }
+rgen-placer = { path = "rgen-placer" }
+rgen-biome = { path = "rgen-biome" }

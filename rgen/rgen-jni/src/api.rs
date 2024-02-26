@@ -6,7 +6,8 @@ use jni::{
   JNIEnv,
 };
 
-use crate::{chunk::Chunk, ctx::Context, pos::ChunkPos, ChunkContext};
+use crate::{ctx::Context, ChunkContext};
+use rgen_base::{Chunk, ChunkPos};
 
 #[cfg(not(feature = "obf-names"))]
 fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {

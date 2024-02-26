@@ -1,10 +1,9 @@
 use crate::{
   biome::BiomeGenerator,
-  chunk::Chunk,
   noise::{octaved::OctavedNoise, perlin::PerlinNoise, NoiseGenerator},
-  pos::{ChunkRelPos, Pos},
   ChunkContext,
 };
+use rgen_base::{Chunk, ChunkRelPos, Pos};
 
 mod climate;
 
@@ -46,10 +45,7 @@ impl Generator {
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    ctx::{Block, Blocks},
-    pos::ChunkPos,
-  };
+  use rgen_base::{Block, Blocks, ChunkPos};
 
   use super::*;
 
