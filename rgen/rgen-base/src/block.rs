@@ -46,4 +46,6 @@ blocks! {
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
   grass => "minecraft:grass",
+  snow => "minecraft:snow",
+  gravel => "minecraft:gravel",
 }
