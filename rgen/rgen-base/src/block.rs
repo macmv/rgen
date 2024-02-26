@@ -71,5 +71,11 @@ big! { Blocks: Block
 }
 
 big! { Biomes: Biome
+  cold_taiga => "minecraft:taiga_cold",
+  extreme_hills => "minecraft:extreme_hills",
+  ice_plains => "minecraft:ice_flats",
+  plains => "minecraft:plains",
+  roofed_forest => "minecraft:roofed_forest",
   savanna => "minecraft:savanna",
+  swamp => "minecraft:swampland",
 }

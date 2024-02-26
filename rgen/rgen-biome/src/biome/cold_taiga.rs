@@ -1,4 +1,7 @@
 use crate::BiomeBuilder;
-use rgen_base::Blocks;
+use rgen_base::{Biomes, Blocks};
 
-pub fn cold_taiga(blocks: &Blocks, gen: &mut BiomeBuilder) { gen.top_block = blocks.snow; }
+pub fn cold_taiga(blocks: &Blocks, biomes: &Biomes, gen: &mut BiomeBuilder) {
+  gen.id = biomes.cold_taiga;
+  gen.top_block = blocks.snow;
+}

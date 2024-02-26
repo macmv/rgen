@@ -1,5 +1,5 @@
 use biome::ClimateMap;
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biome, Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{self, NoiseGenerator},
   Placer, Random, Rng, World,
@@ -9,8 +9,8 @@ mod biome;
 mod climate;
 
 pub struct BiomeBuilder {
-  pub name:   &'static str,
-  pub raw_id: u8,
+  pub name: &'static str,
+  pub id:   rgen_base::Biome,
 
   pub top_block: Block,
 
@@ -25,8 +25,8 @@ pub enum PlacerStage {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, biome: rgen_base::Biome, blocks: &Blocks) -> Self {
-    Self { name, raw_id: biome.raw_id(), top_block: blocks.grass, placers: vec![] }
+  pub fn new(name: &'static str, blocks: &Blocks) -> Self {
+    Self { name, id: Biome::VOID, top_block: blocks.grass, placers: vec![] }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
@@ -70,10 +70,10 @@ impl BiomeBuilder {
     name: &'static str,
     blocks: &Blocks,
     biomes: &rgen_base::Biomes,
-    build: impl FnOnce(&Blocks, &mut Self),
+    build: impl FnOnce(&Blocks, &rgen_base::Biomes, &mut Self),
   ) -> Self {
-    let mut builder = BiomeBuilder::new(name, biomes.savanna, blocks);
-    build(blocks, &mut builder);
+    let mut builder = BiomeBuilder::new(name, blocks);
+    build(blocks, biomes, &mut builder);
     builder
   }
 }
@@ -143,7 +143,7 @@ impl Biomes {
         let mut rng = Rng::new(seed);
         let biome = self.climates.choose(&mut rng, climate);
 
-        biomes[i] = biome.raw_id;
+        biomes[i] = biome.id.raw_id();
       }
     }
   }
