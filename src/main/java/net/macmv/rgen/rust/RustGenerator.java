@@ -9,7 +9,7 @@ public class RustGenerator {
   private static native void build_chunk(char[] data, int x, int z);
 
   static {
-    System.loadLibrary("rgen");
+    System.loadLibrary("rgen_jni");
   }
 
   public static void init(long seed) {
