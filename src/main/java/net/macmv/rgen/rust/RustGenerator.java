@@ -1,6 +1,8 @@
 package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.registries.GameData;
 
 public class RustGenerator {
@@ -16,6 +18,15 @@ public class RustGenerator {
     }
 
     return GameData.getBlockStateIDMap().get(block.getDefaultState());
+  }
+
+  private static int biome_name_to_id(String name) {
+    Biome biome = Biome.REGISTRY.getObject(new ResourceLocation(name));
+    if (biome == null) {
+      return 0;
+    }
+
+    return Biome.getIdForBiome(biome);
   }
 
   static {

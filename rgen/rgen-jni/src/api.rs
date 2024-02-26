@@ -7,7 +7,7 @@ use jni::{
 };
 
 use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Chunk, ChunkPos};
+use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
 
 // TODO: Do we need to worry about obfuscated names anymore?
 #[cfg(not(feature = "obf-names"))]
@@ -80,13 +80,43 @@ fn lookup_id(env: &mut JNIEnv, name: &str) -> i32 {
   }
 }
 
+fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
+  let jname = env.new_string(name).unwrap();
+
+  let biome = env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "biome_name_to_id",
+      "(Ljava/lang/String;)I",
+      &[JValue::Object(&jname.into())],
+    )
+    .unwrap()
+    .i()
+    .unwrap();
+
+  if biome == 0 {
+    None
+  } else {
+    Some(biome)
+  }
+}
+
+fn lookup_biome_id(env: &mut JNIEnv, name: &str) -> i32 {
+  match lookup_biome_id_opt(env, name) {
+    Some(id) => id,
+    None => panic!("biome not found: {}", name),
+  }
+}
+
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   mut env: JNIEnv,
   _class: JClass,
   seed: jlong,
 ) {
-  Context::init(|name| lookup_id(&mut env, name), seed);
+  let blocks = Blocks::init(|name| lookup_id(&mut env, name));
+  let biomes = Biomes::init(|name| lookup_biome_id(&mut env, name));
+  Context::init(blocks, biomes, seed);
 }
 
 #[no_mangle]

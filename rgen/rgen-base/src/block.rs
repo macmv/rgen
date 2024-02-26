@@ -20,34 +20,47 @@ impl Block {
   pub fn raw_id(&self) -> u16 { self.0 }
 }
 
-macro_rules! blocks {
-  ($($id:ident => $name:expr,)*) => {
-    pub struct Blocks {
-      $(pub $id: Block),*
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Biome(pub(crate) u8);
+
+impl Biome {
+  // This is hardcoded to make my life easier. In reality it'll always be zero.
+  pub const VOID: Biome = Biome(127);
+
+  pub fn from_raw_id(id: i32) -> Biome {
+    assert!(id >= 0 && id < 256);
+    Biome(id as u8)
+  }
+
+  /// The biome ID.
+  pub fn raw_id(&self) -> u8 { self.0 }
+}
+
+macro_rules! big {
+  ($struct_name:ident: $item:ident $($id:ident => $name:expr,)*) => {
+    pub struct $struct_name {
+      $(pub $id: $item),*
     }
 
-    impl Blocks {
-      pub fn init<F>(mut lookup_id: F) -> Blocks
-      where
-        F: FnMut(&str) -> i32,
-      {
-        Blocks {
-          $($id: Block::from_raw_id(lookup_id($name)),)*
+    impl $struct_name {
+      pub fn init(mut lookup_id: impl FnMut(&str) -> i32) -> $struct_name {
+        $struct_name {
+          $($id: $item::from_raw_id(lookup_id($name)),)*
         }
       }
 
       /// Only public for testing.
-      pub fn test_blocks() -> Blocks {
+      pub fn test_blocks() -> $struct_name {
         let mut id = 0;
-        Blocks {
-          $($id: Block::from_raw_id({ id += 1; id }),)*
+        $struct_name {
+          $($id: $item::from_raw_id({ id += 1; id }),)*
         }
       }
     }
   };
 }
 
-blocks! {
+big! { Blocks: Block
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
   grass => "minecraft:grass",
@@ -55,4 +68,8 @@ blocks! {
   gravel => "minecraft:gravel",
   log => "minecraft:log",
   leaves => "minecraft:leaves",
+}
+
+big! { Biomes: Biome
+  savanna => "minecraft:savanna",
 }
