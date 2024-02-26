@@ -12,6 +12,7 @@ pub struct ChunkRelPos {
 }
 
 impl ChunkRelPos {
+  #[track_caller]
   pub fn new(x: u8, y: u8, z: u8) -> ChunkRelPos {
     assert!(x < 16);
     assert!(z < 16);
@@ -69,7 +70,7 @@ impl Pos {
   /// assert_eq!(chunk_pos.z(), 3);
   /// ```
   pub fn chunk_rel(&self) -> ChunkRelPos {
-    ChunkRelPos::new((self.x % 16) as u8, self.y, (self.z % 16) as u8)
+    ChunkRelPos::new(((self.x % 16 + 16) % 16) as u8, self.y, ((self.z % 16 + 16) % 16) as u8)
   }
 }
 
@@ -96,4 +97,25 @@ impl Add for Pos {
   type Output = Pos;
 
   fn add(self, other: Pos) -> Pos { Pos::new(self.x + other.x, self.y + other.y, self.z + other.z) }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn chunk_rel_pos() {
+    let pos = Pos::new(13, 0, 19).chunk_rel();
+
+    assert_eq!(pos.x(), 13);
+    assert_eq!(pos.y(), 0);
+    assert_eq!(pos.z(), 3);
+
+    // Make sure negatives work
+    let pos = Pos::new(-1, 0, -13).chunk_rel();
+
+    assert_eq!(pos.x(), 15);
+    assert_eq!(pos.y(), 0);
+    assert_eq!(pos.z(), 3);
+  }
 }
