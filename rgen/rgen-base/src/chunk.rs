@@ -33,5 +33,7 @@ impl Chunk {
     self.data[pos_to_index(pos)] = block.raw_id() | (block_data as u16);
   }
 
+  pub fn get(&self, pos: ChunkRelPos) -> Block { Block(self.data[pos_to_index(pos)] & 0xfff0) }
+
   pub fn data(&self) -> &[u16] { &self.data }
 }
