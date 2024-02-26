@@ -1,1 +1,3 @@
-pub mod splatter;
+mod splatter;
+
+pub use splatter::Splatter;

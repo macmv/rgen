@@ -1,12 +1,11 @@
-use crate::BiomeBuilder;
+use crate::{BiomeBuilder, PlacerStage};
 use rgen_base::Blocks;
+use rgen_placer::placer;
 
 pub fn lush_swamp(blocks: &Blocks, gen: &mut BiomeBuilder) {
-  /*
   gen.place(
     "mud",
-    PlacerStage::SandPass2,
-    WatersidePlacer { amount_per_chunk: 0.5, max_radius: 8, block: blocks.dirt },
+    PlacerStage::Sand2,
+    placer::Splatter { attempts: 64, place: blocks.dirt, replace: blocks.stone },
   );
-  */
 }

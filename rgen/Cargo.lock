@@ -91,6 +91,7 @@ name = "rgen-biome"
 version = "0.1.0"
 dependencies = [
  "rgen-base",
+ "rgen-placer",
 ]
 
 [[package]]
