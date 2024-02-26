@@ -24,7 +24,20 @@ impl ClimateMap {
       };
     }
 
+    biomes.insert(Climate::IceCap, vec![biome!(lush_swamp)]);
     biomes.insert(Climate::Tundra, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::SubArctic, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::ColdSwamp, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::DryTemperate, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::CoolTemperate, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::WetTemperate, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::Savanna, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::WarmTemperate, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::HotDesert, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::Mediteranean, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::HotSwamp, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::HighDesert, vec![biome!(lush_swamp)]);
+    biomes.insert(Climate::Tropical, vec![biome!(lush_swamp)]);
 
     ClimateMap { biomes }
   }
