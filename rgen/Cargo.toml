@@ -6,6 +6,7 @@ members = [
   "rgen-biome",
   "rgen-world",
   "rgen-jni",
+  "rgen-viewer",
 ]
 
 [workspace.dependencies]
