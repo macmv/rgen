@@ -41,7 +41,7 @@ impl Default for StagedChunk {
 }
 
 /// The size in chunks of the partial world cache.
-const CACHE_SIZE: usize = 128;
+const CACHE_SIZE: usize = 512;
 
 /// The maximum radius of a single decoration, in chunks.
 const RADIUS: i32 = 1;
