@@ -1,7 +1,7 @@
 use crate::ChunkContext;
 use rgen_base::{Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::noise::{NoiseGenerator, OctavedNoise, PerlinNoise};
-use rgen_world::{Context, Generator};
+use rgen_world::{Context, Generator, PartialWorld};
 
 pub struct TerrainGenerator {
   seed: u64,
@@ -25,13 +25,14 @@ impl Generator for TerrainGenerator {
         }
       }
     }
+
+    self.biomes.generate_top_layer(&ctx.blocks, self.seed, chunk, chunk_pos);
   }
 
-  fn decorate(&self, ctx: &Context, world: &mut rgen_world::PartialWorld, chunk_pos: ChunkPos) {
-    self.biomes.generate(&ctx.blocks, self.seed, chunk_pos, world.chunk_mut(chunk_pos));
+  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
 
-    // world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0),
-    // ctx.blocks.dirt);
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt);
   }
 }
 

@@ -2,11 +2,10 @@ pub mod grid;
 pub mod noise;
 pub mod placer;
 mod rng;
-mod world;
 
 use rgen_base::Pos;
+use rgen_world::PartialWorld;
 pub use rng::{Random, Rng};
-pub use world::World;
 
 /// A Placer places a set of blocks at a position in the world.
 ///
@@ -22,5 +21,5 @@ pub trait Placer: Send + Sync {
   fn amount_per_chunk(&self) -> u32 { 1 }
 
   /// Places the blocks in the world at the given position.
-  fn place(&self, world: &mut World, rng: &mut Rng, pos: Pos);
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos);
 }

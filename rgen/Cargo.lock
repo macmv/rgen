@@ -135,6 +135,7 @@ version = "0.1.0"
 dependencies = [
  "rgen-base",
  "rgen-placer",
+ "rgen-world",
 ]
 
 [[package]]
@@ -153,6 +154,7 @@ name = "rgen-placer"
 version = "0.1.0"
 dependencies = [
  "rgen-base",
+ "rgen-world",
 ]
 
 [[package]]

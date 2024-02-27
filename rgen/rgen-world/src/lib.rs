@@ -3,6 +3,8 @@ use std::num::NonZeroUsize;
 use lru::LruCache;
 use rgen_base::{Biomes, Block, Blocks, Chunk, ChunkPos, Pos};
 
+mod block;
+
 pub struct Context {
   pub seed:   u64,
   pub blocks: Blocks,
@@ -47,10 +49,6 @@ const RADIUS: i32 = 1;
 impl PartialWorld {
   pub fn new() -> PartialWorld {
     PartialWorld { chunks: LruCache::new(NonZeroUsize::new(CACHE_SIZE).unwrap()) }
-  }
-
-  pub fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> &mut Chunk {
-    self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk).unwrap()
   }
 
   pub fn generate(&mut self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) -> &Chunk {

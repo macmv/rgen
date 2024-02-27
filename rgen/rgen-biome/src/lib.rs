@@ -1,10 +1,11 @@
 use biome::ClimateMap;
-use rgen_base::{Biome, Block, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biome, Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   grid::PointGrid,
   noise::{self, NoiseGenerator},
-  Placer, Random, Rng, World,
+  Placer, Random, Rng,
 };
+use rgen_world::PartialWorld;
 
 mod biome;
 mod climate;
@@ -55,7 +56,13 @@ impl BiomeBuilder {
 
   /// Decorates the given chunk. The `rng` passed in should only be seeded with
   /// the world seed.
-  pub fn decorate(&self, blocks: &Blocks, rng: &mut Rng, chunk_pos: ChunkPos, world: &mut World) {
+  pub fn decorate(
+    &self,
+    blocks: &Blocks,
+    rng: &mut Rng,
+    chunk_pos: ChunkPos,
+    world: &mut PartialWorld,
+  ) {
     for placer in self.placers.iter() {
       let seed = rng.next();
 
@@ -110,16 +117,32 @@ impl Biomes {
     }
   }
 
-  pub fn generate(&self, blocks: &Blocks, seed: u64, chunk_pos: ChunkPos, chunk: &mut Chunk) {
-    let mut world = World::new(chunk_pos, chunk);
-
+  pub fn generate_top_layer(
+    &self,
+    blocks: &Blocks,
+    seed: u64,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+  ) {
     let temperature_seed = seed.wrapping_add(1);
     let rainfall_seed = seed.wrapping_add(2);
 
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
-        let pos = world.top_block(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+        let rel_pos = ChunkRelPos::new(x, 0, z);
+
+        let mut y = 255;
+        while y > 0 {
+          let block = chunk.get(rel_pos.with_y(y));
+          if block != Block::AIR && ![blocks.leaves].contains(&block) {
+            break;
+          }
+          y -= 1;
+        }
+        let rel_pos = rel_pos.with_y(y);
+        let pos =
+          chunk_pos.min_block_pos() + Pos::new(rel_pos.x().into(), rel_pos.y(), rel_pos.z().into());
 
         let climate = climate::from_temperature_and_rainfall(
           (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
@@ -129,9 +152,20 @@ impl Biomes {
         let mut rng = Rng::new(seed);
         let biome = self.climates.choose(&mut rng, climate);
 
-        world.set(pos, biome.top_block);
+        chunk.set(rel_pos, biome.top_block);
       }
     }
+  }
+
+  pub fn decorate(
+    &self,
+    blocks: &Blocks,
+    seed: u64,
+    world: &mut PartialWorld,
+    chunk_pos: ChunkPos,
+  ) {
+    let temperature_seed = seed.wrapping_add(1);
+    let rainfall_seed = seed.wrapping_add(2);
 
     // FIXME: Need to decorate with all biomes in a chunk.
     let pos = chunk_pos.min_block_pos();
@@ -146,7 +180,7 @@ impl Biomes {
 
     println!("biome: {:?}", biome.name);
 
-    biome.decorate(blocks, &mut rng, chunk_pos, &mut world);
+    biome.decorate(blocks, &mut rng, chunk_pos, world);
   }
 
   pub fn generate_ids(&self, seed: u64, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {

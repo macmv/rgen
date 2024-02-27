@@ -1,6 +1,7 @@
 use rgen_base::{Block, Pos};
+use rgen_world::PartialWorld;
 
-use crate::{Placer, Random, Rng, World};
+use crate::{Placer, Random, Rng};
 
 pub struct BasicTree {
   pub trunk:  Block,
@@ -12,7 +13,7 @@ impl Placer for BasicTree {
 
   fn amount_per_chunk(&self) -> u32 { 16 }
 
-  fn place(&self, world: &mut World, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let height = rng.rand_inclusive(4, 7);
     let min_y = rng.rand_inclusive(-2, -1);
 

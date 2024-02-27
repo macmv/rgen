@@ -22,6 +22,16 @@ impl ChunkRelPos {
   pub fn x(&self) -> u8 { self.x }
   pub fn y(&self) -> u8 { self.y }
   pub fn z(&self) -> u8 { self.z }
+
+  /// Returns the current position, with the Y set to the given value.
+  ///
+  /// ```
+  /// # use rgen_base::ChunkRelPos;
+  /// let pos = ChunkRelPos::new(3, 4, 5);
+  ///
+  /// assert_eq!(pos.with_y(6), ChunkRelPos::new(3, 6, 5));
+  /// ```
+  pub fn with_y(&self, y: u8) -> ChunkRelPos { ChunkRelPos { x: self.x, y, z: self.z } }
 }
 
 /// A position in the world.
@@ -57,6 +67,12 @@ impl Pos {
       && self.x < (chunk_pos.x + 1) * 16
       && self.z >= chunk_pos.z * 16
       && self.z < (chunk_pos.z + 1) * 16
+  }
+
+  pub fn chunk(&self) -> ChunkPos {
+    let chunk_x = if self.x < 0 { (self.x + 1) / 16 - 1 } else { self.x / 16 };
+    let chunk_z = if self.x < 0 { (self.z + 1) / 16 - 1 } else { self.z / 16 };
+    ChunkPos::new(chunk_x, chunk_z)
   }
 
   /// Returns the position of this block in the chunk it is in.
