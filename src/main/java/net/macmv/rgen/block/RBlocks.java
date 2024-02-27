@@ -13,6 +13,7 @@ public final class RBlocks {
 
   // FIXME: Need block items.
   public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
+  public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
 
   private static Block register(String name, Block block) {
     Block b = block.setRegistryName(RGen.MODID, name).setUnlocalizedName(name);
