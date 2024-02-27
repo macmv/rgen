@@ -1,6 +1,6 @@
 {
   "variants": {
-    "normal": {
+    "facing=east,half=bottom,shape=straight": {
       "model": "rgen:thatch_roof"
     }
   }

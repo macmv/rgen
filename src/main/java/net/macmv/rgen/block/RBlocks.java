@@ -12,7 +12,7 @@ public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
 
   // FIXME: Need block items.
-  public static final Block THATCH_ROOF = register("thatch_roof", new Block(Material.ROCK));
+  public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
 
   private static Block register(String name, Block block) {
     Block b = block.setRegistryName(RGen.MODID, name).setUnlocalizedName(name);
