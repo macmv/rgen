@@ -22,12 +22,9 @@ pub struct PartialWorld {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Stage {
-  /// This means the chunk has the base stone, water for oceans, and top layers
-  /// filled in.
   Base,
-
-  /// This means the chunk has been decorated with trees, ores, etc.
   Decorated,
+  NeighborDecorated,
 }
 
 struct StagedChunk {
@@ -54,21 +51,39 @@ impl PartialWorld {
   pub fn generate(&mut self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) -> &Chunk {
     let chunk = self.generate_base(ctx, generator, pos);
 
-    if chunk.stage == Some(Stage::Base) {
-      chunk.stage = Some(Stage::Decorated);
+    if chunk.stage != Some(Stage::NeighborDecorated) {
+      chunk.stage = Some(Stage::NeighborDecorated);
 
-      for x in -RADIUS..=RADIUS {
-        for z in -RADIUS..=RADIUS {
+      for x in -RADIUS * 2..=RADIUS * 2 {
+        for z in -RADIUS * 2..=RADIUS * 2 {
           self.generate_base(ctx, generator, pos + ChunkPos::new(x, z));
         }
       }
 
+      for x in -RADIUS * 2..=RADIUS * 2 {
+        for z in -RADIUS * 2..=RADIUS * 2 {
+          self.generate_decorated(ctx, generator, pos + ChunkPos::new(x, z));
+        }
+      }
+    }
+
+    &self.chunks.get(&pos).unwrap().chunk
+  }
+
+  fn generate_decorated(
+    &mut self,
+    ctx: &Context,
+    generator: &impl Generator,
+    pos: ChunkPos,
+  ) -> &mut StagedChunk {
+    let chunk = self.generate_base(ctx, generator, pos);
+
+    if chunk.stage == Some(Stage::Base) {
+      chunk.stage = Some(Stage::Decorated);
       generator.decorate(ctx, self, pos);
     }
 
-    // Re-borrow the chunk, as the previous borrow got released on the `decorate`
-    // call.
-    &self.chunks.get(&pos).unwrap().chunk
+    self.chunks.get_mut(&pos).unwrap()
   }
 
   fn generate_base(
