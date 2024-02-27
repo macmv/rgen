@@ -1,5 +1,12 @@
+use rgen_base::{Biome, ChunkPos, Pos};
+use rgen_placer::noise::NoiseGenerator;
 use rgen_world::Context;
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+use sdl2::{
+  event::Event,
+  keyboard::Keycode,
+  pixels::{Color, PixelFormat, PixelFormatEnum},
+  rect::Rect,
+};
 
 mod terrain;
 mod world;
@@ -62,6 +69,48 @@ pub fn main() -> Result<(), String> {
         }
 
         _ => {}
+      }
+    }
+
+    for chunk_x in 0..16 {
+      for chunk_z in 0..8 {
+        let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+
+        let mut biomes = [0; 256];
+        world.generator.generate_biomes(chunk_pos, &mut biomes);
+
+        for rel_x in 0..16 {
+          for rel_z in 0..16 {
+            let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
+            let i = (rel_x * 16 + rel_z) as usize;
+            let biome_id = biomes[i];
+
+            let height = (world.generator.height_map.generate(
+              pos.x as f64,
+              pos.z as f64,
+              world.generator.seed,
+            ) + 1.0);
+
+            let color = match Biome::from_raw_id(biome_id.into()) {
+              b if b == world.context.biomes.cold_taiga => 0xffff00,
+              b if b == world.context.biomes.extreme_hills => 0xff0000,
+              b if b == world.context.biomes.ice_plains => 0x0000ff,
+              b if b == world.context.biomes.plains => 0x00ff00,
+              b => {
+                println!("unknown biome {b:?}");
+                0x000000
+              }
+            };
+
+            let color = Color::RGB(
+              ((color >> 16) as f64 * height) as u8,
+              ((color >> 8) as f64 * height) as u8,
+              (color as f64 * height) as u8,
+            );
+            canvas.set_draw_color(color);
+            canvas.fill_rect(Rect::new(pos.x * 10, pos.z * 10, 10, 10))?;
+          }
+        }
       }
     }
 

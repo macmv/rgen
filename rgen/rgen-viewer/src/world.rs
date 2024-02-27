@@ -4,12 +4,11 @@ use rgen_base::{Chunk, ChunkPos};
 use rgen_world::{Context, Generator, PartialWorld};
 
 pub struct World<G> {
-  context: Context,
+  pub context:   Context,
+  pub generator: G,
 
-  generator: G,
-  partial:   PartialWorld,
-
-  chunks: HashMap<ChunkPos, Chunk>,
+  partial: PartialWorld,
+  chunks:  HashMap<ChunkPos, Chunk>,
 }
 
 impl<G> World<G> {

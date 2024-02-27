@@ -5,9 +5,9 @@ use rgen_placer::noise::{NoiseGenerator, OctavedNoise, PerlinNoise};
 use rgen_world::{Context, Generator, PartialWorld};
 
 pub struct TerrainGenerator {
-  seed: u64,
+  pub seed: u64,
 
-  height_map: OctavedNoise<PerlinNoise>,
+  pub height_map: OctavedNoise<PerlinNoise>,
 
   biomes: rgen_biome::Biomes,
 }
@@ -20,6 +20,10 @@ impl TerrainGenerator {
 
       biomes: rgen_biome::Biomes::new(blocks, biome_ids),
     }
+  }
+
+  pub fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
+    self.biomes.generate_ids(self.seed, chunk_pos, biomes);
   }
 }
 
