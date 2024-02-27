@@ -145,6 +145,7 @@ dependencies = [
  "rgen-base",
  "rgen-biome",
  "rgen-placer",
+ "rgen-world",
 ]
 
 [[package]]

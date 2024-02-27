@@ -7,7 +7,7 @@ use jni::{
 };
 
 use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
+use rgen_base::{Biomes, Blocks, ChunkPos};
 
 // TODO: Do we need to worry about obfuscated names anymore?
 #[cfg(not(feature = "obf-names"))]
@@ -130,17 +130,18 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   let len = env.get_array_length(&data).unwrap();
   assert_eq!(len, 65536, "data array must be 65536 elements long");
 
-  let mut chunk = Chunk::new();
-
   Context::run(|ctx| {
     let chunk_ctx =
-      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.blocks };
+      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
 
+    // FIXME: This really shouldn't grab a lock on the whole world. Not sure how to
+    // fix though.
     println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
-    ctx.generator.generate(&chunk_ctx, &mut chunk);
-  });
 
-  env.set_char_array_region(data, 0, chunk.data()).unwrap();
+    let mut world = ctx.world.lock().unwrap();
+    let chunk = world.generate(&ctx.context, &ctx.generator, chunk_ctx.chunk_pos);
+    env.set_char_array_region(data, 0, chunk.data()).unwrap();
+  });
 }
 
 #[no_mangle]
@@ -158,7 +159,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
 
   Context::run(|ctx| {
     let chunk_ctx =
-      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.blocks };
+      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
 
     println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
     ctx.generator.generate_biomes(&chunk_ctx, &mut biome_out);
