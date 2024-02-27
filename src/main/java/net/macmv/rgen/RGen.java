@@ -1,8 +1,8 @@
 package net.macmv.rgen;
 
+import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.world.WorldTypeRGen;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,9 +20,6 @@ public class RGen {
 
   public static WorldTypeRGen worldType;
 
-  // FIXME: Move to a new RBlocks class.
-  // FIXME: Need block items.
-  private static final Block THATCH_ROOF = new Block(Material.ROCK).setRegistryName(MODID, "thatch_roof");
 
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent e) {
@@ -35,8 +32,6 @@ public class RGen {
   public void registerBlocks(RegistryEvent.Register<Block> event) {
     IForgeRegistry<Block> reg = event.getRegistry();
 
-    // FIXME: Move to a more generalized registry.
-    String name = THATCH_ROOF.getRegistryName().getResourcePath();
-    reg.register(THATCH_ROOF.setUnlocalizedName(name));
+    RBlocks.registerBlocks(reg);
   }
 }
