@@ -1,7 +1,7 @@
 use std::num::NonZeroUsize;
 
 use lru::LruCache;
-use rgen_base::{Biomes, Block, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
 
 mod block;
 
@@ -9,6 +9,12 @@ pub struct Context {
   pub seed:   u64,
   pub blocks: Blocks,
   pub biomes: Biomes,
+}
+
+impl Context {
+  pub fn new_test(seed: u64) -> Context {
+    Context { seed, blocks: Blocks::test_blocks(), biomes: Biomes::test_blocks() }
+  }
 }
 
 pub trait Generator {

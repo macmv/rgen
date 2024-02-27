@@ -1,6 +1,7 @@
 use crate::{Block, ChunkRelPos};
 
 // Mirrors a ChunkPrimer in minecraft.
+#[derive(Clone)]
 pub struct Chunk {
   data: Box<[u16]>,
 }

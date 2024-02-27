@@ -179,6 +179,10 @@ dependencies = [
 name = "rgen-viewer"
 version = "0.1.0"
 dependencies = [
+ "rgen-base",
+ "rgen-biome",
+ "rgen-placer",
+ "rgen-world",
  "sdl2",
 ]
 

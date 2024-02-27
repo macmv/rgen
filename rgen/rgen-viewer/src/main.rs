@@ -1,4 +1,11 @@
+use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+
+mod terrain;
+mod world;
+
+use terrain::TerrainGenerator;
+use world::World;
 
 pub fn main() -> Result<(), String> {
   let sdl_context = sdl2::init()?;
@@ -9,6 +16,10 @@ pub fn main() -> Result<(), String> {
     .position_centered()
     .build()
     .map_err(|e| e.to_string())?;
+
+  let context = Context::new_test(1234);
+  let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
+  let mut world = World::new(context, terrain);
 
   let mut events = sdl_context.event_pump()?;
 
