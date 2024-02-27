@@ -88,7 +88,7 @@ impl Pos {
 ///
 /// The X and Z coordinates are unbounded, and they are 16 times smaller than a
 /// block position. To get block position of this chunk, use `min_block_pos`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ChunkPos {
   pub x: i32,
   pub z: i32,
@@ -108,6 +108,13 @@ impl Add for Pos {
 
   #[track_caller]
   fn add(self, other: Pos) -> Pos { Pos::new(self.x + other.x, self.y + other.y, self.z + other.z) }
+}
+
+impl Add for ChunkPos {
+  type Output = ChunkPos;
+
+  #[track_caller]
+  fn add(self, other: ChunkPos) -> ChunkPos { ChunkPos::new(self.x + other.x, self.z + other.z) }
 }
 
 #[cfg(test)]

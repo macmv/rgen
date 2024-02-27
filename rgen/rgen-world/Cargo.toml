@@ -1,0 +1,8 @@
+[package]
+name = "rgen-world"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lru = "0.12.3"
+rgen-base.workspace = true

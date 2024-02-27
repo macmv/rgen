@@ -4,6 +4,7 @@ members = [
   "rgen-base",
   "rgen-placer",
   "rgen-biome",
+  "rgen-world",
   "rgen-jni",
 ]
 
@@ -11,3 +12,4 @@ members = [
 rgen-base = { path = "rgen-base" }
 rgen-placer = { path = "rgen-placer" }
 rgen-biome = { path = "rgen-biome" }
+rgen-world = { path = "rgen-world" }
