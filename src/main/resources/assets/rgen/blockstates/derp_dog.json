@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "rgen:derp_dog"
+    }
+  }
+}
