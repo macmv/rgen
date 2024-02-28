@@ -155,23 +155,8 @@ pub fn main() -> Result<(), String> {
             };
 
             let height_color = Color::RGB(brightness, brightness, brightness);
+            let biome_color = world.color_for_biome(Biome::from_raw_id(biome_id.into()));
 
-            let biome_hex = match Biome::from_raw_id(biome_id.into()) {
-              b if b == world.context.biomes.cold_taiga => 0xffff00,
-              b if b == world.context.biomes.extreme_hills => 0xff0000,
-              b if b == world.context.biomes.ice_plains => 0x0000ff,
-              b if b == world.context.biomes.plains => 0x00ff00,
-              b if b == world.context.biomes.savanna => 0xffff00,
-              b => {
-                println!("unknown biome {b:?}");
-                0x000000
-              }
-            };
-            let biome_color = Color::RGB(
-              (biome_hex >> 16) as u8 / 8,
-              (biome_hex >> 8) as u8 / 8,
-              biome_hex as u8 / 8,
-            );
             grid.set(
               pos.x,
               pos.z,
@@ -217,6 +202,22 @@ impl World<TerrainGenerator> {
   pub fn meter_height(&self, pos: Pos) -> f64 {
     let meter_height = self.height(pos) * 64.0;
     meter_height
+  }
+
+  pub fn color_for_biome(&self, biome: Biome) -> Color {
+    let biome_hex = match biome {
+      b if b == self.context.biomes.ice_plains => 0x518ded,
+      b if b == self.context.biomes.cold_taiga => 0x3265db,
+      b if b == self.context.biomes.extreme_hills => 0x4f6aab,
+      b if b == self.context.biomes.plains => 0x61b086,
+      b if b == self.context.biomes.savanna => 0xa19d55,
+      b => {
+        println!("unknown biome {b:?}");
+        0x000000
+      }
+    };
+
+    Color::RGB((biome_hex >> 16) as u8 / 8, (biome_hex >> 8) as u8 / 8, biome_hex as u8 / 8)
   }
 }
 
