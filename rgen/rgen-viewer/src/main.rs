@@ -65,8 +65,6 @@ pub fn main() -> Result<(), String> {
   let mut last_x = 0;
   let mut last_y = 0;
 
-  let mut rects = vec![];
-
   let mut mode = RenderMode::Height;
   let mut hover_pos = Pos::new(0, 0, 0);
 
@@ -92,30 +90,13 @@ pub fn main() -> Result<(), String> {
       match event {
         Event::Quit { .. } => break 'main,
 
+        Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'main,
+
         Event::KeyDown { keycode: Some(Keycode::Num1), .. } => mode = RenderMode::Height,
         Event::KeyDown { keycode: Some(Keycode::Num2), .. } => mode = RenderMode::Slope,
         Event::KeyDown { keycode: Some(Keycode::Num3), .. } => mode = RenderMode::Aspect,
         Event::KeyDown { keycode: Some(Keycode::Num4), .. } => mode = RenderMode::Brightness,
         Event::KeyDown { keycode: Some(Keycode::Num5), .. } => mode = RenderMode::BiomeColors,
-
-        Event::KeyDown { keycode: Some(keycode), .. } => {
-          if keycode == Keycode::Escape {
-            break 'main;
-          } else if keycode == Keycode::Space {
-            println!("space down");
-            for i in 0..400 {
-              canvas.fill_rect(Rect::new(i, i, 100, 100))?;
-            }
-          }
-        }
-
-        Event::MouseButtonDown { x, y, .. } => {
-          rects.push(Rect::new(last_x, last_y, x as u32, y as u32));
-
-          last_x = x;
-          last_y = y;
-          println!("mouse btn down at ({},{})", x, y);
-        }
 
         Event::MouseMotion { x, y, .. } => {
           hover_pos = Pos::new(x / 4, 0, y / 4);
@@ -210,12 +191,6 @@ pub fn main() -> Result<(), String> {
     canvas.set_draw_color(Color::RGB(0, 0, 255));
     canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
 
-    for rect in &rects {
-      let color = Color::RGB(rect.x() as u8, rect.y() as u8, 255);
-      canvas.set_draw_color(color);
-      canvas.fill_rect(rect.clone())?;
-    }
-
     canvas.present();
   }
 
@@ -225,7 +200,7 @@ pub fn main() -> Result<(), String> {
 impl World<TerrainGenerator> {
   pub fn height(&self, pos: Pos) -> f64 {
     let height =
-      (self.generator.height_map.generate(pos.x as f64, pos.z as f64, self.generator.seed) + 1.0);
+      self.generator.height_map.generate(pos.x as f64, pos.z as f64, self.generator.seed) + 1.0;
     height
   }
   pub fn meter_height(&self, pos: Pos) -> f64 {
