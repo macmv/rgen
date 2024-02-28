@@ -65,6 +65,7 @@ pub fn main() -> Result<(), String> {
   let mut rects = vec![];
 
   let mut mode = RenderMode::Height;
+  let mut hover_pos = Pos::new(0, 0, 0);
 
   'main: loop {
     canvas.set_draw_color(Color::BLACK);
@@ -97,6 +98,10 @@ pub fn main() -> Result<(), String> {
           last_x = x;
           last_y = y;
           println!("mouse btn down at ({},{})", x, y);
+        }
+
+        Event::MouseMotion { x, y, .. } => {
+          hover_pos = Pos::new(x / 4, 0, y / 4);
         }
 
         _ => {}
@@ -178,6 +183,9 @@ pub fn main() -> Result<(), String> {
         }
       }
     }
+
+    canvas.set_draw_color(Color::RGB(0, 0, 255));
+    canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
 
     for rect in &rects {
       let color = Color::RGB(rect.x() as u8, rect.y() as u8, 255);
