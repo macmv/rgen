@@ -72,7 +72,7 @@ pub fn main() -> Result<(), String> {
       }
     }
 
-    for chunk_x in 0..16 {
+    for chunk_x in 0..4 {
       for chunk_z in 0..8 {
         let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
@@ -84,12 +84,8 @@ pub fn main() -> Result<(), String> {
             let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
             let i = (rel_x * 16 + rel_z) as usize;
             let biome_id = biomes[i];
-
-            let height = (world.generator.height_map.generate(
-              pos.x as f64,
-              pos.z as f64,
-              world.generator.seed,
-            ) + 1.0);
+            let height = world.height(pos);
+            let meter_height = world.meter_height(pos);
 
             let color = match Biome::from_raw_id(biome_id.into()) {
               b if b == world.context.biomes.cold_taiga => 0xffff00,
@@ -124,4 +120,16 @@ pub fn main() -> Result<(), String> {
   }
 
   Ok(())
+}
+
+impl World<TerrainGenerator> {
+  pub fn height(&self, pos: Pos) -> f64 {
+    let height =
+      (self.generator.height_map.generate(pos.x as f64, pos.z as f64, self.generator.seed) + 1.0);
+    height
+  }
+  pub fn meter_height(&self, pos: Pos) -> f64 {
+    let meter_height = self.height(pos) * 64.0;
+    meter_height
+  }
 }
