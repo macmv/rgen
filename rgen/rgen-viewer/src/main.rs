@@ -82,8 +82,8 @@ pub fn main() -> Result<(), String> {
       }
     }
 
-    for chunk_x in 0..4 {
-      for chunk_z in 0..8 {
+    for chunk_x in 0..30 {
+      for chunk_z in 0..30 {
         let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
         let mut biomes = [0; 256];
@@ -97,13 +97,20 @@ pub fn main() -> Result<(), String> {
             let height = world.height(pos);
             let meter_height = world.meter_height(pos);
 
+            let mut basecolor = 255;
+            if meter_height >= 64.0 {
+              basecolor = 255 - (((meter_height - 64.0) / 64.0) * 255.0) as u8;
+            }
+
+            let greycolor = Color::RGB(basecolor, basecolor, basecolor);
+
             let color = match Biome::from_raw_id(biome_id.into()) {
               b if b == world.context.biomes.cold_taiga => 0xffff00,
               b if b == world.context.biomes.extreme_hills => 0xff0000,
               b if b == world.context.biomes.ice_plains => 0x0000ff,
               b if b == world.context.biomes.plains => 0x00ff00,
               b => {
-                println!("unknown biome {b:?}");
+                // println!("unknown biome {b:?}");
                 0x000000
               }
             };
@@ -113,8 +120,8 @@ pub fn main() -> Result<(), String> {
               ((color >> 8) as f64 * height) as u8,
               (color as f64 * height) as u8,
             );
-            canvas.set_draw_color(color);
-            canvas.fill_rect(Rect::new(pos.x * 10, pos.z * 10, 10, 10))?;
+            canvas.set_draw_color(greycolor);
+            canvas.fill_rect(Rect::new(pos.x * 4, pos.z * 4, 4, 4))?;
           }
         }
       }
