@@ -8,6 +8,5 @@ rgen-base.workspace = true
 rgen-placer.workspace = true
 rgen-biome.workspace = true
 rgen-world.workspace = true
-
-sdl2 = "0.36.0"
+sdl2 = { version = "0.36.0", features = ["ttf"] }
 rand = "0.8.5"

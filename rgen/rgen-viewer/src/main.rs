@@ -1,7 +1,7 @@
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_placer::noise::NoiseGenerator;
 use rgen_world::Context;
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, ttf::Sdl2TtfContext};
 
 mod render;
 mod terrain;
@@ -27,6 +27,7 @@ enum RenderMode {
 
 pub fn main() -> Result<(), String> {
   let sdl_context = sdl2::init()?;
+  let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
   let video_subsystem = sdl_context.video()?;
 
   let window = video_subsystem
@@ -62,8 +63,7 @@ pub fn main() -> Result<(), String> {
   canvas.clear();
   canvas.present();
 
-  let mut last_x = 0;
-  let mut last_y = 0;
+  let font = ttf_context.load_font("/usr/share/fonts/TTF/DejaVuSans.ttf", 24).unwrap();
 
   let mut mode = RenderMode::Height;
   let mut hover_pos = Pos::new(0, 0, 0);
@@ -121,7 +121,6 @@ pub fn main() -> Result<(), String> {
             let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
             let i = (rel_x * 16 + rel_z) as usize;
             let biome_id = biomes[i];
-            let height = world.height(pos);
             let meter_height = world.meter_height(pos);
 
             let block_distance = -1;
@@ -195,6 +194,24 @@ pub fn main() -> Result<(), String> {
     // NB: Segfaults if you screw up the buffer size.
     grid.buffer.copy_to_sdl2(&mut screen_texture);
     canvas.copy(&screen_texture, None, None)?;
+
+    let meter_height = world.meter_height(hover_pos);
+
+    let surface = font
+      .render(format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z).as_str())
+      .blended(Color::RGB(255, 255, 255))
+      .unwrap();
+    let texture = creator.create_texture_from_surface(&surface).unwrap();
+
+    canvas.copy(&texture, None, Rect::new(0, 0, surface.width(), surface.height()))?;
+
+    let surface = font
+      .render(format!("Height: {meter_height:0.2}").as_str())
+      .blended(Color::RGB(255, 255, 255))
+      .unwrap();
+    let texture = creator.create_texture_from_surface(&surface).unwrap();
+
+    canvas.copy(&texture, None, Rect::new(0, 24, surface.width(), surface.height()))?;
 
     canvas.set_draw_color(Color::RGB(0, 0, 255));
     canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
