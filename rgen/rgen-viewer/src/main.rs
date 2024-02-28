@@ -67,6 +67,20 @@ pub fn main() -> Result<(), String> {
   let mut mode = RenderMode::Height;
   let mut hover_pos = Pos::new(0, 0, 0);
 
+  let screen_width = 1920;
+  let screen_height = 1080;
+
+  let mut buffer = vec![0_u8; screen_width * screen_height * 4];
+
+  let creator = canvas.texture_creator();
+  let mut screen_texture = creator
+    .create_texture_streaming(
+      Some(sdl2::pixels::PixelFormatEnum::ARGB8888),
+      screen_width as u32,
+      screen_height as u32,
+    )
+    .unwrap();
+
   'main: loop {
     canvas.set_draw_color(Color::BLACK);
     canvas.clear();
@@ -108,8 +122,11 @@ pub fn main() -> Result<(), String> {
       }
     }
 
-    for chunk_x in 0..30 {
-      for chunk_z in 0..30 {
+    let max_pos = Pos::new(screen_width as i32 / 4, 0, screen_height as i32 / 4);
+    let max_chunk = ChunkPos::new(max_pos.x / 16, max_pos.z / 16);
+
+    for chunk_x in 0..=max_chunk.x + 1 {
+      for chunk_z in 0..=max_chunk.z + 1 {
         let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
         let mut biomes = [0; 256];
@@ -177,12 +194,28 @@ pub fn main() -> Result<(), String> {
               ((color >> 8) as f64 * height) as u8,
               (color as f64 * height) as u8,
             );
-            canvas.set_draw_color(greycolor);
-            canvas.fill_rect(Rect::new(pos.x * 4, pos.z * 4, 4, 4))?;
+            for pixel_x in 0..4 {
+              for pixel_y in 0..4 {
+                let p_x = pos.x * 4 + pixel_x;
+                let p_y = pos.z * 4 + pixel_y;
+                if p_x >= 0 && p_x < screen_width as i32 && p_y >= 0 && p_y < screen_height as i32 {
+                  let i = p_y * screen_width as i32 + p_x;
+                  buffer[i as usize * 4 + 0] = greycolor.r;
+                  buffer[i as usize * 4 + 1] = greycolor.g;
+                  buffer[i as usize * 4 + 2] = greycolor.b;
+                  buffer[i as usize * 4 + 3] = greycolor.a;
+                }
+              }
+            }
           }
         }
       }
     }
+
+    // NB: Segfaults if you screw up the buffer size.
+    screen_texture.update(None, &buffer, screen_width * 4).unwrap();
+
+    canvas.copy(&screen_texture, None, None)?;
 
     canvas.set_draw_color(Color::RGB(0, 0, 255));
     canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
