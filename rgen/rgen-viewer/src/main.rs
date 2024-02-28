@@ -160,25 +160,33 @@ pub fn main() -> Result<(), String> {
               RenderMode::BiomeColors => 0,
             };
 
-            let greycolor = Color::RGB(brightness, brightness, brightness);
+            let height_color = Color::RGB(brightness, brightness, brightness);
 
-            let color = match Biome::from_raw_id(biome_id.into()) {
+            let biome_hex = match Biome::from_raw_id(biome_id.into()) {
               b if b == world.context.biomes.cold_taiga => 0xffff00,
               b if b == world.context.biomes.extreme_hills => 0xff0000,
               b if b == world.context.biomes.ice_plains => 0x0000ff,
               b if b == world.context.biomes.plains => 0x00ff00,
+              b if b == world.context.biomes.savanna => 0xffff00,
               b => {
-                // println!("unknown biome {b:?}");
+                println!("unknown biome {b:?}");
                 0x000000
               }
             };
-
-            let color = Color::RGB(
-              ((color >> 16) as f64 * height) as u8,
-              ((color >> 8) as f64 * height) as u8,
-              (color as f64 * height) as u8,
+            let biome_color = Color::RGB(
+              (biome_hex >> 16) as u8 / 8,
+              (biome_hex >> 8) as u8 / 8,
+              biome_hex as u8 / 8,
             );
-            grid.set(pos.x, pos.z, greycolor);
+            grid.set(
+              pos.x,
+              pos.z,
+              Color::RGB(
+                biome_color.r + height_color.r,
+                biome_color.g + height_color.g,
+                biome_color.b + height_color.b,
+              ),
+            );
           }
         }
       }
