@@ -151,13 +151,13 @@ pub fn main() -> Result<(), String> {
               RenderMode::Height => (meter_height * 2.0) as u8,
               RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
               RenderMode::Aspect => {
-                let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
-                println!("aspect: {asp}");
+                //let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
+                //println!("Aspect: {asp}");
                 (cell_aspect * 255.0 / std::f64::consts::PI) as u8
               }
               RenderMode::Brightness => {
-                let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
-                println!("Brightness: {bright}");
+                //let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
+                //println!("Brightness: {bright}");
                 (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
               }
               RenderMode::BiomeColors => 0,
