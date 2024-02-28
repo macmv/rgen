@@ -150,8 +150,16 @@ pub fn main() -> Result<(), String> {
             let brightness = match mode {
               RenderMode::Height => (meter_height * 2.0) as u8,
               RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
-              RenderMode::Aspect => (cell_aspect * 255.0 / std::f64::consts::PI) as u8,
-              RenderMode::Brightness => (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8,
+              RenderMode::Aspect => {
+                let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
+                println!("aspect: {asp}");
+                (cell_aspect * 255.0 / std::f64::consts::PI) as u8
+              }
+              RenderMode::Brightness => {
+                let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
+                println!("Brightness: {bright}");
+                (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
+              }
               RenderMode::BiomeColors => 0,
             };
 
@@ -161,10 +169,11 @@ pub fn main() -> Result<(), String> {
             grid.set(
               pos.x,
               pos.z,
+              //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN
               Color::RGB(
-                biome_color.r + height_color.r,
-                biome_color.g + height_color.g,
-                biome_color.b + height_color.b,
+                height_color.r, //+ biome_color.r,
+                height_color.g, //+ biome_color.g,
+                height_color.b, //+ biome_color.b,
               ),
             );
           }
@@ -184,8 +193,8 @@ pub fn main() -> Result<(), String> {
       f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
       f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-      let biome = world.biome_at(hover_pos);
-      f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
+      //let biome = world.biome_at(hover_pos);
+      //f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
     }
 
     render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -216,7 +225,7 @@ impl World<TerrainGenerator> {
       b if b == self.context.biomes.plains => 0x61b086,
       b if b == self.context.biomes.savanna => 0xa19d55,
       b => {
-        println!("unknown biome {b:?}");
+        //println!("unknown biome {b:?}");
         0x000000
       }
     };
@@ -240,8 +249,8 @@ struct Render {
   #[allow(unused)]
   sdl_context: sdl2::Sdl,
   ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events:      sdl2::EventPump,
-  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
+  events: sdl2::EventPump,
+  canvas: sdl2::render::Canvas<sdl2::video::Window>,
 }
 
 impl Render {
@@ -268,11 +277,13 @@ impl Render {
     self.canvas.clear();
   }
 
-  pub fn present(&mut self) { self.canvas.present(); }
+  pub fn present(&mut self) {
+    self.canvas.present();
+  }
 }
 
 struct FontRender<'a> {
-  font:   &'a sdl2::ttf::Font<'a, 'a>,
+  font: &'a sdl2::ttf::Font<'a, 'a>,
   render: &'a mut Render,
 }
 
