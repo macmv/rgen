@@ -9,6 +9,19 @@ mod world;
 use terrain::TerrainGenerator;
 use world::World;
 
+enum RenderMode {
+  /// Number 1
+  Height,
+  /// Number 2
+  Slope,
+  /// Number 3
+  Aspect,
+  /// Number 4
+  Brightness,
+  /// Number 5
+  BiomeColors,
+}
+
 pub fn main() -> Result<(), String> {
   let sdl_context = sdl2::init()?;
   let video_subsystem = sdl_context.video()?;
@@ -51,6 +64,8 @@ pub fn main() -> Result<(), String> {
 
   let mut rects = vec![];
 
+  let mut mode = RenderMode::Height;
+
   'main: loop {
     canvas.set_draw_color(Color::BLACK);
     canvas.clear();
@@ -58,6 +73,12 @@ pub fn main() -> Result<(), String> {
     for event in events.poll_iter() {
       match event {
         Event::Quit { .. } => break 'main,
+
+        Event::KeyDown { keycode: Some(Keycode::Num1), .. } => mode = RenderMode::Height,
+        Event::KeyDown { keycode: Some(Keycode::Num2), .. } => mode = RenderMode::Slope,
+        Event::KeyDown { keycode: Some(Keycode::Num3), .. } => mode = RenderMode::Aspect,
+        Event::KeyDown { keycode: Some(Keycode::Num4), .. } => mode = RenderMode::Brightness,
+        Event::KeyDown { keycode: Some(Keycode::Num5), .. } => mode = RenderMode::BiomeColors,
 
         Event::KeyDown { keycode: Some(keycode), .. } => {
           if keycode == Keycode::Escape {
@@ -124,8 +145,13 @@ pub fn main() -> Result<(), String> {
 
             let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
 
-            let brightness = (meter_height * 2.0) as u8;
-            //let brightness = (cell_slope * 255.0) as u8;
+            let brightness = match mode {
+              RenderMode::Height => (meter_height * 2.0) as u8,
+              RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
+              RenderMode::Aspect => (cell_aspect * 255.0 / std::f64::consts::PI) as u8,
+              RenderMode::Brightness => (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8,
+              RenderMode::BiomeColors => 0,
+            };
 
             let greycolor = Color::RGB(brightness, brightness, brightness);
 
