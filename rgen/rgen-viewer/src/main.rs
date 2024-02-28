@@ -217,7 +217,7 @@ impl World<TerrainGenerator> {
       }
     };
 
-    Color::RGB((biome_hex >> 16) as u8 / 8, (biome_hex >> 8) as u8 / 8, biome_hex as u8 / 8)
+    Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
   }
 }
 
