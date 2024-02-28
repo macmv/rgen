@@ -120,13 +120,30 @@ pub fn main() -> Result<(), String> {
             let meter_height = world.meter_height(pos);
 
             let block_distance = -1;
-            let cross_bottom = world.meter_height(pos + Pos::new(0, 0, -block_distance));
-            let cross_top = world.meter_height(pos + Pos::new(0, 0, block_distance));
-            let dz_dx = (cross_bottom - cross_top) / (2.0 * 1.0);
+            //╔═╦═╦═╗
+            //║a║b║c║
+            //╠═╬═╬═╣     MINECRAFT
+            //║d║é║f║     - X & Z is flat plane
+            //╠═╬═╬═╣     - Y is up
+            //║g║h║i║
+            //╚═╩═╩═╝ <- var table  || block_distance
 
-            let cross_right = world.meter_height(pos + Pos::new(block_distance, 0, 0));
-            let cross_left = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
-            let dz_dy = (cross_right - cross_left) / (2.0 * 1.0);
+            let a = world.meter_height(pos + Pos::new(-block_distance, 0, block_distance));
+            let b = world.meter_height(pos + Pos::new(0, 0, block_distance));
+            let c = world.meter_height(pos + Pos::new(block_distance, 0, block_distance));
+
+            let d = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
+            let f = world.meter_height(pos + Pos::new(block_distance, 0, 0));
+
+            let g = world.meter_height(pos + Pos::new(-block_distance, 0, -block_distance));
+            let h = world.meter_height(pos + Pos::new(0, 0, -block_distance));
+            let i = world.meter_height(pos + Pos::new(block_distance, 0, -block_distance));
+
+            let dz_dx = ((c + (2.0 * f) + i) * 4.0 - (a + (2.0 * d) + g) * 4.0) / (8.0 * 1.0);
+            //[dz/dx] = ((c + 2f + i)*4/wght1 - (a + 2d + g)*4/wght2) / (8 * x_cellsize)
+
+            let dz_dy = ((g + (2.0 * h) + i) * 4.0 - (a + (2.0 * b) + c) * 4.0) / (8.0 * 1.0);
+            //[dz/dy] = ((g + 2h + i)*4/wght3 - (a + 2b + c)*4/wght4) / (8 * y_cellsize)
 
             //claculates cell slope at that location
 
