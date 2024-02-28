@@ -1,7 +1,7 @@
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_placer::noise::NoiseGenerator;
 use rgen_world::Context;
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, ttf::Sdl2TtfContext};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 mod render;
 mod terrain;
@@ -63,7 +63,14 @@ pub fn main() -> Result<(), String> {
   canvas.clear();
   canvas.present();
 
-  let font = ttf_context.load_font("/usr/share/fonts/TTF/DejaVuSans.ttf", 24).unwrap();
+  let path = "/usr/share/fonts/TTF/DejaVuSans.ttf";
+  let font = match ttf_context.load_font(path, 24) {
+    Ok(font) => Some(font),
+    Err(e) => {
+      println!("Failed to load font at {path}: {}", e);
+      None
+    }
+  };
 
   let mut mode = RenderMode::Height;
   let mut hover_pos = Pos::new(0, 0, 0);
@@ -197,21 +204,23 @@ pub fn main() -> Result<(), String> {
 
     let meter_height = world.meter_height(hover_pos);
 
-    let surface = font
-      .render(format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z).as_str())
-      .blended(Color::RGB(255, 255, 255))
-      .unwrap();
-    let texture = creator.create_texture_from_surface(&surface).unwrap();
+    if let Some(f) = &font {
+      let surface = f
+        .render(format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z).as_str())
+        .blended(Color::RGB(255, 255, 255))
+        .unwrap();
+      let texture = creator.create_texture_from_surface(&surface).unwrap();
 
-    canvas.copy(&texture, None, Rect::new(0, 0, surface.width(), surface.height()))?;
+      canvas.copy(&texture, None, Rect::new(0, 0, surface.width(), surface.height()))?;
 
-    let surface = font
-      .render(format!("Height: {meter_height:0.2}").as_str())
-      .blended(Color::RGB(255, 255, 255))
-      .unwrap();
-    let texture = creator.create_texture_from_surface(&surface).unwrap();
+      let surface = f
+        .render(format!("Height: {meter_height:0.2}").as_str())
+        .blended(Color::RGB(255, 255, 255))
+        .unwrap();
+      let texture = creator.create_texture_from_surface(&surface).unwrap();
 
-    canvas.copy(&texture, None, Rect::new(0, 24, surface.width(), surface.height()))?;
+      canvas.copy(&texture, None, Rect::new(0, 24, surface.width(), surface.height()))?;
+    }
 
     canvas.set_draw_color(Color::RGB(0, 0, 255));
     canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
