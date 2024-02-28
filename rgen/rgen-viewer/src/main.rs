@@ -116,6 +116,7 @@ pub fn main() -> Result<(), String> {
             let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
             let i = (rel_x * 16 + rel_z) as usize;
             let biome_id = biomes[i];
+            let biome = Biome::from_raw_id(biome_id.into());
             let meter_height = world.meter_height(pos);
 
             let block_distance = -1;
@@ -155,7 +156,7 @@ pub fn main() -> Result<(), String> {
             };
 
             let height_color = Color::RGB(brightness, brightness, brightness);
-            let biome_color = world.color_for_biome(Biome::from_raw_id(biome_id.into()));
+            let biome_color = world.color_for_biome(biome);
 
             grid.set(
               pos.x,
@@ -182,6 +183,9 @@ pub fn main() -> Result<(), String> {
 
       f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
       f.render(0, 24, format!("Height: {meter_height:0.2}"));
+
+      let biome = world.biome_at(hover_pos);
+      f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
     }
 
     render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -218,6 +222,17 @@ impl World<TerrainGenerator> {
     };
 
     Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
+  }
+
+  pub fn biome_at(&self, pos: Pos) -> Biome {
+    let chunk_pos = pos.chunk();
+    let mut biomes = [0; 256];
+    self.generator.generate_biomes(chunk_pos, &mut biomes);
+
+    let rel = pos.chunk_rel();
+    let i = (rel.x() * 16 + rel.z()) as usize;
+    let biome_id = biomes[i];
+    Biome::from_raw_id(biome_id.into())
   }
 }
 
