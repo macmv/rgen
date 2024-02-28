@@ -119,14 +119,14 @@ pub fn main() -> Result<(), String> {
             let biome = Biome::from_raw_id(biome_id.into());
             let meter_height = world.meter_height(pos);
 
-            let block_distance = -1;
-            //╔═╦═╦═╗
-            //║a║b║c║
-            //╠═╬═╬═╣     MINECRAFT
-            //║d║é║f║     - X & Z is flat plane
-            //╠═╬═╬═╣     - Y is up
-            //║g║h║i║
-            //╚═╩═╩═╝ <- var table  || block_distance
+            let block_distance = 1;
+            // ╔═╦═╦═╗
+            // ║a║b║c║
+            // ╠═╬═╬═╣     MINECRAFT
+            // ║d║é║f║     - X & Z is flat plane
+            // ╠═╬═╬═╣     - Y is up
+            // ║g║h║i║
+            // ╚═╩═╩═╝ <- var table  || block_distance
 
             let a = world.meter_height(pos + Pos::new(-block_distance, 0, block_distance));
             let b = world.meter_height(pos + Pos::new(0, 0, block_distance));
@@ -178,6 +178,11 @@ pub fn main() -> Result<(), String> {
                 (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
               }
               RenderMode::BiomeColors => 0,
+              //
+              //HSV
+              //Hue:0-360         - This is the color of the terrain
+              //Saturation:0-100  - This is the terrain height
+              //Value:0-100       - Keep locked too set darkness to max-light
             };
 
             let height_color = Color::RGB(brightness, brightness, brightness);
