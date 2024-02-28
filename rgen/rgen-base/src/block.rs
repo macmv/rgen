@@ -56,6 +56,13 @@ macro_rules! big {
           $($id: $item::from_raw_id({ id += 1; id }),)*
         }
       }
+
+      pub fn name_of(&self, v: $item) -> &'static str {
+        $(
+          if v == self.$id { return $name }
+        )*
+        unreachable!();
+      }
     }
   };
 }
