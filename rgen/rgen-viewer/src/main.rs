@@ -1,12 +1,7 @@
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_placer::noise::NoiseGenerator;
 use rgen_world::Context;
-use sdl2::{
-  event::Event,
-  keyboard::Keycode,
-  pixels::{Color, PixelFormat, PixelFormatEnum},
-  rect::Rect,
-};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 mod terrain;
 mod world;
@@ -26,7 +21,7 @@ pub fn main() -> Result<(), String> {
 
   let context = Context::new_test(1234);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
-  let mut world = World::new(context, terrain);
+  let world = World::new(context, terrain);
 
   let mut events = sdl_context.event_pump()?;
 
