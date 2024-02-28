@@ -119,14 +119,31 @@ pub fn main() -> Result<(), String> {
             let biome = Biome::from_raw_id(biome_id.into());
             let meter_height = world.meter_height(pos);
 
-            let block_distance = -1;
-            let cross_bottom = world.meter_height(pos + Pos::new(0, 0, -block_distance));
-            let cross_top = world.meter_height(pos + Pos::new(0, 0, block_distance));
-            let dz_dx = (cross_bottom - cross_top) / (2.0 * 1.0);
+            let block_distance = 1;
+            // ╔═╦═╦═╗
+            // ║a║b║c║
+            // ╠═╬═╬═╣     MINECRAFT
+            // ║d║é║f║     - X & Z is flat plane
+            // ╠═╬═╬═╣     - Y is up
+            // ║g║h║i║
+            // ╚═╩═╩═╝ <- var table  || block_distance
 
-            let cross_right = world.meter_height(pos + Pos::new(block_distance, 0, 0));
-            let cross_left = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
-            let dz_dy = (cross_right - cross_left) / (2.0 * 1.0);
+            let a = world.meter_height(pos + Pos::new(-block_distance, 0, block_distance));
+            let b = world.meter_height(pos + Pos::new(0, 0, block_distance));
+            let c = world.meter_height(pos + Pos::new(block_distance, 0, block_distance));
+
+            let d = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
+            let f = world.meter_height(pos + Pos::new(block_distance, 0, 0));
+
+            let g = world.meter_height(pos + Pos::new(-block_distance, 0, -block_distance));
+            let h = world.meter_height(pos + Pos::new(0, 0, -block_distance));
+            let i = world.meter_height(pos + Pos::new(block_distance, 0, -block_distance));
+
+            let dz_dx = ((c + (2.0 * f) + i) * 4.0 - (a + (2.0 * d) + g) * 4.0) / (8.0 * 1.0);
+            //[dz/dx] = ((c + 2f + i)*4/wght1 - (a + 2d + g)*4/wght2) / (8 * x_cellsize)
+
+            let dz_dy = ((g + (2.0 * h) + i) * 4.0 - (a + (2.0 * b) + c) * 4.0) / (8.0 * 1.0);
+            //[dz/dy] = ((g + 2h + i)*4/wght3 - (a + 2b + c)*4/wght4) / (8 * y_cellsize)
 
             //claculates cell slope at that location
 
@@ -150,9 +167,22 @@ pub fn main() -> Result<(), String> {
             let brightness = match mode {
               RenderMode::Height => (meter_height * 2.0) as u8,
               RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
-              RenderMode::Aspect => (cell_aspect * 255.0 / std::f64::consts::PI) as u8,
-              RenderMode::Brightness => (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8,
+              RenderMode::Aspect => {
+                //let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
+                //println!("Aspect: {asp}");
+                (cell_aspect * 255.0 / std::f64::consts::PI) as u8
+              }
+              RenderMode::Brightness => {
+                //let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
+                //println!("Brightness: {bright}");
+                (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
+              }
               RenderMode::BiomeColors => 0,
+              //
+              //HSV
+              //Hue:0-360         - This is the color of the terrain
+              //Saturation:0-100  - This is the terrain height
+              //Value:0-100       - Keep locked too set darkness to max-light
             };
 
             let height_color = Color::RGB(brightness, brightness, brightness);
@@ -161,10 +191,11 @@ pub fn main() -> Result<(), String> {
             grid.set(
               pos.x,
               pos.z,
+              //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN
               Color::RGB(
-                biome_color.r + height_color.r,
-                biome_color.g + height_color.g,
-                biome_color.b + height_color.b,
+                height_color.r, //+ biome_color.r,
+                height_color.g, //+ biome_color.g,
+                height_color.b, //+ biome_color.b,
               ),
             );
           }
@@ -184,8 +215,8 @@ pub fn main() -> Result<(), String> {
       f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
       f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-      let biome = world.biome_at(hover_pos);
-      f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
+      //let biome = world.biome_at(hover_pos);
+      //f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
     }
 
     render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -216,7 +247,7 @@ impl World<TerrainGenerator> {
       b if b == self.context.biomes.plains => 0x61b086,
       b if b == self.context.biomes.savanna => 0xa19d55,
       b => {
-        println!("unknown biome {b:?}");
+        //println!("unknown biome {b:?}");
         0x000000
       }
     };
@@ -240,8 +271,8 @@ struct Render {
   #[allow(unused)]
   sdl_context: sdl2::Sdl,
   ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events:      sdl2::EventPump,
-  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
+  events: sdl2::EventPump,
+  canvas: sdl2::render::Canvas<sdl2::video::Window>,
 }
 
 impl Render {
@@ -268,11 +299,13 @@ impl Render {
     self.canvas.clear();
   }
 
-  pub fn present(&mut self) { self.canvas.present(); }
+  pub fn present(&mut self) {
+    self.canvas.present();
+  }
 }
 
 struct FontRender<'a> {
-  font:   &'a sdl2::ttf::Font<'a, 'a>,
+  font: &'a sdl2::ttf::Font<'a, 'a>,
   render: &'a mut Render,
 }
 
