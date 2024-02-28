@@ -19,7 +19,22 @@ pub fn main() -> Result<(), String> {
     .build()
     .map_err(|e| e.to_string())?;
 
-  let context = Context::new_test(1234);
+  let arg = std::env::args().nth(1).unwrap_or("".to_string());
+
+  let seed = if arg.is_empty() {
+    rand::random::<u64>()
+  } else {
+    match arg.parse() {
+      Ok(seed) => seed,
+      Err(e) => {
+        println!("Invalid seed: {}", e);
+        std::process::exit(1);
+      }
+    }
+  };
+  println!("Using seed {}", seed);
+
+  let context = Context::new_test(seed);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
   let world = World::new(context, terrain);
 
