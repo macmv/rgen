@@ -26,16 +26,6 @@ enum RenderMode {
 }
 
 pub fn main() -> Result<(), String> {
-  let sdl_context = sdl2::init()?;
-  let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
-  let video_subsystem = sdl_context.video()?;
-
-  let window = video_subsystem
-    .window("RGen Viewer", 1920, 1080)
-    .position_centered()
-    .build()
-    .map_err(|e| e.to_string())?;
-
   let arg = std::env::args().nth(1).unwrap_or("".to_string());
 
   let seed = if arg.is_empty() {
@@ -51,17 +41,16 @@ pub fn main() -> Result<(), String> {
   };
   println!("Using seed {}", seed);
 
+  let mut render = Render::new()?;
+
   let context = Context::new_test(seed);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
   let world = World::new(context, terrain);
 
-  let mut events = sdl_context.event_pump()?;
+  render.clear();
+  render.present();
 
-  let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
-
-  canvas.set_draw_color(Color::RGB(0, 0, 0));
-  canvas.clear();
-  canvas.present();
+  let ttf_context = render.ttf_context.take().unwrap();
 
   let path = "/usr/share/fonts/TTF/DejaVuSans.ttf";
   let font = match ttf_context.load_font(path, 24) {
@@ -80,8 +69,8 @@ pub fn main() -> Result<(), String> {
 
   let mut grid = RenderGrid::new(screen_width, screen_height, 4);
 
-  let creator = canvas.texture_creator();
-  let mut screen_texture = creator
+  let texture_creator = render.canvas.texture_creator();
+  let mut screen_texture = texture_creator
     .create_texture_streaming(
       Some(sdl2::pixels::PixelFormatEnum::ARGB8888),
       screen_width as u32,
@@ -90,10 +79,9 @@ pub fn main() -> Result<(), String> {
     .unwrap();
 
   'main: loop {
-    canvas.set_draw_color(Color::BLACK);
-    canvas.clear();
+    render.clear();
 
-    for event in events.poll_iter() {
+    for event in render.events.poll_iter() {
       match event {
         Event::Quit { .. } => break 'main,
 
@@ -200,32 +188,21 @@ pub fn main() -> Result<(), String> {
 
     // NB: Segfaults if you screw up the buffer size.
     grid.buffer.copy_to_sdl2(&mut screen_texture);
-    canvas.copy(&screen_texture, None, None)?;
+    render.canvas.copy(&screen_texture, None, None)?;
 
     let meter_height = world.meter_height(hover_pos);
 
     if let Some(f) = &font {
-      let surface = f
-        .render(format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z).as_str())
-        .blended(Color::RGB(255, 255, 255))
-        .unwrap();
-      let texture = creator.create_texture_from_surface(&surface).unwrap();
+      let mut f = FontRender { font: f, render: &mut render };
 
-      canvas.copy(&texture, None, Rect::new(0, 0, surface.width(), surface.height()))?;
-
-      let surface = f
-        .render(format!("Height: {meter_height:0.2}").as_str())
-        .blended(Color::RGB(255, 255, 255))
-        .unwrap();
-      let texture = creator.create_texture_from_surface(&surface).unwrap();
-
-      canvas.copy(&texture, None, Rect::new(0, 24, surface.width(), surface.height()))?;
+      f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
+      f.render(0, 24, format!("Height: {meter_height:0.2}"));
     }
 
-    canvas.set_draw_color(Color::RGB(0, 0, 255));
-    canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
+    render.canvas.set_draw_color(Color::RGB(0, 0, 255));
+    render.canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
 
-    canvas.present();
+    render.present();
   }
 
   Ok(())
@@ -240,5 +217,60 @@ impl World<TerrainGenerator> {
   pub fn meter_height(&self, pos: Pos) -> f64 {
     let meter_height = self.height(pos) * 64.0;
     meter_height
+  }
+}
+
+struct Render {
+  #[allow(unused)]
+  sdl_context: sdl2::Sdl,
+  ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
+  events:      sdl2::EventPump,
+  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
+}
+
+impl Render {
+  pub fn new() -> Result<Render, String> {
+    let sdl_context = sdl2::init()?;
+    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
+    let video_subsystem = sdl_context.video()?;
+
+    let window = video_subsystem
+      .window("RGen Viewer", 1920, 1080)
+      .position_centered()
+      .build()
+      .map_err(|e| e.to_string())?;
+
+    let events = sdl_context.event_pump()?;
+
+    let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+
+    Ok(Render { sdl_context, ttf_context: Some(ttf_context), events, canvas })
+  }
+
+  pub fn clear(&mut self) {
+    self.canvas.set_draw_color(Color::RGB(0, 0, 0));
+    self.canvas.clear();
+  }
+
+  pub fn present(&mut self) { self.canvas.present(); }
+}
+
+struct FontRender<'a> {
+  font:   &'a sdl2::ttf::Font<'a, 'a>,
+  render: &'a mut Render,
+}
+
+impl FontRender<'_> {
+  pub fn render(&mut self, x: i32, y: i32, text: impl AsRef<str>) {
+    let texture_creator = self.render.canvas.texture_creator();
+
+    let surface = self.font.render(text.as_ref()).blended(Color::RGB(255, 255, 255)).unwrap();
+    let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+
+    self
+      .render
+      .canvas
+      .copy(&texture, None, Rect::new(x, y, surface.width(), surface.height()))
+      .unwrap();
   }
 }
