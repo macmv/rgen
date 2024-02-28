@@ -1,8 +1,8 @@
 {
   "texture_size": [128, 128],
   "textures": {
-    "0": "rgen:thatch",
-    "particle": "rgen:thatch"
+   "0": "rgen:thatch",
+   "particle": "rgen:thatch"
   },
   "elements": [
     {
