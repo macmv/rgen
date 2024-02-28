@@ -1,1 +1,4 @@
 generator.rgen=RGen
+
+tile.derp_dog.name=Derp Dog
+tile.thatch_roof.name=Thatch Roof
