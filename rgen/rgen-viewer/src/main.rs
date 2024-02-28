@@ -118,12 +118,13 @@ pub fn main() -> Result<(), String> {
             let height = world.height(pos);
             let meter_height = world.meter_height(pos);
 
-            let cross_bottom = world.meter_height(pos + Pos::new(0, 0, -1));
-            let cross_top = world.meter_height(pos + Pos::new(0, 0, 1));
+            let block_distance = -1;
+            let cross_bottom = world.meter_height(pos + Pos::new(0, 0, -block_distance));
+            let cross_top = world.meter_height(pos + Pos::new(0, 0, block_distance));
             let dz_dx = (cross_bottom - cross_top) / (2.0 * 1.0);
 
-            let cross_right = world.meter_height(pos + Pos::new(1, 0, 0));
-            let cross_left = world.meter_height(pos + Pos::new(-1, 0, 0));
+            let cross_right = world.meter_height(pos + Pos::new(block_distance, 0, 0));
+            let cross_left = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
             let dz_dy = (cross_right - cross_left) / (2.0 * 1.0);
 
             //claculates cell slope at that location
