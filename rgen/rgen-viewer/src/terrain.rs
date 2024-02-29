@@ -21,13 +21,18 @@ impl TerrainGenerator {
       biomes: rgen_biome::Biomes::new(blocks, biome_ids),
     }
   }
-
-  pub fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
-    self.biomes.generate_ids(self.seed, chunk_pos, biomes);
-  }
 }
 
 impl Generator for TerrainGenerator {
+  fn height_at(&self, pos: Pos) -> f64 {
+    let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, self.seed) + 1.0;
+    noise_height * 64.0
+  }
+
+  fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
+    self.biomes.generate_ids(self.seed, chunk_pos, biomes);
+  }
+
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {

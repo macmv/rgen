@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
-use rgen_placer::noise::NoiseGenerator;
-use rgen_world::Context;
-
-use crate::terrain::TerrainGenerator;
+use rgen_world::{Context, Generator};
 
 pub struct World<G> {
   pub context:   Context,
@@ -40,9 +37,7 @@ impl<G> World<G> {
   }
 
   pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
-}
 
-impl World<TerrainGenerator> {
   #[track_caller]
   pub fn column_at(&self, pos: Pos) -> Column {
     let chunk_pos = pos.chunk();
@@ -51,7 +46,9 @@ impl World<TerrainGenerator> {
 
   #[track_caller]
   pub fn height_at(&self, pos: Pos) -> f64 { self.column_at(pos).height }
+}
 
+impl<G: Generator> World<G> {
   pub fn generate_chunk(&mut self, chunk_pos: ChunkPos) {
     if !self.chunks.contains_key(&chunk_pos) {
       let mut columns = [Column::EMPTY; 256];
@@ -67,10 +64,7 @@ impl World<TerrainGenerator> {
           let biome_id = biomes[i];
           let biome = Biome::from_raw_id(biome_id.into());
 
-          let noise_height =
-            self.generator.height_map.generate(pos.x as f64, pos.z as f64, self.generator.seed)
-              + 1.0;
-          let height = noise_height * 64.0;
+          let height = self.generator.height_at(pos);
 
           columns[i] = Column { height, biome };
         }
