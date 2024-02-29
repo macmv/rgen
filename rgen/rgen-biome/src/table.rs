@@ -12,13 +12,12 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 const BLANK_TABLE: BiomeFnTable = &[&[blank]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
-  &[rocky_valley, rocky_valley, bog, bog, bog, bog],
-  &[rocky_valley, cool_valley, cool_valley, cool_valley, bog, bog],
-  &[cool_valley, cool_valley, warm_valley, warm_valley, bog, swamp],
-  &[dry_river, warm_valley, warm_valley, warm_valley, swamp, swamp],
-  &[dry_river, swamp, warm_valley, swamp, swamp, hot_swamp],
-  &[dry_river, dry_river, swamp, swamp, hot_swamp, hot_swamp],
-  &[dry_river, dry_river, swamp, hot_swamp, hot_swamp, tropic_swamp],
+  &[rocky_valley, rocky_valley, rocky_valley, cool_valley, swamp, swamp, dry_river, dry_river],
+  &[rocky_valley, rocky_valley, cool_valley, cool_valley, warm_valley, swamp, swamp, dry_river],
+  &[bog, bog, cool_valley, warm_valley, warm_valley, warm_valley, swamp, swamp],
+  &[bog, bog, cool_valley, warm_valley, warm_valley, swamp, swamp, hot_swamp],
+  &[bog, bog, bog, bog, swamp, swamp, hot_swamp, hot_swamp],
+  &[bog, bog, bog, swamp, swamp, hot_swamp, hot_swamp, tropic_swamp],
 ];
 
 pub struct Tables {

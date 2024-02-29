@@ -13,7 +13,8 @@ pub struct BiomeBuilder {
   pub name: &'static str,
   pub id:   rgen_base::Biome,
 
-  pub top_block: Block,
+  pub top_block:      Block,
+  pub top_block_data: u8,
 
   placers: Vec<PlacerBuilder>,
 }
@@ -29,7 +30,7 @@ impl PlacerBuilder {
 
 impl BiomeBuilder {
   pub fn new(name: &'static str, blocks: &Blocks) -> Self {
-    Self { name, id: Biome::VOID, top_block: blocks.grass, placers: vec![] }
+    Self { name, id: Biome::VOID, top_block: blocks.grass, top_block_data: 0, placers: vec![] }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
