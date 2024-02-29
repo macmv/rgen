@@ -3,20 +3,22 @@ use std::collections::HashSet;
 use rgen_base::{ChunkPos, Pos};
 use sdl2::pixels::Color;
 
-use crate::{render::RenderGrid, terrain::TerrainGenerator, world::World, RenderMode};
+use crate::{render::RenderBuffer, terrain::TerrainGenerator, world::World, RenderMode};
 
 pub struct WorldViewer {
-  pub grid: RenderGrid,
-  pub mode: RenderMode,
+  pub buffer: RenderBuffer,
+  pub mode:   RenderMode,
 
   placed_chunks: HashSet<ChunkPos>,
 }
 
 impl WorldViewer {
   pub fn new(screen_width: u32, screen_height: u32) -> WorldViewer {
-    let grid = RenderGrid::new(screen_width, screen_height, 4);
-
-    WorldViewer { grid, mode: RenderMode::Height, placed_chunks: HashSet::new() }
+    WorldViewer {
+      buffer:        RenderBuffer::new(screen_width, screen_height),
+      mode:          RenderMode::Height,
+      placed_chunks: HashSet::new(),
+    }
   }
 
   pub fn set_mode(&mut self, mode: RenderMode) {
@@ -120,7 +122,7 @@ impl WorldViewer {
         let height_color = Color::RGB(brightness, brightness, brightness);
         let _biome_color = world.color_for_biome(biome);
 
-        self.grid.set(
+        self.buffer.set(
           pos.x,
           pos.z,
           //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN

@@ -149,8 +149,12 @@ pub fn main() -> Result<(), String> {
       }
 
       // NB: Segfaults if you screw up the buffer size.
-      world_view.grid.buffer.copy_to_sdl2(&mut screen_texture);
-      render.canvas.copy(&screen_texture, None, None)?;
+      world_view.buffer.copy_to_sdl2(&mut screen_texture);
+      render.canvas.copy(
+        &screen_texture,
+        Some(Rect::new(0, 0, screen_width / 4, screen_height / 4)),
+        Some(Rect::new(0, 0, screen_width, screen_height)),
+      )?;
 
       let meter_height = w.height_at(hover_pos);
 
