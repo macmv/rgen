@@ -161,11 +161,14 @@ pub fn main() -> Result<(), String> {
     let screen_width = render.canvas.output_size().unwrap().0;
     let screen_height = render.canvas.output_size().unwrap().1;
 
-    let view_pos = Pos::new(view_coords.0 as i32, 0, view_coords.1 as i32);
+    let view_pos = Pos::new(view_coords.0.floor() as i32, 0, view_coords.1.floor() as i32);
     let max_pos =
       view_pos + Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
-    let min_chunk = view_pos.chunk() + ChunkPos::new(-1, -1);
-    let max_chunk = max_pos.chunk() + ChunkPos::new(1, 1);
+
+    // -1 to +1 to make sure we render all chunks that are partially in view.
+    // We add an extra 1 chunk outside of that to make panning smoother.
+    let min_chunk = view_pos.chunk() + ChunkPos::new(-2, -2);
+    let max_chunk = max_pos.chunk() + ChunkPos::new(2, 2);
 
     {
       let w = world.read();
