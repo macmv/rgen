@@ -160,13 +160,6 @@ pub fn main() -> Result<(), String> {
     {
       let w = world.read();
 
-      let source_x = view_coords.0 as i32;
-      let source_y = view_coords.1 as i32;
-      // This is the offset within one block that the screen is shifted by. This is
-      // what makes the smooth scrolling "smooth".
-      let view_offset_x = -((view_coords.0 - source_x as f64) * zoom as f64) as i32;
-      let view_offset_y = -((view_coords.1 - source_y as f64) * zoom as f64) as i32;
-
       let t = Instant::now();
 
       'chunk_building: for chunk_x in min_chunk.x..=max_chunk.x {
