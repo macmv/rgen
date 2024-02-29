@@ -7,11 +7,11 @@ use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 mod render;
+mod spline_view;
 mod terrain;
 mod view;
 mod world;
 
-use splines::Key;
 use terrain::TerrainGenerator;
 use world::{BiomeChunk, World};
 
@@ -81,6 +81,8 @@ pub fn main() -> Result<(), String> {
 
   let mut world_view = WorldViewer::new();
 
+  let mut spline_view = spline_view::SplineViewer::new();
+
   let texture_creator = render.canvas.texture_creator();
   let mut temp_texture = texture_creator
     .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
@@ -143,6 +145,8 @@ pub fn main() -> Result<(), String> {
             view_coords.1 += d_y;
 
             drag_pos = Some((x, y));
+
+            spline_view.pan(d_x, d_y);
           }
         }
 
@@ -260,6 +264,8 @@ pub fn main() -> Result<(), String> {
         zoom,
       ))?;
     }
+
+    spline_view.render(&mut render);
 
     render.present();
 
