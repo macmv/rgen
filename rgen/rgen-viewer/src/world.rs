@@ -39,6 +39,8 @@ impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
     World { context, generator, partial: PartialWorld::new(), chunks: HashMap::new() }
   }
+
+  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
 }
 
 impl World<TerrainGenerator> {
