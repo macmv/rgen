@@ -5,7 +5,7 @@ use rgen_placer::{
   noise::{NoiseGenerator, OctavedNoise, PerlinNoise},
   Placer, Random, Rng,
 };
-use rgen_world::PartialWorld;
+use rgen_world::{Context, PartialWorld};
 
 mod biome;
 mod climate;
@@ -124,10 +124,26 @@ impl WorldBiomes {
     noise_height * 64.0
   }
 
+  pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    for rel_x in 0..16_u8 {
+      for rel_z in 0..16_u8 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
+
+        let height = self.height_at(pos) as i32;
+
+        for y in 0..height as u8 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
+        }
+      }
+    }
+
+    self.generate_top_layer(seed, &ctx.blocks, chunk, chunk_pos);
+  }
+
   pub fn generate_top_layer(
     &self,
-    blocks: &Blocks,
     seed: u64,
+    blocks: &Blocks,
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {
