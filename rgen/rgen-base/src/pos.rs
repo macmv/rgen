@@ -69,9 +69,21 @@ impl Pos {
       && self.z < (chunk_pos.z + 1) * 16
   }
 
+  /// Returns the position of the chunk this block is in.
+  /// ```
+  /// # use rgen_base::{Pos, ChunkPos};
+  /// let pos = Pos::new(13, 0, 19);
+  ///
+  /// assert_eq!(pos.chunk(), ChunkPos::new(0, 1));
+  ///
+  /// // Note that this is different from `pos / 16`:
+  /// let pos = Pos::new(-1, 0, -2);
+  ///
+  /// assert_eq!(pos.chunk(), ChunkPos::new(-1, -1));
+  /// ```
   pub fn chunk(&self) -> ChunkPos {
     let chunk_x = if self.x < 0 { (self.x + 1) / 16 - 1 } else { self.x / 16 };
-    let chunk_z = if self.x < 0 { (self.z + 1) / 16 - 1 } else { self.z / 16 };
+    let chunk_z = if self.z < 0 { (self.z + 1) / 16 - 1 } else { self.z / 16 };
     ChunkPos::new(chunk_x, chunk_z)
   }
 
@@ -151,5 +163,25 @@ mod tests {
     assert_eq!(pos.x(), 15);
     assert_eq!(pos.y(), 0);
     assert_eq!(pos.z(), 3);
+  }
+
+  #[test]
+  fn chunk_pos() {
+    let pos = Pos::new(13, 0, 19).chunk();
+
+    assert_eq!(pos.x(), 0);
+    assert_eq!(pos.z(), 1);
+
+    // Make sure negatives work
+    let pos = Pos::new(-1, 0, -13).chunk();
+
+    assert_eq!(pos.x(), -1);
+    assert_eq!(pos.z(), -1);
+
+    // Edge case
+    assert_eq!(Pos::new(-1, 0, -15).chunk(), ChunkPos::new(-1, -1));
+    assert_eq!(Pos::new(1, 0, -15).chunk(), ChunkPos::new(0, -1));
+    assert_eq!(Pos::new(1, 0, -16).chunk(), ChunkPos::new(0, -1));
+    assert_eq!(Pos::new(1, 0, -17).chunk(), ChunkPos::new(0, -2));
   }
 }
