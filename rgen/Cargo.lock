@@ -261,9 +261,11 @@ version = "0.1.0"
 name = "rgen-biome"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "rgen-base",
  "rgen-placer",
  "rgen-world",
+ "splines",
 ]
 
 [[package]]

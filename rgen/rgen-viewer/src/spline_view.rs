@@ -9,9 +9,13 @@ impl SplineViewer {
   pub fn new() -> Self {
     SplineViewer {
       spline: Spline::from_vec(vec![
-        Key::new(0.0, 1.0, splines::Interpolation::Bezier(0.0)),
-        Key::new(0.5, 1.1, splines::Interpolation::Bezier(1.0)),
-        Key::new(1.0, 2.0, splines::Interpolation::Bezier(0.0)),
+        Key::new(0.0, 120.0, splines::Interpolation::Cosine),
+        Key::new(0.1, 40.0, splines::Interpolation::Cosine),
+        Key::new(0.3, 40.0, splines::Interpolation::Cosine),
+        Key::new(0.4, 70.0, splines::Interpolation::Cosine),
+        Key::new(0.5, 80.0, splines::Interpolation::Cosine),
+        Key::new(0.8, 140.0, splines::Interpolation::Cosine),
+        Key::new(1.0, 150.0, splines::Interpolation::Cosine),
       ]),
     }
   }
@@ -22,7 +26,7 @@ impl SplineViewer {
     for x in 0..100 {
       let y = self.spline.sample(x as f64 / 100.0).unwrap();
 
-      render.canvas.draw_rect(Rect::new(x * 10, (y * 100.0) as i32, 10, 10)).unwrap();
+      render.canvas.draw_rect(Rect::new(x * 10, (200.0 - y) as i32, 10, 10)).unwrap();
     }
   }
 }

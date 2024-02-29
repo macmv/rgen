@@ -6,6 +6,7 @@ use rgen_placer::{
   Placer, Random, Rng,
 };
 use rgen_world::{Context, PartialWorld};
+use splines::Key;
 
 mod biome;
 mod climate;
@@ -143,6 +144,18 @@ impl BiomeBuilder {
   }
 }
 
+lazy_static::lazy_static! {
+  pub static ref CONTINENTALNESS_TO_HEIGHT: splines::Spline<f64, f64> = splines::Spline::from_vec(vec![
+    Key::new(0.0, 120.0, splines::Interpolation::Cosine),
+    Key::new(0.1, 40.0, splines::Interpolation::Cosine),
+    Key::new(0.3, 40.0, splines::Interpolation::Cosine),
+    Key::new(0.4, 70.0, splines::Interpolation::Cosine),
+    Key::new(0.5, 80.0, splines::Interpolation::Cosine),
+    Key::new(0.8, 140.0, splines::Interpolation::Cosine),
+    Key::new(1.0, 150.0, splines::Interpolation::Cosine),
+  ]);
+}
+
 impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     WorldBiomes {
@@ -157,9 +170,21 @@ impl WorldBiomes {
     }
   }
 
+  fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
+    let continentalness =
+      ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
+        .clamp(0.0, 1.0);
+
+    let height = CONTINENTALNESS_TO_HEIGHT.sample(continentalness).unwrap_or_default();
+
+    height
+  }
+
   pub fn height_at(&self, pos: Pos) -> f64 {
-    let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) + 1.0;
-    noise_height * 64.0
+    // let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) +
+    // 1.0; noise_height * 64.0
+
+    self.sample_height(0, pos)
   }
 
   pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {

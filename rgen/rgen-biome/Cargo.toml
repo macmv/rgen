@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lazy_static = "1.4.0"
 rgen-base.workspace = true
 rgen-placer.workspace = true
 rgen-world.workspace = true
+splines = "4.3.1"
