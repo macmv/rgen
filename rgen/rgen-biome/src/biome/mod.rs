@@ -1,5 +1,6 @@
 //! Stores all the actual biome implementations.
 
+mod blank;
 mod cold_taiga;
 mod extreme_hills;
 mod forest;
@@ -13,13 +14,14 @@ mod swamp;
 use std::collections::HashMap;
 
 use rgen_base::Blocks;
-use rgen_placer::{Random, Rng};
+use rgen_placer::Rng;
 
 use crate::{climate::Climate, BiomeBuilder};
 
 /// Stores the map of climates to biomes.
 pub struct ClimateMap {
-  biomes: HashMap<Climate, Vec<BiomeBuilder>>,
+  default: BiomeBuilder,
+  _biomes: HashMap<Climate, Vec<BiomeBuilder>>,
 }
 
 impl ClimateMap {
@@ -47,10 +49,11 @@ impl ClimateMap {
     biomes.insert(Climate::HighDesert, vec![biome!(plains)]);
     biomes.insert(Climate::Tropical, vec![biome!(plains)]);
 
-    ClimateMap { biomes }
+    ClimateMap { default: biome!(blank), _biomes: biomes }
   }
 
-  pub fn choose(&self, rng: &mut Rng, climate: Climate) -> &BiomeBuilder {
-    rng.choose(self.biomes.get(&climate).unwrap())
+  pub fn choose(&self, _rng: &mut Rng, _climate: Climate) -> &BiomeBuilder {
+    &self.default
+    // rng.choose(self.biomes.get(&climate).unwrap())
   }
 }
