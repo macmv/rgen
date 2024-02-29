@@ -8,9 +8,6 @@ impl PartialEq for Block {
 }
 
 impl Block {
-  // This is hardcoded to make my life easier. In reality it'll always be zero.
-  pub const AIR: Block = Block(0);
-
   pub fn from_raw_id(id: i32) -> Block {
     assert!(id >= 0 && id < 4096);
     Block(id as u16)
@@ -24,9 +21,6 @@ impl Block {
 pub struct Biome(pub(crate) u8);
 
 impl Biome {
-  // This is hardcoded to make my life easier. In reality it'll always be zero.
-  pub const VOID: Biome = Biome(127);
-
   pub fn from_raw_id(id: i32) -> Biome {
     assert!(id >= 0 && id < 256);
     Biome(id as u8)
@@ -37,9 +31,17 @@ impl Biome {
 }
 
 macro_rules! big {
-  ($struct_name:ident: $item:ident $($id:ident => $name:expr,)*) => {
+  (
+    $struct_name:ident: $item:ident
+    $default_name:ident => $default_str:literal = $default_id:expr,
+    $($id:ident => $name:expr,)*
+  ) => {
     pub struct $struct_name {
       $(pub $id: $item),*
+    }
+
+    impl $item {
+      pub const $default_name: $item = $item($default_id);
     }
 
     impl $struct_name {
@@ -61,6 +63,7 @@ macro_rules! big {
         $(
           if v == self.$id { return $name }
         )*
+        if v == $item::$default_name { return $default_str }
         unreachable!();
       }
     }
@@ -68,6 +71,8 @@ macro_rules! big {
 }
 
 big! { Blocks: Block
+  AIR => "minecraft:air" = 0,
+
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
   grass => "minecraft:grass",
@@ -78,6 +83,8 @@ big! { Blocks: Block
 }
 
 big! { Biomes: Biome
+  VOID => "minecraft:void" = 127,
+
   cold_taiga => "minecraft:taiga_cold",
   extreme_hills => "minecraft:extreme_hills",
   ice_plains => "minecraft:ice_flats",
