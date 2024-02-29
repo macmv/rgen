@@ -7,6 +7,7 @@ use crate::{render::RenderGrid, terrain::TerrainGenerator, world::World, RenderM
 
 pub struct WorldViewer {
   pub grid: RenderGrid,
+  pub mode: RenderMode,
 
   placed_chunks: HashSet<ChunkPos>,
 }
@@ -15,7 +16,12 @@ impl WorldViewer {
   pub fn new(screen_width: u32, screen_height: u32) -> WorldViewer {
     let grid = RenderGrid::new(screen_width, screen_height, 4);
 
-    WorldViewer { grid, placed_chunks: HashSet::new() }
+    WorldViewer { grid, mode: RenderMode::Height, placed_chunks: HashSet::new() }
+  }
+
+  pub fn set_mode(&mut self, mode: RenderMode) {
+    self.mode = mode;
+    self.placed_chunks.clear();
   }
 
   pub fn place_chunk(&mut self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
@@ -90,9 +96,7 @@ impl WorldViewer {
 
         let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
 
-        let mode = RenderMode::Brightness;
-
-        let brightness = match mode {
+        let brightness = match self.mode {
           RenderMode::Height => (meter_height * 2.0) as u8,
           RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
           RenderMode::Aspect => {

@@ -67,7 +67,6 @@ pub fn main() -> Result<(), String> {
     }
   };
 
-  let mut mode = RenderMode::Height;
   let mut hover_pos = Pos::new(0, 0, 0);
 
   let screen_width = 1920;
@@ -93,11 +92,21 @@ pub fn main() -> Result<(), String> {
 
         Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'main,
 
-        Event::KeyDown { keycode: Some(Keycode::Num1), .. } => mode = RenderMode::Height,
-        Event::KeyDown { keycode: Some(Keycode::Num2), .. } => mode = RenderMode::Slope,
-        Event::KeyDown { keycode: Some(Keycode::Num3), .. } => mode = RenderMode::Aspect,
-        Event::KeyDown { keycode: Some(Keycode::Num4), .. } => mode = RenderMode::Brightness,
-        Event::KeyDown { keycode: Some(Keycode::Num5), .. } => mode = RenderMode::BiomeColors,
+        Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
+          world_view.set_mode(RenderMode::Height)
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
+          world_view.set_mode(RenderMode::Slope)
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
+          world_view.set_mode(RenderMode::Aspect)
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
+          world_view.set_mode(RenderMode::Brightness)
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
+          world_view.set_mode(RenderMode::BiomeColors)
+        }
 
         Event::MouseMotion { x, y, .. } => {
           hover_pos = Pos::new(x / 4, 0, y / 4);
@@ -112,9 +121,17 @@ pub fn main() -> Result<(), String> {
 
     {
       let w = world.read();
-      for chunk_x in 0..=max_chunk.x + 1 {
+
+      let t = Instant::now();
+
+      'chunk_building: for chunk_x in 0..=max_chunk.x + 1 {
         for chunk_z in 0..=max_chunk.z + 1 {
           let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+
+          // Only place chunks for 16ms.
+          if t.elapsed().as_millis() > 16 {
+            break 'chunk_building;
+          }
 
           if w.has_chunk(chunk_pos) {
             world_view.place_chunk(&w, chunk_pos);
