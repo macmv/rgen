@@ -10,6 +10,7 @@ use splines::Key;
 
 mod biome;
 mod climate;
+mod lookup;
 
 pub struct BiomeBuilder {
   pub name: &'static str,
@@ -172,8 +173,6 @@ enum PeaksValleysCategory {
   Peak,
 }
 
-struct ErosionCategory(u8);
-
 impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     WorldBiomes {
@@ -186,43 +185,6 @@ impl WorldBiomes {
       peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
     }
-  }
-
-  fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
-    let continentalness =
-      self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
-
-    match continentalness {
-      x if x < 0.1 => ContinentalnessCategory::Sea,
-      x if x < 0.3 => ContinentalnessCategory::Coast,
-      x if x < 0.6 => ContinentalnessCategory::NearInland,
-      x if x < 0.8 => ContinentalnessCategory::MidInland,
-      _ => ContinentalnessCategory::FarInland,
-    }
-  }
-
-  fn peaks_valleys_category(&self, seed: u64, pos: Pos) -> PeaksValleysCategory {
-    let seed = seed.wrapping_add(1);
-
-    let peaks_valleys =
-      self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
-
-    match peaks_valleys {
-      x if x < 0.075 => PeaksValleysCategory::Valley,
-      x if x < 0.2 => PeaksValleysCategory::LowSlice,
-      x if x < 0.6 => PeaksValleysCategory::MidSlice,
-      x if x < 0.85 => PeaksValleysCategory::HighSlice,
-      _ => PeaksValleysCategory::Peak,
-    }
-  }
-
-  fn erosion_category(&self, seed: u64, pos: Pos) -> ErosionCategory {
-    let seed = seed.wrapping_add(2);
-
-    let erosion = self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
-
-    // FIXME: This is dumb
-    ErosionCategory((erosion * 6.9999) as u8)
   }
 
   fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
