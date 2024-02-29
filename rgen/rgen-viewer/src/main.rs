@@ -131,9 +131,9 @@ pub fn main() -> Result<(), String> {
         Event::MouseMotion { x, y, .. } => {
           mouse_pos = (x, y);
           hover_pos = Pos::new(
-            (x as f64 / zoom as f64).round() as i32,
+            (view_coords.0 + x as f64 / zoom as f64).round() as i32,
             0,
-            (y as f64 / zoom as f64).round() as i32,
+            (view_coords.1 + y as f64 / zoom as f64).round() as i32,
           );
 
           if let Some((i_x, i_y)) = drag_pos {
@@ -221,7 +221,7 @@ pub fn main() -> Result<(), String> {
       if let Some(f) = &font {
         let mut f = FontRender { font: f, render: &mut render };
 
-        f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = view_coords.0, z = view_coords.1));
+        f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
         //let biome = world.biome_at(hover_pos);
@@ -231,8 +231,8 @@ pub fn main() -> Result<(), String> {
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
       render.canvas.draw_rect(Rect::new(
-        hover_pos.x() * zoom as i32 + view_offset_x,
-        hover_pos.z() * zoom as i32 + view_offset_y,
+        hover_pos.x() * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
+        hover_pos.z() * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
         zoom,
         zoom,
       ))?;
