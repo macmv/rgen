@@ -2,7 +2,7 @@ use biome::ClimateMap;
 use rgen_base::{Biome, Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   grid::PointGrid,
-  noise::{self, NoiseGenerator},
+  noise::{NoiseGenerator, OctavedNoise, PerlinNoise},
   Placer, Random, Rng,
 };
 use rgen_world::PartialWorld;
@@ -91,8 +91,9 @@ impl BiomeBuilder {
 pub struct WorldBiomes {
   climates: ClimateMap,
 
-  temperature_map: noise::OctavedNoise<noise::PerlinNoise>,
-  rainfall_map:    noise::OctavedNoise<noise::PerlinNoise>,
+  height_map:      OctavedNoise<PerlinNoise>,
+  temperature_map: OctavedNoise<PerlinNoise>,
+  rainfall_map:    OctavedNoise<PerlinNoise>,
 }
 
 impl BiomeBuilder {
@@ -112,9 +113,15 @@ impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     WorldBiomes {
       climates:        ClimateMap::new(blocks, biome_ids),
-      temperature_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
-      rainfall_map:    noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      height_map:      OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      rainfall_map:    OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
     }
+  }
+
+  pub fn height_at(&self, pos: Pos) -> f64 {
+    let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) + 1.0;
+    noise_height * 64.0
   }
 
   pub fn generate_top_layer(
