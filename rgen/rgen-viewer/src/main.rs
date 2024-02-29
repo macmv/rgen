@@ -73,6 +73,7 @@ pub fn main() -> Result<(), String> {
   let screen_height = 1080;
 
   let mut zoom = 4;
+  let mut view_pos = Pos::new(0, 0, 0);
 
   let mut world_view = WorldViewer::new(screen_width, screen_height);
 
@@ -127,16 +128,17 @@ pub fn main() -> Result<(), String> {
     }
 
     let max_pos =
-      Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
-    let max_chunk = ChunkPos::new(max_pos.x / 16, max_pos.z / 16);
+      view_pos + Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
+    let min_chunk = view_pos.chunk() + ChunkPos::new(-1, -1);
+    let max_chunk = max_pos.chunk() + ChunkPos::new(1, 1);
 
     {
       let w = world.read();
 
       let t = Instant::now();
 
-      'chunk_building: for chunk_x in 0..=max_chunk.x + 1 {
-        for chunk_z in 0..=max_chunk.z + 1 {
+      'chunk_building: for chunk_x in min_chunk.x..=max_chunk.x {
+        for chunk_z in min_chunk.z..=max_chunk.z {
           let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
           // Only place chunks for 16ms.
@@ -163,7 +165,7 @@ pub fn main() -> Result<(), String> {
       world_view.buffer.copy_to_sdl2(&mut screen_texture);
       render.canvas.copy(
         &screen_texture,
-        Some(Rect::new(0, 0, screen_width / zoom, screen_height / zoom)),
+        Some(Rect::new(view_pos.x / zoom as i32, 0, screen_width / zoom, screen_height / zoom)),
         Some(Rect::new(0, 0, screen_width, screen_height)),
       )?;
 
