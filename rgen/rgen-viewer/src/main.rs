@@ -1,7 +1,7 @@
 use std::{collections::HashSet, sync::Arc, time::Instant};
 
 use crossbeam_channel::{Receiver, Sender, TrySendError};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
@@ -227,9 +227,8 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        //let biome = world.biome_at(hover_pos);
-        //f.render(0, 48, format!("Biome: {}",
-        // world.context.biomes.name_of(biome)));
+        let biome = w.column_at(hover_pos).biome;
+        f.render(0, 48, format!("Biome: {}", w.context.biomes.name_of(biome)));
       }
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
