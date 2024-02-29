@@ -16,6 +16,7 @@ use world::{BiomeChunk, World};
 
 use crate::view::WorldViewer;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum RenderMode {
   /// Number 1
   Height,

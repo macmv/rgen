@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, mem};
 
 use rgen_base::{ChunkPos, Pos};
 use sdl2::pixels::Color;
@@ -9,16 +9,35 @@ pub struct WorldViewer {
   pub mode: RenderMode,
 
   chunks: HashMap<ChunkPos, RenderBuffer>,
+
+  other_mode_chunks: HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>,
 }
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
-    WorldViewer { mode: RenderMode::Height, chunks: HashMap::new() }
+    WorldViewer {
+      mode:              RenderMode::Height,
+      chunks:            HashMap::new(),
+      other_mode_chunks: HashMap::new(),
+    }
   }
 
   pub fn set_mode(&mut self, mode: RenderMode) {
+    if mode == self.mode {
+      return;
+    }
+
+    match self.other_mode_chunks.remove(&mode) {
+      Some(mut other) => {
+        mem::swap(&mut self.chunks, &mut other);
+        self.other_mode_chunks.insert(self.mode, other);
+      }
+      None => {
+        self.other_mode_chunks.insert(self.mode, mem::take(&mut self.chunks));
+      }
+    }
+
     self.mode = mode;
-    self.chunks.clear();
   }
 
   pub fn get_chunk(&self, chunk_pos: ChunkPos) -> Option<&RenderBuffer> {
