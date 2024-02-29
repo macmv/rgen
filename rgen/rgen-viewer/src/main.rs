@@ -87,6 +87,8 @@ pub fn main() -> Result<(), String> {
     .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
     .unwrap();
 
+  let mut last_frame = Instant::now();
+
   'main: loop {
     for event in render.events.poll_iter() {
       match event {
@@ -240,6 +242,13 @@ pub fn main() -> Result<(), String> {
     }
 
     render.present();
+
+    let elapsed = last_frame.elapsed();
+    last_frame = Instant::now();
+    // Don't render too much.
+    if elapsed.as_millis() < 16 {
+      std::thread::sleep(std::time::Duration::from_millis(16) - elapsed);
+    }
   }
 
   Ok(())
