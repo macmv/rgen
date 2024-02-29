@@ -140,6 +140,8 @@ impl WorldViewer {
         let height_color = Color::RGB(brightness, brightness, brightness);
         let biome_color = world.color_for_biome(biome);
 
+        let biome_color = if meter_height < 64.0 { Color::RGB(0, 157, 196) } else { biome_color };
+
         let transparency = 40;
         let alpha = (255 * transparency / 100) as u8;
         let r = std::cmp::min(
