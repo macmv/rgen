@@ -7,8 +7,8 @@ pub use blank::*;
 pub use plains::*;
 
 pub struct IdContext<'a> {
-  biomes: &'a Biomes,
-  blocks: &'a Blocks,
+  pub biomes: &'a Biomes,
+  pub blocks: &'a Blocks,
 }
 
 use rgen_base::{Biomes, Blocks};
@@ -27,7 +27,7 @@ pub struct ClimateMap {
 pub type BiomeFn = fn(&IdContext, &mut BiomeBuilder);
 
 impl BiomeBuilder {
-  fn build(name: &'static str, ctx: &IdContext, build: BiomeFn) -> Self {
+  pub fn build(name: &'static str, ctx: &IdContext, build: BiomeFn) -> Self {
     let mut builder = BiomeBuilder::new(name, ctx.blocks);
     build(ctx, &mut builder);
     builder

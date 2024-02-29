@@ -1,7 +1,7 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::WorldBiomes;
+use crate::{biome::BiomeFn, builder::BiomeBuilder, WorldBiomes};
 
 enum ContinentalnessCategory {
   Sea,
@@ -20,14 +20,16 @@ enum PeaksValleysCategory {
 }
 
 impl WorldBiomes {
-  pub fn choose_biome(&self, seed: u64, pos: Pos) {
+  pub fn choose_biome(&self, seed: u64, pos: Pos) -> &BiomeBuilder {
+    use crate::table::*;
+
     let continentalness = self.continentalness_category(seed, pos);
 
-    let _: &str = match continentalness {
-      ContinentalnessCategory::Sea => "minecraft:sea",
+    let table: &BiomeTable = match continentalness {
+      ContinentalnessCategory::Sea => &self.tables.blank_table,
       ContinentalnessCategory::Coast => {
         // todo: coast table
-        "coast"
+        &self.tables.blank_table
       }
 
       // Inland cases
@@ -40,20 +42,27 @@ impl WorldBiomes {
 
             if erosion <= 4 {
               // river table
-              "river"
+              &self.tables.blank_table
             } else {
-              // valley table
-              "valley"
+              &self.tables.valley_table
             }
           }
 
-          PeaksValleysCategory::LowSlice => "",
-          PeaksValleysCategory::MidSlice => "",
-          PeaksValleysCategory::HighSlice => "",
-          PeaksValleysCategory::Peak => "",
+          PeaksValleysCategory::LowSlice => &self.tables.blank_table,
+          PeaksValleysCategory::MidSlice => &self.tables.blank_table,
+          PeaksValleysCategory::HighSlice => &self.tables.blank_table,
+          PeaksValleysCategory::Peak => &self.tables.blank_table,
         }
       }
     };
+
+    let temperature = self.temperature(seed, pos);
+    let humidity = self.humidity(seed, pos);
+
+    let biome = &table[(temperature * table.len() as f64) as usize]
+      [(humidity * table[0].len() as f64) as usize];
+
+    biome
   }
 
   fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
@@ -91,5 +100,17 @@ impl WorldBiomes {
 
     // FIXME: This is dumb
     (erosion * 6.9999) as u8
+  }
+
+  fn temperature(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(3);
+
+    self.temperature_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  }
+
+  fn humidity(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(4);
+
+    self.humidity_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
 }

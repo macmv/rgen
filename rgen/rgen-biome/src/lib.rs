@@ -1,4 +1,4 @@
-use biome::ClimateMap;
+use biome::{ClimateMap, IdContext};
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, OctavedNoise, PerlinNoise},
@@ -6,6 +6,7 @@ use rgen_placer::{
 };
 use rgen_world::{Context, PartialWorld};
 use splines::Key;
+use table::Tables;
 
 mod biome;
 mod builder;
@@ -16,9 +17,11 @@ mod table;
 pub struct WorldBiomes {
   climates: ClimateMap,
 
+  tables: Tables,
+
   height_map:      OctavedNoise<PerlinNoise>,
   temperature_map: OctavedNoise<PerlinNoise>,
-  rainfall_map:    OctavedNoise<PerlinNoise>,
+  humidity_map:    OctavedNoise<PerlinNoise>,
 
   /// Defines how far inland or how far into the sea any given block is.
   ///
@@ -69,11 +72,16 @@ lazy_static::lazy_static! {
 
 impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
+    let ctx = IdContext { biomes: biome_ids, blocks };
+
     WorldBiomes {
-      climates:        ClimateMap::new(blocks, biome_ids),
+      climates: ClimateMap::new(blocks, biome_ids),
+
+      tables: Tables::new(&ctx),
+
       height_map:      OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
-      temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
-      rainfall_map:    OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
+      humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
       peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
@@ -146,7 +154,7 @@ impl WorldBiomes {
 
         let climate = climate::from_temperature_and_rainfall(
           (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-          (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
+          (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
         );
 
         let mut rng = Rng::new(seed);
@@ -173,7 +181,7 @@ impl WorldBiomes {
     let pos = chunk_pos.min_block_pos();
     let climate = climate::from_temperature_and_rainfall(
       (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-      (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
+      (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
     );
 
     // FIXME: How do we switch up biomes within a given climate?
@@ -196,7 +204,7 @@ impl WorldBiomes {
 
         let climate = climate::from_temperature_and_rainfall(
           (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-          (self.rainfall_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
+          (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
         );
 
         let mut rng = Rng::new(seed);
