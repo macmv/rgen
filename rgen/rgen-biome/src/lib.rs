@@ -132,9 +132,6 @@ impl WorldBiomes {
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {
-    let temperature_seed = seed.wrapping_add(1);
-    let rainfall_seed = seed.wrapping_add(2);
-
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
@@ -152,13 +149,7 @@ impl WorldBiomes {
         let pos =
           chunk_pos.min_block_pos() + Pos::new(rel_pos.x().into(), rel_pos.y(), rel_pos.z().into());
 
-        let climate = climate::from_temperature_and_rainfall(
-          (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-          (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
-        );
-
-        let mut rng = Rng::new(seed);
-        let biome = self.climates.choose(&mut rng, climate);
+        let biome = self.choose_biome(seed, pos);
 
         if chunk.get(rel_pos) == blocks.stone {
           chunk.set(rel_pos, biome.top_block);
