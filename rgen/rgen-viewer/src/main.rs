@@ -80,15 +80,11 @@ pub fn main() -> Result<(), String> {
   let mut view_coords = (0.0, 0.0);
   let mut drag_pos = None;
 
-  let mut world_view = WorldViewer::new(screen_width, screen_height);
+  let mut world_view = WorldViewer::new();
 
   let texture_creator = render.canvas.texture_creator();
-  let mut screen_texture = texture_creator
-    .create_texture_streaming(
-      Some(sdl2::pixels::PixelFormatEnum::ARGB8888),
-      screen_width as u32,
-      screen_height as u32,
-    )
+  let mut temp_texture = texture_creator
+    .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
     .unwrap();
 
   'main: loop {
@@ -164,6 +160,13 @@ pub fn main() -> Result<(), String> {
     {
       let w = world.read();
 
+      let source_x = view_coords.0 as i32;
+      let source_y = view_coords.1 as i32;
+      // This is the offset within one block that the screen is shifted by. This is
+      // what makes the smooth scrolling "smooth".
+      let view_offset_x = -((view_coords.0 - source_x as f64) * zoom as f64) as i32;
+      let view_offset_y = -((view_coords.1 - source_y as f64) * zoom as f64) as i32;
+
       let t = Instant::now();
 
       'chunk_building: for chunk_x in min_chunk.x..=max_chunk.x {
@@ -190,21 +193,28 @@ pub fn main() -> Result<(), String> {
         }
       }
 
-      // NB: Segfaults if you screw up the buffer size.
-      world_view.buffer.copy_to_sdl2(&mut screen_texture);
+      for chunk_x in min_chunk.x..=max_chunk.x {
+        for chunk_z in min_chunk.z..=max_chunk.z {
+          let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-      let source_x = view_coords.0 as i32;
-      let source_y = view_coords.1 as i32;
-      // This is the offset within one block that the screen is shifted by. This is
-      // what makes the smooth scrolling "smooth".
-      let view_offset_x = -((view_coords.0 - source_x as f64) * zoom as f64) as i32;
-      let view_offset_y = -((view_coords.1 - source_y as f64) * zoom as f64) as i32;
+          if let Some(c) = world_view.get_chunk(chunk_pos) {
+            let pos = chunk_pos.min_block_pos();
 
-      render.canvas.copy(
-        &screen_texture,
-        Some(Rect::new(source_x, source_y, screen_width / zoom + 1, screen_height / zoom + 1)),
-        Some(Rect::new(view_offset_x, view_offset_y, screen_width + zoom, screen_height + zoom)),
-      )?;
+            c.copy_to_sdl2(&mut temp_texture);
+
+            render.canvas.copy(
+              &temp_texture,
+              None,
+              Some(Rect::new(
+                pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
+                pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
+                zoom * 16,
+                zoom * 16,
+              )),
+            )?;
+          }
+        }
+      }
 
       let meter_height = w.height_at(hover_pos);
 

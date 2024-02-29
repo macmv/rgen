@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use rgen_base::{ChunkPos, Pos};
 use sdl2::pixels::Color;
@@ -6,28 +6,25 @@ use sdl2::pixels::Color;
 use crate::{render::RenderBuffer, terrain::TerrainGenerator, world::World, RenderMode};
 
 pub struct WorldViewer {
-  pub buffer: RenderBuffer,
-  pub mode:   RenderMode,
+  pub mode: RenderMode,
 
-  placed_chunks: HashSet<ChunkPos>,
+  chunks: HashMap<ChunkPos, RenderBuffer>,
 }
 
 impl WorldViewer {
-  pub fn new(screen_width: u32, screen_height: u32) -> WorldViewer {
-    WorldViewer {
-      buffer:        RenderBuffer::new(screen_width, screen_height),
-      mode:          RenderMode::Height,
-      placed_chunks: HashSet::new(),
-    }
-  }
+  pub fn new() -> WorldViewer { WorldViewer { mode: RenderMode::Height, chunks: HashMap::new() } }
 
   pub fn set_mode(&mut self, mode: RenderMode) {
     self.mode = mode;
-    self.placed_chunks.clear();
+    self.chunks.clear();
+  }
+
+  pub fn get_chunk(&self, chunk_pos: ChunkPos) -> Option<&RenderBuffer> {
+    self.chunks.get(&chunk_pos)
   }
 
   pub fn place_chunk(&mut self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
-    if self.placed_chunks.contains(&chunk_pos) {
+    if self.chunks.contains_key(&chunk_pos) {
       return;
     }
 
@@ -43,7 +40,7 @@ impl WorldViewer {
       return;
     }
 
-    self.placed_chunks.insert(chunk_pos);
+    let mut chunk = RenderBuffer::new(16, 16);
 
     for rel_x in 0..16 {
       for rel_z in 0..16 {
@@ -122,9 +119,9 @@ impl WorldViewer {
         let height_color = Color::RGB(brightness, brightness, brightness);
         let _biome_color = world.color_for_biome(biome);
 
-        self.buffer.set(
-          pos.x,
-          pos.z,
+        chunk.set(
+          rel_x,
+          rel_z,
           //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN
           Color::RGB(
             height_color.r, //+ biome_color.r,
@@ -134,5 +131,7 @@ impl WorldViewer {
         );
       }
     }
+
+    self.chunks.insert(chunk_pos, chunk);
   }
 }

@@ -28,6 +28,7 @@ impl RenderBuffer {
   }
 
   pub fn copy_to_sdl2(&self, texture: &mut sdl2::render::Texture) {
+    // NB: Segfaults if you screw up the buffer size.
     texture.update(None, &self.buffer, (self.width * 4) as usize).unwrap();
   }
 }
