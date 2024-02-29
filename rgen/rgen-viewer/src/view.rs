@@ -16,7 +16,7 @@ pub struct WorldViewer {
 impl WorldViewer {
   pub fn new() -> WorldViewer {
     WorldViewer {
-      mode:              RenderMode::Height,
+      mode:              RenderMode::Brightness,
       chunks:            HashMap::new(),
       other_mode_chunks: HashMap::new(),
     }
