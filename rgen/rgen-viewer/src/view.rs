@@ -12,7 +12,9 @@ pub struct WorldViewer {
 }
 
 impl WorldViewer {
-  pub fn new() -> WorldViewer { WorldViewer { mode: RenderMode::Height, chunks: HashMap::new() } }
+  pub fn new() -> WorldViewer {
+    WorldViewer { mode: RenderMode::Height, chunks: HashMap::new() }
+  }
 
   pub fn set_mode(&mut self, mode: RenderMode) {
     self.mode = mode;
@@ -119,15 +121,24 @@ impl WorldViewer {
         let height_color = Color::RGB(brightness, brightness, brightness);
         let biome_color = world.color_for_biome(biome);
 
-        chunk.set(
-          rel_x,
-          rel_z,
-          Color::RGB(
-            height_color.r.saturating_add(biome_color.r),
-            height_color.g.saturating_add(biome_color.g),
-            height_color.b.saturating_add(biome_color.b),
-          ),
+        let transparency = 40;
+        let alpha = (255 * transparency / 100) as u8;
+        let r = std::cmp::min(
+          ((height_color.r as u16 * alpha as u16 + biome_color.r as u16 * (255 - alpha as u16))
+            / 255) as u8,
+          255,
         );
+        let g = std::cmp::min(
+          ((height_color.g as u16 * alpha as u16 + biome_color.g as u16 * (255 - alpha as u16))
+            / 255) as u8,
+          255,
+        );
+        let b = std::cmp::min(
+          ((height_color.b as u16 * alpha as u16 + biome_color.b as u16 * (255 - alpha as u16))
+            / 255) as u8,
+          255,
+        );
+        chunk.set(rel_x, rel_z, Color::RGB(r, g, b));
       }
     }
 

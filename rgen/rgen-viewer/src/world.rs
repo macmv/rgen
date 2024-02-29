@@ -4,7 +4,7 @@ use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_world::{Context, Generator};
 
 pub struct World<G> {
-  pub context:   Context,
+  pub context: Context,
   pub generator: G,
 
   chunks: HashMap<ChunkPos, BiomeChunk>,
@@ -28,7 +28,9 @@ impl Column {
 }
 
 impl Default for Column {
-  fn default() -> Column { Column::EMPTY }
+  fn default() -> Column {
+    Column::EMPTY
+  }
 }
 
 impl<G> World<G> {
@@ -40,7 +42,9 @@ impl<G> World<G> {
     self.chunks.insert(chunk_pos, chunk);
   }
 
-  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
+  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool {
+    self.chunks.contains_key(&chunk_pos)
+  }
 
   #[track_caller]
   pub fn column_at(&self, pos: Pos) -> Column {
@@ -49,7 +53,9 @@ impl<G> World<G> {
   }
 
   #[track_caller]
-  pub fn height_at(&self, pos: Pos) -> f64 { self.column_at(pos).height }
+  pub fn height_at(&self, pos: Pos) -> f64 {
+    self.column_at(pos).height
+  }
 }
 
 impl<G: Generator> World<G> {
