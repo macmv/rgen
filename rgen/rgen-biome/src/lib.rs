@@ -94,6 +94,40 @@ pub struct WorldBiomes {
   height_map:      OctavedNoise<PerlinNoise>,
   temperature_map: OctavedNoise<PerlinNoise>,
   rainfall_map:    OctavedNoise<PerlinNoise>,
+
+  /// Defines how far inland or how far into the sea any given block is.
+  ///
+  /// In order:
+  /// - Sea (ocean, deep ocean)
+  /// - Coast (beach)
+  /// - Near Inland (plains)
+  /// - Mid Inland (forest, small mountains)
+  /// - Far Inland (mountains)
+  continalness_map: OctavedNoise<PerlinNoise>,
+
+  /// Defines the approximate height of the type of biome. Note that this isn't
+  /// the height map, its almost the height goal of the biome that is chosen.
+  ///
+  /// Note that the low/mid/high slices can also change based on the
+  /// continalness.
+  ///
+  /// In order:
+  /// - Valley (rivers, swamps)
+  /// - Low Slice (plains?)
+  /// - Mid Slice (forest, small mountains)
+  /// - High Slice (mountains)
+  /// - Peak (extreme hills)
+  peaks_valleys_map: OctavedNoise<PerlinNoise>,
+
+  /// Defines how erroded the land is.
+  ///
+  /// Note that this is heavily affected by the peaks and valleys map.
+  ///
+  /// In order:
+  /// - Not eroded (mountains)
+  /// - Somewhat eroded (forests, plains)
+  /// - most eroded (swamps, deserts)
+  erosion_map: OctavedNoise<PerlinNoise>,
 }
 
 impl BiomeBuilder {
@@ -116,6 +150,10 @@ impl WorldBiomes {
       height_map:      OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       rainfall_map:    OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+
+      continalness_map:  OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
+      peaks_valleys_map: OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
+      erosion_map:       OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
     }
   }
 
