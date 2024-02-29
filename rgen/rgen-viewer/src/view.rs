@@ -117,16 +117,15 @@ impl WorldViewer {
         };
 
         let height_color = Color::RGB(brightness, brightness, brightness);
-        let _biome_color = world.color_for_biome(biome);
+        let biome_color = world.color_for_biome(biome);
 
         chunk.set(
           rel_x,
           rel_z,
-          //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN
           Color::RGB(
-            height_color.r, //+ biome_color.r,
-            height_color.g, //+ biome_color.g,
-            height_color.b, //+ biome_color.b,
+            height_color.r.saturating_add(biome_color.r),
+            height_color.g.saturating_add(biome_color.g),
+            height_color.b.saturating_add(biome_color.b),
           ),
         );
       }
