@@ -33,7 +33,7 @@ impl TerrainGenerator {
 
 #[cfg(test)]
 mod tests {
-  use rgen_base::{Biomes, Blocks, ChunkPos};
+  use rgen_base::{Biomes, Blocks};
 
   use super::*;
 
@@ -45,7 +45,8 @@ mod tests {
     let biomes = Biomes::test_blocks();
     let _generator = TerrainGenerator::new(&blocks, &biomes, 1);
 
-    let _ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks };
+    // let _ctx = ChunkContext { chunk_pos: ChunkPos::new(0, 0), blocks: &blocks
+    // };
 
     // generator.generate(&ctx, &mut chunk);
   }
