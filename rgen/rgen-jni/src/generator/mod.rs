@@ -8,7 +8,7 @@ pub struct TerrainGenerator {
 
   height_map: OctavedNoise<PerlinNoise>,
 
-  biomes: rgen_biome::Biomes,
+  biomes: rgen_biome::WorldBiomes,
 }
 
 impl Generator for TerrainGenerator {
@@ -48,7 +48,7 @@ impl TerrainGenerator {
       seed,
       height_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
-      biomes: rgen_biome::Biomes::new(blocks, biome_ids),
+      biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids),
     }
   }
 

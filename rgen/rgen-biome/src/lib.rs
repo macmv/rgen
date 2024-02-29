@@ -88,7 +88,7 @@ impl BiomeBuilder {
   }
 }
 
-pub struct Biomes {
+pub struct WorldBiomes {
   climates: ClimateMap,
 
   temperature_map: noise::OctavedNoise<noise::PerlinNoise>,
@@ -108,9 +108,9 @@ impl BiomeBuilder {
   }
 }
 
-impl Biomes {
+impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
-    Biomes {
+    WorldBiomes {
       climates:        ClimateMap::new(blocks, biome_ids),
       temperature_map: noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       rainfall_map:    noise::OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
