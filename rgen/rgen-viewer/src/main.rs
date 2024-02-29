@@ -359,7 +359,10 @@ fn spawn_generation_thread(
       let mut gc = generated_chunks.write();
       gc.insert(chunk_pos);
 
-      ctx.send((chunk_pos, chunk)).unwrap();
+      match ctx.send((chunk_pos, chunk)) {
+        Ok(()) => {}
+        Err(_) => break,
+      }
     });
   }
 
