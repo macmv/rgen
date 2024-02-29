@@ -175,26 +175,42 @@ pub fn main() -> Result<(), String> {
 
       let t = Instant::now();
 
-      'chunk_building: for chunk_x in min_chunk.x..=max_chunk.x {
-        for chunk_z in min_chunk.z..=max_chunk.z {
-          let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+      // Loop in a spiral to generate the middle first.
+      let middle_chunk = (min_chunk + max_chunk) / 2;
 
-          // Only place chunks for 16ms.
-          if t.elapsed().as_millis() > 16 {
-            break 'chunk_building;
-          }
+      let half_screen = middle_chunk - min_chunk;
+      let radius = half_screen.x.max(half_screen.z);
 
-          if w.has_chunk(chunk_pos) {
-            world_view.place_chunk(&w, chunk_pos);
-          } else {
-            match request_chunk.try_send(chunk_pos) {
-              Ok(()) => {}
-              Err(TrySendError::Disconnected(_)) => {
-                panic!("chunk generation died");
-              }
-              Err(TrySendError::Full(_)) => {}
+      'chunk_building: for i in 0..radius {
+        let min_circle = middle_chunk - ChunkPos::new(i, i);
+        let max_circle = middle_chunk + ChunkPos::new(i, i);
+
+        for x in min_circle.x..=max_circle.x {
+          for z in min_circle.z..=max_circle.z {
+            let chunk_pos = ChunkPos::new(x, z);
+
+            if chunk_pos.x < min_chunk.x
+              || chunk_pos.x > max_chunk.x
+              || chunk_pos.z < min_chunk.z
+              || chunk_pos.z > max_chunk.z
+            {
+              continue;
             }
-            continue;
+
+            // Only place chunks for 16ms.
+            if t.elapsed().as_millis() > 16 {
+              break 'chunk_building;
+            }
+
+            if w.has_chunk(chunk_pos) {
+              world_view.place_chunk(&w, chunk_pos);
+            } else {
+              match request_chunk.try_send(chunk_pos) {
+                Ok(()) => {}
+                Err(TrySendError::Disconnected(_)) => panic!("chunk generation died"),
+                Err(TrySendError::Full(_)) => break 'chunk_building,
+              }
+            }
           }
         }
       }
