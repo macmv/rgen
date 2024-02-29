@@ -1,5 +1,5 @@
 use biome::{ClimateMap, IdContext};
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{Block, BlockState, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, OctavedNoise, PerlinNoise},
   Rng,
@@ -152,7 +152,8 @@ impl WorldBiomes {
         let biome = self.choose_biome(seed, pos);
 
         if chunk.get(rel_pos) == blocks.stone {
-          chunk.set_data(rel_pos, biome.top_block, biome.top_block_data);
+          chunk
+            .set_state(rel_pos, BlockState { block: biome.top_block, state: biome.top_block_data });
         }
       }
     }

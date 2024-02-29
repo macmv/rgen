@@ -1,12 +1,7 @@
 /// A block represents a block type (like dirt, stone, etc).
 // TODO: If there's a static context set, Debug should print the block name.
-#[derive(Debug, Clone, Copy, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Block(pub(crate) u16);
-
-// FIXME: Need to cleanup the block state interactions so this isn't a thing.
-impl PartialEq for Block {
-  fn eq(&self, other: &Block) -> bool { self.0 >> 4 == other.0 >> 4 }
-}
 
 /// A block state represents a block with a specific data value (like wool
 /// color).
@@ -25,6 +20,18 @@ impl Block {
 
   /// The raw ID used in the chunk data (air is 0, dirt is 16, etc).
   pub fn raw_id(&self) -> u16 { self.0 << 4 }
+}
+
+impl BlockState {
+  pub(crate) fn from_raw_id(id: u16) -> BlockState {
+    BlockState { block: Block(id >> 4), state: (id & 0xf) as u8 }
+  }
+
+  /// Returns the state ID used in the chunk data.
+  pub fn raw_id(&self) -> u16 {
+    assert!(self.state < 16);
+    self.block.raw_id() | (self.state as u16)
+  }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
