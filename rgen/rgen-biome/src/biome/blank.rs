@@ -1,8 +1,43 @@
+use rgen_placer::placer;
+
+use crate::builder::PlacerStage;
+
 use super::{BiomeBuilder, IdContext};
 
 pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.stone;
+
+  gen.place(
+    "grass",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace: ctx.blocks.stone,
+      place:   ctx.blocks.grass,
+
+      attempts: 50,
+    },
+  );
+  gen.place(
+    "gravel",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace: ctx.blocks.stone,
+      place:   ctx.blocks.gravel,
+
+      attempts: 100,
+    },
+  );
+  gen.place(
+    "cobble",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace: ctx.blocks.stone,
+      place:   ctx.blocks.cobblestone,
+
+      attempts: 100,
+    },
+  );
 }
 
 const WHITE: u8 = 0;

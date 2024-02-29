@@ -82,6 +82,7 @@ big! { Blocks: Block
   leaves => "minecraft:leaves",
   water => "minecraft:water",
   wool => "minecraft:wool",
+  cobblestone => "minecraft:cobblestone",
 }
 
 big! { Biomes: Biome
