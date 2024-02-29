@@ -11,6 +11,7 @@ mod terrain;
 mod view;
 mod world;
 
+use splines::Key;
 use terrain::TerrainGenerator;
 use world::{BiomeChunk, World};
 
@@ -295,8 +296,8 @@ struct Render {
   #[allow(unused)]
   sdl_context: sdl2::Sdl,
   ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events: sdl2::EventPump,
-  canvas: sdl2::render::Canvas<sdl2::video::Window>,
+  events:      sdl2::EventPump,
+  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
 }
 
 impl Render {
@@ -326,13 +327,11 @@ impl Render {
     self.canvas.clear();
   }
 
-  pub fn present(&mut self) {
-    self.canvas.present();
-  }
+  pub fn present(&mut self) { self.canvas.present(); }
 }
 
 struct FontRender<'a> {
-  font: &'a sdl2::ttf::Font<'a, 'a>,
+  font:   &'a sdl2::ttf::Font<'a, 'a>,
   render: &'a mut Render,
 }
 
