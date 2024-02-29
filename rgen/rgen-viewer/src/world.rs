@@ -36,6 +36,10 @@ impl<G> World<G> {
     World { context, generator, chunks: HashMap::new() }
   }
 
+  pub fn set_chunk(&mut self, chunk_pos: ChunkPos, chunk: BiomeChunk) {
+    self.chunks.insert(chunk_pos, chunk);
+  }
+
   pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
 
   #[track_caller]
@@ -49,29 +53,27 @@ impl<G> World<G> {
 }
 
 impl<G: Generator> World<G> {
-  pub fn generate_chunk(&mut self, chunk_pos: ChunkPos) {
-    if !self.chunks.contains_key(&chunk_pos) {
-      let mut columns = [Column::EMPTY; 256];
+  pub fn build_chunk(&self, chunk_pos: ChunkPos) -> BiomeChunk {
+    let mut columns = [Column::EMPTY; 256];
 
-      let mut biomes = [0; 256];
-      self.generator.generate_biomes(chunk_pos, &mut biomes);
+    let mut biomes = [0; 256];
+    self.generator.generate_biomes(chunk_pos, &mut biomes);
 
-      for rel_x in 0..16 {
-        for rel_z in 0..16 {
-          let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
-          let i = (rel_x * 16 + rel_z) as usize;
+    for rel_x in 0..16 {
+      for rel_z in 0..16 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
+        let i = (rel_x * 16 + rel_z) as usize;
 
-          let biome_id = biomes[i];
-          let biome = Biome::from_raw_id(biome_id.into());
+        let biome_id = biomes[i];
+        let biome = Biome::from_raw_id(biome_id.into());
 
-          let height = self.generator.height_at(pos);
+        let height = self.generator.height_at(pos);
 
-          columns[i] = Column { height, biome };
-        }
+        columns[i] = Column { height, biome };
       }
-
-      self.chunks.insert(chunk_pos, BiomeChunk { columns });
     }
+
+    BiomeChunk { columns }
   }
 }
 

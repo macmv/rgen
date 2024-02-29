@@ -1,7 +1,7 @@
-use std::{sync::Arc, time::Instant};
+use std::{collections::HashSet, sync::Arc, time::Instant};
 
-use crossbeam_channel::{Sender, TrySendError};
-use parking_lot::RwLock;
+use crossbeam_channel::{Receiver, Sender, TrySendError};
+use parking_lot::{Mutex, RwLock};
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
@@ -12,7 +12,7 @@ mod view;
 mod world;
 
 use terrain::TerrainGenerator;
-use world::World;
+use world::{BiomeChunk, World};
 
 use crate::view::WorldViewer;
 
@@ -51,7 +51,7 @@ pub fn main() -> Result<(), String> {
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
   let world = Arc::new(RwLock::new(World::new(context, terrain)));
 
-  let request_chunk = spawn_generation_thread(&world);
+  let (completed_chunks, request_chunk) = spawn_generation_thread(&world);
 
   render.clear();
   render.present();
@@ -88,8 +88,6 @@ pub fn main() -> Result<(), String> {
     .unwrap();
 
   'main: loop {
-    render.clear();
-
     for event in render.events.poll_iter() {
       match event {
         Event::Quit { .. } => break 'main,
@@ -150,6 +148,16 @@ pub fn main() -> Result<(), String> {
         _ => {}
       }
     }
+
+    {
+      let mut w = world.write();
+
+      while let Ok((chunk_pos, chunk)) = completed_chunks.try_recv() {
+        w.set_chunk(chunk_pos, chunk);
+      }
+    }
+
+    render.clear();
 
     let view_pos = Pos::new(view_coords.0 as i32, 0, view_coords.1 as i32);
     let max_pos =
@@ -310,25 +318,41 @@ impl FontRender<'_> {
   }
 }
 
-fn spawn_generation_thread(world: &Arc<RwLock<World<TerrainGenerator>>>) -> Sender<ChunkPos> {
+fn spawn_generation_thread(
+  world: &Arc<RwLock<World<TerrainGenerator>>>,
+) -> (Receiver<(ChunkPos, BiomeChunk)>, Sender<ChunkPos>) {
   // Spawn up 16 threads to generate chunks.
   const POOL_SIZE: usize = 16;
 
   let (tx, rx) = crossbeam_channel::bounded(POOL_SIZE * 8);
+  let (ctx, crx) = crossbeam_channel::bounded(POOL_SIZE * 8);
+
+  let generated_chunks = Arc::new(RwLock::new(HashSet::new()));
 
   for _ in 0..POOL_SIZE {
     let rx = rx.clone();
+    let ctx = ctx.clone();
     let world = world.clone();
+    let generated_chunks = generated_chunks.clone();
 
     std::thread::spawn(move || loop {
       let chunk_pos = match rx.recv() {
         Ok(p) => p,
         Err(_) => break,
       };
-      let mut w = world.write();
-      w.generate_chunk(chunk_pos);
+
+      if generated_chunks.read().contains(&chunk_pos) {
+        continue;
+      }
+
+      let chunk = world.read().build_chunk(chunk_pos);
+
+      let mut gc = generated_chunks.write();
+      gc.insert(chunk_pos);
+
+      ctx.send((chunk_pos, chunk)).unwrap();
     });
   }
 
-  tx
+  (crx, tx)
 }
