@@ -72,9 +72,6 @@ pub fn main() -> Result<(), String> {
   // Current block hoverred on.
   let mut hover_pos = Pos::new(0, 0, 0);
 
-  let screen_width = 1920;
-  let screen_height = 1080;
-
   let mut zoom = 4;
   // The top-left corner of the screen, in fractional blocks.
   let mut view_coords = (0.0, 0.0);
@@ -160,6 +157,9 @@ pub fn main() -> Result<(), String> {
     }
 
     render.clear();
+
+    let screen_width = render.canvas.output_size().unwrap().0;
+    let screen_height = render.canvas.output_size().unwrap().1;
 
     let view_pos = Pos::new(view_coords.0 as i32, 0, view_coords.1 as i32);
     let max_pos =
@@ -290,6 +290,7 @@ impl Render {
     let window = video_subsystem
       .window("RGen Viewer", (screen.w / 2) as u32, (screen.h / 2) as u32)
       .position_centered()
+      .resizable()
       .build()
       .map_err(|e| e.to_string())?;
 
