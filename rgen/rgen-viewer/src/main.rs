@@ -285,8 +285,10 @@ impl Render {
     let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
     let video_subsystem = sdl_context.video()?;
 
+    let screen = video_subsystem.current_display_mode(0).unwrap();
+
     let window = video_subsystem
-      .window("RGen Viewer", 1920, 1080)
+      .window("RGen Viewer", (screen.w / 2) as u32, (screen.h / 2) as u32)
       .position_centered()
       .build()
       .map_err(|e| e.to_string())?;
