@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Instant};
 
-use crossbeam_channel::{SendError, Sender, TrySendError};
+use crossbeam_channel::{Sender, TrySendError};
 use parking_lot::RwLock;
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_world::Context;
@@ -14,7 +14,7 @@ mod world;
 use terrain::TerrainGenerator;
 use world::World;
 
-use crate::{render::RenderGrid, view::WorldViewer};
+use crate::view::WorldViewer;
 
 enum RenderMode {
   /// Number 1
@@ -190,17 +190,6 @@ impl World<TerrainGenerator> {
     };
 
     Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
-  }
-
-  pub fn biome_at(&self, pos: Pos) -> Biome {
-    let chunk_pos = pos.chunk();
-    let mut biomes = [0; 256];
-    self.generator.generate_biomes(chunk_pos, &mut biomes);
-
-    let rel = pos.chunk_rel();
-    let i = (rel.x() * 16 + rel.z()) as usize;
-    let biome_id = biomes[i];
-    Biome::from_raw_id(biome_id.into())
   }
 }
 

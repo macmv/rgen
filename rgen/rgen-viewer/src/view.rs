@@ -118,7 +118,7 @@ impl WorldViewer {
         };
 
         let height_color = Color::RGB(brightness, brightness, brightness);
-        let biome_color = world.color_for_biome(biome);
+        let _biome_color = world.color_for_biome(biome);
 
         self.grid.set(
           pos.x,

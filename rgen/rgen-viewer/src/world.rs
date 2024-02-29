@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::noise::NoiseGenerator;
-use rgen_world::{Context, PartialWorld};
+use rgen_world::Context;
 
 use crate::terrain::TerrainGenerator;
 
@@ -10,8 +10,7 @@ pub struct World<G> {
   pub context:   Context,
   pub generator: G,
 
-  partial: PartialWorld,
-  chunks:  HashMap<ChunkPos, BiomeChunk>,
+  chunks: HashMap<ChunkPos, BiomeChunk>,
 }
 
 pub struct BiomeChunk {
@@ -37,7 +36,7 @@ impl Default for Column {
 
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
-    World { context, generator, partial: PartialWorld::new(), chunks: HashMap::new() }
+    World { context, generator, chunks: HashMap::new() }
   }
 
   pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
