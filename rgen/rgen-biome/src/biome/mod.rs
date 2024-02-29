@@ -1,55 +1,44 @@
 //! Stores all the actual biome implementations.
 
 mod blank;
-mod cold_taiga;
-mod extreme_hills;
-mod forest;
-mod ice_plains;
-mod lush_swamp;
 mod plains;
-mod roofed_forest;
-mod savanna;
-mod swamp;
 
-use std::collections::HashMap;
+pub use blank::*;
+pub use plains::*;
 
-use rgen_base::Blocks;
+pub struct IdContext<'a> {
+  biomes: &'a Biomes,
+  blocks: &'a Blocks,
+}
+
+use rgen_base::{Biomes, Blocks};
 use rgen_placer::Rng;
 
-use crate::{climate::Climate, BiomeBuilder};
+use crate::{
+  builder::{BiomeBuilder, PlacerStage},
+  climate::Climate,
+};
 
 /// Stores the map of climates to biomes.
 pub struct ClimateMap {
   default: BiomeBuilder,
-  _biomes: HashMap<Climate, Vec<BiomeBuilder>>,
+}
+
+pub type BiomeFn = fn(&IdContext, &mut BiomeBuilder);
+
+impl BiomeBuilder {
+  fn build(name: &'static str, ctx: &IdContext, build: BiomeFn) -> Self {
+    let mut builder = BiomeBuilder::new(name, ctx.blocks);
+    build(ctx, &mut builder);
+    builder
+  }
 }
 
 impl ClimateMap {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> ClimateMap {
-    let mut biomes = HashMap::new();
+    let ctx = IdContext { biomes: biome_ids, blocks };
 
-    macro_rules! biome {
-      ($name:ident) => {
-        BiomeBuilder::build(stringify!($name), blocks, biome_ids, $name::$name)
-      };
-    }
-
-    biomes.insert(Climate::IceCap, vec![biome!(ice_plains)]);
-    biomes.insert(Climate::Tundra, vec![biome!(cold_taiga)]);
-    biomes.insert(Climate::SubArctic, vec![biome!(extreme_hills)]);
-    biomes.insert(Climate::ColdSwamp, vec![biome!(swamp)]);
-    biomes.insert(Climate::DryTemperate, vec![biome!(plains)]);
-    biomes.insert(Climate::CoolTemperate, vec![biome!(forest)]);
-    biomes.insert(Climate::WetTemperate, vec![biome!(roofed_forest)]);
-    biomes.insert(Climate::Savanna, vec![biome!(savanna)]);
-    biomes.insert(Climate::WarmTemperate, vec![biome!(plains)]);
-    biomes.insert(Climate::HotDesert, vec![biome!(plains)]);
-    biomes.insert(Climate::Mediteranean, vec![biome!(plains)]);
-    biomes.insert(Climate::HotSwamp, vec![biome!(plains)]);
-    biomes.insert(Climate::HighDesert, vec![biome!(plains)]);
-    biomes.insert(Climate::Tropical, vec![biome!(plains)]);
-
-    ClimateMap { default: biome!(blank), _biomes: biomes }
+    ClimateMap { default: BiomeBuilder::build("blank", &ctx, blank) }
   }
 
   pub fn choose(&self, _rng: &mut Rng, _climate: Climate) -> &BiomeBuilder {

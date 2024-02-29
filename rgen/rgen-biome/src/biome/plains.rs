@@ -1,14 +1,13 @@
-use crate::{BiomeBuilder, PlacerStage};
-use rgen_base::{Biomes, Blocks};
+use super::{BiomeBuilder, IdContext, PlacerStage};
 use rgen_placer::placer;
 
-pub fn plains(blocks: &Blocks, biomes: &Biomes, gen: &mut BiomeBuilder) {
-  gen.id = biomes.plains;
-  gen.top_block = blocks.grass;
+pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.plains;
+  gen.top_block = ctx.blocks.grass;
 
   gen.place(
     "tree",
     PlacerStage::Tree,
-    placer::BasicTree { trunk: blocks.log, leaves: blocks.leaves },
+    placer::BasicTree { trunk: ctx.blocks.log, leaves: ctx.blocks.leaves },
   )
 }

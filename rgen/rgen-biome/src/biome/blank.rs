@@ -1,7 +1,6 @@
-use crate::BiomeBuilder;
-use rgen_base::{Biomes, Blocks};
+use super::{BiomeBuilder, IdContext};
 
-pub fn blank(blocks: &Blocks, biomes: &Biomes, gen: &mut BiomeBuilder) {
-  gen.id = biomes.plains;
-  gen.top_block = blocks.grass;
+pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.plains;
+  gen.top_block = ctx.blocks.grass;
 }
