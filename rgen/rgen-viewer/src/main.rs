@@ -1,5 +1,4 @@
 use rgen_base::{Biome, ChunkPos, Pos};
-use rgen_placer::noise::NoiseGenerator;
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
@@ -45,7 +44,7 @@ pub fn main() -> Result<(), String> {
 
   let context = Context::new_test(seed);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
-  let world = World::new(context, terrain);
+  let mut world = World::new(context, terrain);
 
   render.clear();
   render.present();
@@ -107,17 +106,15 @@ pub fn main() -> Result<(), String> {
     for chunk_x in 0..=max_chunk.x + 1 {
       for chunk_z in 0..=max_chunk.z + 1 {
         let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
-
-        let mut biomes = [0; 256];
-        world.generator.generate_biomes(chunk_pos, &mut biomes);
+        world.generate_chunk(chunk_pos);
 
         for rel_x in 0..16 {
           for rel_z in 0..16 {
             let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
-            let i = (rel_x * 16 + rel_z) as usize;
-            let biome_id = biomes[i];
-            let biome = Biome::from_raw_id(biome_id.into());
-            let meter_height = world.meter_height(pos);
+            let column = world.column_at(pos);
+
+            let biome = column.biome;
+            let meter_height = column.height as f64;
 
             let block_distance = 1;
             // ╔═╦═╦═╗
@@ -128,16 +125,16 @@ pub fn main() -> Result<(), String> {
             // ║g║h║i║
             // ╚═╩═╩═╝ <- var table  || block_distance
 
-            let a = world.meter_height(pos + Pos::new(-block_distance, 0, block_distance));
-            let b = world.meter_height(pos + Pos::new(0, 0, block_distance));
-            let c = world.meter_height(pos + Pos::new(block_distance, 0, block_distance));
+            let a = world.height_at(pos + Pos::new(-block_distance, 0, block_distance));
+            let b = world.height_at(pos + Pos::new(0, 0, block_distance));
+            let c = world.height_at(pos + Pos::new(block_distance, 0, block_distance));
 
-            let d = world.meter_height(pos + Pos::new(-block_distance, 0, 0));
-            let f = world.meter_height(pos + Pos::new(block_distance, 0, 0));
+            let d = world.height_at(pos + Pos::new(-block_distance, 0, 0));
+            let f = world.height_at(pos + Pos::new(block_distance, 0, 0));
 
-            let g = world.meter_height(pos + Pos::new(-block_distance, 0, -block_distance));
-            let h = world.meter_height(pos + Pos::new(0, 0, -block_distance));
-            let i = world.meter_height(pos + Pos::new(block_distance, 0, -block_distance));
+            let g = world.height_at(pos + Pos::new(-block_distance, 0, -block_distance));
+            let h = world.height_at(pos + Pos::new(0, 0, -block_distance));
+            let i = world.height_at(pos + Pos::new(block_distance, 0, -block_distance));
 
             let dz_dx = ((c + (2.0 * f) + i) * 4.0 - (a + (2.0 * d) + g) * 4.0) / (8.0 * 1.0);
             //[dz/dx] = ((c + 2f + i)*4/wght1 - (a + 2d + g)*4/wght2) / (8 * x_cellsize)
@@ -207,7 +204,7 @@ pub fn main() -> Result<(), String> {
     grid.buffer.copy_to_sdl2(&mut screen_texture);
     render.canvas.copy(&screen_texture, None, None)?;
 
-    let meter_height = world.meter_height(hover_pos);
+    let meter_height = world.height_at(hover_pos);
 
     if let Some(f) = &font {
       let mut f = FontRender { font: f, render: &mut render };
@@ -216,7 +213,8 @@ pub fn main() -> Result<(), String> {
       f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
       //let biome = world.biome_at(hover_pos);
-      //f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
+      //f.render(0, 48, format!("Biome: {}",
+      // world.context.biomes.name_of(biome)));
     }
 
     render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -229,16 +227,6 @@ pub fn main() -> Result<(), String> {
 }
 
 impl World<TerrainGenerator> {
-  pub fn height(&self, pos: Pos) -> f64 {
-    let height =
-      self.generator.height_map.generate(pos.x as f64, pos.z as f64, self.generator.seed) + 1.0;
-    height
-  }
-  pub fn meter_height(&self, pos: Pos) -> f64 {
-    let meter_height = self.height(pos) * 64.0;
-    meter_height
-  }
-
   pub fn color_for_biome(&self, biome: Biome) -> Color {
     let biome_hex = match biome {
       b if b == self.context.biomes.ice_plains => 0x518ded,
@@ -246,7 +234,7 @@ impl World<TerrainGenerator> {
       b if b == self.context.biomes.extreme_hills => 0x4f6aab,
       b if b == self.context.biomes.plains => 0x61b086,
       b if b == self.context.biomes.savanna => 0xa19d55,
-      b => {
+      _ => {
         //println!("unknown biome {b:?}");
         0x000000
       }
@@ -271,8 +259,8 @@ struct Render {
   #[allow(unused)]
   sdl_context: sdl2::Sdl,
   ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events: sdl2::EventPump,
-  canvas: sdl2::render::Canvas<sdl2::video::Window>,
+  events:      sdl2::EventPump,
+  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
 }
 
 impl Render {
@@ -299,13 +287,11 @@ impl Render {
     self.canvas.clear();
   }
 
-  pub fn present(&mut self) {
-    self.canvas.present();
-  }
+  pub fn present(&mut self) { self.canvas.present(); }
 }
 
 struct FontRender<'a> {
-  font: &'a sdl2::ttf::Font<'a, 'a>,
+  font:   &'a sdl2::ttf::Font<'a, 'a>,
   render: &'a mut Render,
 }
 
