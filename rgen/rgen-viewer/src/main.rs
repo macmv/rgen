@@ -73,7 +73,9 @@ pub fn main() -> Result<(), String> {
   let screen_height = 1080;
 
   let mut zoom = 4;
-  let mut view_pos = Pos::new(0, 0, 0);
+  // The top-left corner of the screen, in fractional blocks.
+  let mut view_coords = (0.0, 0.0);
+  let mut drag_pos = None;
 
   let mut world_view = WorldViewer::new(screen_width, screen_height);
 
@@ -111,9 +113,12 @@ pub fn main() -> Result<(), String> {
           world_view.set_mode(RenderMode::BiomeColors)
         }
 
+        Event::MouseButtonDown { x, y, .. } => drag_pos = Some((x, y)),
+        Event::MouseButtonUp { .. } => drag_pos = None,
+
         Event::MouseWheel { y, .. } => {
           if y > 0 {
-            zoom = (zoom as i32 * 2).min(16) as u32;
+            zoom = (zoom as i32 * 2).min(32) as u32;
           } else {
             zoom = (zoom as i32 / 2).max(1) as u32;
           }
@@ -121,12 +126,23 @@ pub fn main() -> Result<(), String> {
 
         Event::MouseMotion { x, y, .. } => {
           hover_pos = Pos::new(x / zoom as i32, 0, y / zoom as i32);
+
+          if let Some((i_x, i_y)) = drag_pos {
+            let d_x = (i_x - x) as f64 / zoom as f64;
+            let d_y = (i_y - y) as f64 / zoom as f64;
+
+            view_coords.0 += d_x;
+            view_coords.1 += d_y;
+
+            drag_pos = Some((x, y));
+          }
         }
 
         _ => {}
       }
     }
 
+    let view_pos = Pos::new(view_coords.0 as i32, 0, view_coords.1 as i32);
     let max_pos =
       view_pos + Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
     let min_chunk = view_pos.chunk() + ChunkPos::new(-1, -1);
@@ -163,10 +179,18 @@ pub fn main() -> Result<(), String> {
 
       // NB: Segfaults if you screw up the buffer size.
       world_view.buffer.copy_to_sdl2(&mut screen_texture);
+
+      let source_x = view_coords.0 as i32;
+      let source_y = view_coords.1 as i32;
+      // This is the offset within one block that the screen is shifted by. This is
+      // what makes the smooth scrolling "smooth".
+      let view_offset_x = -((view_coords.0 - source_x as f64) * zoom as f64) as i32;
+      let view_offset_y = -((view_coords.1 - source_y as f64) * zoom as f64) as i32;
+
       render.canvas.copy(
         &screen_texture,
-        Some(Rect::new(view_pos.x / zoom as i32, 0, screen_width / zoom, screen_height / zoom)),
-        Some(Rect::new(0, 0, screen_width, screen_height)),
+        Some(Rect::new(source_x, source_y, screen_width / zoom + 1, screen_height / zoom + 1)),
+        Some(Rect::new(view_offset_x, view_offset_y, screen_width + zoom, screen_height + zoom)),
       )?;
 
       let meter_height = w.height_at(hover_pos);
@@ -174,22 +198,22 @@ pub fn main() -> Result<(), String> {
       if let Some(f) = &font {
         let mut f = FontRender { font: f, render: &mut render };
 
-        f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
+        f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = view_coords.0, z = view_coords.1));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
         //let biome = world.biome_at(hover_pos);
         //f.render(0, 48, format!("Biome: {}",
         // world.context.biomes.name_of(biome)));
       }
-    }
 
-    render.canvas.set_draw_color(Color::RGB(0, 0, 255));
-    render.canvas.draw_rect(Rect::new(
-      hover_pos.x() * zoom as i32,
-      hover_pos.z() * zoom as i32,
-      zoom,
-      zoom,
-    ))?;
+      render.canvas.set_draw_color(Color::RGB(0, 0, 255));
+      render.canvas.draw_rect(Rect::new(
+        hover_pos.x() * zoom as i32 + view_offset_x,
+        hover_pos.z() * zoom as i32 + view_offset_y,
+        zoom,
+        zoom,
+      ))?;
+    }
 
     render.present();
   }
