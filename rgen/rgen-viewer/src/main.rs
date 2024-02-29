@@ -72,6 +72,8 @@ pub fn main() -> Result<(), String> {
   let screen_width = 1920;
   let screen_height = 1080;
 
+  let mut zoom = 4;
+
   let mut world_view = WorldViewer::new(screen_width, screen_height);
 
   let texture_creator = render.canvas.texture_creator();
@@ -108,15 +110,24 @@ pub fn main() -> Result<(), String> {
           world_view.set_mode(RenderMode::BiomeColors)
         }
 
+        Event::MouseWheel { y, .. } => {
+          if y > 0 {
+            zoom = (zoom as i32 * 2).min(16) as u32;
+          } else {
+            zoom = (zoom as i32 / 2).max(1) as u32;
+          }
+        }
+
         Event::MouseMotion { x, y, .. } => {
-          hover_pos = Pos::new(x / 4, 0, y / 4);
+          hover_pos = Pos::new(x / zoom as i32, 0, y / zoom as i32);
         }
 
         _ => {}
       }
     }
 
-    let max_pos = Pos::new(screen_width as i32 / 4, 0, screen_height as i32 / 4);
+    let max_pos =
+      Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
     let max_chunk = ChunkPos::new(max_pos.x / 16, max_pos.z / 16);
 
     {
@@ -152,7 +163,7 @@ pub fn main() -> Result<(), String> {
       world_view.buffer.copy_to_sdl2(&mut screen_texture);
       render.canvas.copy(
         &screen_texture,
-        Some(Rect::new(0, 0, screen_width / 4, screen_height / 4)),
+        Some(Rect::new(0, 0, screen_width / zoom, screen_height / zoom)),
         Some(Rect::new(0, 0, screen_width, screen_height)),
       )?;
 
@@ -171,7 +182,12 @@ pub fn main() -> Result<(), String> {
     }
 
     render.canvas.set_draw_color(Color::RGB(0, 0, 255));
-    render.canvas.draw_rect(Rect::new(hover_pos.x() * 4, hover_pos.z() * 4, 4, 4))?;
+    render.canvas.draw_rect(Rect::new(
+      hover_pos.x() * zoom as i32,
+      hover_pos.z() * zoom as i32,
+      zoom,
+      zoom,
+    ))?;
 
     render.present();
   }
