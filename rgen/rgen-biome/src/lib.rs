@@ -103,7 +103,7 @@ pub struct WorldBiomes {
   /// - Near Inland (plains)
   /// - Mid Inland (forest, small mountains)
   /// - Far Inland (mountains)
-  continalness_map: OctavedNoise<PerlinNoise>,
+  continentalness_map: OctavedNoise<PerlinNoise>,
 
   /// Defines the approximate height of the type of biome. Note that this isn't
   /// the height map, its almost the height goal of the biome that is chosen.
@@ -151,9 +151,9 @@ impl WorldBiomes {
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       rainfall_map:    OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
-      continalness_map:  OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
-      peaks_valleys_map: OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
-      erosion_map:       OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
+      continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
+      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
+      erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
     }
   }
 
