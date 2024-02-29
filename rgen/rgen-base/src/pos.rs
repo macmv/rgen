@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Div, Sub};
 
 /// A position in a chunk.
 ///
@@ -138,11 +138,32 @@ impl Add for Pos {
   fn add(self, other: Pos) -> Pos { Pos::new(self.x + other.x, self.y + other.y, self.z + other.z) }
 }
 
+impl Sub for Pos {
+  type Output = Pos;
+
+  #[track_caller]
+  fn sub(self, other: Pos) -> Pos { Pos::new(self.x - other.x, self.y - other.y, self.z - other.z) }
+}
+
 impl Add for ChunkPos {
   type Output = ChunkPos;
 
   #[track_caller]
   fn add(self, other: ChunkPos) -> ChunkPos { ChunkPos::new(self.x + other.x, self.z + other.z) }
+}
+
+impl Sub for ChunkPos {
+  type Output = ChunkPos;
+
+  #[track_caller]
+  fn sub(self, other: ChunkPos) -> ChunkPos { ChunkPos::new(self.x - other.x, self.z - other.z) }
+}
+
+impl Div<i32> for ChunkPos {
+  type Output = ChunkPos;
+
+  #[track_caller]
+  fn div(self, other: i32) -> ChunkPos { ChunkPos::new(self.x / other, self.z / other) }
 }
 
 #[cfg(test)]
