@@ -67,6 +67,9 @@ pub fn main() -> Result<(), String> {
     }
   };
 
+  // Mouse position in pixels.
+  let mut mouse_pos = (0, 0);
+  // Current block hoverred on.
   let mut hover_pos = Pos::new(0, 0, 0);
 
   let screen_width = 1920;
@@ -117,14 +120,20 @@ pub fn main() -> Result<(), String> {
         Event::MouseButtonUp { .. } => drag_pos = None,
 
         Event::MouseWheel { y, .. } => {
-          if y > 0 {
-            zoom = (zoom as i32 * 2).min(32) as u32;
-          } else {
-            zoom = (zoom as i32 / 2).max(1) as u32;
-          }
+          let zoom_after =
+            if y > 0 { (zoom as i32 * 2).min(32) as u32 } else { (zoom as i32 / 2).max(1) as u32 };
+
+          let mouse_block_x = view_coords.0 + mouse_pos.0 as f64 / zoom as f64;
+          let mouse_block_y = view_coords.1 + mouse_pos.1 as f64 / zoom as f64;
+
+          view_coords.0 = -(mouse_pos.0 as f64 / zoom_after as f64) + mouse_block_x;
+          view_coords.1 = -(mouse_pos.1 as f64 / zoom_after as f64) + mouse_block_y;
+
+          zoom = zoom_after;
         }
 
         Event::MouseMotion { x, y, .. } => {
+          mouse_pos = (x, y);
           hover_pos = Pos::new(x / zoom as i32, 0, y / zoom as i32);
 
           if let Some((i_x, i_y)) = drag_pos {
