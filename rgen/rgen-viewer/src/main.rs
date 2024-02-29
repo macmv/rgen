@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 
 use crossbeam_channel::{SendError, Sender, TrySendError};
 use parking_lot::RwLock;
@@ -8,12 +8,13 @@ use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 mod render;
 mod terrain;
+mod view;
 mod world;
 
 use terrain::TerrainGenerator;
 use world::World;
 
-use crate::render::RenderGrid;
+use crate::{render::RenderGrid, view::WorldViewer};
 
 enum RenderMode {
   /// Number 1
@@ -72,7 +73,7 @@ pub fn main() -> Result<(), String> {
   let screen_width = 1920;
   let screen_height = 1080;
 
-  let mut grid = RenderGrid::new(screen_width, screen_height, 4);
+  let mut world_view = WorldViewer::new(screen_width, screen_height);
 
   let texture_creator = render.canvas.texture_creator();
   let mut screen_texture = texture_creator
@@ -115,7 +116,9 @@ pub fn main() -> Result<(), String> {
         for chunk_z in 0..=max_chunk.z + 1 {
           let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-          if !w.has_chunk(chunk_pos) {
+          if w.has_chunk(chunk_pos) {
+            world_view.place_chunk(&w, chunk_pos);
+          } else {
             match request_chunk.try_send(chunk_pos) {
               Ok(()) => {}
               Err(TrySendError::Disconnected(_)) => {
@@ -125,101 +128,11 @@ pub fn main() -> Result<(), String> {
             }
             continue;
           }
-
-          for rel_x in 0..16 {
-            for rel_z in 0..16 {
-              let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
-              let column = w.column_at(pos);
-
-              let biome = column.biome;
-              let meter_height = column.height as f64;
-
-              let block_distance = 1;
-              // ╔═╦═╦═╗
-              // ║a║b║c║
-              // ╠═╬═╬═╣     MINECRAFT
-              // ║d║é║f║     - X & Z is flat plane
-              // ╠═╬═╬═╣     - Y is up
-              // ║g║h║i║
-              // ╚═╩═╩═╝ <- var table  || block_distance
-
-              let a = w.height_at(pos + Pos::new(-block_distance, 0, block_distance));
-              let b = w.height_at(pos + Pos::new(0, 0, block_distance));
-              let c = w.height_at(pos + Pos::new(block_distance, 0, block_distance));
-
-              let d = w.height_at(pos + Pos::new(-block_distance, 0, 0));
-              let f = w.height_at(pos + Pos::new(block_distance, 0, 0));
-
-              let g = w.height_at(pos + Pos::new(-block_distance, 0, -block_distance));
-              let h = w.height_at(pos + Pos::new(0, 0, -block_distance));
-              let i = w.height_at(pos + Pos::new(block_distance, 0, -block_distance));
-
-              let dz_dx = ((c + (2.0 * f) + i) * 4.0 - (a + (2.0 * d) + g) * 4.0) / (8.0 * 1.0);
-              //[dz/dx] = ((c + 2f + i)*4/wght1 - (a + 2d + g)*4/wght2) / (8 * x_cellsize)
-
-              let dz_dy = ((g + (2.0 * h) + i) * 4.0 - (a + (2.0 * b) + c) * 4.0) / (8.0 * 1.0);
-              //[dz/dy] = ((g + 2h + i)*4/wght3 - (a + 2b + c)*4/wght4) / (8 * y_cellsize)
-
-              //claculates cell slope at that location
-
-              let cell_slope = ((dz_dx).powi(2) + (dz_dy).powi(2)).sqrt().atan();
-              //dbg!(cell_slope);
-              //Slope = arctan(sqrt((dz/dx)^2 + (dz/dy)^2))
-
-              //calulates cell aspect this is the direction the cell is facing as a slope
-              let cell_aspect = dz_dx.atan2(-dz_dy);
-              //arctan2(dz/dx, -dz/dy)
-
-              let azimuth = 315.0 / 180.0 * std::f64::consts::PI;
-              let altidue = 45.0 / 180.0 * std::f64::consts::PI;
-
-              let solar_incidence_angle = (altidue.sin() * cell_slope.sin()
-                + altidue.cos() * cell_slope.cos() * (azimuth - cell_aspect).cos())
-              .acos();
-
-              let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
-
-              let brightness = match mode {
-                RenderMode::Height => (meter_height * 2.0) as u8,
-                RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
-                RenderMode::Aspect => {
-                  //let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
-                  //println!("Aspect: {asp}");
-                  (cell_aspect * 255.0 / std::f64::consts::PI) as u8
-                }
-                RenderMode::Brightness => {
-                  //let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
-                  //println!("Brightness: {bright}");
-                  (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
-                }
-                RenderMode::BiomeColors => 0,
-                //
-                //HSV
-                //Hue:0-360         - This is the color of the terrain
-                //Saturation:0-100  - This is the terrain height
-                //Value:0-100       - Keep locked too set darkness to max-light
-              };
-
-              let height_color = Color::RGB(brightness, brightness, brightness);
-              let biome_color = w.color_for_biome(biome);
-
-              grid.set(
-                pos.x,
-                pos.z,
-                //ERROR THAT I DON'T FEE LIKE FIXING TRACKED DOWN
-                Color::RGB(
-                  height_color.r, //+ biome_color.r,
-                  height_color.g, //+ biome_color.g,
-                  height_color.b, //+ biome_color.b,
-                ),
-              );
-            }
-          }
         }
       }
 
       // NB: Segfaults if you screw up the buffer size.
-      grid.buffer.copy_to_sdl2(&mut screen_texture);
+      world_view.grid.buffer.copy_to_sdl2(&mut screen_texture);
       render.canvas.copy(&screen_texture, None, None)?;
 
       let meter_height = w.height_at(hover_pos);
