@@ -197,6 +197,9 @@ impl WorldBiomes {
         for y in 0..height as u8 {
           chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
         }
+        for y in height as u8..64 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water);
+        }
       }
     }
 
@@ -238,7 +241,9 @@ impl WorldBiomes {
         let mut rng = Rng::new(seed);
         let biome = self.climates.choose(&mut rng, climate);
 
-        chunk.set(rel_pos, biome.top_block);
+        if chunk.get(rel_pos) == blocks.stone {
+          chunk.set(rel_pos, biome.top_block);
+        }
       }
     }
   }
