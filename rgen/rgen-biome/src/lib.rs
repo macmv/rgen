@@ -6,6 +6,7 @@ use rgen_placer::{
   Placer, Random, Rng,
 };
 use rgen_world::{Context, PartialWorld};
+use splines::Key;
 
 mod biome;
 mod climate;
@@ -94,6 +95,40 @@ pub struct WorldBiomes {
   height_map:      OctavedNoise<PerlinNoise>,
   temperature_map: OctavedNoise<PerlinNoise>,
   rainfall_map:    OctavedNoise<PerlinNoise>,
+
+  /// Defines how far inland or how far into the sea any given block is.
+  ///
+  /// In order:
+  /// - Sea (ocean, deep ocean)
+  /// - Coast (beach)
+  /// - Near Inland (plains)
+  /// - Mid Inland (forest, small mountains)
+  /// - Far Inland (mountains)
+  continentalness_map: OctavedNoise<PerlinNoise>,
+
+  /// Defines the approximate height of the type of biome. Note that this isn't
+  /// the height map, its almost the height goal of the biome that is chosen.
+  ///
+  /// Note that the low/mid/high slices can also change based on the
+  /// continalness.
+  ///
+  /// In order:
+  /// - Valley (rivers, swamps)
+  /// - Low Slice (plains?)
+  /// - Mid Slice (forest, small mountains)
+  /// - High Slice (mountains)
+  /// - Peak (extreme hills)
+  peaks_valleys_map: OctavedNoise<PerlinNoise>,
+
+  /// Defines how erroded the land is.
+  ///
+  /// Note that this is heavily affected by the peaks and valleys map.
+  ///
+  /// In order:
+  /// - Not eroded (mountains)
+  /// - Somewhat eroded (forests, plains)
+  /// - most eroded (swamps, deserts)
+  erosion_map: OctavedNoise<PerlinNoise>,
 }
 
 impl BiomeBuilder {
@@ -109,6 +144,18 @@ impl BiomeBuilder {
   }
 }
 
+lazy_static::lazy_static! {
+  pub static ref CONTINENTALNESS_TO_HEIGHT: splines::Spline<f64, f64> = splines::Spline::from_vec(vec![
+    Key::new(0.0, 120.0, splines::Interpolation::Cosine),
+    Key::new(0.1, 40.0, splines::Interpolation::Cosine),
+    Key::new(0.3, 40.0, splines::Interpolation::Cosine),
+    Key::new(0.4, 70.0, splines::Interpolation::Cosine),
+    Key::new(0.5, 80.0, splines::Interpolation::Cosine),
+    Key::new(0.8, 140.0, splines::Interpolation::Cosine),
+    Key::new(1.0, 150.0, splines::Interpolation::Cosine),
+  ]);
+}
+
 impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     WorldBiomes {
@@ -116,12 +163,28 @@ impl WorldBiomes {
       height_map:      OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       rainfall_map:    OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+
+      continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
+      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
+      erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
     }
   }
 
+  fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
+    let continentalness =
+      ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
+        .clamp(0.0, 1.0);
+
+    let height = CONTINENTALNESS_TO_HEIGHT.sample(continentalness).unwrap_or_default();
+
+    height
+  }
+
   pub fn height_at(&self, pos: Pos) -> f64 {
-    let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) + 1.0;
-    noise_height * 64.0
+    // let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) +
+    // 1.0; noise_height * 64.0
+
+    self.sample_height(0, pos)
   }
 
   pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
@@ -133,6 +196,9 @@ impl WorldBiomes {
 
         for y in 0..height as u8 {
           chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
+        }
+        for y in height as u8..64 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water);
         }
       }
     }
@@ -175,7 +241,9 @@ impl WorldBiomes {
         let mut rng = Rng::new(seed);
         let biome = self.climates.choose(&mut rng, climate);
 
-        chunk.set(rel_pos, biome.top_block);
+        if chunk.get(rel_pos) == blocks.stone {
+          chunk.set(rel_pos, biome.top_block);
+        }
       }
     }
   }

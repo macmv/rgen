@@ -7,6 +7,7 @@ use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 mod render;
+mod spline_view;
 mod terrain;
 mod view;
 mod world;
@@ -80,6 +81,8 @@ pub fn main() -> Result<(), String> {
 
   let mut world_view = WorldViewer::new();
 
+  let mut spline_view = spline_view::SplineViewer::new();
+
   let texture_creator = render.canvas.texture_creator();
   let mut temp_texture = texture_creator
     .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
@@ -142,6 +145,8 @@ pub fn main() -> Result<(), String> {
             view_coords.1 += d_y;
 
             drag_pos = Some((x, y));
+
+            spline_view.pan(d_x, d_y);
           }
         }
 
@@ -260,6 +265,8 @@ pub fn main() -> Result<(), String> {
       ))?;
     }
 
+    spline_view.render(&mut render);
+
     render.present();
 
     let elapsed = last_frame.elapsed();
@@ -295,8 +302,8 @@ struct Render {
   #[allow(unused)]
   sdl_context: sdl2::Sdl,
   ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events: sdl2::EventPump,
-  canvas: sdl2::render::Canvas<sdl2::video::Window>,
+  events:      sdl2::EventPump,
+  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
 }
 
 impl Render {
@@ -326,13 +333,11 @@ impl Render {
     self.canvas.clear();
   }
 
-  pub fn present(&mut self) {
-    self.canvas.present();
-  }
+  pub fn present(&mut self) { self.canvas.present(); }
 }
 
 struct FontRender<'a> {
-  font: &'a sdl2::ttf::Font<'a, 'a>,
+  font:   &'a sdl2::ttf::Font<'a, 'a>,
   render: &'a mut Render,
 }
 
