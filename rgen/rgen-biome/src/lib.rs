@@ -127,8 +127,8 @@ impl WorldBiomes {
         // placed or not.
         //
         // So, the height isn't really "height," its more the hilliness of the terrain.
-        let min_height = 40.0;
         let max_height = self.sample_height(seed, pos);
+        let min_height = 64.0 - max_height / 128.0;
 
         if max_height < 64.0 {
           for y in 0..=63 {
