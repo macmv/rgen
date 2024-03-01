@@ -16,12 +16,14 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 
 const BLANK: BiomeFnCategory = &[blank];
 
+const FROZEN_VALLEY: BiomeFnCategory = &[glacier, rockies, broken_glacier];
 const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];
-
-const ROCKY_VALLEY: BiomeFnCategory = &[];
-const COOL_VALLEY: BiomeFnCategory = &[];
-const SWAMP: BiomeFnCategory = &[];
-const DRY_RIVER: BiomeFnCategory = &[];
+const ROCKY_VALLEY: BiomeFnCategory = &[crag, snowy_crag /* , rocky_cedar */];
+const COOL_VALLEY: BiomeFnCategory =
+  &[crag /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
+const SWAMP: BiomeFnCategory =
+  &[/* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
+const DRY_RIVER: BiomeFnCategory = &[swamp /* , mangrove_woods */];
 const WARM_VALLEY: BiomeFnCategory = &[];
 const HOT_SWAMP: BiomeFnCategory = &[];
 const TROPIC_SWAMP: BiomeFnCategory = &[];
@@ -32,10 +34,10 @@ const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
   &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
-  &[ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, COOL_VALLEY, WARM_VALLEY, SWAMP, SWAMP, DRY_RIVER],
-  &[BOG, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP],
-  &[BOG, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP, HOT_SWAMP],
-  &[BOG, BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP],
+  &[FROZEN_VALLEY, ROCKY_VALLEY, COOL_VALLEY, COOL_VALLEY, WARM_VALLEY, SWAMP, SWAMP, DRY_RIVER],
+  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP],
+  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP, HOT_SWAMP],
+  &[FROZEN_VALLEY, BOG, BOG, COOL_VALLEY, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP],
   &[BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP, TROPIC_SWAMP],
 ];
 
