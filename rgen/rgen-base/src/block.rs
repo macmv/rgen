@@ -23,6 +23,8 @@ impl Block {
 }
 
 impl BlockState {
+  pub const AIR: BlockState = BlockState { block: Block::AIR, state: 0 };
+
   pub(crate) fn from_raw_id(id: u16) -> BlockState {
     BlockState { block: Block(id >> 4), state: (id & 0xf) as u8 }
   }
@@ -100,6 +102,7 @@ big! { Blocks: Block
   water => "minecraft:water",
   wool => "minecraft:wool",
   cobblestone => "minecraft:cobblestone",
+  mossy_cobblestone => "minecraft:mossy_cobblestone",
 }
 
 big! { Biomes: Biome

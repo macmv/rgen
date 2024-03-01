@@ -1,3 +1,4 @@
+use rgen_base::BlockState;
 use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
@@ -12,8 +13,8 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: ctx.blocks.stone,
-      place:   ctx.blocks.grass,
+      replace: BlockState { block: ctx.blocks.stone, state: 0 },
+      place:   BlockState { block: ctx.blocks.grass, state: 0 },
 
       attempts: 50,
     },
@@ -22,8 +23,8 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "gravel",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: ctx.blocks.stone,
-      place:   ctx.blocks.gravel,
+      replace: BlockState { block: ctx.blocks.stone, state: 0 },
+      place:   BlockState { block: ctx.blocks.gravel, state: 0 },
 
       attempts: 100,
     },
@@ -32,8 +33,8 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "cobble",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: ctx.blocks.stone,
-      place:   ctx.blocks.cobblestone,
+      replace: BlockState { block: ctx.blocks.stone, state: 0 },
+      place:   BlockState { block: ctx.blocks.mossy_cobblestone, state: 0 },
 
       attempts: 100,
     },
