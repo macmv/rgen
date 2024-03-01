@@ -60,6 +60,13 @@ impl BlockInfo {
     BlockState { block: self.block, state: data }
   }
 
+  /// Creates a block state with the given property value.
+  ///
+  /// For example, you could set the color of wool with `.with_property("color",
+  /// "lime")`.
+  ///
+  /// NOTE: This is note implemented yet, pulling out properties from java is a
+  /// pain.
   pub fn with_property(&self, key: &str, value: &str) -> BlockState {
     let values = self
       .prop_map
