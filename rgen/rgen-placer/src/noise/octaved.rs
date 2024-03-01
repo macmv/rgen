@@ -31,6 +31,6 @@ impl<Noise: NoiseGenerator> NoiseGenerator for OctavedNoise<Noise> {
         value
       })
       // FIXME: Don't clamp this here.
-      .clamp(-1.0, 1.0)
+      .clamp(-1.0, 1.0 - 1e-6)
   }
 }
