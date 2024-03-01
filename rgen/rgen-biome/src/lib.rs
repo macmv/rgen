@@ -1,7 +1,7 @@
 use biome::{ClimateMap, IdContext};
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
-  noise::{NoiseGenerator, OctavedNoise, PerlinNoise},
+  noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, PerlinNoise},
   Rng,
 };
 use rgen_world::{Context, PartialWorld};
@@ -56,6 +56,8 @@ pub struct WorldBiomes {
   /// - Somewhat eroded (forests, plains)
   /// - most eroded (swamps, deserts)
   erosion_map: OctavedNoise<PerlinNoise>,
+
+  density_map: OctavedNoise<PerlinNoise>,
 }
 
 lazy_static::lazy_static! {
@@ -86,6 +88,8 @@ impl WorldBiomes {
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
       peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
+
+      density_map: OctavedNoise { octaves: 5, freq: 1.0 / 64.0, ..Default::default() },
     }
   }
 
@@ -111,14 +115,50 @@ impl WorldBiomes {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
 
-        let height = self.height_at(pos) as i32;
+        // let height = self.height_at(pos) as i32;
+        // let biome = self.choose_biome(seed, pos);
 
+        // The "max height" here is the maximum Y level for a single block. We then
+        // linearly interpolate between min_height and max_height, and compare the
+        // interpolated value to a 3D noise map, to choose if there will be a block
+        // placed or not.
+        //
+        // So, the height isn't really "height," its more the hilliness of the terrain.
+        let min_height = 40.0;
+        let max_height = self.sample_height(seed, pos);
+
+        if max_height < 64.0 {
+          for y in 0..=63 {
+            if y < max_height as u8 {
+              chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.stone.block);
+            } else {
+              chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.water.block);
+            }
+          }
+        } else {
+          for y in 0..=255 {
+            let pos = pos.with_y(y);
+
+            let noise =
+              self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64, seed) * 0.5
+                + 0.5;
+
+            let limit = (y as f64 - min_height) / (max_height - min_height);
+
+            if noise > limit {
+              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
+            }
+          }
+        }
+
+        /*
         for y in 0..height as u8 {
           chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
         }
         for y in height as u8..64 {
           chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
         }
+        */
       }
     }
 
