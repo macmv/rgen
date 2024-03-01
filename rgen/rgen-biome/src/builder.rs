@@ -15,6 +15,9 @@ pub struct BiomeBuilder {
 
   pub top_block: BlockState,
 
+  pub min_height: u32,
+  pub max_height: u32,
+
   placers: Vec<PlacerBuilder>,
 }
 
@@ -29,7 +32,14 @@ impl PlacerBuilder {
 
 impl BiomeBuilder {
   pub fn new(name: &'static str, blocks: &Blocks) -> Self {
-    Self { name, id: Biome::VOID, top_block: blocks.grass.default_state, placers: vec![] }
+    Self {
+      name,
+      id: Biome::VOID,
+      top_block: blocks.grass.default_state,
+      min_height: 64,
+      max_height: 128,
+      placers: vec![],
+    }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
