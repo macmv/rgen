@@ -16,9 +16,7 @@ impl TerrainGenerator {
 }
 
 impl Generator for TerrainGenerator {
-  fn height_at(&self, pos: Pos) -> f64 {
-    self.biomes.height_at(pos)
-  }
+  fn height_at(&self, pos: Pos) -> f64 { self.biomes.height_at(pos) }
 
   fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
     self.biomes.generate_ids(self.seed, chunk_pos, biomes);
@@ -31,6 +29,6 @@ impl Generator for TerrainGenerator {
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
 
-    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt);
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
   }
 }

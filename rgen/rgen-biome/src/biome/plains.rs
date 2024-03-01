@@ -3,11 +3,11 @@ use rgen_placer::placer;
 
 pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.grass;
+  gen.top_block = ctx.blocks.grass.block;
 
   gen.place(
     "tree",
     PlacerStage::Tree,
-    placer::BasicTree { trunk: ctx.blocks.log, leaves: ctx.blocks.leaves },
+    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
   )
 }

@@ -7,14 +7,14 @@ use super::{BiomeBuilder, IdContext};
 
 pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.stone;
+  gen.top_block = ctx.blocks.stone.block;
 
   gen.place(
     "grass",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: BlockState { block: ctx.blocks.stone, state: 0 },
-      place:   BlockState { block: ctx.blocks.grass, state: 0 },
+      replace: ctx.blocks.stone.default_state,
+      place:   ctx.blocks.grass.default_state,
 
       attempts: 50,
     },
@@ -23,8 +23,8 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "gravel",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: BlockState { block: ctx.blocks.stone, state: 0 },
-      place:   BlockState { block: ctx.blocks.gravel, state: 0 },
+      replace: ctx.blocks.stone.default_state,
+      place:   ctx.blocks.gravel.default_state,
 
       attempts: 100,
     },
@@ -33,8 +33,8 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "cobble",
     PlacerStage::Sand,
     placer::Splatter {
-      replace: BlockState { block: ctx.blocks.stone, state: 0 },
-      place:   BlockState { block: ctx.blocks.mossy_cobblestone, state: 0 },
+      replace: ctx.blocks.stone.default_state,
+      place:   ctx.blocks.mossy_cobblestone.default_state,
 
       attempts: 100,
     },
@@ -60,48 +60,48 @@ const BLACK: u8 = 15;
 
 pub fn rocky_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = GRAY;
 }
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = BROWN;
 }
 
 pub fn cool_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = CYAN;
 }
 
 pub fn warm_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = YELLOW;
 }
 
 pub fn swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = GREEN;
 }
 
 pub fn dry_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = ORANGE;
 }
 
 pub fn hot_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = RED;
 }
 
 pub fn tropic_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool;
+  gen.top_block = ctx.blocks.wool.block;
   gen.top_block_data = LIME;
 }

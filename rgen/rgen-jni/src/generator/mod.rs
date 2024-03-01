@@ -21,7 +21,7 @@ impl Generator for TerrainGenerator {
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
 
-    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt);
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
   }
 }
 

@@ -114,10 +114,10 @@ impl WorldBiomes {
         let height = self.height_at(pos) as i32;
 
         for y in 0..height as u8 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone);
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
         }
         for y in height as u8..64 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water);
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
         }
       }
     }
@@ -140,7 +140,7 @@ impl WorldBiomes {
         let mut y = 255;
         while y > 0 {
           let block = chunk.get(rel_pos.with_y(y));
-          if block != Block::AIR && ![blocks.leaves].contains(&block) {
+          if block != Block::AIR && ![blocks.leaves.block].contains(&block) {
             break;
           }
           y -= 1;
@@ -151,7 +151,7 @@ impl WorldBiomes {
 
         let biome = self.choose_biome(seed, pos);
 
-        if chunk.get(rel_pos) == blocks.stone {
+        if chunk.get(rel_pos) == blocks.stone.block {
           chunk
             .set_state(rel_pos, BlockState { block: biome.top_block, state: biome.top_block_data });
         }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 /// A block represents a block type (like dirt, stone, etc).
 // TODO: If there's a static context set, Debug should print the block name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -12,14 +14,47 @@ pub struct BlockState {
 }
 
 impl Block {
-  /// Creates a block from a block state ID (this is the ID multiplied by 16).
-  fn from_raw_id(id: i32) -> Block {
-    assert!(id >= 0 && id < 4096);
-    Block(id as u16 >> 4)
-  }
-
   /// The raw ID used in the chunk data (air is 0, dirt is 16, etc).
   pub fn raw_id(&self) -> u16 { self.0 << 4 }
+}
+
+/// Stores info about a block, like its default states and properties.
+#[derive(Debug, PartialEq, Eq)]
+pub struct BlockInfo {
+  pub name:          String,
+  pub block:         Block,
+  pub default_state: BlockState,
+
+  prop_map: HashMap<String, HashMap<String, u8>>,
+}
+
+impl Block {
+  pub const AIR: Block = Block(0);
+}
+
+impl BlockInfo {
+  pub fn temp_new(name: &str, id: i32) -> BlockInfo {
+    let state = BlockState::from_raw_id(id as u16);
+
+    BlockInfo {
+      name:          name.to_string(),
+      block:         state.block,
+      default_state: state,
+      prop_map:      HashMap::new(),
+    }
+  }
+
+  pub fn with_property(&self, key: &str, value: &str) -> BlockState {
+    let values = self
+      .prop_map
+      .get(key)
+      .unwrap_or_else(|| panic!("Block {} does not have a property {}", self.name, key));
+    let state = *values.get(value).unwrap_or_else(|| {
+      panic!("Block {} property {} does not have key {}", self.name, key, value)
+    });
+
+    BlockState { block: self.block, state }
+  }
 }
 
 impl BlockState {
@@ -40,6 +75,8 @@ impl BlockState {
 pub struct Biome(pub(crate) u8);
 
 impl Biome {
+  pub const VOID: Biome = Biome(127);
+
   pub fn from_raw_id(id: i32) -> Biome {
     assert!(id >= 0 && id < 256);
     Biome(id as u8)
@@ -59,37 +96,35 @@ macro_rules! big {
       $(pub $id: $item),*
     }
 
-    impl $item {
-      pub const $default_name: $item = $item($default_id);
-    }
-
     impl $struct_name {
-      pub fn init(mut lookup_id: impl FnMut(&str) -> i32) -> $struct_name {
+      pub fn init(mut lookup: impl FnMut(&str) -> $item) -> $struct_name {
         $struct_name {
-          $($id: $item::from_raw_id(lookup_id($name)),)*
+          $($id: lookup($name),)*
         }
       }
 
       /// Only public for testing.
       pub fn test_blocks() -> $struct_name {
-        let mut id = 0;
-        $struct_name {
-          $($id: $item::from_raw_id({ id += 1; id }),)*
-        }
+        // let mut id = 0;
+        // $struct_name {
+        //   $($id: $item::from_raw_id({ id += 1; id }),)*
+        // }
+        todo!()
       }
 
-      pub fn name_of(&self, v: $item) -> &'static str {
-        $(
-          if v == self.$id { return $name }
-        )*
-        if v == $item::$default_name { return $default_str }
-        unreachable!();
+      pub fn name_of(&self, _v: $item) -> &'static str {
+        todo!()
+        // $(
+        //   if v == self.$id { return $name }
+        // )*
+        // if v == $item::$default_name { return $default_str }
+        // unreachable!();
       }
     }
   };
 }
 
-big! { Blocks: Block
+big! { Blocks: BlockInfo
   AIR => "minecraft:air" = 0,
 
   stone => "minecraft:stone",

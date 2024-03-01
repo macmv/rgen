@@ -30,7 +30,13 @@ impl PlacerBuilder {
 
 impl BiomeBuilder {
   pub fn new(name: &'static str, blocks: &Blocks) -> Self {
-    Self { name, id: Biome::VOID, top_block: blocks.grass, top_block_data: 0, placers: vec![] }
+    Self {
+      name,
+      id: Biome::VOID,
+      top_block: blocks.grass.block,
+      top_block_data: 0,
+      placers: vec![],
+    }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
@@ -69,7 +75,7 @@ impl BiomeBuilder {
       for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
         let pos = world.top_block_excluding(
           Pos::new((point.0 / SCALE) as i32, 0, (point.1 / SCALE) as i32),
-          &[blocks.leaves],
+          &[blocks.leaves.block],
         );
 
         // This builds a unique seed for each placer. This gives the placer the same
