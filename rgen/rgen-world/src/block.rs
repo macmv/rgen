@@ -9,9 +9,7 @@ impl PartialWorld {
     self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk)
   }
 
-  pub fn get(&mut self, pos: Pos) -> Block { self.get_state(pos).block }
-
-  pub fn get_state(&mut self, pos: Pos) -> BlockState {
+  pub fn get(&mut self, pos: Pos) -> BlockState {
     if let Some(chunk) = self.chunk(pos.chunk()) {
       chunk.get_state(pos.chunk_rel())
     } else {
@@ -20,13 +18,9 @@ impl PartialWorld {
     }
   }
 
-  pub fn set(&mut self, pos: Pos, block: Block) {
-    self.set_state(pos, BlockState { block, state: 0 });
-  }
-
-  pub fn set_state(&mut self, pos: Pos, block: BlockState) {
+  pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
     if let Some(chunk) = self.chunk_mut(pos.chunk()) {
-      chunk.set_state(pos.chunk_rel(), block);
+      chunk.set_state(pos.chunk_rel(), block.into());
     } else {
       // TODO: Log a warning when writing outside the world.
     }
@@ -38,7 +32,7 @@ impl PartialWorld {
   pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[Block]) -> Pos {
     let mut y = 255;
     while y > 0 {
-      let block = self.get(pos.with_y(y));
+      let block = self.get(pos.with_y(y)).block;
       if block != Block::AIR && !exclude.contains(&block) {
         break;
       }

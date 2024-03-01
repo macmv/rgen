@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockState, Pos};
+use rgen_base::{BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
@@ -22,8 +22,8 @@ impl Placer for Splatter {
           rng.rand_inclusive(-8, 8),
         );
 
-      if world.get_state(pos) == self.replace {
-        world.set_state(pos, self.place);
+      if world.get(pos) == self.replace {
+        world.set(pos, self.place);
       }
     }
   }

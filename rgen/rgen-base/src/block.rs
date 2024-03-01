@@ -13,6 +13,14 @@ pub struct BlockState {
   pub state: u8,
 }
 
+// FIXME: This should probably use the default state.
+impl Into<BlockState> for Block {
+  fn into(self) -> BlockState { BlockState { block: self, state: 0 } }
+}
+impl Into<BlockState> for BlockInfo {
+  fn into(self) -> BlockState { self.default_state }
+}
+
 impl Block {
   /// The raw ID used in the chunk data (air is 0, dirt is 16, etc).
   pub fn raw_id(&self) -> u16 { self.0 << 4 }
