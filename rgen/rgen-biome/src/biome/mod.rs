@@ -1,9 +1,11 @@
 //! Stores all the actual biome implementations.
 
 mod blank;
+mod cold;
 mod plains;
 
 pub use blank::*;
+pub use cold::*;
 pub use plains::*;
 
 pub struct IdContext<'a> {

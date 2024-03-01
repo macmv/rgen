@@ -161,6 +161,7 @@ big! { Blocks: BlockInfo
   wool => "minecraft:wool",
   cobblestone => "minecraft:cobblestone",
   mossy_cobblestone => "minecraft:mossy_cobblestone",
+  ice => "minecraft:ice",
 }
 
 big! { Biomes: Biome
