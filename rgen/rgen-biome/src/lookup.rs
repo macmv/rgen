@@ -109,19 +109,19 @@ impl WorldBiomes {
   }
 
   fn temperature(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(4);
+    let seed = seed.wrapping_add(3);
 
     self.temperature_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
 
   fn humidity(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(5);
+    let seed = seed.wrapping_add(4);
 
     self.humidity_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
 
   fn variance(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(3);
+    let seed = seed.wrapping_add(5);
 
     self.variance_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
