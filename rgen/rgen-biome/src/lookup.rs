@@ -1,7 +1,7 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::{biome::BiomeFn, builder::BiomeBuilder, WorldBiomes};
+use crate::{builder::BiomeBuilder, WorldBiomes};
 
 enum ContinentalnessCategory {
   Sea,
@@ -102,7 +102,7 @@ impl WorldBiomes {
   fn erosion_category(&self, seed: u64, pos: Pos) -> u8 {
     let seed = seed.wrapping_add(2);
 
-    let erosion = self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
+    let erosion = self.erosion_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
 
     // FIXME: This is dumb
     (erosion * 6.9999) as u8

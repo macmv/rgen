@@ -19,7 +19,6 @@ pub struct WorldBiomes {
 
   tables: Tables,
 
-  height_map:      OctavedNoise<PerlinNoise>,
   temperature_map: OctavedNoise<PerlinNoise>,
   humidity_map:    OctavedNoise<PerlinNoise>,
 
@@ -85,7 +84,6 @@ impl WorldBiomes {
 
       tables: Tables::new(&ctx),
 
-      height_map:      OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
