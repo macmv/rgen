@@ -57,6 +57,10 @@ pub struct WorldBiomes {
   /// - most eroded (swamps, deserts)
   erosion_map: OctavedNoise<PerlinNoise>,
 
+  /// Variance determines which biome to pick out of a list. Its basically
+  /// random.
+  variance_map: OctavedNoise<PerlinNoise>,
+
   density_map: OctavedNoise<PerlinNoise>,
 }
 
@@ -88,6 +92,7 @@ impl WorldBiomes {
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
       peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
+      variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
       density_map: OctavedNoise { octaves: 5, freq: 1.0 / 64.0, ..Default::default() },
     }

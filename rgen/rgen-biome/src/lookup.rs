@@ -59,10 +59,16 @@ impl WorldBiomes {
     let temperature = self.temperature(seed, pos);
     let humidity = self.humidity(seed, pos);
 
-    let biome = &table[(temperature * table.len() as f64) as usize]
+    let biomes = &table[(temperature * table.len() as f64) as usize]
       [(humidity * table[0].len() as f64) as usize];
 
+    let variance = self.variance(seed, pos);
+    /*
+    let biome = biomes[(variance * biomes.len() as f64) as usize];
+
     biome
+    */
+    biomes
   }
 
   fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
@@ -103,14 +109,20 @@ impl WorldBiomes {
   }
 
   fn temperature(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(3);
+    let seed = seed.wrapping_add(4);
 
     self.temperature_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
 
   fn humidity(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(4);
+    let seed = seed.wrapping_add(5);
 
     self.humidity_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  }
+
+  fn variance(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(3);
+
+    self.variance_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
   }
 }
