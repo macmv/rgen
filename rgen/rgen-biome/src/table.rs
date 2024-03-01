@@ -1,7 +1,10 @@
 use crate::{biome::*, builder::BiomeBuilder};
 
-pub type BiomeTable = [[BiomeBuilder; 8]; 12];
-type BiomeFnTable = &'static [&'static [BiomeFn]];
+pub type BiomeList = Vec<BiomeBuilder>;
+pub type BiomeTable = [[BiomeList; 8]; 12];
+
+type BiomeFnCategory = &'static [BiomeFn];
+type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
 
 // TODO: Need all of these biomes.
 /*
@@ -9,15 +12,31 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 ];
 */
 
-const BLANK_TABLE: BiomeFnTable = &[&[blank]];
+// === Biome categories ===
+
+const BLANK: BiomeFnCategory = &[blank];
+
+const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];
+
+const ROCKY_VALLEY: BiomeFnCategory = &[];
+const COOL_VALLEY: BiomeFnCategory = &[];
+const SWAMP: BiomeFnCategory = &[];
+const DRY_RIVER: BiomeFnCategory = &[];
+const WARM_VALLEY: BiomeFnCategory = &[];
+const HOT_SWAMP: BiomeFnCategory = &[];
+const TROPIC_SWAMP: BiomeFnCategory = &[];
+
+// === Biome tables ===
+
+const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
-  &[rocky_valley, rocky_valley, rocky_valley, cool_valley, swamp, swamp, dry_river, dry_river],
-  &[rocky_valley, rocky_valley, cool_valley, cool_valley, warm_valley, swamp, swamp, dry_river],
-  &[bog, bog, cool_valley, warm_valley, warm_valley, warm_valley, swamp, swamp],
-  &[bog, bog, cool_valley, warm_valley, warm_valley, swamp, swamp, hot_swamp],
-  &[bog, bog, bog, bog, swamp, swamp, hot_swamp, hot_swamp],
-  &[bog, bog, bog, swamp, swamp, hot_swamp, hot_swamp, tropic_swamp],
+  &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
+  &[ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, COOL_VALLEY, WARM_VALLEY, SWAMP, SWAMP, DRY_RIVER],
+  &[BOG, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP],
+  &[BOG, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP, HOT_SWAMP],
+  &[BOG, BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP],
+  &[BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP, TROPIC_SWAMP],
 ];
 
 pub struct Tables {
@@ -48,7 +67,16 @@ fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
         _ => panic!("row must be 1 or 8 items"),
       };
 
-      let items = row.iter().map(|&f| BiomeBuilder::build("blank", ctx, *f)).collect::<Vec<_>>();
+      let items = row
+        .iter()
+        .map(|&biomes| {
+          if biomes.is_empty() {
+            vec![BiomeBuilder::build("blank", ctx, blank)]
+          } else {
+            biomes.iter().map(|f| BiomeBuilder::build("blank", ctx, *f)).collect::<BiomeList>()
+          }
+        })
+        .collect::<Vec<_>>();
       match items.try_into() {
         Ok(v) => v,
         Err(_) => unreachable!(),

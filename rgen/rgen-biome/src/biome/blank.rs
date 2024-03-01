@@ -66,6 +66,18 @@ pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.wool.with_data(BROWN);
 }
+pub fn cold_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.plains;
+  gen.top_block = ctx.blocks.wool.with_data(BLUE);
+}
+pub fn fall_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.plains;
+  gen.top_block = ctx.blocks.wool.with_data(LIGHT_BLUE);
+}
+pub fn conifer_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.plains;
+  gen.top_block = ctx.blocks.wool.with_data(GREEN);
+}
 
 pub fn cool_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
