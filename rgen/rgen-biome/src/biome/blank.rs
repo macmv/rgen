@@ -1,4 +1,3 @@
-use rgen_base::BlockState;
 use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
@@ -7,7 +6,7 @@ use super::{BiomeBuilder, IdContext};
 
 pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.stone.block;
+  gen.top_block = ctx.blocks.stone.default_state;
 
   gen.place(
     "grass",
@@ -60,48 +59,40 @@ const BLACK: u8 = 15;
 
 pub fn rocky_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = GRAY;
+  gen.top_block = ctx.blocks.wool.with_data(GRAY);
 }
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = BROWN;
+  gen.top_block = ctx.blocks.wool.with_data(BROWN);
 }
 
 pub fn cool_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = CYAN;
+  gen.top_block = ctx.blocks.wool.with_data(CYAN);
 }
 
 pub fn warm_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = YELLOW;
+  gen.top_block = ctx.blocks.wool.with_data(YELLOW);
 }
 
 pub fn swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = GREEN;
+  gen.top_block = ctx.blocks.wool.with_data(GREEN);
 }
 
 pub fn dry_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = ORANGE;
+  gen.top_block = ctx.blocks.wool.with_data(ORANGE);
 }
 
 pub fn hot_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = RED;
+  gen.top_block = ctx.blocks.wool.with_data(RED);
 }
 
 pub fn tropic_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.block;
-  gen.top_block_data = LIME;
+  gen.top_block = ctx.blocks.wool.with_data(LIME);
 }

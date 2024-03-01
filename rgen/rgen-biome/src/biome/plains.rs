@@ -3,7 +3,7 @@ use rgen_placer::placer;
 
 pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.grass.block;
+  gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
     "tree",

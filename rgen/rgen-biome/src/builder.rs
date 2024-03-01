@@ -1,4 +1,4 @@
-use rgen_base::{Biome, Block, Blocks, ChunkPos, Pos};
+use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 
@@ -13,8 +13,7 @@ pub struct BiomeBuilder {
   pub name: &'static str,
   pub id:   rgen_base::Biome,
 
-  pub top_block:      Block,
-  pub top_block_data: u8,
+  pub top_block: BlockState,
 
   placers: Vec<PlacerBuilder>,
 }
@@ -30,13 +29,7 @@ impl PlacerBuilder {
 
 impl BiomeBuilder {
   pub fn new(name: &'static str, blocks: &Blocks) -> Self {
-    Self {
-      name,
-      id: Biome::VOID,
-      top_block: blocks.grass.block,
-      top_block_data: 0,
-      placers: vec![],
-    }
+    Self { name, id: Biome::VOID, top_block: blocks.grass.default_state, placers: vec![] }
   }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {

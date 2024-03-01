@@ -52,6 +52,14 @@ impl BlockInfo {
     }
   }
 
+  /// Creates a block state with the given data value, from 0 to 15 inclusive.
+  /// Prefer `with_property` when possible, as that will use the named
+  /// properties, which are almost always clearer.
+  pub fn with_data(&self, data: u8) -> BlockState {
+    assert!(data < 16);
+    BlockState { block: self.block, state: data }
+  }
+
   pub fn with_property(&self, key: &str, value: &str) -> BlockState {
     let values = self
       .prop_map
