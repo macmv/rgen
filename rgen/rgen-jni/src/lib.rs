@@ -1,7 +1,6 @@
 use rgen_base::{Blocks, ChunkPos};
 
 mod api;
-mod biome;
 mod ctx;
 mod generator;
 
