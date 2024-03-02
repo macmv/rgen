@@ -1,4 +1,4 @@
-cargo build --release
+cargo build --release -p rgen-jni
 
 INSTANCE=~/.local/share/multimc/instances/1.12.2-mod-testing
 
