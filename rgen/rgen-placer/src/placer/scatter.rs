@@ -4,8 +4,8 @@ use rgen_world::PartialWorld;
 use crate::{rng::Random, Placer, Rng};
 
 pub struct Scatter {
-  pub replace: BlockState,
-  pub place:   BlockState,
+  pub place_above: BlockState,
+  pub place:       BlockState,
 
   pub attempts: u32,
 }
@@ -24,7 +24,7 @@ impl Placer for Scatter {
 
       let above_pos = pos + Pos::new(0, 1, 0);
 
-      if world.get(pos) == self.replace && world.get(above_pos).block != Block::AIR {
+      if world.get(pos) == self.place_above && world.get(above_pos).block == Block::AIR {
         world.set(above_pos, self.place);
       }
     }
