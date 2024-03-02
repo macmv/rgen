@@ -37,3 +37,7 @@ Once you've added that, run the client with
 ```
 
 Note that this will not work with MultiMC, because MultiMC overwrites the `java.library.path`. I don't know how to get it to work with MultiMC.
+
+## Fixing the null pointer thing
+
+Delete `~/.gradle` lmao.
