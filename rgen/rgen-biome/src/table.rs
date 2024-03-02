@@ -28,6 +28,15 @@ const WARM_VALLEY: BiomeFnCategory = &[];
 const HOT_SWAMP: BiomeFnCategory = &[];
 const TROPIC_SWAMP: BiomeFnCategory = &[];
 
+const COLD_BEACH: BiomeFnCategory = &[snowy_shores, snowy_rock];
+const COOL_BEACH: BiomeFnCategory =
+  &[ancient_shores, mossy_shores, dry_shores, bare_rock, wet_rock];
+const BEACH: BiomeFnCategory =
+  &[sand_beach, monument_beach, red_sand_beach, red_monument_beach, palm_beach];
+const DRY_BEACH: BiomeFnCategory =
+  &[sand_beach, monument_beach, red_sand_beach, red_monument_beach, dry_shores, chaparral_beach];
+const TROPIC_BEACH: BiomeFnCategory = &[sand_beach, chaparral_beach, jungle_beach, palm_beach];
+
 // === Biome tables ===
 
 const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
@@ -41,14 +50,28 @@ const VALLEY_TABLE: BiomeFnTable = &[
   &[BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP, TROPIC_SWAMP],
 ];
 
+const BEACH_TABLE: BiomeFnTable = &[
+  &[COLD_BEACH, COLD_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH, DRY_BEACH],
+  &[COLD_BEACH, COLD_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH],
+  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
+  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
+  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH],
+  &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
+];
+
 pub struct Tables {
   pub blank_table:  BiomeTable,
+  pub beach_table:  BiomeTable,
   pub valley_table: BiomeTable,
 }
 
 impl Tables {
   pub fn new(ctx: &IdContext) -> Tables {
-    Tables { blank_table: table(ctx, BLANK_TABLE), valley_table: table(ctx, VALLEY_TABLE) }
+    Tables {
+      blank_table:  table(ctx, BLANK_TABLE),
+      beach_table:  table(ctx, BEACH_TABLE),
+      valley_table: table(ctx, VALLEY_TABLE),
+    }
   }
 }
 

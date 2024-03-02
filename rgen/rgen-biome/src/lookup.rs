@@ -27,10 +27,7 @@ impl WorldBiomes {
 
     let table: &BiomeTable = match continentalness {
       ContinentalnessCategory::Sea => &self.tables.blank_table,
-      ContinentalnessCategory::Coast => {
-        // todo: coast table
-        &self.tables.blank_table
-      }
+      ContinentalnessCategory::Coast => &self.tables.beach_table,
 
       // Inland cases
       _ => {
