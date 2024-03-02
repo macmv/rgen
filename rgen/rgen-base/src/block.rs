@@ -162,6 +162,7 @@ big! { Blocks: BlockInfo
   dirt => "minecraft:dirt",
   grass => "minecraft:grass",
   snow => "minecraft:snow",
+  sand => "minecraft:sand",
   gravel => "minecraft:gravel",
   log => "minecraft:log",
   leaves => "minecraft:leaves",
