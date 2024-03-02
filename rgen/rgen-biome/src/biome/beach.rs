@@ -88,6 +88,12 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       attempts:    20,
     },
   );
+  /*
+  gen.place(
+    "dead tree",
+    PlacerStage::Tree,
+    //placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.air.block },
+  )*/
 
   // gravel patches, cobblstone patches, stone patches
   // loose mossycobblestone, loose stone, loose cobblestone
