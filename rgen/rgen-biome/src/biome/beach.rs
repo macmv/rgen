@@ -12,7 +12,11 @@ pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "sand_patches",
     PlacerStage::Sand,
-    placer::Splotch { replace: gen.top_block, place: ctx.blocks.sand.default_state, radius: 6 },
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.sand.default_state,
+      radius:  6,
+    },
   );
 
   // TODO: add snow ontop of everything
@@ -27,7 +31,7 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block,
+      replace: gen.top_block.into(),
       place:   ctx.blocks.gravel.default_state,
       radius:  4,
     },
@@ -36,7 +40,7 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "cobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block,
+      replace: gen.top_block.into(),
       place:   ctx.blocks.cobblestone.default_state,
       radius:  2,
     },
@@ -44,14 +48,18 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "stone_patches",
     PlacerStage::Sand,
-    placer::Splotch { replace: gen.top_block, place: ctx.blocks.stone.default_state, radius: 2 },
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.stone.default_state,
+      radius:  2,
+    },
   );
 
   gen.place(
     "loose_stone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state,
+      place_above: ctx.blocks.stone.default_state.into(),
       place:       ctx.blocks.stone.default_state,
       attempts:    20,
     },

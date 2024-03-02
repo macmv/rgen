@@ -14,7 +14,7 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: ctx.blocks.wool.default_state,
+      replace: ctx.blocks.wool.default_state.into(),
       place:   ctx.blocks.grass.default_state,
 
       radius: 5,

@@ -1,10 +1,10 @@
-use rgen_base::{BlockState, Pos};
+use rgen_base::{BlockSet, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
 
 pub struct Splotch {
-  pub replace: BlockState,
+  pub replace: BlockSet,
   pub place:   BlockState,
 
   pub radius: u8,
@@ -31,7 +31,7 @@ impl Placer for Splotch {
             continue;
           }
 
-          if world.get(pos) == self.replace {
+          if self.replace.contains(world.get(pos)) {
             world.set(pos, self.place);
           }
         }
