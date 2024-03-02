@@ -1,6 +1,6 @@
 cargo build --release -p rgen-jni
 
-INSTANCE=~/.local/share/multimc/instances/$1
+INSTANCE=$1
 
 rm -r $INSTANCE/.minecraft/saves/1/region
 
