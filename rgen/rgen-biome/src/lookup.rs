@@ -53,6 +53,8 @@ impl WorldBiomes {
       }
     };
 
+    let table = &self.tables.beach_table;
+
     let temperature = self.temperature(seed, pos);
     let humidity = self.humidity(seed, pos);
 
