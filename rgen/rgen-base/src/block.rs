@@ -171,7 +171,7 @@ big! { Blocks: BlockInfo
   cobblestone => "minecraft:cobblestone",
   mossy_cobblestone => "minecraft:mossy_cobblestone",
   ice => "minecraft:ice",
-
+  rgen_log => "rgen:log",
 }
 
 big! { Biomes: Biome
