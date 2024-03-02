@@ -32,7 +32,7 @@ impl Placer for Splotch {
             continue;
           }
 
-          if dist2 > rng.rand_inclusive(r2 / 4 * 3, r2) {
+          if dist2 > rng.rand_inclusive(r2 / 2, r2) {
             continue;
           }
 
