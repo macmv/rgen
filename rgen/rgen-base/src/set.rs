@@ -77,6 +77,17 @@ impl BitOr for BlockSet {
   }
 }
 
+impl BlockSet {
+  pub fn contains(&self, state: BlockState) -> bool {
+    match self {
+      BlockSet::All => true,
+      BlockSet::Any(b) => b.iter().any(|b| b.contains(state)),
+      BlockSet::Block(b) => b.iter().any(|b| *b == state.block),
+      BlockSet::BlockState(b) => b.iter().any(|s| *s == state),
+    }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -104,5 +115,32 @@ mod tests {
     let c = BlockSet::from(Block(0));
 
     assert_eq!(a | b | c, BlockSet::Block(SmallVec::from_slice(&[Block(0)])));
+  }
+
+  #[test]
+  fn block_set_contains() {
+    let a = BlockSet::from(Block(0));
+    let b = BlockSet::from(Block(1));
+
+    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
+    assert!(!a.contains(BlockState { block: Block(1), state: 0 }));
+    assert!(b.contains(BlockState { block: Block(1), state: 0 }));
+    assert!(!b.contains(BlockState { block: Block(0), state: 0 }));
+
+    let a = BlockSet::from(BlockState { block: Block(0), state: 0 });
+    let b = BlockSet::from(BlockState { block: Block(0), state: 1 });
+
+    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
+    assert!(b.contains(BlockState { block: Block(0), state: 1 }));
+    assert!(!a.contains(BlockState { block: Block(0), state: 1 }));
+    assert!(!b.contains(BlockState { block: Block(0), state: 0 }));
+    assert!(!a.contains(BlockState { block: Block(1), state: 0 }));
+    assert!(!b.contains(BlockState { block: Block(1), state: 0 }));
+
+    let a = BlockSet::All;
+
+    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
+    assert!(a.contains(BlockState { block: Block(0), state: 1 }));
+    assert!(a.contains(BlockState { block: Block(1), state: 0 }));
   }
 }
