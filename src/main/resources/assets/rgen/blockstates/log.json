@@ -1,0 +1,67 @@
+{
+  "variants": {
+    "axis=y,variant=cedar": {
+      "model": "rgen:dead_log"
+    },
+    "axis=z,variant=cedar": {
+      "model": "rgen:dead_log",
+      "x": 90
+    },
+    "axis=x,variant=cedar": {
+      "model": "rgen:dead_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=none,variant=cedar": {
+      "model": "rgen:dead_log"
+    },
+    "axis=y,variant=fir": {
+      "model": "rgen:dead_log"
+    },
+    "axis=z,variant=fir": {
+      "model": "rgen:dead_log",
+      "x": 90
+    },
+    "axis=x,variant=fir": {
+      "model": "rgen:dead_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=none,variant=fir": {
+      "model": "rgen:dead_log"
+    },
+    "axis=y,variant=sakura": {
+      "model": "rgen:dead_log"
+    },
+    "axis=z,variant=sakura": {
+      "model": "rgen:dead_log",
+      "x": 90
+    },
+    "axis=x,variant=sakura": {
+      "model": "rgen:dead_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=none,variant=sakura": {
+      "model": "rgen:dead_log"
+    },
+    "axis=y,variant=dead": {
+      "model": "rgen:dead_log"
+    },
+    "axis=z,variant=dead": {
+      "model": "rgen:dead_log",
+      "x": 90
+    },
+    "axis=x,variant=dead": {
+      "model": "rgen:dead_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=none,variant=dead": {
+      "model": "rgen:dead_log"
+    },
+    "inventory": {
+      "model": "rgen:dead_log"
+    }
+  }
+}
