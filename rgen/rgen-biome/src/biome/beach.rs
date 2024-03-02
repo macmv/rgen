@@ -29,7 +29,7 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+  gen.id = ctx.biomes.stone_beach;
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -89,7 +89,11 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place("dead tree", PlacerStage::Tree, placer::DeadTree { trunk: ctx.blocks.log.block })
+  gen.place(
+    "dead tree",
+    PlacerStage::Tree,
+    placer::DeadTree { trunk: ctx.blocks.rgen_log.with_data(12) },
+  )
 
   // gravel patches, cobblstone patches, stone patches
   // loose mossycobblestone, loose stone, loose cobblestone
@@ -98,33 +102,140 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.stone_beach;
+  gen.top_block = ctx.blocks.gravel.default_state;
+  gen.sub_layer = ctx.blocks.stone.default_state;
+
+  gen.place(
+    "loose_moss",
+    PlacerStage::Sand,
+    placer::Scatter {
+      place_above: ctx.blocks.stone.default_state.into(),
+      place:       ctx.blocks.mossy_cobblestone.default_state,
+      attempts:    40,
+    },
+  );
+  gen.place(
+    "cobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.cobblestone.default_state,
+      radius:  2..=4,
+    },
+  );
+  gen.place(
+    "mossycobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.mossy_cobblestone.default_state,
+      radius:  3..=4,
+    },
+  );
+  gen.place(
+    "grass_splatter",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace:  gen.top_block.into(),
+      place:    ctx.blocks.grass.default_state,
+      attempts: 40,
+    },
+  )
+  //Bueshes
 }
 
 pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.stone_beach;
+  gen.top_block = ctx.blocks.gravel.default_state;
+  gen.sub_layer = ctx.blocks.stone.default_state;
+
+  gen.place(
+    "loose_moss",
+    PlacerStage::Sand,
+    placer::Scatter {
+      place_above: ctx.blocks.stone.default_state.into(),
+      place:       ctx.blocks.mossy_cobblestone.default_state,
+      attempts:    40,
+    },
+  );
+  gen.place(
+    "cobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.cobblestone.default_state,
+      radius:  2..=4,
+    },
+  );
+  gen.place(
+    "mossycobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.mossy_cobblestone.default_state,
+      radius:  3..=4,
+    },
+  );
+  gen.place(
+    "grass_splatter",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace:  gen.top_block.into(),
+      place:    ctx.blocks.grass.default_state,
+      attempts: 40,
+    },
+  )
+  //Bueshes
 }
 
 pub fn bare_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.stone_beach;
+  gen.top_block = ctx.blocks.stone.default_state;
+
+  gen.place(
+    "grass_splatter",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace:  gen.top_block.into(),
+      place:    ctx.blocks.grass.default_state,
+      attempts: 40,
+    },
+  )
 }
 
 pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.wool.default_state;
+
+  gen.place(
+    "grass_splatter",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace:  gen.top_block.into(),
+      place:    ctx.blocks.grass.default_state,
+      attempts: 40,
+    },
+  );
+  gen.place(
+    "mossycobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: gen.top_block.into(),
+      place:   ctx.blocks.mossy_cobblestone.default_state,
+      radius:  2..=3,
+    },
+  );
 }
 
 pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.beaches;
+  gen.top_block = ctx.blocks.sand.default_state;
 }
 
 pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.beaches;
+  gen.top_block = ctx.blocks.sand.default_state;
 }
 
 pub fn red_sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -134,21 +245,22 @@ pub fn red_sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 pub fn red_monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.beaches;
+  gen.top_block = ctx.blocks.sand.with_data(1);
+  gen.sub_layer = ctx.blocks.sand.with_data(1);
 }
 
 pub fn palm_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.beaches;
+  gen.top_block = ctx.blocks.sand.default_state;
 }
 
 pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.top_block = ctx.blocks.grass.default_state;
 }
 
 pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.top_block = ctx.blocks.grass.default_state;
 }
