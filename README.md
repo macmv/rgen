@@ -13,13 +13,7 @@ The resulting jar is in `./build/libs/rgen-1.0.jar`. This can be loaded into a M
 
 ## Developing Assets
 
-If you want to develop textures and/or items, you'll want to setup the `runClient` command. After building, add these simlinks:
-```
-cd build/classes/java/main
-ln -s ../../../resources/main/* .
-```
-
-This will link up textures into the generated mod. Once you've done this, you can run the client:
+If you want to develop textures and/or items, you can run a vanilla client with the `runClient` command:
 ```
 ./gradlew runClient
 ```
