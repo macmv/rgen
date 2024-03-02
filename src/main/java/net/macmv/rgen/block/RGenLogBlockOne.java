@@ -77,7 +77,7 @@ public class RGenLogBlockOne extends BlockLog {
       return name;
     }
 
-    static EnumType fromMeta(int meta) {
+    public static EnumType fromMeta(int meta) {
       switch (meta) {
         case 0:
           return CEDAR;
