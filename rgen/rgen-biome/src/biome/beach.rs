@@ -31,15 +31,15 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.sand.default_state;
-  gen.sub_layer = ctx.blocks.stone.default_state
-  
+  gen.sub_layer = ctx.blocks.stone.default_state;
+
   gen.place(
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.gravel.default_state,
-      radius:  4,
+      radius:  6,
     },
   );
   gen.place(
@@ -48,7 +48,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.cobblestone.default_state,
-      radius:  2,
+      radius:  6,
     },
   );
   gen.place(
@@ -57,7 +57,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.stone.default_state,
-      radius:  2,
+      radius:  4,
     },
   );
 
@@ -74,16 +74,16 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state,
+      place_above: ctx.blocks.stone.default_state.into(),
       place:       ctx.blocks.mossy_cobblestone.default_state,
-      attempts:    20,
+      attempts:    40,
     },
   );
   gen.place(
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state,
+      place_above: ctx.blocks.stone.default_state.into(),
       place:       ctx.blocks.stone.default_state,
       attempts:    20,
     },
