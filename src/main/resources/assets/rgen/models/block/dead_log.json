@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_column",
+  "textures": {
+    "end": "rgen:blocks/dead_log_top",
+    "side": "rgen:blocks/dead_log"
+  }
+}
