@@ -113,3 +113,11 @@ publishing {
     }
   }
 }
+
+task compileRust(type: Exec) {
+  workingDir('./rgen')
+  inputs.dir './rgen'
+  commandLine('cargo', 'build', '--release', '-p', 'rgen-jni')
+}
+
+compileJava.dependsOn(compileRust)
