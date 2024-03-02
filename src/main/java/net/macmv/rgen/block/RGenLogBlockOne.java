@@ -19,23 +19,23 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public IBlockState getStateFromMeta(int meta) {
-    IBlockState iblockstate = this.getDefaultState().withProperty(VARIANT, EnumType.fromMeta(meta & 3));
+    IBlockState state = this.getDefaultState().withProperty(VARIANT, EnumType.fromMeta(meta & 3));
 
     switch (meta & 12) {
       case 0:
-        iblockstate = iblockstate.withProperty(LOG_AXIS, BlockLog.EnumAxis.Y);
+        state = state.withProperty(LOG_AXIS, EnumAxis.Y);
         break;
       case 4:
-        iblockstate = iblockstate.withProperty(LOG_AXIS, BlockLog.EnumAxis.X);
+        state = state.withProperty(LOG_AXIS, EnumAxis.X);
         break;
       case 8:
-        iblockstate = iblockstate.withProperty(LOG_AXIS, BlockLog.EnumAxis.Z);
+        state = state.withProperty(LOG_AXIS, EnumAxis.Z);
         break;
       default:
-        iblockstate = iblockstate.withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
+        state = state.withProperty(LOG_AXIS, EnumAxis.NONE);
     }
 
-    return iblockstate;
+    return state;
   }
 
   public int getMetaFromState(IBlockState state) {
