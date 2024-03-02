@@ -22,11 +22,11 @@ const ROCKY_VALLEY: BiomeFnCategory = &[crag, snowy_crag /* , rocky_cedar */];
 const COOL_VALLEY: BiomeFnCategory =
   &[crag /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
 const SWAMP: BiomeFnCategory =
-  &[/* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
+  &[blank /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
 const DRY_RIVER: BiomeFnCategory = &[swamp /* , mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[];
-const HOT_SWAMP: BiomeFnCategory = &[];
-const TROPIC_SWAMP: BiomeFnCategory = &[];
+const WARM_VALLEY: BiomeFnCategory = &[blank];
+const HOT_SWAMP: BiomeFnCategory = &[blank];
+const TROPIC_SWAMP: BiomeFnCategory = &[blank];
 
 const COLD_BEACH: BiomeFnCategory = &[snowy_shores, snowy_rock];
 const COOL_BEACH: BiomeFnCategory =
@@ -96,7 +96,7 @@ fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
         .iter()
         .map(|&biomes| {
           if biomes.is_empty() {
-            vec![BiomeBuilder::build("blank", ctx, blank)]
+            panic!("biome category cannot be empty");
           } else {
             biomes.iter().map(|f| BiomeBuilder::build("blank", ctx, *f)).collect::<BiomeList>()
           }
