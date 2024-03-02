@@ -53,7 +53,7 @@ impl WorldBiomes {
       }
     };
 
-    let table = &self.tables.beach_table;
+    // let table = &self.tables.beach_table;
 
     let temperature = self.temperature(seed, pos);
     let humidity = self.humidity(seed, pos);
@@ -73,7 +73,7 @@ impl WorldBiomes {
 
     match continentalness {
       x if x < 0.1 => ContinentalnessCategory::Sea,
-      x if x < 0.3 => ContinentalnessCategory::Coast,
+      x if x < 0.45 => ContinentalnessCategory::Coast,
       x if x < 0.6 => ContinentalnessCategory::NearInland,
       x if x < 0.8 => ContinentalnessCategory::MidInland,
       _ => ContinentalnessCategory::FarInland,
