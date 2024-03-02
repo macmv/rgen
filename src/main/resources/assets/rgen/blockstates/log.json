@@ -59,9 +59,6 @@
     },
     "axis=none,variant=dead": {
       "model": "rgen:dead_log"
-    },
-    "inventory": {
-      "model": "rgen:dead_log"
     }
   }
 }
