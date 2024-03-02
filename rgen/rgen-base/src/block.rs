@@ -183,4 +183,5 @@ big! { Biomes: Biome
   roofed_forest => "minecraft:roofed_forest",
   savanna => "minecraft:savanna",
   swamp => "minecraft:swampland",
+  stone_beach => "minecraft:stone_beach",
 }
