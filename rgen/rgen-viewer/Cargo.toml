@@ -3,6 +3,8 @@ name = "rgen-viewer"
 version = "0.1.0"
 edition = "2021"
 
+default-run = "rgen-viewer"
+
 [dependencies]
 rgen-base.workspace = true
 rgen-placer.workspace = true

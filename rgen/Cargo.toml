@@ -7,6 +7,8 @@ members = [
   "rgen-world",
   "rgen-jni",
   "rgen-viewer",
+
+  "spline-editor",
 ]
 
 [workspace.dependencies]
