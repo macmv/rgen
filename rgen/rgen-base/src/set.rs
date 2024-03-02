@@ -87,5 +87,22 @@ mod tests {
     let b = BlockSet::from(Block(1));
 
     assert_eq!(a | b, BlockSet::Block(SmallVec::from_slice(&[Block(0), Block(1)])));
+
+    let a = BlockSet::from(BlockState { block: Block(0), state: 0 });
+    let b = BlockSet::from(BlockState { block: Block(0), state: 1 });
+
+    assert_eq!(
+      a | b,
+      BlockSet::BlockState(SmallVec::from_slice(&[
+        BlockState { block: Block(0), state: 0 }.into(),
+        BlockState { block: Block(0), state: 1 }.into(),
+      ]))
+    );
+
+    let a = BlockSet::from(BlockState { block: Block(0), state: 0 });
+    let b = BlockSet::from(BlockState { block: Block(0), state: 1 });
+    let c = BlockSet::from(Block(0));
+
+    assert_eq!(a | b | c, BlockSet::Block(SmallVec::from_slice(&[Block(0)])));
   }
 }
