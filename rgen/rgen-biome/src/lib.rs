@@ -1,4 +1,4 @@
-use biome::{ClimateMap, IdContext};
+use biome::IdContext;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, PerlinNoise},
@@ -10,13 +10,10 @@ use table::Tables;
 
 mod biome;
 mod builder;
-mod climate;
 mod lookup;
 mod table;
 
 pub struct WorldBiomes {
-  climates: ClimateMap,
-
   tables: Tables,
 
   temperature_map: OctavedNoise<PerlinNoise>,
@@ -84,8 +81,6 @@ impl WorldBiomes {
     let ctx = IdContext { biomes: biome_ids, blocks };
 
     WorldBiomes {
-      climates: ClimateMap::new(blocks, biome_ids),
-
       tables: Tables::new(&ctx),
 
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
