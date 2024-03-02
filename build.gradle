@@ -82,6 +82,10 @@ dependencies {
 
 }
 
+configurations.configureEach {
+  exclude group: "net.minecraftforge", module: "mergetool"
+}
+
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
   manifest {
