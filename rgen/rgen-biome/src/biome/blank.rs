@@ -8,6 +8,7 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   // White wool
   gen.top_block = ctx.blocks.wool.default_state;
+  gen.sub_layer = ctx.blocks.wool.with_data(PURPLE);
 
   gen.place(
     "grass",

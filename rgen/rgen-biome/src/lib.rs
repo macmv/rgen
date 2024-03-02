@@ -61,6 +61,9 @@ pub struct WorldBiomes {
   variance_map: OctavedNoise<PerlinNoise>,
 
   density_map: OctavedNoise<PerlinNoise>,
+
+  /// Controlls the depth of the sub layer (usually dirt).
+  sub_layer_map: OctavedNoise<PerlinNoise>,
 }
 
 lazy_static::lazy_static! {
@@ -94,6 +97,8 @@ impl WorldBiomes {
       variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
       density_map: OctavedNoise { octaves: 5, freq: 1.0 / 64.0, ..Default::default() },
+
+      sub_layer_map: OctavedNoise { octaves: 3, freq: 1.0 / 20.0, ..Default::default() },
     }
   }
 
@@ -198,8 +203,23 @@ impl WorldBiomes {
         if chunk.get(rel_pos) == blocks.stone.block {
           chunk.set_state(rel_pos, biome.top_block);
         }
+
+        for depth in 1..self.sample_sub_layer_depth(seed, pos) {
+          let rel_pos = rel_pos.with_y(rel_pos.y() - depth);
+          if chunk.get(rel_pos) == blocks.stone.block {
+            chunk.set_state(rel_pos, biome.sub_layer);
+          }
+        }
       }
     }
+  }
+
+  fn sample_sub_layer_depth(&self, seed: u64, pos: Pos) -> u8 {
+    let seed = seed.wrapping_add(10);
+
+    let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64, seed);
+    let depth = (noise * 2.0 + 3.0).round() as u8;
+    depth
   }
 
   pub fn decorate(

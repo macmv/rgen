@@ -14,6 +14,7 @@ pub struct BiomeBuilder {
   pub id:   rgen_base::Biome,
 
   pub top_block: BlockState,
+  pub sub_layer: BlockState,
 
   pub min_height: u32,
   pub max_height: u32,
@@ -36,6 +37,7 @@ impl BiomeBuilder {
       name,
       id: Biome::VOID,
       top_block: blocks.grass.default_state,
+      sub_layer: blocks.dirt.default_state,
       min_height: 64,
       max_height: 128,
       placers: vec![],
