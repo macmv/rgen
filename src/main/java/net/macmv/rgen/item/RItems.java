@@ -17,6 +17,7 @@ public class RItems {
 
   public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
+  public static final Item DEAD_LOG = registerBlockItem(RBlocks.DEAD_LOG);
 
   private static Item registerBlockItem(Block block) {
     ResourceLocation path = block.getRegistryName();
