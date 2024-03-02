@@ -45,8 +45,19 @@ public class RItems {
 
   public static void registerModels() {
     for (Item i : items) {
-      ModelResourceLocation location = new ModelResourceLocation(i.getRegistryName(), "inventory");
-      ModelLoader.setCustomModelResourceLocation(i, 0, location);
+      if (i.getRegistryName().toString().equals("rgen:log")) {
+        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:cedar_log", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
+        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:fir_log", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
+        ModelResourceLocation loc2 = new ModelResourceLocation("rgen:sakura_log", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
+        ModelResourceLocation loc3 = new ModelResourceLocation("rgen:dead_log", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 3, loc3);
+      } else {
+        ModelResourceLocation location = new ModelResourceLocation(i.getRegistryName(), "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 0, location);
+      }
     }
   }
 }
