@@ -206,7 +206,7 @@ pub fn bare_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.top_block = ctx.blocks.stone.default_state;
 
   gen.place(
     "grass_splatter",
