@@ -36,6 +36,10 @@ pub struct BlockInfo {
   prop_map: HashMap<String, HashMap<String, u8>>,
 }
 
+impl Default for BlockInfo {
+  fn default() -> BlockInfo { BlockInfo::temp_new("minecraft:air", 0) }
+}
+
 impl Block {
   pub const AIR: Block = Block(0);
 }
@@ -97,6 +101,10 @@ impl BlockState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Biome(pub(crate) u8);
 
+impl Default for Biome {
+  fn default() -> Biome { Biome::VOID }
+}
+
 impl Biome {
   pub const VOID: Biome = Biome(127);
 
@@ -129,14 +137,14 @@ macro_rules! big {
       /// Only public for testing.
       pub fn test_blocks() -> $struct_name {
         // let mut id = 0;
-        // $struct_name {
-        //   $($id: $item::from_raw_id({ id += 1; id }),)*
-        // }
-        todo!()
+        $struct_name {
+          $($id: $item::default(),)*
+        }
+        // todo!()
       }
 
       pub fn name_of(&self, _v: $item) -> &'static str {
-        todo!()
+        ""
         // $(
         //   if v == self.$id { return $name }
         // )*
