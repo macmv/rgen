@@ -17,7 +17,7 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
       replace: ctx.blocks.wool.default_state.into(),
       place:   ctx.blocks.grass.default_state,
 
-      radius: 5,
+      radius: 3..=8,
     },
   );
 }

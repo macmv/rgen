@@ -15,7 +15,7 @@ pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.sand.default_state,
-      radius:  6,
+      radius:  4..=7,
     },
   );
 
@@ -39,7 +39,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.gravel.default_state,
-      radius:  6,
+      radius:  4..=7,
     },
   );
   gen.place(
@@ -48,7 +48,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.cobblestone.default_state,
-      radius:  6,
+      radius:  3..=6,
     },
   );
   gen.place(
@@ -57,7 +57,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Splotch {
       replace: gen.top_block.into(),
       place:   ctx.blocks.stone.default_state,
-      radius:  4,
+      radius:  4..=7,
     },
   );
 

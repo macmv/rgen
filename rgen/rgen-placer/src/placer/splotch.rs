@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 use rgen_base::{BlockSet, BlockState, Pos};
 use rgen_world::PartialWorld;
 
@@ -7,19 +9,22 @@ pub struct Splotch {
   pub replace: BlockSet,
   pub place:   BlockState,
 
-  pub radius: u8,
+  pub radius: RangeInclusive<u8>,
 }
 
 impl Placer for Splotch {
-  fn radius(&self) -> u8 { self.radius }
+  fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { 1.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let r2 = (self.radius as i32).pow(2);
+    let radius =
+      rng.rand_inclusive((*self.radius.start()).into(), (*self.radius.end()).into()) as i32;
 
-    for x in -(self.radius as i32)..=self.radius as i32 {
-      for y in -(self.radius as i32)..=self.radius as i32 {
-        for z in -(self.radius as i32)..=self.radius as i32 {
+    let r2 = radius.pow(2);
+
+    for x in -radius..=radius {
+      for y in -radius..=radius {
+        for z in -radius..=radius {
           let pos = pos + Pos::new(x, y as u8, z);
 
           let dist2 = x.pow(2) + y.pow(2) + z.pow(2);
