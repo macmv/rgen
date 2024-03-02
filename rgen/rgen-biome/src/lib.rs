@@ -229,19 +229,11 @@ impl WorldBiomes {
     world: &mut PartialWorld,
     chunk_pos: ChunkPos,
   ) {
-    let temperature_seed = seed.wrapping_add(1);
-    let rainfall_seed = seed.wrapping_add(2);
-
-    // FIXME: Need to decorate with all biomes in a chunk.
     let pos = chunk_pos.min_block_pos();
-    let climate = climate::from_temperature_and_rainfall(
-      (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-      (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
-    );
 
     // FIXME: How do we switch up biomes within a given climate?
     let mut rng = Rng::new(seed);
-    let biome = self.climates.choose(&mut rng, climate);
+    let biome = self.choose_biome(seed, pos);
 
     println!("biome: {:?}", biome.name);
 
@@ -249,22 +241,12 @@ impl WorldBiomes {
   }
 
   pub fn generate_ids(&self, seed: u64, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
-    let temperature_seed = seed.wrapping_add(1);
-    let rainfall_seed = seed.wrapping_add(2);
-
     for x in 0..16 {
       for z in 0..16 {
         let i = (x * 16 + z) as usize;
         let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
 
-        let climate = climate::from_temperature_and_rainfall(
-          (self.temperature_map.generate(pos.x as f64, pos.z as f64, temperature_seed) + 1.0) / 2.0,
-          (self.humidity_map.generate(pos.x as f64, pos.z as f64, rainfall_seed) + 1.0) / 2.0,
-        );
-
-        let mut rng = Rng::new(seed);
-        let biome = self.climates.choose(&mut rng, climate);
-
+        let biome = self.choose_biome(seed, pos);
         biomes[i] = biome.id.raw_id();
       }
     }
