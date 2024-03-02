@@ -65,13 +65,14 @@ pub struct WorldBiomes {
 
 lazy_static::lazy_static! {
   pub static ref CONTINENTALNESS_TO_HEIGHT: splines::Spline<f64, f64> = splines::Spline::from_vec(vec![
-    Key::new(0.0, 120.0, splines::Interpolation::Cosine),
-    Key::new(0.1, 40.0, splines::Interpolation::Cosine),
-    Key::new(0.3, 40.0, splines::Interpolation::Cosine),
-    Key::new(0.4, 70.0, splines::Interpolation::Cosine),
-    Key::new(0.5, 80.0, splines::Interpolation::Cosine),
-    Key::new(0.8, 140.0, splines::Interpolation::Cosine),
-    Key::new(1.0, 150.0, splines::Interpolation::Cosine),
+    Key::new(0.00, 88.0, splines::Interpolation::Cosine),
+    Key::new(0.01, 35.0, splines::Interpolation::Cosine),
+    Key::new(0.15, 38.0, splines::Interpolation::Cosine),
+    Key::new(0.26, 52.0, splines::Interpolation::Cosine),
+    Key::new(0.40, 65.0, splines::Interpolation::Cosine),
+    Key::new(0.81, 85.0, splines::Interpolation::Cosine),
+    Key::new(0.91, 103.0, splines::Interpolation::Cosine),
+    Key::new(1.00, 128.0, splines::Interpolation::Cosine),
   ]);
 }
 
