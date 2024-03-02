@@ -126,8 +126,9 @@ pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 pub fn red_sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.id = ctx.biomes.beaches;
+  gen.top_block = ctx.blocks.sand.with_data(1);
+  gen.sub_layer = ctx.blocks.sand.with_data(1);
 }
 
 pub fn red_monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
