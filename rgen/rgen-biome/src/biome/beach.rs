@@ -50,7 +50,11 @@ pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "loose_stone",
     PlacerStage::Sand,
-    placer::Loose{};
+    placer::Scatter {
+      replace:  ctx.blocks.stone.default_state,
+      place:    ctx.blocks.stone.default_state,
+      attempts: 20,
+    },
   )
 
   // gravel patches, cobblstone patches, stone patches
