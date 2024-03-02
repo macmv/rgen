@@ -8,6 +8,17 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   // White wool
   gen.top_block = ctx.blocks.wool.default_state;
+
+  gen.place(
+    "grass",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: ctx.blocks.wool.default_state,
+      place:   ctx.blocks.grass.default_state,
+
+      radius: 5,
+    },
+  );
 }
 
 const WHITE: u8 = 0;

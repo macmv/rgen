@@ -68,16 +68,17 @@ impl BiomeBuilder {
     for placer in self.placers.iter() {
       let seed = rng.next();
 
-      const SCALE: f64 = 1.0 / 4.0;
+      const SCALE: f64 = 1.0 / 16.0;
+      let scale = SCALE * placer.placer.avg_per_chunk().powf(0.5);
 
-      let min_x = chunk_pos.min_block_pos().x as f64 * SCALE;
-      let min_y = chunk_pos.min_block_pos().z as f64 * SCALE;
-      let max_x = (chunk_pos.min_block_pos().x + 15) as f64 * SCALE;
-      let max_y = (chunk_pos.min_block_pos().z + 15) as f64 * SCALE;
+      let min_x = chunk_pos.min_block_pos().x as f64 * scale;
+      let min_y = chunk_pos.min_block_pos().z as f64 * scale;
+      let max_x = (chunk_pos.min_block_pos().x + 15) as f64 * scale;
+      let max_y = (chunk_pos.min_block_pos().z + 15) as f64 * scale;
 
       for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
         let pos = world.top_block_excluding(
-          Pos::new((point.0 / SCALE) as i32, 0, (point.1 / SCALE) as i32),
+          Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32),
           &[blocks.leaves.block],
         );
 

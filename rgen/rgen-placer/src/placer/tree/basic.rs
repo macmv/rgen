@@ -11,7 +11,7 @@ pub struct BasicTree {
 impl Placer for BasicTree {
   fn radius(&self) -> u8 { 2 }
 
-  fn amount_per_chunk(&self) -> u32 { 16 }
+  fn avg_per_chunk(&self) -> f64 { 16.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let height = rng.rand_inclusive(4, 7);

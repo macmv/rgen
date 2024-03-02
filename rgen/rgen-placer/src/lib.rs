@@ -18,7 +18,7 @@ pub trait Placer: Send + Sync {
 
   /// The amount of times, on average, that this placer should be run for each
   /// chunk.
-  fn amount_per_chunk(&self) -> u32 { 1 }
+  fn avg_per_chunk(&self) -> f64 { 1.0 }
 
   /// Places the blocks in the world at the given position.
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos);
