@@ -104,20 +104,12 @@ impl Placer for BushClumps {
 
           for offset in [
             // surround the log in leaves
-            //Pos::new(-1, 0, -1),
             Pos::new(-1, 0, 0),
-            //Pos::new(-1, 0, 1),
             Pos::new(0, 0, -1),
             Pos::new(0, 0, 1),
-            //Pos::new(1, 0, -1),
             Pos::new(1, 0, 0),
-            //Pos::new(1, 0, 1),
             // and build a few leaves on top
             Pos::new(0, 1, 0),
-            //Pos::new(1, 1, 0),
-            //Pos::new(-1, 1, 0),
-            //Pos::new(0, 1, 1),
-            //Pos::new(0, 1, -1),
           ] {
             let side = above + offset;
             if world.get(side).block == Block::AIR {
