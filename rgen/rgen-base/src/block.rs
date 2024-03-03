@@ -173,6 +173,7 @@ big! { Blocks: BlockInfo
   ice => "minecraft:ice",
   tallgrass => "minecraft:tallgrass",
   double_plant => "minecraft:double_plant",
+  red_flower => "minecraft:red_flower",
 
   rgen_log => "rgen:log",
 }

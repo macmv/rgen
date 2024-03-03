@@ -6,6 +6,19 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
+    "flowers",
+    PlacerStage::Tree,
+    placer::Clumps {
+      place_above: gen.top_block.into(),
+      place:       ctx.blocks.red_flower.default_state, // Poppy
+
+      radius:        3..=6,
+      attempts:      20,
+      avg_per_chunk: 0.1,
+    },
+  );
+
+  gen.place(
     "grass",
     PlacerStage::Tree,
     placer::GrassClumps {
@@ -17,5 +30,5 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
       radius:   4..=10,
       attempts: 20,
     },
-  )
+  );
 }
