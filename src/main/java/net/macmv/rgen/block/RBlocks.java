@@ -17,6 +17,9 @@ public final class RBlocks {
 
   public static final Block LOG = register("log", new RGenLogBlockOne());
 
+  public static final Block MOSSY_BUSH = register("mossy_bush", new Block(Material.LEAVES));
+
+
   private static Block register(String name, Block block) {
     Block b = block.setRegistryName(RGen.MODID, name).setUnlocalizedName(name);
     blocks.add(b);
