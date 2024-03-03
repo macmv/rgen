@@ -10,15 +10,12 @@ use super::IdContext;
 //        - add branches to dead trees
 //        - add bushes feature
 //          - add feature to mossy shores
-//          - add feature to chapparel beach
-//          - add feature to jungle beach
 //        - add fir tree feature
 //          - add feature to wet rock
 //        - add water pools feature
 //          - add feature to wet rocks
 //        - add palm tree feature
 //          - add feature to to palm beach
-//        - add basic tree (jungle style) to jungle beach
 pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.top_block = ctx.blocks.gravel.default_state;
@@ -274,10 +271,61 @@ pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.grass.default_state;
   gen.sub_layer = ctx.blocks.dirt.default_state;
+
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BushClumps {
+      place_above: gen.top_block.into(),
+      log:         ctx.blocks.log.default_state, //jungle log
+      leaves:      ctx.blocks.leaves.default_state, //jungle leaves
+
+      radius:        10..=20,
+      attempts:      10,
+      avg_per_chunk: 4.0,
+    },
+  );
 }
 
 pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.jungle;
   gen.top_block = ctx.blocks.grass.default_state;
   gen.sub_layer = ctx.blocks.dirt.default_state;
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 20,
+    },
+  );
+
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BushClumps {
+      place_above: gen.top_block.into(),
+      log:         ctx.blocks.log.with_data(3), //jungle log
+      leaves:      ctx.blocks.leaves.with_data(3), //jungle leaves
+
+      radius:        10..=20,
+      attempts:      10,
+      avg_per_chunk: 4.0,
+    },
+  );
+
+  gen.place(
+    "basic jungle tree",
+    PlacerStage::Tree,
+    placer::BasicTree {
+      trunk:  ctx.blocks.log.with_data(3),
+      leaves: ctx.blocks.leaves.with_data(3),
+    },
+  )
 }
