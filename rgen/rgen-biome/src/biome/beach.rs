@@ -182,9 +182,7 @@ pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    30,
-      place_above: BlockSet::Block(
-        vec![ctx.blocks.gravel.block, ctx.blocks.sand.block, ctx.blocks.stone.block].into(),
-      ),
+      place_above: [ctx.blocks.gravel.block, ctx.blocks.sand.block, ctx.blocks.stone.block].into(),
       place:       ctx.blocks.tallgrass.with_data(0),
     },
   )

@@ -30,6 +30,20 @@ impl From<BlockState> for BlockSet {
   }
 }
 
+impl<const N: usize> From<[Block; N]> for BlockSet {
+  fn from(value: [Block; N]) -> Self { BlockSet::Block(SmallVec::from_slice(&value)) }
+}
+impl From<&[Block]> for BlockSet {
+  fn from(value: &[Block]) -> Self { BlockSet::Block(SmallVec::from_slice(value)) }
+}
+
+impl<const N: usize> From<[BlockState; N]> for BlockSet {
+  fn from(value: [BlockState; N]) -> Self { BlockSet::BlockState(SmallVec::from_slice(&value)) }
+}
+impl From<&[BlockState]> for BlockSet {
+  fn from(value: &[BlockState]) -> Self { BlockSet::BlockState(SmallVec::from_slice(value)) }
+}
+
 impl BitOr for BlockSet {
   type Output = Self;
 
