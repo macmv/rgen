@@ -5,7 +5,7 @@ mod splatter;
 mod splotch;
 mod tree;
 
-pub use clump::{Clumps, GrassClumps};
+pub use clump::{BushClumps, Clumps, GrassClumps};
 pub use rock::Monument;
 pub use scatter::Scatter;
 pub use splatter::Splatter;

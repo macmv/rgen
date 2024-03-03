@@ -57,4 +57,17 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
       attempts: 20,
     },
   );
+
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BushClumps {
+      place_above: gen.top_block.into(),
+      log:         ctx.blocks.log.default_state,
+      leaves:      ctx.blocks.leaves.default_state,
+
+      radius:   10..=20,
+      attempts: 10,
+    },
+  );
 }
