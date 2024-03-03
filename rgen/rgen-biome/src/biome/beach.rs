@@ -148,7 +148,20 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place:    ctx.blocks.grass.default_state,
       attempts: 40,
     },
-  )
+  );
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BushClumps {
+      place_above: gen.top_block.into(),
+      log:         ctx.blocks.log.default_state,
+      leaves:      ctx.blocks.leaves.default_state,
+
+      radius:        10..=20,
+      attempts:      10,
+      avg_per_chunk: 1.0,
+    },
+  );
 }
 
 pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -277,12 +290,12 @@ pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BushClumps {
       place_above: gen.top_block.into(),
-      log:         ctx.blocks.log.default_state, //jungle log
-      leaves:      ctx.blocks.leaves.default_state, //jungle leaves
+      log:         ctx.blocks.log.default_state,
+      leaves:      ctx.blocks.leaves.default_state,
 
       radius:        10..=20,
       attempts:      10,
-      avg_per_chunk: 4.0,
+      avg_per_chunk: 1.0,
     },
   );
 }
