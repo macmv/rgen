@@ -20,10 +20,10 @@ import net.minecraft.world.World;
 public class LooseRockBlock extends Block {
   public static final PropertyEnum<RockSize> SIZE = PropertyEnum.create("size", RockSize.class);
 
-  protected static final AxisAlignedBB SMALL_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.375D, 0.625D, 0.0625D, 0.625D);
-  protected static final AxisAlignedBB MEDIUM_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.625D, 0.0625D, 0.75D);
+  protected static final AxisAlignedBB SMALL_COLLISION_AABB = new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.0625D, 0.625D);
+  protected static final AxisAlignedBB MEDIUM_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.625D, 0.0625D, 0.625D);
   protected static final AxisAlignedBB LARGE_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.625D, 0.0625D, 0.625D);
-  protected static final AxisAlignedBB SMALL_SELECTED_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.375D, 0.6875D, 0.125D, 0.625D);
+  protected static final AxisAlignedBB SMALL_SELECTED_AABB = new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.125D, 0.625D);
   protected static final AxisAlignedBB MEDIUM_SELECTED_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.6875D, 0.125D, 0.75D);
   protected static final AxisAlignedBB LARGE_SELECTED_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.6875D, 0.125D, 0.625D);
 
