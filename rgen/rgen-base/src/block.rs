@@ -116,7 +116,7 @@ impl Biome {
   /// The biome ID.
   pub fn raw_id(&self) -> u8 { self.0 }
 }
-
+// Block Identification Guide
 macro_rules! big {
   (
     $struct_name:ident: $item:ident
@@ -175,6 +175,11 @@ big! { Blocks: BlockInfo
   double_plant => "minecraft:double_plant",
   red_flower => "minecraft:red_flower",
   yellow_flower => "minecraft:yellow_flower",
+  // 0 - normal    1 - chiseled     2 - smooth
+  sandstone => "minecraft:sandstone",
+  // 0 - normal    1 - chiseled     2 - smooth (?)
+  red_sandstone => "minecraft:red_sandstone",
+  gold_block => "minecraft:gold_block",
 
   rgen_log => "rgen:log",
 }
@@ -191,4 +196,5 @@ big! { Biomes: Biome
   savanna => "minecraft:savanna",
   swamp => "minecraft:swampland",
   stone_beach => "minecraft:stone_beach",
+  jungle => "minecraft:jungle",
 }
