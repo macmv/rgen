@@ -7,6 +7,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -14,6 +15,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class LooseRockBlock extends Block {
   public static final PropertyEnum<RockSize> SIZE = PropertyEnum.create("size", RockSize.class);
@@ -90,6 +92,10 @@ public class LooseRockBlock extends Block {
 
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, SIZE, BlockHorizontal.FACING);
+  }
+
+  public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
+    return this.getStateFromMeta(meta).withProperty(BlockHorizontal.FACING, placer.getHorizontalFacing());
   }
 
   public IBlockState getStateFromMeta(int meta) {
