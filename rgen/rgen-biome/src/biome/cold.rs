@@ -155,7 +155,10 @@ pub fn snowy_spruce(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "spruce_tree",
     PlacerStage::Sand,
-    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
+    placer::BasicTree {
+      trunk:  ctx.blocks.log.default_state,
+      leaves: ctx.blocks.leaves.default_state,
+    },
   );
 }
 
@@ -166,7 +169,10 @@ pub fn snowy_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "spruce_tree",
     PlacerStage::Sand,
-    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
+    placer::BasicTree {
+      trunk:  ctx.blocks.log.default_state,
+      leaves: ctx.blocks.leaves.default_state,
+    },
   );
 }
 
@@ -192,7 +198,10 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "fir_tree",
     PlacerStage::Sand,
-    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
+    placer::BasicTree {
+      trunk:  ctx.blocks.log.default_state,
+      leaves: ctx.blocks.leaves.default_state,
+    },
   );
 }
 
@@ -203,7 +212,10 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "spruce_tree",
     PlacerStage::Sand,
-    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
+    placer::BasicTree {
+      trunk:  ctx.blocks.log.default_state,
+      leaves: ctx.blocks.leaves.default_state,
+    },
   );
 }
 

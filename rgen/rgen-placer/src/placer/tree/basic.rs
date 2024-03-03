@@ -1,11 +1,12 @@
-use rgen_base::{Block, Pos};
+use rgen_base::{Block, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
 pub struct BasicTree {
-  pub trunk:  Block,
-  pub leaves: Block,
+  pub trunk:  BlockState,
+  pub leaves: BlockState,
+  //pub avg_in_chunk: f64,
 }
 
 impl Placer for BasicTree {
