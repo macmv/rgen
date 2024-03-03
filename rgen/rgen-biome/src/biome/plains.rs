@@ -66,8 +66,9 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
       log:         ctx.blocks.log.default_state,
       leaves:      ctx.blocks.leaves.default_state,
 
-      radius:   10..=20,
-      attempts: 10,
+      radius:        10..=20,
+      attempts:      10,
+      avg_per_chunk: 0.2,
     },
   );
 }

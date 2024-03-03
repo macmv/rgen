@@ -29,8 +29,9 @@ pub struct BushClumps {
   pub log:         BlockState,
   pub leaves:      BlockState,
 
-  pub radius:   RangeInclusive<u8>,
-  pub attempts: u32,
+  pub radius:        RangeInclusive<u8>,
+  pub attempts:      u32,
+  pub avg_per_chunk: f64,
 }
 
 impl Placer for Clumps {
@@ -86,7 +87,7 @@ impl Placer for GrassClumps {
 
 impl Placer for BushClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { 0.3 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
