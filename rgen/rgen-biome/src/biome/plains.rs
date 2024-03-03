@@ -6,8 +6,16 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
-    "tree",
+    "grass",
     PlacerStage::Tree,
-    placer::BasicTree { trunk: ctx.blocks.log.block, leaves: ctx.blocks.leaves.block },
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 20,
+    },
   )
 }

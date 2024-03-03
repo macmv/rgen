@@ -14,7 +14,7 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[blank];
+const BLANK: BiomeFnCategory = &[plains];
 
 const FROZEN_VALLEY: BiomeFnCategory = &[glacier, rockies, broken_glacier];
 const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];
@@ -22,11 +22,11 @@ const ROCKY_VALLEY: BiomeFnCategory = &[crag, snowy_crag /* , rocky_cedar */];
 const COOL_VALLEY: BiomeFnCategory =
   &[crag /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
 const SWAMP: BiomeFnCategory =
-  &[blank /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
+  &[plains /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
 const DRY_RIVER: BiomeFnCategory = &[swamp /* , mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[blank];
-const HOT_SWAMP: BiomeFnCategory = &[blank];
-const TROPIC_SWAMP: BiomeFnCategory = &[blank];
+const WARM_VALLEY: BiomeFnCategory = &[plains];
+const HOT_SWAMP: BiomeFnCategory = &[plains];
+const TROPIC_SWAMP: BiomeFnCategory = &[plains];
 
 const COLD_BEACH: BiomeFnCategory = &[snowy_shores, snowy_rock];
 const COOL_BEACH: BiomeFnCategory =

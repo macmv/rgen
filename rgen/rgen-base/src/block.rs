@@ -171,6 +171,9 @@ big! { Blocks: BlockInfo
   cobblestone => "minecraft:cobblestone",
   mossy_cobblestone => "minecraft:mossy_cobblestone",
   ice => "minecraft:ice",
+  tallgrass => "minecraft:tallgrass",
+  double_plant => "minecraft:double_plant",
+
   rgen_log => "rgen:log",
 }
 
