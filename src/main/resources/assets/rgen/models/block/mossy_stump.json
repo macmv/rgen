@@ -1,0 +1,8 @@
+{
+    "parent": "block/cube_bottom_top",
+    "textures": {
+        "bottom": "blocks/log_oak_top",
+        "top": "rgen:blocks/moss_block",
+        "side": "rgen:blocks/mossy_stump_side"
+    }
+}

@@ -15,6 +15,7 @@ public final class RBlocks {
   // public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
   public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
   public static final Block LOOSE_ROCK = register("loose_rock", new LooseRockBlock());
+  public static final Block PLANT = register("plant", new RGenPlantBlock());
 
   public static final Block LOG = register("log", new RGenLogBlockOne());
 
