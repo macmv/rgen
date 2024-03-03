@@ -1,5 +1,6 @@
 package net.macmv.rgen.block;
 
+import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -20,12 +21,12 @@ import net.minecraft.world.World;
 public class LooseRockBlock extends Block {
   public static final PropertyEnum<RockSize> SIZE = PropertyEnum.create("size", RockSize.class);
 
-  protected static final AxisAlignedBB SMALL_COLLISION_AABB = new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.0625D, 0.625D);
-  protected static final AxisAlignedBB MEDIUM_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.625D, 0.0625D, 0.625D);
-  protected static final AxisAlignedBB LARGE_COLLISION_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.625D, 0.0625D, 0.625D);
-  protected static final AxisAlignedBB SMALL_SELECTED_AABB = new AxisAlignedBB(0.375D, 0.0D, 0.375D, 0.625D, 0.125D, 0.625D);
-  protected static final AxisAlignedBB MEDIUM_SELECTED_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.6875D, 0.125D, 0.75D);
-  protected static final AxisAlignedBB LARGE_SELECTED_AABB = new AxisAlignedBB(0.3125D, 0.0D, 0.3125D, 0.6875D, 0.125D, 0.625D);
+  protected static final AxisAlignedBB SMALL_COLLISION_AABB = MathUtil.aabb(6, 0, 6, 10, 1, 10);
+  protected static final AxisAlignedBB MEDIUM_COLLISION_AABB = MathUtil.aabb(5, 0, 5, 11, 1, 11);
+  protected static final AxisAlignedBB LARGE_COLLISION_AABB = MathUtil.aabb(4, 0, 4, 12, 1, 12);
+  protected static final AxisAlignedBB SMALL_SELECTED_AABB = MathUtil.aabb(6, 0, 6, 10, 2, 10);
+  protected static final AxisAlignedBB MEDIUM_SELECTED_AABB = MathUtil.aabb(5, 0, 5, 11, 2, 11);
+  protected static final AxisAlignedBB LARGE_SELECTED_AABB = MathUtil.aabb(4, 0, 4, 12, 2, 12);
 
   public LooseRockBlock() {
     super(Material.ROCK);
