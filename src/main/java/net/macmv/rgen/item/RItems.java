@@ -21,6 +21,7 @@ public class RItems {
   // public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
   public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.EnumType.fromMeta(ty.getMetadata()).name));
+  public static final Item PLANT = registerBlockItem(RBlocks.PLANT);
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem());
 
