@@ -8,9 +8,9 @@
     "facing=south,size=medium": { "model": "rgen:medium_rock", "y": 180 },
     "facing=east,size=medium": { "model": "rgen:medium_rock", "y": 90 },
     "facing=west,size=medium": { "model": "rgen:medium_rock", "y": 270 },
-    "facing=north,size=small": { "model": "rgen:large_rock" },
-    "facing=south,size=small": { "model": "rgen:large_rock", "y": 180 },
-    "facing=east,size=small": { "model": "rgen:large_rock", "y": 90 },
-    "facing=west,size=small": { "model": "rgen:large_rock", "y": 270 }
+    "facing=north,size=large": { "model": "rgen:large_rock" },
+    "facing=south,size=large": { "model": "rgen:large_rock", "y": 180 },
+    "facing=east,size=large": { "model": "rgen:large_rock", "y": 90 },
+    "facing=west,size=large": { "model": "rgen:large_rock", "y": 270 }
   }
 }
