@@ -25,8 +25,14 @@ public class LooseRockBlock extends Block {
   protected static final AxisAlignedBB MEDIUM_COLLISION_AABB = MathUtil.aabb(5, 0, 5, 11, 1, 11);
   protected static final AxisAlignedBB LARGE_COLLISION_AABB = MathUtil.aabb(4, 0, 4, 12, 1, 12);
   protected static final AxisAlignedBB SMALL_SELECTED_AABB = MathUtil.aabb(6, 0, 6, 10, 2, 10);
-  protected static final AxisAlignedBB MEDIUM_SELECTED_AABB = MathUtil.aabb(5, 0, 5, 11, 2, 11);
-  protected static final AxisAlignedBB LARGE_SELECTED_AABB = MathUtil.aabb(4, 0, 4, 12, 2, 12);
+  protected static final AxisAlignedBB MEDIUM_SELECTED_NORTH_AABB = MathUtil.aabb(5, 0, 5, 11, 2, 12);
+  protected static final AxisAlignedBB MEDIUM_SELECTED_SOUTH_AABB = MathUtil.aabb(5, 0, 4, 11, 2, 11);
+  protected static final AxisAlignedBB MEDIUM_SELECTED_EAST_AABB = MathUtil.aabb(4, 0, 5, 11, 2, 11);
+  protected static final AxisAlignedBB MEDIUM_SELECTED_WEST_AABB = MathUtil.aabb(5, 0, 5, 12, 2, 11);
+  protected static final AxisAlignedBB LARGE_SELECTED_NORTH_AABB = MathUtil.aabb(4, 0, 3, 12, 2, 13);
+  protected static final AxisAlignedBB LARGE_SELECTED_SOUTH_AABB = MathUtil.aabb(4, 0, 3, 12, 2, 13);
+  protected static final AxisAlignedBB LARGE_SELECTED_EAST_AABB = MathUtil.aabb(3, 0, 4, 13, 2, 12);
+  protected static final AxisAlignedBB LARGE_SELECTED_WEST_AABB = MathUtil.aabb(3, 0, 4, 13, 2, 12);
 
   public LooseRockBlock() {
     super(Material.ROCK);
@@ -49,23 +55,34 @@ public class LooseRockBlock extends Block {
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    AxisAlignedBB aabb;
-
     switch (state.getValue(SIZE)) {
       case SMALL:
-        aabb = SMALL_SELECTED_AABB;
-        break;
+        return SMALL_SELECTED_AABB;
       case MEDIUM:
-        aabb = MEDIUM_SELECTED_AABB;
-        break;
+        switch (state.getValue(BlockHorizontal.FACING)) {
+          case NORTH:
+            return MEDIUM_SELECTED_NORTH_AABB;
+          case SOUTH:
+            return MEDIUM_SELECTED_SOUTH_AABB;
+          case EAST:
+            return MEDIUM_SELECTED_EAST_AABB;
+          case WEST:
+            return MEDIUM_SELECTED_WEST_AABB;
+        }
       case LARGE:
-        aabb = LARGE_SELECTED_AABB;
-        break;
+        switch (state.getValue(BlockHorizontal.FACING)) {
+          case NORTH:
+            return LARGE_SELECTED_NORTH_AABB;
+          case SOUTH:
+            return LARGE_SELECTED_SOUTH_AABB;
+          case EAST:
+            return LARGE_SELECTED_EAST_AABB;
+          case WEST:
+            return LARGE_SELECTED_WEST_AABB;
+        }
       default:
         return NULL_AABB;
     }
-
-    return aabb;
   }
 
   @Override
