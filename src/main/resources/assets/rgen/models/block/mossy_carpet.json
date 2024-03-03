@@ -1,0 +1,7 @@
+{
+    "parent": "block/carpet",
+    "textures": {
+        "particle": "rgen:blocks/mossy_block",
+        "wool": "rgen:blocks/mossy_block"
+    }
+}
