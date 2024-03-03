@@ -6,15 +6,41 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
-    "flowers",
+    "poppy",
     PlacerStage::Tree,
     placer::Clumps {
       place_above: gen.top_block.into(),
-      place:       ctx.blocks.red_flower.default_state, // Poppy
+      place:       ctx.blocks.red_flower.default_state,
 
       radius:        3..=6,
       attempts:      20,
-      avg_per_chunk: 0.1,
+      avg_per_chunk: 0.08,
+    },
+  );
+
+  gen.place(
+    "dandelion",
+    PlacerStage::Tree,
+    placer::Clumps {
+      place_above: gen.top_block.into(),
+      place:       ctx.blocks.yellow_flower.default_state,
+
+      radius:        2..=3,
+      attempts:      20,
+      avg_per_chunk: 0.08,
+    },
+  );
+
+  gen.place(
+    "oxeye_daisy",
+    PlacerStage::Tree,
+    placer::Clumps {
+      place_above: gen.top_block.into(),
+      place:       ctx.blocks.red_flower.with_data(8),
+
+      radius:        2..=4,
+      attempts:      20,
+      avg_per_chunk: 0.08,
     },
   );
 

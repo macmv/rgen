@@ -48,7 +48,7 @@ impl Placer for Clumps {
 
 impl Placer for GrassClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { 2.0 }
+  fn avg_per_chunk(&self) -> f64 { 3.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
@@ -62,7 +62,7 @@ impl Placer for GrassClumps {
       let above_pos = pos + Pos::new(0, 1, 0);
 
       if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
-        let height = *rng.choose(&[1, 1, 1, 2]);
+        let height = *rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
 
         if height == 1 {
           world.set(above_pos, self.place_short);
