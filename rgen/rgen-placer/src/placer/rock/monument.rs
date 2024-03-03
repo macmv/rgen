@@ -1,17 +1,18 @@
-use rgen_base::{Block, Pos};
+use rgen_base::{Block, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
 pub struct Monument {
-  pub material:       Block,
-  pub fancy_material: Block,
+  pub material:       BlockState,
+  pub fancy_material: BlockState,
+  pub reward:         BlockState,
 }
 
 impl Placer for Monument {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { 1.0 }
+  fn avg_per_chunk(&self) -> f64 { 0.2 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let height = rng.rand_inclusive(4, 9);
@@ -50,5 +51,6 @@ impl Placer for Monument {
         }
       }
     }
+    world.set(pos, self.reward)
   }
 }
