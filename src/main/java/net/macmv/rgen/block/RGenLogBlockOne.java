@@ -18,6 +18,11 @@ public class RGenLogBlockOne extends BlockLog {
     return new BlockStateContainer(this, VARIANT, LOG_AXIS);
   }
 
+  @Override
+  public int damageDropped(IBlockState state) {
+    return state.getValue(VARIANT).meta;
+  }
+
   public IBlockState getStateFromMeta(int meta) {
     IBlockState state = this.getDefaultState().withProperty(VARIANT, EnumType.fromMeta(meta & 3));
 
