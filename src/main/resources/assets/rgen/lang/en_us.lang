@@ -7,3 +7,5 @@ tile.log.cedar.name=Cedar Wood
 tile.log.fir.name=Fir Wood
 tile.log.sakura.name=Sakura Wood
 tile.log.dead.name=Dead Wood
+
+item.debug_stick.name=Debug Stick

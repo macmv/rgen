@@ -1,5 +1,6 @@
 package net.macmv.rgen.item;
 
+import net.macmv.rgen.RGen;
 import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.block.RGenLogBlockOne;
 import net.minecraft.block.Block;
@@ -21,6 +22,8 @@ public class RItems {
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
   public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.EnumType.fromMeta(ty.getMetadata()).name));
 
+  public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem());
+
   private static Item registerBlockItem(Block block) {
     return registerBlockItem(block, new ItemBlock(block));
   }
@@ -31,8 +34,12 @@ public class RItems {
       throw new IllegalArgumentException("block must have a registry name");
     }
 
-    item.setRegistryName(path);
-    item.setUnlocalizedName(path.getResourcePath());
+    return registerItem(path.getResourcePath(), item);
+  }
+
+  private static Item registerItem(String name, Item item) {
+    item.setRegistryName(new ResourceLocation(RGen.MODID, name));
+    item.setUnlocalizedName(name);
     items.add(item);
     return item;
   }
