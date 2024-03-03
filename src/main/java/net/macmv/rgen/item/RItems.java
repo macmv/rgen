@@ -1,6 +1,7 @@
 package net.macmv.rgen.item;
 
 import net.macmv.rgen.RGen;
+import net.macmv.rgen.block.LooseRockBlock;
 import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.block.RGenLogBlockOne;
 import net.minecraft.block.Block;
@@ -21,6 +22,7 @@ public class RItems {
   // public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
   public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.EnumType.fromMeta(ty.getMetadata()).name));
+  public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name));
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem());
 
@@ -61,6 +63,13 @@ public class RItems {
         ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
         ModelResourceLocation loc3 = new ModelResourceLocation("rgen:dead_log", "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 3, loc3);
+      } else if (i.getRegistryName().toString().equals("rgen:loose_rock")) {
+        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:small_rock", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
+        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:medium_rock", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
+        ModelResourceLocation loc2 = new ModelResourceLocation("rgen:large_rock", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
       } else {
         ModelResourceLocation location = new ModelResourceLocation(i.getRegistryName(), "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 0, location);
