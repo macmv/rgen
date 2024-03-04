@@ -27,9 +27,27 @@ Editing and creating pngs
 Edit and crate .jsons
 Edit a .java
 
-mossy_stone * * mossy stone
-moss_covered_cobblestone * * moss covered cobblestone
-mossy_block * * moss block
-mossy_carpet * * mossy carpet
-mossy_stump * * mossy stump
-mossy_bush * * mossy bush
+
+# The Moss Update
+* = A)texture B)block/model C)blockstates
+.# = is a block but may miss features
+% = not done
+[] = fixes needed 
+
+moss_covered_cobblestone % % % moss covered cobblestone   %
+mossy_cobblestone_rgen * * * mossy cobblestone            %
+mossy_stone * * * mossy stone                             %
+mossy_block * * * moss block                              # done [sound fix, needs item]
+mossy_carpet * * * mossy carpet                           # done [sound fix, needs item]
+mossy_stump * * * mossy stump                             # needs sides and varients 
+                                                            [sound fix, needs item]
+mossy_bush * * * mossy bush                               # done [sound fix, needs item]
+
+incubator (entity)
+-craffted by stone block sides with a middle stack of water bucket then mossblock then coldron 
+
+- by placing a water bucket in the top block then place the plant to be incubated a duplicate is then generated
+
+- the block being incubated can be: moss, vines, brown mushrooms, red mushrooms
+
+- by placing a water bucket and an inubatable item which over time will get you a duplicate of that block
