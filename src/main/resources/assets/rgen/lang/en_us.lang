@@ -12,4 +12,11 @@ tile.loose_rock.small.name=Small Rock
 tile.loose_rock.medium.name=Medium Rock
 tile.loose_rock.large.name=Large Rock
 
+tile.plant.name=Mossy Bush
+tile.mossy_stump=Mossy Stump
+tile.mossy_carpet=Mossy Carpet
+tile.mossy_block=Mossy Block
+tile.mossy_cobblestone_rgen=Mossy Cobblestone
+tile.mossy_stone=Mossy Stone
+
 item.debug_stick.name=Debug Stick
