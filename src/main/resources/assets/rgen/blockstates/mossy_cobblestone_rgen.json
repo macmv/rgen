@@ -1,7 +1,7 @@
 {
     "variants": {
         "normal": {
-            "model": "rgen:moss_covered_cobblestone"
+            "model": "rgen:mossy_cobblestone_rgen"
         }
     }
 }
