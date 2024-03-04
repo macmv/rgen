@@ -1,5 +1,5 @@
 use eframe::egui::{self, Slider};
-use egui_plot::{Line, Plot, PlotPoints};
+use egui_plot::{Line, Plot, PlotPoints, Points};
 use splines::{Key, Spline};
 
 fn main() -> Result<(), eframe::Error> {
@@ -102,22 +102,29 @@ impl eframe::App for SplineEditor {
         self.spline.add(Key::new(1.0, 64.0, splines::Interpolation::Cosine));
       }
 
-      let sin: PlotPoints = (0..1000)
+      let spline: PlotPoints = (0..1000)
         .map(|i| {
           let x = i as f64 / 1000.0;
           let y = self.spline.sample(x).unwrap();
           [x, y]
         })
         .collect();
+      let line = Line::new(spline);
 
-      let line = Line::new(sin);
+      let points =
+        Points::new(self.spline.keys().iter().map(|k| [k.t, k.value]).collect::<Vec<_>>())
+          .radius(5.0);
+
       Plot::new("spline")
         .include_x(0.0)
         .include_x(1.0)
         .include_y(0.0)
         .include_y(128.0)
         .view_aspect(2.0)
-        .show(ui, |plot_ui| plot_ui.line(line));
+        .show(ui, |plot_ui| {
+          plot_ui.line(line);
+          plot_ui.points(points);
+        });
     });
   }
 }
