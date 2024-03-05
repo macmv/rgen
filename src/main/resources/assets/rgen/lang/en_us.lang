@@ -1,5 +1,8 @@
 generator.rgen=RGen
 
+itemGroup.rgen_building_blocks=RGen Building Blocks
+itemGroup.rgen_decorations=RGen Decorations
+
 tile.derp_dog.name=Derp Dog
 tile.thatch_roof.name=Thatch Roof
 
