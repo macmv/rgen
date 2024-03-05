@@ -91,12 +91,6 @@ impl eframe::App for SplineEditor {
           plot_ui.line(line);
           plot_ui.points(points);
 
-          let [min_x, min_y] = plot_ui.plot_bounds().min();
-          let [max_x, max_y] = plot_ui.plot_bounds().max();
-
-          let aspect = (max_y - min_y) / (max_x - min_x);
-          dbg!(aspect);
-
           for i in 0..self.spline.storage.len() {
             let (x, y, k) = self.spline.storage[i];
 
