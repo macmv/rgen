@@ -19,13 +19,14 @@ public final class RBlocks {
   public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
   public static final Block LOOSE_ROCK = register("loose_rock", new LooseRockBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", new RGenPlantBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
-  public static final Block MOSSY_STUMP = register("mossy_stump", new Block(Material.WOOD));
+  // public static final Block MOSSY_STUMP = register("mossy_stump", new Block(Material.WOOD));
   public static final Block MOSSY_CARPET = register("mossy_carpet", new RGenMossCarpet().setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Block MOSSY_BLOCK = register("mossy_block", new RGenMossBlock());
   public static final Block MOSSY_COBBLESTONE_RGEN = register("mossy_cobblestone_rgen", new RGenPlantableStone());
   public static final Block MOSSY_STONE = register("mossy_stone", new RGenPlantableStone());
 
   public static final Block LOG = register("log", new RGenLogBlockOne());
+  public static final Block MOSSY_STUMP = register("mossy_stump", new RGenMossyLogBlock());
 
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
