@@ -1,4 +1,4 @@
-pub struct Spline<T> {
+pub struct Spline<T: ?Sized> {
   pub storage: T,
 }
 
@@ -41,6 +41,17 @@ impl SplineStorage for [(f64, f64)] {
   }
 }
 
+impl SplineStorage for &[(f64, f64)] {
+  fn len(&self) -> usize { self.as_ref().len() }
+  fn get(&self, index: usize) -> (f64, f64) { self[index] }
+  fn binary_search(&self, key: f64) -> usize {
+    match self.binary_search_by(|(k, _)| k.partial_cmp(&key).unwrap()) {
+      Ok(i) => i,
+      Err(i) => i,
+    }
+  }
+}
+
 pub trait Interpolation {
   fn interpolate(t: f64, left: f64, right: f64) -> f64;
 }
@@ -58,7 +69,7 @@ impl Interpolation for Cosine {
   }
 }
 
-impl<T: SplineStorage> Spline<T> {
+impl<T: SplineStorage + ?Sized> Spline<T> {
   pub fn sample<I: Interpolation>(&self, pos: f64) -> f64 {
     if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {
       return 0.0;

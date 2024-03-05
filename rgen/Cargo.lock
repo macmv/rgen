@@ -2255,8 +2255,8 @@ dependencies = [
  "lazy_static",
  "rgen-base",
  "rgen-placer",
+ "rgen-spline",
  "rgen-world",
- "splines",
 ]
 
 [[package]]
