@@ -1,21 +1,34 @@
 package net.macmv.rgen.block;
 
+import net.macmv.rgen.item.RItems;
+import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 
 public class RGenLogBlockOne extends BlockLog {
   public static final PropertyEnum<EnumType> VARIANT = PropertyEnum.create("variant", EnumType.class);
 
   public RGenLogBlockOne() {
+    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, EnumType.CEDAR).withProperty(LOG_AXIS, EnumAxis.Y));
   }
 
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT, LOG_AXIS);
+  }
+
+  public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+    items.add(new ItemStack(this, 1, EnumType.CEDAR.meta));
+    items.add(new ItemStack(this, 1, EnumType.FIR.meta));
+    items.add(new ItemStack(this, 1, EnumType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, EnumType.DEAD.meta));
   }
 
   @Override
