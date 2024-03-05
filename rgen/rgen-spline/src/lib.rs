@@ -16,16 +16,29 @@ impl<'a> Spline<&'a [(f64, f64)]> {
 pub trait SplineStorage {
   fn len(&self) -> usize;
   fn get(&self, index: usize) -> (f64, f64);
+  fn binary_search(&self, key: f64) -> usize;
 }
 
 impl SplineStorage for Vec<(f64, f64)> {
   fn len(&self) -> usize { self.len() }
   fn get(&self, index: usize) -> (f64, f64) { self[index] }
+  fn binary_search(&self, key: f64) -> usize {
+    match self.binary_search_by(|(k, _)| k.partial_cmp(&key).unwrap()) {
+      Ok(i) => i,
+      Err(i) => i,
+    }
+  }
 }
 
 impl SplineStorage for [(f64, f64)] {
   fn len(&self) -> usize { self.as_ref().len() }
   fn get(&self, index: usize) -> (f64, f64) { self[index] }
+  fn binary_search(&self, key: f64) -> usize {
+    match self.binary_search_by(|(k, _)| k.partial_cmp(&key).unwrap()) {
+      Ok(i) => i,
+      Err(i) => i,
+    }
+  }
 }
 
 impl<T: SplineStorage> Spline<T> {
@@ -37,26 +50,19 @@ impl<T: SplineStorage> Spline<T> {
       return 0.0;
     }
 
-    let len = self.storage.len();
-    if len == 0 {
-      return 0.0;
-    }
-    if len == 1 {
+    let i = self.storage.binary_search(pos);
+
+    if i == 0 {
       return self.value(0);
     }
-    if len == 2 {
-      return self.value(0) + (self.value(1) - self.value(0)) * pos;
-    }
-    let mut i = 0;
-    while i < len - 1 {
-      let t0 = self.value(i);
-      let t1 = self.value(i + 1);
-      if pos >= t0 && pos <= t1 {
-        let t = (pos - t0) / (t1 - t0);
-        return t0 + (t1 - t0) * t;
-      }
-      i += 1;
-    }
-    self.value(len - 1)
+
+    let (left_k, left_v) = self.storage.get(i - 1);
+    let (right_k, right_v) = self.storage.get(i);
+
+    assert!(pos <= right_k);
+    assert!(pos >= left_k);
+
+    let t = (pos - left_k) / (right_k - left_k);
+    left_v + (right_v - left_v) * t
   }
 }
