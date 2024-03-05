@@ -1,8 +1,8 @@
 {
   "parent": "rgen:block/mossy_stump_y",
   "textures": {
-    "top": "rgen:block/mossy_block",
-    "bottom": "blocks/log_birch_top",
-    "side": "rgen:block/mossy_stump_birch_side_y"
+    "top": "rgen:blocks/mossy_block",
+    "bottom": "blockss/log_birch_top",
+    "side": "rgen:blocks/mossy_stump_birch_side_y"
   }
 }

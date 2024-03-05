@@ -4,11 +4,11 @@
       "model": "rgen:mossy_stump_oak_y"
     },
     "axis=z,variant=oak": {
-      "model": "rgen:mossy_stump_oak_xz",
-      "y": 90
+      "model": "rgen:mossy_stump_oak_xz"
     },
     "axis=x,variant=oak": {
-      "model": "rgen:mossy_stump_oak_xz"
+      "model": "rgen:mossy_stump_oak_xz",
+      "y": 90
     },
     "axis=none,variant=oak": {
       "model": "rgen:moss_block"
@@ -17,11 +17,11 @@
       "model": "rgen:mossy_stump_birch_y"
     },
     "axis=z,variant=birch": {
-      "model": "rgen:mossy_stump_oak_xz",
-      "y": 90
+      "model": "rgen:mossy_stump_birch_xz"
     },
     "axis=x,variant=birch": {
-      "model": "rgen:mossy_stump_oak_xz"
+      "model": "rgen:mossy_stump_birch_xz",
+      "y": 90
     },
     "axis=none,variant=birch": {
       "model": "rgen:moss_block"

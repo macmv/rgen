@@ -1,9 +1,9 @@
 {
   "parent": "rgen:block/mossy_stump_xz",
   "textures": {
-    "top": "rgen:block/mossy_block",
-    "bottom": "rgen:block/mossy_stump_birch_bottom_xz",
-    "front": "rgen:block/mossy_stump_birch_front_xz",
-    "side": "rgen:block/mossy_stump_birch_side_xz"
+    "top": "rgen:blocks/mossy_block",
+    "bottom": "rgen:blocks/mossy_stump_birch_bottom_xz",
+    "front": "rgen:blocks/mossy_stump_birch_front_xz",
+    "side": "rgen:blocks/mossy_stump_birch_side_xz"
   }
 }
