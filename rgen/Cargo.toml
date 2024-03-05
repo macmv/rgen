@@ -13,6 +13,7 @@ members = [
 ]
 
 [workspace.dependencies]
+rgen-spline = { path = "rgen-spline" }
 rgen-base = { path = "rgen-base" }
 rgen-placer = { path = "rgen-placer" }
 rgen-biome = { path = "rgen-biome" }
