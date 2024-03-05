@@ -1,6 +1,5 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.material.MapColor;
@@ -13,11 +12,11 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 
 public class RGenLogBlockOne extends BlockLog {
-  public static final PropertyEnum<EnumType> VARIANT = PropertyEnum.create("variant", EnumType.class);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class);
 
   public RGenLogBlockOne() {
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, EnumType.CEDAR).withProperty(LOG_AXIS, EnumAxis.Y));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.CEDAR).withProperty(LOG_AXIS, EnumAxis.Y));
   }
 
   protected BlockStateContainer createBlockState() {
@@ -25,10 +24,10 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, EnumType.CEDAR.meta));
-    items.add(new ItemStack(this, 1, EnumType.FIR.meta));
-    items.add(new ItemStack(this, 1, EnumType.SAKURA.meta));
-    items.add(new ItemStack(this, 1, EnumType.DEAD.meta));
+    items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
+    items.add(new ItemStack(this, 1, LogType.FIR.meta));
+    items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, LogType.DEAD.meta));
   }
 
   @Override
@@ -37,7 +36,7 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public IBlockState getStateFromMeta(int meta) {
-    IBlockState state = this.getDefaultState().withProperty(VARIANT, EnumType.fromMeta(meta & 3));
+    IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta & 3));
 
     switch (meta & 12) {
       case 0:
@@ -74,7 +73,7 @@ public class RGenLogBlockOne extends BlockLog {
     return i;
   }
 
-  public static enum EnumType implements IStringSerializable {
+  public static enum LogType implements IStringSerializable {
     CEDAR(0, "cedar", MapColor.WOOD),
     FIR(1, "fir", MapColor.OBSIDIAN),
     SAKURA(2, "sakura", MapColor.SAND),
@@ -84,7 +83,7 @@ public class RGenLogBlockOne extends BlockLog {
     public final String name;
     public final MapColor mapColor;
 
-    EnumType(int meta, String name, MapColor mapColor) {
+    LogType(int meta, String name, MapColor mapColor) {
       this.meta = meta;
       this.name = name;
       this.mapColor = mapColor;
@@ -95,7 +94,7 @@ public class RGenLogBlockOne extends BlockLog {
       return name;
     }
 
-    public static EnumType fromMeta(int meta) {
+    public static LogType fromMeta(int meta) {
       switch (meta) {
         case 0:
           return CEDAR;
