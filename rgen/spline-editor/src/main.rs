@@ -1,6 +1,6 @@
 use eframe::egui::{self, Slider};
 use egui_plot::{Line, Plot, PlotPoints, Points};
-use splines::{Key, Spline};
+use rgen_spline::Spline;
 
 fn main() -> Result<(), eframe::Error> {
   let options = eframe::NativeOptions {
@@ -11,18 +11,11 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline: Spline<f64, f64>,
+  spline: Spline<Vec<(f64, f64)>>,
 }
 
 impl Default for SplineEditor {
-  fn default() -> Self {
-    Self {
-      spline: Spline::from_vec(vec![
-        Key::new(0.0, 0.0, splines::Interpolation::Cosine),
-        Key::new(1.0, 120.0, splines::Interpolation::Cosine),
-      ]),
-    }
-  }
+  fn default() -> Self { Self { spline: Spline::from_vec(vec![(0.0, 0.0), (1.0, 120.0)]) } }
 }
 
 impl eframe::App for SplineEditor {
@@ -30,53 +23,30 @@ impl eframe::App for SplineEditor {
     egui::CentralPanel::default().show(ctx, |ui| {
       ui.heading("Spline Editor");
 
-      for i in 0..self.spline.keys().len() {
+      for i in 0..self.spline.storage.len() {
         ui.horizontal(|ui| {
-          let t = self.spline.keys()[i].t;
+          let t = self.spline.storage[i].0;
           ui.add(
             Slider::from_get_set(0.0..=1.0, |v| {
-              if i == 0 || i == self.spline.keys().len() - 1 {
+              if i == 0 || i == self.spline.storage.len() - 1 {
                 return t;
               }
 
               if let Some(new_t) = v {
-                let next_t = self.spline.keys()[i + 1].t;
+                let next_t = self.spline.storage[i + 1].0;
                 if new_t >= next_t {
-                  return self
-                    .spline
-                    .replace(i, |k| {
-                      let mut k = k.clone();
-                      // splines uses unstable sorting, so this key must always be less than the
-                      // next key.
-                      k.t = next_t - 1e-6;
-                      k
-                    })
-                    .unwrap()
-                    .t;
+                  self.spline.storage[i].0 = next_t - 1e-6;
+                  return self.spline.storage[i].0;
                 }
 
-                let prev_t = self.spline.keys()[i - 1].t;
+                let prev_t = self.spline.storage[i - 1].0;
                 if new_t < prev_t {
-                  return self
-                    .spline
-                    .replace(i, |k| {
-                      let mut k = k.clone();
-                      k.t = prev_t;
-                      k
-                    })
-                    .unwrap()
-                    .t;
+                  self.spline.storage[i].0 = prev_t;
+                  return self.spline.storage[i].0;
                 }
 
-                self
-                  .spline
-                  .replace(i, |k| {
-                    let mut k = k.clone();
-                    k.t = new_t;
-                    k
-                  })
-                  .unwrap()
-                  .t
+                self.spline.storage[i].0 = new_t;
+                self.spline.storage[i].0
               } else {
                 t
               }
@@ -84,36 +54,31 @@ impl eframe::App for SplineEditor {
             .text("y"),
           );
 
-          let v = self.spline.get_mut(i).unwrap();
-          ui.add(Slider::new(v.value, 0.0..=128.0).text("y"));
+          let v = &mut self.spline.storage[i];
+          ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
         });
       }
 
       if ui.button("Add Key").clicked() {
-        let mult = 1.0 - 1.0 / self.spline.keys().len() as f64;
-        for i in 0..self.spline.keys().len() {
-          self.spline.replace(i, |k| {
-            let mut k = k.clone();
-            k.t *= mult;
-            k
-          });
+        let mult = 1.0 - 1.0 / self.spline.storage.len() as f64;
+        for i in 0..self.spline.storage.len() {
+          self.spline.storage[i].0 *= mult;
         }
 
-        self.spline.add(Key::new(1.0, 64.0, splines::Interpolation::Cosine));
+        self.spline.storage.push((1.0, 64.0));
       }
 
       let spline: PlotPoints = (0..1000)
         .map(|i| {
           let x = i as f64 / 1000.0;
-          let y = self.spline.sample(x).unwrap();
+          let y = self.spline.sample::<rgen_spline::Cosine>(x);
           [x, y]
         })
         .collect();
       let line = Line::new(spline);
 
       let points =
-        Points::new(self.spline.keys().iter().map(|k| [k.t, k.value]).collect::<Vec<_>>())
-          .radius(5.0);
+        Points::new(self.spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>()).radius(5.0);
 
       Plot::new("spline")
         .include_x(0.0)

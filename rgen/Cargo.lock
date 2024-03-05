@@ -2255,8 +2255,8 @@ dependencies = [
  "lazy_static",
  "rgen-base",
  "rgen-placer",
+ "rgen-spline",
  "rgen-world",
- "splines",
 ]
 
 [[package]]
@@ -2277,6 +2277,10 @@ dependencies = [
  "rgen-base",
  "rgen-world",
 ]
+
+[[package]]
+name = "rgen-spline"
+version = "0.1.0"
 
 [[package]]
 name = "rgen-viewer"
@@ -2542,7 +2546,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui_plot",
- "splines",
+ "rgen-spline",
 ]
 
 [[package]]

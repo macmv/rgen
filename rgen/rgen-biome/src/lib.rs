@@ -4,8 +4,8 @@ use rgen_placer::{
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, PerlinNoise},
   Rng,
 };
+use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, PartialWorld};
-use splines::Key;
 use table::Tables;
 
 mod biome;
@@ -64,15 +64,15 @@ pub struct WorldBiomes {
 }
 
 lazy_static::lazy_static! {
-  pub static ref CONTINENTALNESS_TO_HEIGHT: splines::Spline<f64, f64> = splines::Spline::from_vec(vec![
-    Key::new(0.00, 88.0, splines::Interpolation::Cosine),
-    Key::new(0.01, 35.0, splines::Interpolation::Cosine),
-    Key::new(0.15, 38.0, splines::Interpolation::Cosine),
-    Key::new(0.26, 52.0, splines::Interpolation::Cosine),
-    Key::new(0.40, 65.0, splines::Interpolation::Cosine),
-    Key::new(0.81, 85.0, splines::Interpolation::Cosine),
-    Key::new(0.91, 103.0, splines::Interpolation::Cosine),
-    Key::new(1.00, 128.0, splines::Interpolation::Cosine),
+  pub static ref CONTINENTALNESS_TO_HEIGHT: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 88.0),
+    (0.01, 35.0),
+    (0.15, 38.0),
+    (0.26, 52.0),
+    (0.40, 65.0),
+    (0.81, 85.0),
+    (0.91, 103.0),
+    (1.00, 128.0),
   ]);
 }
 
@@ -102,7 +102,7 @@ impl WorldBiomes {
       ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
         .clamp(0.0, 1.0);
 
-    let height = CONTINENTALNESS_TO_HEIGHT.sample(continentalness).unwrap_or_default();
+    let height = CONTINENTALNESS_TO_HEIGHT.sample::<Cosine>(continentalness);
 
     height
   }
