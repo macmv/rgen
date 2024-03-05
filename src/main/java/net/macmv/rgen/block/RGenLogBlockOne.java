@@ -16,7 +16,7 @@ public class RGenLogBlockOne extends BlockLog {
 
   public RGenLogBlockOne() {
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.CEDAR).withProperty(LOG_AXIS, EnumAxis.Y));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.DEAD).withProperty(LOG_AXIS, EnumAxis.Y));
   }
 
   protected BlockStateContainer createBlockState() {
@@ -24,9 +24,10 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
-    items.add(new ItemStack(this, 1, LogType.FIR.meta));
-    items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
+    // TODO: Add these back
+    // items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
+    // items.add(new ItemStack(this, 1, LogType.FIR.meta));
+    // items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
     items.add(new ItemStack(this, 1, LogType.DEAD.meta));
   }
 
@@ -74,9 +75,10 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public static enum LogType implements IStringSerializable {
-    CEDAR(0, "cedar", MapColor.WOOD),
-    FIR(1, "fir", MapColor.OBSIDIAN),
-    SAKURA(2, "sakura", MapColor.SAND),
+    // TODO: Add models for these guys
+    // CEDAR(0, "cedar", MapColor.WOOD),
+    // FIR(1, "fir", MapColor.OBSIDIAN),
+    // SAKURA(2, "sakura", MapColor.SAND),
     DEAD(3, "dead", MapColor.SAND);
 
     public final int meta;
@@ -96,12 +98,12 @@ public class RGenLogBlockOne extends BlockLog {
 
     public static LogType fromMeta(int meta) {
       switch (meta) {
-        case 0:
-          return CEDAR;
-        case 1:
-          return FIR;
-        case 2:
-          return SAKURA;
+        // case 0:
+        //   return CEDAR;
+        // case 1:
+        //   return FIR;
+        // case 2:
+        //   return SAKURA;
         default:
           return DEAD;
       }
