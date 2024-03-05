@@ -59,9 +59,6 @@ impl Interpolation for Cosine {
 }
 
 impl<T: SplineStorage> Spline<T> {
-  fn key(&self, index: usize) -> f64 { self.storage.get(index).0 }
-  fn value(&self, index: usize) -> f64 { self.storage.get(index).1 }
-
   pub fn sample<I: Interpolation>(&self, pos: f64) -> f64 {
     if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {
       return 0.0;
@@ -70,7 +67,7 @@ impl<T: SplineStorage> Spline<T> {
     let i = self.storage.binary_search(pos);
 
     if i == 0 {
-      return self.value(0);
+      return self.storage.get(0).1;
     }
 
     let (left_k, left_v) = self.storage.get(i - 1);
