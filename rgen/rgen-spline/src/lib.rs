@@ -57,15 +57,20 @@ impl<T: BezierStorage + ?Sized> Spline<T> {
     }
 
     let (left_k, left_v, left_t) = self.storage.get(i - 1);
-    let (right_k, right_v, _) = self.storage.get(i);
+    let (right_k, right_v, right_t) = self.storage.get(i);
 
     assert!(pos <= right_k);
     assert!(pos >= left_k);
 
     let t = (pos - left_k) / (right_k - left_k);
 
-    let one_t = 1.0 - t;
+    let a = Linear::interpolate(t, left_v, left_v + left_t);
+    let b = Linear::interpolate(t, left_v, right_v);
+    let c = Linear::interpolate(t, right_v - right_t, right_v);
 
-    left_t + (left_v - left_t) * one_t * one_t + (right_v - left_t) * t * t
+    let a = Linear::interpolate(t, a, b);
+    let b = Linear::interpolate(t, b, c);
+
+    Linear::interpolate(t, a, b)
   }
 }

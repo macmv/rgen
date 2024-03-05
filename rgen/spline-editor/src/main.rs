@@ -11,11 +11,11 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline: Spline<Vec<(f64, f64)>>,
+  spline: Spline<Vec<(f64, f64, f64)>>,
 }
 
 impl Default for SplineEditor {
-  fn default() -> Self { Self { spline: Spline::from_vec(vec![(0.0, 0.0), (1.0, 120.0)]) } }
+  fn default() -> Self { Self { spline: Spline::new(vec![(0.0, 0.0, 1.0), (1.0, 120.0, 0.0)]) } }
 }
 
 impl eframe::App for SplineEditor {
@@ -56,6 +56,7 @@ impl eframe::App for SplineEditor {
 
           let v = &mut self.spline.storage[i];
           ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
+          ui.add(Slider::new(&mut v.2, -128.0..=128.0).text("k"));
         });
       }
 
@@ -65,13 +66,13 @@ impl eframe::App for SplineEditor {
           self.spline.storage[i].0 *= mult;
         }
 
-        self.spline.storage.push((1.0, 64.0));
+        self.spline.storage.push((1.0, 64.0, 1.0));
       }
 
       let spline: PlotPoints = (0..1000)
         .map(|i| {
           let x = i as f64 / 1000.0;
-          let y = self.spline.sample::<rgen_spline::Cosine>(x);
+          let y = self.spline.sample_bezier(x);
           [x, y]
         })
         .collect();
