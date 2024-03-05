@@ -71,7 +71,7 @@ impl eframe::App for SplineEditor {
       let spline: PlotPoints = (0..1000)
         .map(|i| {
           let x = i as f64 / 1000.0;
-          let y = self.spline.sample(x);
+          let y = self.spline.sample::<rgen_spline::Linear>(x);
           [x, y]
         })
         .collect();

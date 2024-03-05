@@ -41,11 +41,21 @@ impl SplineStorage for [(f64, f64)] {
   }
 }
 
+pub trait Interpolation {
+  fn interpolate(t: f64, left: f64, right: f64) -> f64;
+}
+
+pub struct Linear;
+
+impl Interpolation for Linear {
+  fn interpolate(t: f64, left: f64, right: f64) -> f64 { left + (right - left) * t }
+}
+
 impl<T: SplineStorage> Spline<T> {
   fn key(&self, index: usize) -> f64 { self.storage.get(index).0 }
   fn value(&self, index: usize) -> f64 { self.storage.get(index).1 }
 
-  pub fn sample(&self, pos: f64) -> f64 {
+  pub fn sample<I: Interpolation>(&self, pos: f64) -> f64 {
     if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {
       return 0.0;
     }
@@ -63,6 +73,6 @@ impl<T: SplineStorage> Spline<T> {
     assert!(pos >= left_k);
 
     let t = (pos - left_k) / (right_k - left_k);
-    left_v + (right_v - left_v) * t
+    I::interpolate(t, left_v, right_v)
   }
 }
