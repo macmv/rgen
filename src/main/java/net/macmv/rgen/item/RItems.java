@@ -4,6 +4,7 @@ import net.macmv.rgen.RGen;
 import net.macmv.rgen.block.LooseRockBlock;
 import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.block.RGenLogBlockOne;
+import net.macmv.rgen.block.RGenMossyLogBlock;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -25,7 +26,9 @@ public class RItems {
   public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
-  public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP);
+  // public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP);
+  public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP, new ItemMultiTexture(RBlocks.MOSSY_STUMP, RBlocks.MOSSY_STUMP, ty -> RGenMossyLogBlock.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+
   public static final Item MOSSY_CARPET = registerBlockItem(RBlocks.MOSSY_CARPET);
   public static final Item MOSSY_BLOCK = registerBlockItem(RBlocks.MOSSY_BLOCK);
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
@@ -70,6 +73,11 @@ public class RItems {
         ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
         ModelResourceLocation loc3 = new ModelResourceLocation("rgen:dead_log", "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 3, loc3);
+      } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
+        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:mossy_oak_stump", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
+        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:mossy_birch_stump", "inventory");
+        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
       } else if (i.getRegistryName().toString().equals("rgen:loose_rock")) {
         ModelResourceLocation loc0 = new ModelResourceLocation("rgen:small_rock", "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 0, loc0);

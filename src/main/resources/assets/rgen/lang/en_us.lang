@@ -16,7 +16,8 @@ tile.loose_rock.medium.name=Medium Rock
 tile.loose_rock.large.name=Large Rock
 
 tile.plant.name=Mossy Bush
-tile.mossy_stump.name=Mossy Stump
+tile.mossy_oak_stump.name=Mossy Oak Stump
+tile.mossy_birch_stump.name=Mossy Birch Stump
 tile.mossy_carpet.name=Mossy Carpet
 tile.mossy_block.name=Mossy Block
 tile.mossy_cobblestone_rgen.name=Mossy Cobblestone

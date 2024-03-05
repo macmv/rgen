@@ -2,7 +2,7 @@
   "parent": "rgen:block/mossy_stump_y",
   "textures": {
     "top": "rgen:blocks/mossy_block",
-    "bottom": "blockss/log_birch_top",
+    "bottom": "blocks/log_birch_top",
     "side": "rgen:blocks/mossy_stump_birch_side_y"
   }
 }
