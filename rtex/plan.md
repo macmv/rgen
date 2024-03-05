@@ -35,8 +35,8 @@ Edit a .java
 [] = fixes needed 
 
 moss_covered_cobblestone % % % moss covered cobblestone   %
-mossy_cobblestone_rgen * * * mossy cobblestone            %
-mossy_stone * * * mossy stone                             %
+mossy_cobblestone_rgen * * * mossy cobblestone            #
+mossy_stone * * * mossy stone                             #
 mossy_block * * * moss block                              # done [sound fix, needs item]
 mossy_carpet * * * mossy carpet                           # done [sound fix, needs item]
 mossy_stump * * * mossy stump                             # needs sides and varients 
