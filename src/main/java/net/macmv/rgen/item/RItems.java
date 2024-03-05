@@ -4,6 +4,7 @@ import net.macmv.rgen.RGen;
 import net.macmv.rgen.block.LooseRockBlock;
 import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.block.RGenLogBlockOne;
+import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -21,16 +22,16 @@ public class RItems {
 
   // public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
-  public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.EnumType.fromMeta(ty.getMetadata()).name));
-  public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name));
-  public static final Item PLANT = registerBlockItem(RBlocks.PLANT);
+  public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.EnumType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP);
   public static final Item MOSSY_CARPET = registerBlockItem(RBlocks.MOSSY_CARPET);
   public static final Item MOSSY_BLOCK = registerBlockItem(RBlocks.MOSSY_BLOCK);
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
   public static final Item MOSSY_STONE = registerBlockItem(RBlocks.MOSSY_STONE);
 
-  public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem());
+  public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
 
   private static Item registerBlockItem(Block block) {
     return registerBlockItem(block, new ItemBlock(block));
