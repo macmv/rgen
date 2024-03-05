@@ -90,6 +90,21 @@ impl eframe::App for SplineEditor {
         .show(ui, |plot_ui| {
           plot_ui.line(line);
           plot_ui.points(points);
+
+          let [min_x, min_y] = plot_ui.plot_bounds().min();
+          let [max_x, max_y] = plot_ui.plot_bounds().max();
+
+          let aspect = (max_y - min_y) / (max_x - min_x);
+          dbg!(aspect);
+
+          for i in 0..self.spline.storage.len() {
+            let (x, y, k) = self.spline.storage[i];
+
+            let min = [x - 0.1, y - k];
+            let max = [x + 0.1, y + k];
+
+            plot_ui.line(Line::new(PlotPoints::new(vec![min, max])));
+          }
         });
     });
   }
