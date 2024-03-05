@@ -1,0 +1,9 @@
+{
+  "parent": "rgen:block/mossy_stump_xz",
+  "textures": {
+    "top": "rgen:blocks/mossy_block",
+    "bottom": "blocks/log_oak",
+    "front": "rgen:blocks/mossy_stump_birch_front_xz",
+    "side": "rgen:blocks/mossy_stump_birch_side_xz"
+  }
+}
