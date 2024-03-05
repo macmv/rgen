@@ -1,11 +1,11 @@
 # The steps for adding a block
-- src/main/resources/assets/rgen/textures/blocks/[]
+- src/main/resources/assets/rgen/textures/blocks/[ ]
 This is the textures
 
-- src/main/resources/assets/rgen/models/block/[]
+- src/main/resources/assets/rgen/models/block/[ ]
 This is the model
 
-- src/main/resources/assets/rgen/blockstates/[]
+- src/main/resources/assets/rgen/blockstates/[ ]
 This is the block data and its model mapping 
 
 - src/main/java/net/macmv/rgen/block/RBlocks.java <- edit this to add the block and extend From a block class
@@ -30,19 +30,19 @@ Building a tree
 
 ## The Moss System
 ### Current status
-"*" = A) texture B) block/model C) blockstates
-"#" = is a block but may miss features
-"%" = not done
-"[]" = fixes needed 
+"*" = A) texture B) block/model C) blockstates\
+"#" = is a block but may miss features\
+"%" = not done\
+"[]" = fixes needed\
 
-moss_covered_cobblestone % % % moss covered cobblestone   %
-mossy_cobblestone_rgen * * * mossy cobblestone            #
-mossy_stone * * * mossy stone                             #
-mossy_block * * * moss block                              # done [sound fix, needs item]
-mossy_carpet * * * mossy carpet                           # done [sound fix, needs item]
-mossy_stump * * * mossy stump                             # needs sides and varients 
-                                                            [sound fix, needs item]
-mossy_bush * * * mossy bush                               # done [sound fix, needs item]
+moss_covered_cobblestone % % % moss covered cobblestone   %\
+mossy_cobblestone_rgen * * * mossy cobblestone            #\
+mossy_stone * * * mossy stone                             #\
+mossy_block * * * moss block                              # done [sound fix, needs item]\
+mossy_carpet * * * mossy carpet                           # done [sound fix, needs item]\
+mossy_stump * * * mossy stump                             # needs sides and varients \
+                                                            [sound fix, needs item]\
+mossy_bush * * * mossy bush                               # done [sound fix, needs item]\
 
 ### The incubator
 incubator (entity)
