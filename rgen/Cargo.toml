@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+  "rgen-spline",
   "rgen-base",
   "rgen-placer",
   "rgen-biome",
