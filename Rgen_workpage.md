@@ -33,7 +33,7 @@ Building a tree
 "*" = A) texture B) block/model C) blockstates\
 "#" = is a block but may miss features\
 "%" = not done\
-"[]" = fixes needed\
+"[ ]" = fixes needed
 
 moss_covered_cobblestone % % % moss covered cobblestone   %\
 mossy_cobblestone_rgen * * * mossy cobblestone            #\
@@ -80,8 +80,8 @@ Pams harvestcraft trees don't really fit in the RGen style of world
 We need to figure out how to make sure that gardens both generate and generate in custom biomes
 
 ## Ores
-A fair few mods add select ores below is a growing list of ores that will need to be considerd.
-[how the ore dictonary works according to forge] (https://docs.minecraftforge.net/en/1.12.x/utilities/oredictionary/)
+A fair few mods add select ores below is a growing list of ores that will need to be considerd.\
+[how the ore dictonary works according to forge](https://docs.minecraftforge.net/en/1.12.x/utilities/oredictionary/)\
 [list of forge ore tags](https://github.com/Dente222/Minecraft-Forge-Tag-List/blob/master/ores.txt)
 - uranium
 - copper
