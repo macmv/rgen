@@ -7,9 +7,15 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.common.EnumPlantType;
+import net.minecraftforge.common.IPlantable;
 
 public class RGenMossyLogBlock extends BlockLog {
   public static final PropertyEnum<RGenMossyLogBlock.LogType> VARIANT = PropertyEnum.create("variant", RGenMossyLogBlock.LogType.class);
@@ -19,6 +25,16 @@ public class RGenMossyLogBlock extends BlockLog {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, RGenMossyLogBlock.LogType.OAK).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
   }
 
+  public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable)
+  {
+    IBlockState plant = plantable.getPlant(world, pos.offset(direction));
+    net.minecraftforge.common.EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
+
+    if(plantType == EnumPlantType.Plains)
+      return true;
+
+    return false;
+  }
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT, LOG_AXIS);
   }
