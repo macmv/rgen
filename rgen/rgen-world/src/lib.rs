@@ -1,6 +1,6 @@
-use std::num::NonZeroUsize;
+use std::collections::HashMap;
 
-use lru::LruCache;
+use parking_lot::Mutex;
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
 mod block;
@@ -26,8 +26,27 @@ pub trait Generator {
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
 }
 
+pub struct CachedWorld {
+  base_chunks: Mutex<HashMap<ChunkPos, PartialChunk>>,
+
+  // FIXME: Need to clean up this map once it gets full. The cleanup needs to be somewhat
+  // intelligent, so this is kinda tricky.
+  chunks: Mutex<PartialWorld>,
+}
+
 pub struct PartialWorld {
-  chunks: LruCache<ChunkPos, StagedChunk>,
+  /// A chunk existing in here means its either decorated or about to be
+  /// decorated.
+  ///
+  /// This struct doesn't have any interior mutability, so a chunk existing in
+  /// here means its decorated (but its neighbors aren't necessarily).
+  chunks: HashMap<ChunkPos, StagedChunk>,
+}
+
+enum PartialChunk {
+  // This is insertted into the `base_chunks` map while the chunk is being generated. Its a sort
+  // of lock that hints to other threads not to generate this chunk.
+  Building,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,62 +72,74 @@ const CACHE_SIZE: usize = 512;
 /// The maximum radius of a single decoration, in chunks.
 const RADIUS: i32 = 1;
 
-impl PartialWorld {
-  pub fn new() -> PartialWorld {
-    PartialWorld { chunks: LruCache::new(NonZeroUsize::new(CACHE_SIZE).unwrap()) }
+impl CachedWorld {
+  pub fn new() -> CachedWorld {
+    CachedWorld {
+      base_chunks: Mutex::new(HashMap::new()),
+      chunks:      Mutex::new(PartialWorld::new()),
+    }
   }
 
-  pub fn generate(&mut self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) -> &Chunk {
-    let chunk = self.generate_base(ctx, generator, pos);
+  pub fn generate<R>(
+    &self,
+    ctx: &Context,
+    generator: &impl Generator,
+    pos: ChunkPos,
+    f: impl FnOnce(&Chunk) -> R,
+  ) -> R {
+    let needs_generate = {
+      let w = self.chunks.lock();
+      let chunk = w.chunks.get(&pos);
+      chunk.map(|c| c.stage != Some(Stage::NeighborDecorated)).unwrap_or(true)
+    };
 
-    if chunk.stage != Some(Stage::NeighborDecorated) {
-      chunk.stage = Some(Stage::NeighborDecorated);
-
+    if needs_generate {
+      // FIXME: Loop in parallel.
       for x in -RADIUS * 2..=RADIUS * 2 {
         for z in -RADIUS * 2..=RADIUS * 2 {
           self.generate_base(ctx, generator, pos + ChunkPos::new(x, z));
         }
       }
 
-      for x in -RADIUS * 2..=RADIUS * 2 {
-        for z in -RADIUS * 2..=RADIUS * 2 {
+      for x in -RADIUS..=RADIUS {
+        for z in -RADIUS..=RADIUS {
           self.generate_decorated(ctx, generator, pos + ChunkPos::new(x, z));
         }
       }
     }
 
-    &self.chunks.get(&pos).unwrap().chunk
+    {
+      let mut w = self.chunks.lock();
+      let chunk = w.chunk(pos).unwrap();
+      f(&chunk)
+    }
   }
 
-  fn generate_decorated(
-    &mut self,
-    ctx: &Context,
-    generator: &impl Generator,
-    pos: ChunkPos,
-  ) -> &mut StagedChunk {
-    let chunk = self.generate_base(ctx, generator, pos);
+  fn generate_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
+    let mut w = self.chunks.lock();
+    generator.decorate(ctx, &mut w, pos);
+  }
 
-    if chunk.stage == Some(Stage::Base) {
-      chunk.stage = Some(Stage::Decorated);
-      generator.decorate(ctx, self, pos);
+  fn generate_base(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
+    // Lock this chunk for building.
+    {
+      let mut w = self.base_chunks.lock();
+      match w.get(&pos) {
+        Some(_) => return,
+        None => w.insert(pos, PartialChunk::Building),
+      };
     }
 
-    self.chunks.get_mut(&pos).unwrap()
-  }
+    let mut chunk = Chunk::new();
+    generator.generate_base(ctx, &mut chunk, pos);
 
-  fn generate_base(
-    &mut self,
-    ctx: &Context,
-    generator: &impl Generator,
-    pos: ChunkPos,
-  ) -> &mut StagedChunk {
-    let chunk = self.chunks.get_or_insert_mut(pos, StagedChunk::default);
-
-    if chunk.stage.is_none() {
-      chunk.stage = Some(Stage::Base);
-      generator.generate_base(ctx, &mut chunk.chunk, pos);
+    {
+      let mut w = self.chunks.lock();
+      w.chunks.insert(pos, StagedChunk { stage: Some(Stage::Base), chunk });
     }
-
-    chunk
   }
+}
+
+impl PartialWorld {
+  pub fn new() -> Self { PartialWorld { chunks: HashMap::new() } }
 }

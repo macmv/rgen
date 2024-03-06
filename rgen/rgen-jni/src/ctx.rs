@@ -1,13 +1,13 @@
-use std::sync::{Mutex, RwLock};
+use std::sync::RwLock;
 
 use rgen_base::{Biomes, Blocks};
-use rgen_world::PartialWorld;
+use rgen_world::CachedWorld;
 
 use crate::generator::TerrainGenerator;
 
 pub struct Context {
   pub generator: TerrainGenerator,
-  pub world:     Mutex<PartialWorld>,
+  pub world:     CachedWorld,
 
   pub context: rgen_world::Context,
 }
@@ -20,7 +20,7 @@ impl Context {
 
     let ctx = Context {
       generator,
-      world: Mutex::new(PartialWorld::new()),
+      world: CachedWorld::new(),
       context: rgen_world::Context { seed: seed as u64, blocks, biomes },
     };
 

@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 lru = "0.12.3"
+parking_lot = "0.12.1"
 rgen-base.workspace = true

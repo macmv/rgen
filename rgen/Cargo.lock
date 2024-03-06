@@ -2302,6 +2302,7 @@ name = "rgen-world"
 version = "0.1.0"
 dependencies = [
  "lru",
+ "parking_lot",
  "rgen-base",
 ]
 

@@ -4,8 +4,10 @@ use crate::PartialWorld;
 use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
 
 impl PartialWorld {
-  fn chunk(&mut self, pos: ChunkPos) -> Option<&Chunk> { self.chunks.get(&pos).map(|c| &c.chunk) }
-  fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> Option<&mut Chunk> {
+  pub(crate) fn chunk(&mut self, pos: ChunkPos) -> Option<&Chunk> {
+    self.chunks.get(&pos).map(|c| &c.chunk)
+  }
+  pub(crate) fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> Option<&mut Chunk> {
     self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk)
   }
 
