@@ -1,6 +1,6 @@
 use eframe::egui::{self, Slider};
 use egui_plot::{Line, Plot, PlotPoints, Points};
-use rgen_spline::Spline;
+use rgen_spline::{Cosine, Spline};
 
 fn main() -> Result<(), eframe::Error> {
   let options = eframe::NativeOptions {
@@ -11,11 +11,11 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline: Spline<Vec<(f64, f64, f64)>>,
+  spline: Spline<Vec<(f64, f64)>>,
 }
 
 impl Default for SplineEditor {
-  fn default() -> Self { Self { spline: Spline::new(vec![(0.0, 0.0, 1.0), (1.0, 120.0, 0.0)]) } }
+  fn default() -> Self { Self { spline: Spline::new(vec![(0.0, 0.0), (1.0, 120.0)]) } }
 }
 
 impl eframe::App for SplineEditor {
@@ -56,7 +56,6 @@ impl eframe::App for SplineEditor {
 
           let v = &mut self.spline.storage[i];
           ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
-          ui.add(Slider::new(&mut v.2, -128.0..=128.0).text("k"));
         });
       }
 
@@ -66,13 +65,13 @@ impl eframe::App for SplineEditor {
           self.spline.storage[i].0 *= mult;
         }
 
-        self.spline.storage.push((1.0, 64.0, 1.0));
+        self.spline.storage.push((1.0, 64.0));
       }
 
       let spline: PlotPoints = (0..1000)
         .map(|i| {
           let x = i as f64 / 1000.0;
-          let y = self.spline.sample_bezier(x);
+          let y = self.spline.sample::<Cosine>(x);
           [x, y]
         })
         .collect();
@@ -90,15 +89,6 @@ impl eframe::App for SplineEditor {
         .show(ui, |plot_ui| {
           plot_ui.line(line);
           plot_ui.points(points);
-
-          for i in 0..self.spline.storage.len() {
-            let (x, y, k) = self.spline.storage[i];
-
-            let min = [x - 0.1, y - k];
-            let max = [x + 0.1, y + k];
-
-            plot_ui.line(Line::new(PlotPoints::new(vec![min, max])));
-          }
         });
     });
   }
