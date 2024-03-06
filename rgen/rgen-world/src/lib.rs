@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use parking_lot::Mutex;
+use rayon::prelude::*;
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
 mod block;
@@ -83,7 +84,7 @@ impl CachedWorld {
   pub fn generate<R>(
     &self,
     ctx: &Context,
-    generator: &impl Generator,
+    generator: &(impl Generator + Send + Sync),
     pos: ChunkPos,
     f: impl FnOnce(&Chunk) -> R,
   ) -> R {
@@ -94,12 +95,13 @@ impl CachedWorld {
     };
 
     if needs_generate {
-      // FIXME: Loop in parallel.
-      for x in -RADIUS * 2..=RADIUS * 2 {
-        for z in -RADIUS * 2..=RADIUS * 2 {
-          self.generate_base(ctx, generator, pos + ChunkPos::new(x, z));
-        }
-      }
+      let width = RADIUS * 2 * 2 + 1;
+      (0..width.pow(2)).into_par_iter().for_each(|i| {
+        let x = i % width;
+        let z = i / width;
+
+        self.generate_base(ctx, generator, pos + ChunkPos::new(x - RADIUS * 2, z - RADIUS * 2));
+      });
 
       for x in -RADIUS..=RADIUS {
         for z in -RADIUS..=RADIUS {

@@ -1,7 +1,7 @@
 // FIXME: This really shouldn't live here.
 
 use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
-use rgen_world::{Context, Generator, PartialWorld};
+use rgen_world::{Context, Generator, PartialDecoratedWorld};
 
 pub struct TerrainGenerator {
   pub seed: u64,
@@ -26,7 +26,7 @@ impl Generator for TerrainGenerator {
     self.biomes.generate_base(self.seed, ctx, chunk, chunk_pos);
   }
 
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+  fn decorate(&self, ctx: &Context, world: &mut PartialDecoratedWorld, chunk_pos: ChunkPos) {
     self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
 
     world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
