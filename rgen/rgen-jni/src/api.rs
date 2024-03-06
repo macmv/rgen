@@ -135,10 +135,6 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
     let chunk_ctx =
       ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
 
-    // FIXME: This really shouldn't grab a lock on the whole world. Not sure how to
-    // fix though.
-    println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
-
     let mut world = ctx.world.lock().unwrap();
     let chunk = world.generate(&ctx.context, &ctx.generator, chunk_ctx.chunk_pos);
     env.set_char_array_region(data, 0, chunk.data()).unwrap();
@@ -162,7 +158,6 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
     let chunk_ctx =
       ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
 
-    println!("generating chunk at {:?}", chunk_ctx.chunk_pos);
     ctx.generator.generate_biomes(chunk_ctx.chunk_pos, &mut biome_out);
   });
 

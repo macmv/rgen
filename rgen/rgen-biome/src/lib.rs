@@ -235,8 +235,6 @@ impl WorldBiomes {
     let mut rng = Rng::new(seed);
     let biome = self.choose_biome(seed, pos);
 
-    println!("biome: {:?}", biome.name);
-
     biome.decorate(blocks, &mut rng, chunk_pos, world);
   }
 
