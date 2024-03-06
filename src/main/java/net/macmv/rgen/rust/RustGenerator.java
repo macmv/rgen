@@ -30,12 +30,18 @@ public class RustGenerator {
     return Biome.getIdForBiome(biome);
   }
 
-  static {
-    System.loadLibrary("rgen_jni");
-  }
+  private static boolean active = false;
 
   public static void init(long seed) {
+    if (!active) {
+      System.loadLibrary("rgen_jni");
+    }
+    active = true;
     init_generator(seed);
+  }
+
+  public static boolean isActive() {
+    return active;
   }
 
   public static void make_chunk(char[] data, int x, int z) {
