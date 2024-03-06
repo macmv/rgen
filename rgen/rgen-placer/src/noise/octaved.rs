@@ -17,21 +17,19 @@ impl<Noise: NoiseGenerator> NoiseGenerator for OctavedNoise<Noise> {
   fn generate(&self, x: f64, y: f64, seed: u64) -> f64 {
     let mut x = x * self.freq;
     let mut y = y * self.freq;
-    let mut pers = 1.0f64;
 
-    (0..self.octaves)
-      .fold(0.0, |value, octave| {
-        let seed = seed + octave as u64;
-        let value = value + self.noise.generate(x, y, seed) * pers;
+    let mut res = self.noise.generate(x, y, seed);
 
-        x *= self.lacu;
-        y *= self.lacu;
-        pers *= self.pers;
+    for octave in 1..self.octaves {
+      x *= self.lacu;
+      y *= self.lacu;
 
-        value
-      })
-      // FIXME: Don't clamp this here.
-      .clamp(-1.0, 1.0 - 1e-6)
+      let seed = seed + octave as u64;
+      res += self.noise.generate(x, y, seed) * self.pers.powi(octave as i32) * res;
+    }
+
+    // Make sure the noise is in the range [-1.0, 1.0).
+    res.clamp(-1.0, 1.0 - 1e-6)
   }
 }
 
