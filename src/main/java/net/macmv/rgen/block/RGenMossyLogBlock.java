@@ -7,7 +7,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -25,20 +24,20 @@ public class RGenMossyLogBlock extends BlockLog {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, RGenMossyLogBlock.LogType.OAK).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
   }
 
-  public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable)
-  {
+  @Override
+  public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable) {
     IBlockState plant = plantable.getPlant(world, pos.offset(direction));
     net.minecraftforge.common.EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
 
-    if(plantType == EnumPlantType.Plains)
-      return true;
-
-    return false;
+    return plantType == EnumPlantType.Plains;
   }
+
+  @Override
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT, LOG_AXIS);
   }
 
+  @Override
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     // TODO: Add these back
     // items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
@@ -53,6 +52,7 @@ public class RGenMossyLogBlock extends BlockLog {
     return state.getValue(VARIANT).meta;
   }
 
+  @Override
   public IBlockState getStateFromMeta(int meta) {
     IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta & 3));
 
@@ -73,6 +73,7 @@ public class RGenMossyLogBlock extends BlockLog {
     return state;
   }
 
+  @Override
   public int getMetaFromState(IBlockState state) {
     int i = 0;
     i = i | state.getValue(VARIANT).meta;

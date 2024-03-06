@@ -14,22 +14,20 @@ import net.minecraftforge.common.IPlantable;
 
 public class RGenPlantableStone extends Block {
 
-    public RGenPlantableStone() {
-        super(Material.ROCK);
-        this.setCreativeTab(CreativeTabs.DECORATIONS);
+  public RGenPlantableStone() {
+    super(Material.ROCK);
+    this.setCreativeTab(CreativeTabs.DECORATIONS);
+  }
 
+  @Override
+  public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable) {
+    IBlockState plant = plantable.getPlant(world, pos.offset(direction));
+    net.minecraftforge.common.EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
+
+    if (plant.getBlock() == Blocks.SAPLING) {
+      return true;
     }
-    public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable)
-    {
-        IBlockState plant = plantable.getPlant(world, pos.offset(direction));
-        net.minecraftforge.common.EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
 
-        if(plant.getBlock() == Blocks.SAPLING)
-            return true;
-
-        if(plantType == EnumPlantType.Plains)
-            return true;
-
-        return false;
-    }
+    return plantType == EnumPlantType.Plains;
+  }
 }

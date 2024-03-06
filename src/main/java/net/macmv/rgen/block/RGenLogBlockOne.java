@@ -19,10 +19,12 @@ public class RGenLogBlockOne extends BlockLog {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.DEAD).withProperty(LOG_AXIS, EnumAxis.Y));
   }
 
+  @Override
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT, LOG_AXIS);
   }
 
+  @Override
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     // TODO: Add these back
     // items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
@@ -36,6 +38,7 @@ public class RGenLogBlockOne extends BlockLog {
     return state.getValue(VARIANT).meta;
   }
 
+  @Override
   public IBlockState getStateFromMeta(int meta) {
     IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta & 3));
 
@@ -56,6 +59,7 @@ public class RGenLogBlockOne extends BlockLog {
     return state;
   }
 
+  @Override
   public int getMetaFromState(IBlockState state) {
     int i = 0;
     i = i | state.getValue(VARIANT).meta;
