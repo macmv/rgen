@@ -1,5 +1,5 @@
 use eframe::egui::{self, Slider};
-use egui_plot::{Line, Plot, PlotPoints, Points};
+use egui_plot::{Line, Plot, Points};
 use rgen_spline::{Cosine, Spline};
 
 fn main() -> Result<(), eframe::Error> {
@@ -11,11 +11,35 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline: Spline<Vec<(f64, f64)>>,
+  spline:        Spline<Vec<(f64, f64)>>,
+  other_splines: Vec<Spline<Vec<(f64, f64)>>>,
 }
 
 impl Default for SplineEditor {
-  fn default() -> Self { Self { spline: Spline::new(vec![(0.0, 0.0), (1.0, 120.0)]) } }
+  fn default() -> Self {
+    Self {
+      spline:        Spline::new(vec![
+        (0.00, 88.0),
+        (0.01, 35.0),
+        (0.15, 38.0),
+        (0.26, 52.0),
+        (0.40, 65.0),
+        (0.81, 85.0),
+        (0.91, 103.0),
+        (1.00, 128.0),
+      ]),
+      other_splines: vec![Spline::new(vec![
+        (0.00, 88.0),
+        (0.01, 35.0),
+        (0.15, 38.0),
+        (0.26, 52.0),
+        (0.40, 65.0),
+        (0.81, 85.0),
+        (0.91, 103.0),
+        (1.00, 128.0),
+      ])],
+    }
+  }
 }
 
 impl eframe::App for SplineEditor {
@@ -68,18 +92,6 @@ impl eframe::App for SplineEditor {
         self.spline.storage.push((1.0, 64.0));
       }
 
-      let spline: PlotPoints = (0..1000)
-        .map(|i| {
-          let x = i as f64 / 1000.0;
-          let y = self.spline.sample::<Cosine>(x);
-          [x, y]
-        })
-        .collect();
-      let line = Line::new(spline);
-
-      let points =
-        Points::new(self.spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>()).radius(5.0);
-
       Plot::new("spline")
         .include_x(0.0)
         .include_x(1.0)
@@ -87,8 +99,23 @@ impl eframe::App for SplineEditor {
         .include_y(128.0)
         .view_aspect(2.0)
         .show(ui, |plot_ui| {
-          plot_ui.line(line);
-          plot_ui.points(points);
+          for spline in std::iter::once(&self.spline).chain(self.other_splines.iter()) {
+            let line = Line::new(
+              (0..1000)
+                .map(|i| {
+                  let x = i as f64 / 1000.0;
+                  let y = spline.sample::<Cosine>(x);
+                  [x, y]
+                })
+                .collect::<Vec<_>>(),
+            );
+
+            let points = Points::new(spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>())
+              .radius(5.0);
+
+            plot_ui.line(line);
+            plot_ui.points(points);
+          }
         });
     });
   }
