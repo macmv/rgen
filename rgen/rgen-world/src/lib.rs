@@ -79,7 +79,7 @@ struct Requester {
   tx: Sender<(ChunkPos, Stage)>,
   rx: Receiver<(ChunkPos, Stage)>,
 
-  chunks: RwLock<HashMap<ChunkPos, Stage>>,
+  chunks: RwLock<HashMap<ChunkPos, Mutex<Stage>>>,
 }
 
 impl CachedWorld {
@@ -218,18 +218,22 @@ impl Requester {
   pub fn request(&self, pos: ChunkPos, stage: Stage) {
     // Quick sanity check.
     match self.chunks.read().get(&pos) {
-      Some(s) if *s >= stage => return,
+      Some(s) if *s.lock() >= stage => return,
       _ => {}
     }
 
     // Real check.
     {
       let mut w = self.chunks.write();
-      match w.get(&pos) {
-        Some(s) if *s >= stage => return,
+      match w.get_mut(&pos) {
+        Some(s) => {
+          if *s.get_mut() >= stage {
+            return;
+          }
+        }
         _ => {}
       }
-      w.insert(pos, stage);
+      w.insert(pos, Mutex::new(stage));
     }
 
     self.tx.send((pos, stage)).unwrap();
@@ -238,15 +242,13 @@ impl Requester {
   pub fn recv(&self) -> Option<(ChunkPos, Stage)> {
     match self.rx.recv() {
       Ok((pos, stage)) => {
-        let mut w = self.chunks.write();
-        w.insert(
-          pos,
-          match stage {
-            Stage::Base => Stage::Decorated,
-            Stage::Decorated => Stage::NeighborDecorated,
-            Stage::NeighborDecorated => return None,
-          },
-        );
+        let w = self.chunks.read();
+        let mut s = w.get(&pos).unwrap().lock();
+        *s = match stage {
+          Stage::Base => Stage::Decorated,
+          Stage::Decorated => Stage::NeighborDecorated,
+          Stage::NeighborDecorated => return None,
+        };
         Some((pos, stage))
       }
       Err(_) => panic!("channel disconnected"),
