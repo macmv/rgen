@@ -25,7 +25,7 @@ public class PolyporeBlock extends Block {
 
   @Override
   public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return POLYPORE_AABB;
+    return null;
   }
 
 
@@ -83,9 +83,9 @@ public class PolyporeBlock extends Block {
   }
 
   public enum PolyporeType implements IStringSerializable {
-    ONE(0),
-    TWO(1),
-    THREE(2);
+    ONE(1),
+    TWO(2),
+    THREE(3);
 
     public final int meta;
 
