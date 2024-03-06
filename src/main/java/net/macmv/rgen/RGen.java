@@ -62,6 +62,15 @@ public class RGen {
     if (Minecraft.getMinecraft().gameSettings.showDebugInfo && RustGenerator.isActive()) {
       event.getLeft().add("");
       event.getLeft().add("RGen");
+
+      int x = Minecraft.getMinecraft().player.getPosition().getX();
+      int y = Minecraft.getMinecraft().player.getPosition().getY();
+      int z = Minecraft.getMinecraft().player.getPosition().getZ();
+
+      String[] lines = RustGenerator.getDebugInfo(x, y, z);
+      for (String line : lines) {
+        event.getLeft().add(line);
+      }
     }
   }
 }

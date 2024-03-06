@@ -2,7 +2,7 @@
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
-  sys::{jint, jlong},
+  sys::{jint, jlong, jobjectArray},
   JNIEnv,
 };
 use rgen_world::Generator;
@@ -169,4 +169,18 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
   let biome_i8s = unsafe { &*(&biome_out as *const [u8] as *const [i8]) };
 
   env.set_byte_array_region(biomes, 0, &biome_i8s).unwrap();
+}
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
+  mut env: JNIEnv,
+  _class: JClass,
+  block_x: jint,
+  block_y: jint,
+  block_z: jint,
+) -> jobjectArray {
+  let arr = env
+    .new_object_array(3, "java/lang/String", env.new_string("foo dee foo bar").unwrap())
+    .unwrap();
+  arr.as_raw()
 }

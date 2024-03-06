@@ -9,6 +9,7 @@ public class RustGenerator {
   private static native void init_generator(long seed);
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
+  private static native String[] debug_info(int x, int y, int z);
 
   // Helpers for the rust code.
 
@@ -42,6 +43,10 @@ public class RustGenerator {
 
   public static boolean isActive() {
     return active;
+  }
+
+  public static String[] getDebugInfo(int x, int y, int z) {
+    return debug_info(x, y, z);
   }
 
   public static void make_chunk(char[] data, int x, int z) {
