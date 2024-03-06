@@ -1,0 +1,33 @@
+{
+  "texture_size": [32, 32],
+  "textures": {
+    "0": "rgen:blocks/shrooms",
+    "particle": "rgen:blocks/shrooms"
+  },
+  "elements": [
+    {
+      "from": [2, 7, 12],
+      "to": [11, 8, 16],
+      "faces": {
+        "north": {"uv": [0.5, 0, 5, 0.5], "rotation": 180, "texture": "#0"},
+        "east": {"uv": [5, 0.5, 5.5, 2.5], "rotation": 90, "texture": "#0"},
+        "south": {"uv": [0.5, 2.5, 5, 3], "texture": "#0"},
+        "west": {"uv": [0, 0.5, 0.5, 2.5], "rotation": 270, "texture": "#0"},
+        "up": {"uv": [0.5, 0.5, 5, 2.5], "texture": "#0"},
+        "down": {"uv": [0.5, 3, 5, 5], "rotation": 180, "texture": "#0"}
+      }
+    },
+    {
+      "from": [9, 10, 13],
+      "to": [14, 11, 16],
+      "faces": {
+        "north": {"uv": [6.5, 0, 9, 0.5], "texture": "#0"},
+        "east": {"uv": [6, 0.5, 6.5, 2], "texture": "#0"},
+        "south": {"uv": [9, 0.5, 9.5, 2], "texture": "#0"},
+        "west": {"uv": [6.5, 2, 9, 2.5], "texture": "#0"},
+        "up": {"uv": [6.5, 0.5, 9, 2], "rotation": 180, "texture": "#0"},
+        "down": {"uv": [6.5, 2.5, 9, 4], "rotation": 90, "texture": "#0"}
+      }
+    }
+  ]
+}
