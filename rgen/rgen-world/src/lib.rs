@@ -1,8 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
-use crossbeam_channel::{Receiver, RecvError, Sender, TryRecvError};
+use crossbeam_channel::{Receiver, RecvError, Sender};
 use parking_lot::{Mutex, RwLock};
-use rayon::prelude::*;
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
 mod block;
@@ -35,8 +34,7 @@ pub struct CachedWorld {
   // intelligent, so this is kinda tricky.
   chunks: Mutex<PartialWorld>,
 
-  requests_tx: Sender<(ChunkPos, Stage)>,
-  requests_rx: Receiver<(ChunkPos, Stage)>,
+  requester: Requester,
 }
 
 pub struct PartialWorld {
@@ -77,30 +75,23 @@ const CACHE_SIZE: usize = 512;
 /// The maximum radius of a single decoration, in chunks.
 const RADIUS: i32 = 1;
 
-impl CachedWorld {
-  pub fn new() -> CachedWorld {
-    let (tx, rx) = crossbeam_channel::unbounded();
+struct Requester {
+  tx: Sender<(ChunkPos, Stage)>,
+  rx: Receiver<(ChunkPos, Stage)>,
 
+  chunks: RwLock<HashMap<ChunkPos, Stage>>,
+}
+
+impl CachedWorld {
+  pub fn new() -> Self {
     CachedWorld {
       base_chunks: Mutex::new(HashMap::new()),
       chunks:      Mutex::new(PartialWorld::new()),
-      requests_tx: tx,
-      requests_rx: rx,
+      requester:   Requester::new(),
     }
   }
 
-  fn request(&self, pos: ChunkPos, stage: Stage) {
-    match stage {
-      Stage::Base => {
-        if self.base_chunks.lock().contains_key(&pos) {
-          return;
-        }
-      }
-      _ => {}
-    }
-
-    self.requests_tx.send((pos, stage)).unwrap();
-  }
+  fn request(&self, pos: ChunkPos, stage: Stage) { self.requester.request(pos, stage); }
 
   pub fn spawn_threads(
     self: &Arc<Self>,
@@ -119,15 +110,15 @@ impl CachedWorld {
   }
 
   fn work(&self, ctx: &Context, generator: &(impl Generator + Send + Sync)) {
-    match self.requests_rx.recv() {
-      Ok((pos, stage)) => {
+    match self.requester.recv() {
+      Some((pos, stage)) => {
         match stage {
           Stage::Base => self.generate_base(ctx, generator, pos),
           Stage::Decorated => self.generate_decorated(ctx, generator, pos),
           _ => {}
         };
       }
-      Err(_) => panic!(),
+      None => (),
     }
   }
 
@@ -216,4 +207,49 @@ impl CachedWorld {
 
 impl PartialWorld {
   pub fn new() -> Self { PartialWorld { chunks: HashMap::new() } }
+}
+
+impl Requester {
+  pub fn new() -> Self {
+    let (tx, rx) = crossbeam_channel::unbounded();
+    Requester { tx, rx, chunks: RwLock::new(HashMap::new()) }
+  }
+
+  pub fn request(&self, pos: ChunkPos, stage: Stage) {
+    // Quick sanity check.
+    match self.chunks.read().get(&pos) {
+      Some(s) if *s >= stage => return,
+      _ => {}
+    }
+
+    // Real check.
+    {
+      let mut w = self.chunks.write();
+      match w.get(&pos) {
+        Some(s) if *s >= stage => return,
+        _ => {}
+      }
+      w.insert(pos, stage);
+    }
+
+    self.tx.send((pos, stage)).unwrap();
+  }
+
+  pub fn recv(&self) -> Option<(ChunkPos, Stage)> {
+    match self.rx.recv() {
+      Ok((pos, stage)) => {
+        let mut w = self.chunks.write();
+        w.insert(
+          pos,
+          match stage {
+            Stage::Base => Stage::Decorated,
+            Stage::Decorated => Stage::NeighborDecorated,
+            Stage::NeighborDecorated => return None,
+          },
+        );
+        Some((pos, stage))
+      }
+      Err(_) => panic!("channel disconnected"),
+    }
+  }
 }
