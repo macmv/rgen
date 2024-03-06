@@ -8,7 +8,7 @@ use jni::{
 use rgen_world::Generator;
 
 use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos};
+use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos, Pos};
 
 // TODO: Do we need to worry about obfuscated names anymore?
 #[cfg(not(feature = "obf-names"))]
@@ -179,8 +179,19 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   block_y: jint,
   block_z: jint,
 ) -> jobjectArray {
-  let arr = env
-    .new_object_array(3, "java/lang/String", env.new_string("foo dee foo bar").unwrap())
+  let pos = Pos::new(block_x, block_y as u8, block_z);
+
+  let lines = Context::run(|ctx| {
+    let continentalness = ctx.generator.biomes.sample_continentalness(ctx.generator.seed, pos);
+
+    [format!("continentalness: {continentalness:.5}")]
+  });
+
+  let mut arr = env
+    .new_object_array(lines.len() as i32, "java/lang/String", env.new_string("").unwrap())
     .unwrap();
+  for (i, line) in lines.iter().enumerate() {
+    env.set_object_array_element(&mut arr, i as i32, env.new_string(line).unwrap()).unwrap();
+  }
   arr.as_raw()
 }

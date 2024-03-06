@@ -97,6 +97,11 @@ impl WorldBiomes {
     }
   }
 
+  pub fn sample_continentalness(&self, seed: u64, pos: Pos) -> f64 {
+    ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
+      .clamp(0.0, 1.0)
+  }
+
   fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
     let continentalness =
       ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
