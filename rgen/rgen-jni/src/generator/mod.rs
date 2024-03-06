@@ -2,9 +2,9 @@ use rgen_base::{Blocks, Chunk, ChunkPos, Pos};
 use rgen_world::{Context, Generator, PartialWorld};
 
 pub struct TerrainGenerator {
-  seed: u64,
+  pub seed: u64,
 
-  biomes: rgen_biome::WorldBiomes,
+  pub biomes: rgen_biome::WorldBiomes,
 }
 
 impl Generator for TerrainGenerator {

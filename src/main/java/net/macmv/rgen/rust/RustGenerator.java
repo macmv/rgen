@@ -9,6 +9,7 @@ public class RustGenerator {
   private static native void init_generator(long seed);
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
+  private static native String[] debug_info(int x, int y, int z);
 
   // Helpers for the rust code.
 
@@ -30,12 +31,22 @@ public class RustGenerator {
     return Biome.getIdForBiome(biome);
   }
 
-  static {
-    System.loadLibrary("rgen_jni");
-  }
+  private static boolean active = false;
 
   public static void init(long seed) {
+    if (!active) {
+      System.loadLibrary("rgen_jni");
+    }
+    active = true;
     init_generator(seed);
+  }
+
+  public static boolean isActive() {
+    return active;
+  }
+
+  public static String[] getDebugInfo(int x, int y, int z) {
+    return debug_info(x, y, z);
   }
 
   public static void make_chunk(char[] data, int x, int z) {
