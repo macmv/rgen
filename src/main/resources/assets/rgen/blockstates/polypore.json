@@ -1,16 +1,16 @@
 {
   "variants": {
-    "facing=north,type=one": { "model": "rgen:polypore_type_one" },
-    "facing=south,type=one": { "model": "rgen:polypore_type_one", "y": 180 },
-    "facing=east,type=one": { "model": "rgen:polypore_type_one", "y": 90 },
-    "facing=west,type=one": { "model": "rgen:polypore_type_one", "y": 270 },
-    "facing=north,type=two": { "model": "rgen:polypore_type_two" },
-    "facing=south,type=two": { "model": "rgen:polypore_type_two", "y": 180 },
-    "facing=east,type=two": { "model": "rgen:polypore_type_two", "y": 90 },
-    "facing=west,type=two": { "model": "rgen:polypore_type_two", "y": 270 },
-    "facing=north,type=three": { "model": "rgen:polypore_type_three" },
-    "facing=south,type=three": { "model": "rgen:polypore_type_three", "y": 180 },
-    "facing=east,type=three": { "model": "rgen:polypore_type_three", "y": 90 },
-    "facing=west,type=three": { "model": "rgen:polypore_type_three", "y": 270 }
+    "facing=north,type=1": { "model": "rgen:polypore_type_one" },
+    "facing=south,type=1": { "model": "rgen:polypore_type_one", "y": 180 },
+    "facing=east,type=1": { "model": "rgen:polypore_type_one", "y": 90 },
+    "facing=west,type=1": { "model": "rgen:polypore_type_one", "y": 270 },
+    "facing=north,type=2": { "model": "rgen:polypore_type_two" },
+    "facing=south,type=2": { "model": "rgen:polypore_type_two", "y": 180 },
+    "facing=east,type=2": { "model": "rgen:polypore_type_two", "y": 90 },
+    "facing=west,type=2": { "model": "rgen:polypore_type_two", "y": 270 },
+    "facing=north,type=3": { "model": "rgen:polypore_type_three" },
+    "facing=south,type=3": { "model": "rgen:polypore_type_three", "y": 180 },
+    "facing=east,type=3": { "model": "rgen:polypore_type_three", "y": 90 },
+    "facing=west,type=3": { "model": "rgen:polypore_type_three", "y": 270 }
   }
 }
