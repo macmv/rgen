@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
-use parking_lot::Mutex;
+use crossbeam_channel::{Receiver, RecvError, Sender, TryRecvError};
+use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
@@ -33,6 +34,9 @@ pub struct CachedWorld {
   // FIXME: Need to clean up this map once it gets full. The cleanup needs to be somewhat
   // intelligent, so this is kinda tricky.
   chunks: Mutex<PartialWorld>,
+
+  requests_tx: Sender<(ChunkPos, Stage)>,
+  requests_rx: Receiver<(ChunkPos, Stage)>,
 }
 
 pub struct PartialWorld {
@@ -50,7 +54,7 @@ enum PartialChunk {
   Building,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Stage {
   Base,
   Decorated,
@@ -75,38 +79,85 @@ const RADIUS: i32 = 1;
 
 impl CachedWorld {
   pub fn new() -> CachedWorld {
+    let (tx, rx) = crossbeam_channel::unbounded();
+
     CachedWorld {
       base_chunks: Mutex::new(HashMap::new()),
       chunks:      Mutex::new(PartialWorld::new()),
+      requests_tx: tx,
+      requests_rx: rx,
+    }
+  }
+
+  fn request(&self, pos: ChunkPos, stage: Stage) {
+    match stage {
+      Stage::Base => {
+        if self.base_chunks.lock().contains_key(&pos) {
+          return;
+        }
+      }
+      _ => {}
+    }
+
+    self.requests_tx.send((pos, stage)).unwrap();
+  }
+
+  pub fn spawn_threads(
+    self: &Arc<Self>,
+    ctx: &Arc<Context>,
+    generator: &Arc<impl Generator + Send + Sync + 'static>,
+  ) {
+    for _ in 0..32 {
+      let slf = self.clone();
+      let ctx = ctx.clone();
+      let generator = generator.clone();
+
+      std::thread::spawn(move || loop {
+        slf.work(&ctx, generator.as_ref());
+      });
+    }
+  }
+
+  fn work(&self, ctx: &Context, generator: &(impl Generator + Send + Sync)) {
+    match self.requests_rx.recv() {
+      Ok((pos, stage)) => {
+        match stage {
+          Stage::Base => self.generate_base(ctx, generator, pos),
+          Stage::Decorated => self.generate_decorated(ctx, generator, pos),
+          _ => {}
+        };
+      }
+      Err(_) => panic!(),
     }
   }
 
   pub fn generate<R>(
     &self,
-    ctx: &Context,
-    generator: &(impl Generator + Send + Sync),
+    _ctx: &Context,
+    _generator: &(impl Generator + Send + Sync),
     pos: ChunkPos,
     f: impl FnOnce(&Chunk) -> R,
   ) -> R {
-    let needs_generate = {
+    for x in -RADIUS * 2..=RADIUS * 2 {
+      for z in -RADIUS * 2..=RADIUS * 2 {
+        self.request(pos + ChunkPos::new(x, z), Stage::Base);
+      }
+    }
+
+    for x in -RADIUS..=RADIUS {
+      for z in -RADIUS..=RADIUS {
+        self.request(pos + ChunkPos::new(x, z), Stage::Decorated);
+      }
+    }
+
+    self.request(pos, Stage::NeighborDecorated);
+
+    loop {
+      std::thread::sleep(std::time::Duration::from_millis(10));
       let w = self.chunks.lock();
-      let chunk = w.chunks.get(&pos);
-      chunk.map(|c| c.stage != Some(Stage::NeighborDecorated)).unwrap_or(true)
-    };
-
-    if needs_generate {
-      let width = RADIUS * 2 * 2 + 1;
-      (0..width.pow(2)).into_par_iter().for_each(|i| {
-        let x = i % width;
-        let z = i / width;
-
-        self.generate_base(ctx, generator, pos + ChunkPos::new(x - RADIUS * 2, z - RADIUS * 2));
-      });
-
-      for x in -RADIUS..=RADIUS {
-        for z in -RADIUS..=RADIUS {
-          self.generate_decorated(ctx, generator, pos + ChunkPos::new(x, z));
-        }
+      match w.chunks.get(&pos) {
+        Some(chunk) if chunk.stage == Some(Stage::Decorated) => break,
+        _ => continue,
       }
     }
 
@@ -118,12 +169,33 @@ impl CachedWorld {
   }
 
   fn generate_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
-    let mut w = self.chunks.lock();
-    generator.decorate(ctx, &mut w, pos);
+    let mut chunks = self.chunks.lock();
+    let mut valid = true;
+    for x in -RADIUS..=RADIUS {
+      for z in -RADIUS..=RADIUS {
+        if !chunks.chunks.contains_key(&(pos + ChunkPos::new(x, z))) {
+          self.request(pos + ChunkPos::new(x, z), Stage::Base);
+          valid = false;
+        }
+      }
+    }
+    if !valid {
+      self.request(pos, Stage::Decorated);
+      return;
+    }
+
+    let stage = chunks.chunks.get(&pos).map(|c| c.stage).unwrap().unwrap();
+    if stage >= Stage::Decorated {
+      return;
+    }
+    chunks.chunks.get_mut(&pos).unwrap().stage = Some(Stage::Decorated);
+    generator.decorate(ctx, &mut chunks, pos);
   }
 
   fn generate_base(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
-    // Lock this chunk for building.
+    // Lock this chunk for building. Until this point, everything has been
+    // optimistic. This is the first real lock. If this does not return, this thread
+    // is the sole generator of this chunk.
     {
       let mut w = self.base_chunks.lock();
       match w.get(&pos) {

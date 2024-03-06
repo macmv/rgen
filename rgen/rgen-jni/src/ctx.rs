@@ -1,4 +1,4 @@
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use rgen_base::{Biomes, Blocks};
 use rgen_world::CachedWorld;
@@ -6,10 +6,10 @@ use rgen_world::CachedWorld;
 use crate::generator::TerrainGenerator;
 
 pub struct Context {
-  pub generator: TerrainGenerator,
-  pub world:     CachedWorld,
+  pub generator: Arc<TerrainGenerator>,
+  pub world:     Arc<CachedWorld>,
 
-  pub context: rgen_world::Context,
+  pub context: Arc<rgen_world::Context>,
 }
 
 static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
@@ -19,10 +19,12 @@ impl Context {
     let generator = TerrainGenerator::new(&blocks, &biomes, seed as u64);
 
     let ctx = Context {
-      generator,
-      world: CachedWorld::new(),
-      context: rgen_world::Context { seed: seed as u64, blocks, biomes },
+      generator: Arc::new(generator),
+      world:     Arc::new(CachedWorld::new()),
+      context:   Arc::new(rgen_world::Context { seed: seed as u64, blocks, biomes }),
     };
+
+    ctx.world.spawn_threads(&ctx.context, &ctx.generator);
 
     CONTEXT.write().unwrap().replace(ctx);
   }
