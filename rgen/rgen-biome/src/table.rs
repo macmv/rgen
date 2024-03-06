@@ -14,7 +14,7 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[plains];
+const BLANK: BiomeFnCategory = &[birch_woodland];
 
 const FROZEN_VALLEY: BiomeFnCategory = &[glacier, rockies, broken_glacier];
 const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];

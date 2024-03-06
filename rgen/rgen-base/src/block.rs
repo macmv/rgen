@@ -182,6 +182,7 @@ big! { Blocks: BlockInfo
   gold_block => "minecraft:gold_block",
 
   rgen_log => "rgen:log",
+  rgen_mossy_stump => "rgen:mossy_stump",
 }
 
 big! { Biomes: Biome
@@ -197,4 +198,5 @@ big! { Biomes: Biome
   swamp => "minecraft:swampland",
   stone_beach => "minecraft:stone_beach",
   jungle => "minecraft:jungle",
+  birch_forest => "minecraft:birch_forest_hills",
 }

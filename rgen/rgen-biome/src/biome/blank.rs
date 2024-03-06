@@ -126,3 +126,27 @@ pub fn tropic_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.wool.with_data(LIME);
 }
+
+pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.top_block = ctx.blocks.grass.default_state;
+
+  gen.place(
+    "basic birch tree",
+    PlacerStage::Tree,
+    placer::BasicBirch {
+      trunk:  ctx.blocks.log.with_data(2),
+      leaves: ctx.blocks.leaves.with_data(2),
+    },
+  );
+  gen.place(
+    "birch log",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log:            ctx.blocks.log.with_data(2),
+      moss_log:       ctx.blocks.rgen_mossy_stump.with_data(1),
+      plants:         ctx.blocks.stone.default_state.into(),
+      chance_of_moss: 50,
+    },
+  )
+}
