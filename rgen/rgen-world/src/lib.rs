@@ -145,6 +145,7 @@ impl CachedWorld {
 
     loop {
       std::thread::sleep(std::time::Duration::from_millis(10));
+
       let w = self.chunks.lock();
       match w.chunks.get(&pos) {
         Some(chunk) if chunk.stage == Some(Stage::Decorated) => break,
@@ -171,7 +172,7 @@ impl CachedWorld {
       }
     }
     if !valid {
-      self.request(pos, Stage::Decorated);
+      self.requester.retry(pos, Stage::Decorated);
       return;
     }
 
@@ -215,6 +216,16 @@ impl Requester {
     Requester { tx, rx, chunks: RwLock::new(HashMap::new()) }
   }
 
+  // TODO: Might need a bit more thinking.
+  pub fn retry(&self, pos: ChunkPos, stage: Stage) {
+    {
+      let mut w = self.chunks.write();
+      w.insert(pos, Mutex::new(stage));
+    }
+
+    self.tx.send((pos, stage)).unwrap();
+  }
+
   pub fn request(&self, pos: ChunkPos, stage: Stage) {
     // Quick sanity check.
     match self.chunks.read().get(&pos) {
@@ -242,13 +253,14 @@ impl Requester {
   pub fn recv(&self) -> Option<(ChunkPos, Stage)> {
     match self.rx.recv() {
       Ok((pos, stage)) => {
-        let w = self.chunks.read();
-        let mut s = w.get(&pos).unwrap().lock();
-        *s = match stage {
-          Stage::Base => Stage::Decorated,
-          Stage::Decorated => Stage::NeighborDecorated,
-          Stage::NeighborDecorated => return None,
-        };
+        // let w = self.chunks.read();
+        // let mut s = w.get(&pos).unwrap().lock();
+        // *s = match stage {
+        //   Stage::Base => Stage::Decorated,
+        //   Stage::Decorated => Stage::NeighborDecorated,
+        //   Stage::NeighborDecorated => return None,
+        // };
+        // self.tx.send((pos, *s)).unwrap();
         Some((pos, stage))
       }
       Err(_) => panic!("channel disconnected"),
