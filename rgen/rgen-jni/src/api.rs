@@ -177,9 +177,10 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   let pos = Pos::new(block_x, block_y as u8, block_z);
 
   let lines = Context::run(|ctx| {
+    let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);
     let continentalness = ctx.generator.biomes.sample_continentalness(ctx.generator.seed, pos);
 
-    [format!("continentalness: {continentalness:.5}")]
+    [format!("biome: {}", biome.name), format!("continentalness: {continentalness:.5}")]
   });
 
   let mut arr = env
