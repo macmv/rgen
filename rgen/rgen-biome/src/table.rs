@@ -3,7 +3,7 @@ use crate::{biome::*, builder::BiomeBuilder};
 pub type BiomeList = Vec<BiomeBuilder>;
 pub type BiomeTable = [[BiomeList; 8]; 12];
 
-type BiomeFnCategory = &'static [BiomeFn];
+type BiomeFnCategory = &'static [(f64, BiomeFn)];
 type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
 
 // TODO: Need all of these biomes.
@@ -14,29 +14,40 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[birch_woodland];
-const SEA: BiomeFnCategory = &[blank];
+const BLANK: BiomeFnCategory = &[(1.0, birch_woodland)];
+const SEA: BiomeFnCategory = &[(1.0, blank)];
 
-const FROZEN_VALLEY: BiomeFnCategory = &[glacier, rockies, broken_glacier];
-const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];
-const ROCKY_VALLEY: BiomeFnCategory = &[crag, snowy_crag /* , rocky_cedar */];
+const FROZEN_VALLEY: BiomeFnCategory = &[(1.0, glacier), (1.0, rockies), (1.0, broken_glacier)];
+const BOG: BiomeFnCategory = &[(1.0, bog), (1.0, cold_bog), (1.0, fall_bog), (1.0, conifer_swamp)];
+const ROCKY_VALLEY: BiomeFnCategory = &[(1.0, crag), (1.0, snowy_crag) /* , rocky_cedar */];
 const COOL_VALLEY: BiomeFnCategory =
-  &[crag /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
+  &[(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
 const SWAMP: BiomeFnCategory =
-  &[plains /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
-const DRY_RIVER: BiomeFnCategory = &[swamp /* , mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[plains];
-const HOT_SWAMP: BiomeFnCategory = &[plains];
-const TROPIC_SWAMP: BiomeFnCategory = &[plains];
+  &[(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
+const DRY_RIVER: BiomeFnCategory = &[(1.0, swamp) /* , mangrove_woods */];
+const WARM_VALLEY: BiomeFnCategory = &[(1.0, plains)];
+const HOT_SWAMP: BiomeFnCategory = &[(1.0, plains)];
+const TROPIC_SWAMP: BiomeFnCategory = &[(1.0, plains)];
 
-const COLD_BEACH: BiomeFnCategory = &[snowy_shores, snowy_rock];
-const COOL_BEACH: BiomeFnCategory =
-  &[ancient_shores, mossy_shores, dry_shores, bare_rock, wet_rock];
-const BEACH: BiomeFnCategory =
-  &[sand_beach, monument_beach, red_sand_beach, red_monument_beach, palm_beach];
-const DRY_BEACH: BiomeFnCategory =
-  &[sand_beach, monument_beach, red_sand_beach, red_monument_beach, dry_shores, chaparral_beach];
-const TROPIC_BEACH: BiomeFnCategory = &[sand_beach, chaparral_beach, jungle_beach, palm_beach];
+const COLD_BEACH: BiomeFnCategory = &[(1.0, snowy_shores), (1.0, snowy_rock)];
+const COOL_BEACH: BiomeFnCategory = &[
+  (1.0, ancient_shores),
+  (1.0, mossy_shores),
+  (1.0, dry_shores),
+  (1.0, bare_rock),
+  (1.0, wet_rock),
+];
+const BEACH: BiomeFnCategory = &[(65.0, sand_beach), (5.0, monument_beach), (31.0, palm_beach)];
+const DRY_BEACH: BiomeFnCategory = &[
+  (1.0, sand_beach),
+  (1.0, monument_beach),
+  (1.0, red_sand_beach),
+  (1.0, red_monument_beach),
+  (1.0, dry_shores),
+  (1.0, chaparral_beach),
+];
+const TROPIC_BEACH: BiomeFnCategory =
+  &[(1.0, sand_beach), (1.0, chaparral_beach), (1.0, jungle_beach), (1.0, palm_beach)];
 
 // === Biome tables ===
 
@@ -102,7 +113,10 @@ fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
           if biomes.is_empty() {
             panic!("biome category cannot be empty");
           } else {
-            biomes.iter().map(|f| BiomeBuilder::build("blank", ctx, *f)).collect::<BiomeList>()
+            biomes
+              .iter()
+              .map(|(rarity, f)| BiomeBuilder::build("blank", ctx, *rarity, *f))
+              .collect::<BiomeList>()
           }
         })
         .collect::<Vec<_>>();

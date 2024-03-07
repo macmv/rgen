@@ -10,8 +10,9 @@ pub enum PlacerStage {
 }
 
 pub struct BiomeBuilder {
-  pub name: &'static str,
-  pub id:   rgen_base::Biome,
+  pub name:   &'static str,
+  pub rarity: f64,
+  pub id:     rgen_base::Biome,
 
   pub top_block: BlockState,
   pub sub_layer: BlockState,
@@ -32,9 +33,10 @@ impl PlacerBuilder {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, blocks: &Blocks) -> Self {
+  pub fn new(name: &'static str, blocks: &Blocks, rarity: f64) -> Self {
     Self {
       name,
+      rarity,
       id: Biome::VOID,
       top_block: blocks.grass.default_state,
       sub_layer: blocks.dirt.default_state,
