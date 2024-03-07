@@ -63,10 +63,15 @@ impl WorldBiomes {
     let biomes = &table[(temperature * table.len() as f64) as usize]
       [(humidity * table[0].len() as f64) as usize];
 
-    let variance = self.variance(seed, pos);
-    let biome = &biomes[(variance * biomes.len() as f64) as usize];
-
-    biome
+    let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
+    let mut variance = self.variance(seed, pos) * total;
+    for biome in biomes {
+      variance -= biome.rarity;
+      if variance <= 0.0 {
+        return biome;
+      }
+    }
+    &biomes[0]
   }
 
   fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
