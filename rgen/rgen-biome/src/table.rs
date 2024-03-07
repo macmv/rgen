@@ -49,6 +49,107 @@ const DRY_BEACH: BiomeFnCategory = &[
 const TROPIC_BEACH: BiomeFnCategory =
   &[(1.0, sand_beach), (1.0, chaparral_beach), (1.0, jungle_beach), (1.0, palm_beach)];
 
+const ICE_CAP: BiomeFnCategory = &[
+  (1.0, ice_spikes),
+  (1.0, broken_glacier),
+  (1.0, glacier),
+  (1.0, snowy_plains),
+  (1.0, rocky_plains),
+];
+const TUNDRA: BiomeFnCategory = &[
+  (1.0, snowy_plains),
+  (1.0, rocky_plains),
+  (1.0, frozen_meadow),
+  (1.0, frozen_desert),
+  // (1.0, snowy_fir_wood),
+  // (1.0, snowy_spruce_wood),
+  (1.0, snowy_woodland),
+];
+const SUB_ARCTIC: BiomeFnCategory =
+  &[(1.0, fir_grove), (1.0, spruce_grove) /* (1.0, seasonal_woodland) */];
+const COOL_TEMPERATE: BiomeFnCategory = &[
+  // (1.0, boreal_forest),
+  // (1.0, ceader_wood),
+  // (1.0, fir_wood),
+  (1.0, crag),
+  // (1.0, spruce_tiga),
+  // (1.0, twisted_spruce_wood),
+  // (1.0, rocky_spruce),
+];
+const DRY_TEMPERATE: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, charred_woodland),
+  // (1.0, charred_birch_woodland),
+  // (1.0, deadwood),
+  // (1.0, dry_grassy_wood),
+  // (1.0, dry_wood),
+];
+const SAVANNA: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, dead_wood),
+  // (1.0, wooded_savanna),
+  // (1.0, thorn_wood)
+];
+const HOT_DESERT: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, flat_desert),
+  // (1.0, dune_sea),
+  // (1.0, stone_desert),
+  // (1.0, red_desert),
+  // (1.0, petrified_forest),
+  // (1.0, bone_lands),
+];
+const BAD_LANDS: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, boneland),
+  // (1.0, bad_lands),
+  // (1.0, stone_desert),
+];
+const WET_TEMPERATE: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, temperate_rain_forest),
+  // (1.0, cedar_rock_wood),
+  // (1.0, cedar_wood),
+  // (1.0, elder_woodland),
+  // (1.0, weeping_birchwood),
+  // (1.0, lush_desert),
+  // (1.0, fungal_wood),
+  // (1.0, seasonal_woodland),
+];
+const WARM_TEMPERATE: BiomeFnCategory = &[
+  // (1.0, elder_woodland),
+  // (1.0, weeping_birchwood),
+  // (1.0, lush_desert),
+  // (1.0, cherry_blossom_wood),
+  // (1.0, woodland),
+  (1.0, birch_woodland),
+  // (1.0, seasonal_woodland),
+  // (1.0, lavedar_grove),
+  // (1.0, field),
+  // (1.0, aspenwood),
+  // (1.0, elder_birch_woodland),
+  // (1.0, valcano_growth),
+];
+const MEDITERANEAN: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, chaparral_flats),
+  // (1.0, redwood_grove),
+  // (1.0, open_plain),
+  // (1.0, sunflower_plain),
+  // (1.0, chaparral_woods),
+];
+const MONSOON: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, mangrove_woods),
+  // (1.0, light_jungle)
+];
+const TROPICAL: BiomeFnCategory = &[
+  (1.0, blank),
+  // (1.0, deep_jungle),
+  // (1.0, light_jungle),
+  // (1.0, bamboo_jungle)
+];
+
 // === Biome tables ===
 
 const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
@@ -72,20 +173,38 @@ const BEACH_TABLE: BiomeFnTable = &[
   &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
 ];
 
+#[rustfmt::skip]
+const STANDARD_TABLE: BiomeFnTable = &[
+  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, BAD_LANDS, BAD_LANDS],
+  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT, BAD_LANDS],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, SAVANNA, HOT_DESERT],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN, SAVANNA],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE],
+  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON],
+  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL],
+  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
+  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
+];
+
 pub struct Tables {
-  pub blank_table:  BiomeTable,
-  pub sea_table:    BiomeTable,
-  pub beach_table:  BiomeTable,
-  pub valley_table: BiomeTable,
+  pub blank_table:    BiomeTable,
+  pub sea_table:      BiomeTable,
+  pub beach_table:    BiomeTable,
+  pub standard_table: BiomeTable,
+  pub valley_table:   BiomeTable,
 }
 
 impl Tables {
   pub fn new(ctx: &IdContext) -> Tables {
     Tables {
-      blank_table:  table(ctx, BLANK_TABLE),
-      sea_table:    table(ctx, SEA_TABLE),
-      beach_table:  table(ctx, BEACH_TABLE),
-      valley_table: table(ctx, VALLEY_TABLE),
+      blank_table:    table(ctx, BLANK_TABLE),
+      sea_table:      table(ctx, SEA_TABLE),
+      beach_table:    table(ctx, BEACH_TABLE),
+      standard_table: table(ctx, STANDARD_TABLE),
+      valley_table:   table(ctx, VALLEY_TABLE),
     }
   }
 }

@@ -47,9 +47,9 @@ impl WorldBiomes {
             }
           }
 
-          PeaksValleysCategory::LowSlice => &self.tables.blank_table,
-          PeaksValleysCategory::MidSlice => &self.tables.blank_table,
-          PeaksValleysCategory::HighSlice => &self.tables.blank_table,
+          PeaksValleysCategory::LowSlice => &self.tables.standard_table,
+          PeaksValleysCategory::MidSlice => &self.tables.standard_table,
+          PeaksValleysCategory::HighSlice => &self.tables.standard_table,
           PeaksValleysCategory::Peak => &self.tables.blank_table,
         }
       }
