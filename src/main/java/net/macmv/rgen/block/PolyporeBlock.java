@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 
 public class PolyporeBlock extends Block {
   public static final PropertyEnum<PolyporeType> TYPE = PropertyEnum.create("type", PolyporeType.class);
-  protected static final AxisAlignedBB POLYPORE_AABB = MathUtil.aabb(0, 0, 0, 15, 15, 15);
+  protected static final AxisAlignedBB POLYPORE_AABB = MathUtil.aabb(0, 0, 0, 16, 16, 16);
 
   public PolyporeBlock() {
     super(Material.PLANTS);
