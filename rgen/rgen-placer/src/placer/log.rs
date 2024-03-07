@@ -7,6 +7,7 @@ pub struct LogAndStump {
   pub log:            BlockState,
   pub moss_log:       BlockState,
   pub plants:         BlockSet,
+  pub avg_per_chunk:  f64,
   pub chance_of_moss: i32,
 }
 
@@ -17,7 +18,7 @@ impl Placer for LogAndStump {
 
   fn radius(&self) -> u8 { 9 }
 
-  fn avg_per_chunk(&self) -> f64 { 15.0 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     if (self.place_stump(world, rng, pos)) {
@@ -34,7 +35,7 @@ impl LogAndStump {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
-          println!("false  =========================== {pos:?}");
+          //println!("false  =========================== {pos:?}");
           return false;
         }
       }

@@ -4,6 +4,7 @@ mod rock;
 mod scatter;
 mod splatter;
 mod splotch;
+mod spread;
 mod tree;
 
 pub use clump::{BushClumps, Clumps, GrassClumps};
@@ -12,4 +13,5 @@ pub use rock::Monument;
 pub use scatter::Scatter;
 pub use splatter::Splatter;
 pub use splotch::Splotch;
+pub use spread::Spread;
 pub use tree::{BasicBirch, BasicTree, DeadTree};

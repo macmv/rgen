@@ -135,8 +135,13 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
-      trunk:  ctx.blocks.log.with_data(2),
-      leaves: ctx.blocks.leaves.with_data(2),
+      trunk:            ctx.blocks.log.with_data(2),
+      leaves:           ctx.blocks.leaves.with_data(2),
+      avg_per_chunk:    12.0,
+      is_shrooms:       false,
+      chance_of_shroom: 0.0,
+      shroom:           ctx.blocks.rgen_polypore.with_data(0),
+      ground:           ctx.blocks.grass.default_state,
     },
   );
   gen.place(
@@ -146,7 +151,17 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
       log:            ctx.blocks.log.with_data(2),
       moss_log:       ctx.blocks.rgen_mossy_stump.with_data(1),
       plants:         ctx.blocks.stone.default_state.into(),
+      avg_per_chunk:  8.0,
       chance_of_moss: 50,
+    },
+  );
+  gen.place(
+    "mossy carpet",
+    PlacerStage::Sand2,
+    placer::Spread {
+      place:   ctx.blocks.rgen_mossy_carpet.default_state,
+      replace: ctx.blocks.grass.default_state.into(),
+      radius:  4..=5,
     },
   )
 }
