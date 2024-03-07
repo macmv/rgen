@@ -3,7 +3,7 @@ use crate::{biome::*, builder::BiomeBuilder};
 pub type BiomeList = Vec<BiomeBuilder>;
 pub type BiomeTable = [[BiomeList; 8]; 12];
 
-type BiomeFnCategory = &'static [(f64, BiomeFn)];
+type BiomeFnCategory = &'static [(f64, &'static str, BiomeFn)];
 type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
 
 // TODO: Need all of these biomes.
@@ -12,142 +12,152 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 ];
 */
 
+macro_rules! b {
+  ($rarity:expr, $f:expr) => {
+    ($rarity, stringify!($f), $f as BiomeFn)
+  };
+}
+
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[(1.0, birch_woodland)];
-const SEA: BiomeFnCategory = &[(1.0, blank)];
+const BLANK: BiomeFnCategory = &[b!(1.0, birch_woodland)];
+const SEA: BiomeFnCategory = &[b!(1.0, blank)];
 
-const FROZEN_VALLEY: BiomeFnCategory = &[(1.0, glacier), (1.0, rockies), (1.0, broken_glacier)];
-const BOG: BiomeFnCategory = &[(1.0, bog), (1.0, cold_bog), (1.0, fall_bog), (1.0, conifer_swamp)];
-const ROCKY_VALLEY: BiomeFnCategory = &[(1.0, crag), (1.0, snowy_crag) /* , rocky_cedar */];
+const FROZEN_VALLEY: BiomeFnCategory =
+  &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
+const BOG: BiomeFnCategory =
+  &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
+const ROCKY_VALLEY: BiomeFnCategory =
+  &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
 const COOL_VALLEY: BiomeFnCategory =
-  &[(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
+  &[b!(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
 const SWAMP: BiomeFnCategory =
-  &[(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
-const DRY_RIVER: BiomeFnCategory = &[(1.0, swamp) /* , mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[(1.0, plains)];
-const HOT_SWAMP: BiomeFnCategory = &[(1.0, plains)];
-const TROPIC_SWAMP: BiomeFnCategory = &[(1.0, plains)];
+  &[b!(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
+const DRY_RIVER: BiomeFnCategory = &[b!(1.0, swamp) /* , mangrove_woods */];
+const WARM_VALLEY: BiomeFnCategory = &[b!(1.0, plains)];
+const HOT_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
+const TROPIC_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
 
-const COLD_BEACH: BiomeFnCategory = &[(1.0, snowy_shores), (1.0, snowy_rock)];
+const COLD_BEACH: BiomeFnCategory = &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
 const COOL_BEACH: BiomeFnCategory = &[
-  (1.0, ancient_shores),
-  (1.0, mossy_shores),
-  (1.0, dry_shores),
-  (1.0, bare_rock),
-  (1.0, wet_rock),
+  b!(1.0, ancient_shores),
+  b!(1.0, mossy_shores),
+  b!(1.0, dry_shores),
+  b!(1.0, bare_rock),
+  b!(1.0, wet_rock),
 ];
-const BEACH: BiomeFnCategory = &[(65.0, sand_beach), (5.0, monument_beach), (31.0, palm_beach)];
+const BEACH: BiomeFnCategory =
+  &[b!(65.0, sand_beach), b!(5.0, monument_beach), b!(31.0, palm_beach)];
 const DRY_BEACH: BiomeFnCategory = &[
-  (1.0, sand_beach),
-  (1.0, monument_beach),
-  (1.0, red_sand_beach),
-  (1.0, red_monument_beach),
-  (1.0, dry_shores),
-  (1.0, chaparral_beach),
+  b!(1.0, sand_beach),
+  b!(1.0, monument_beach),
+  b!(1.0, red_sand_beach),
+  b!(1.0, red_monument_beach),
+  b!(1.0, dry_shores),
+  b!(1.0, chaparral_beach),
 ];
 const TROPIC_BEACH: BiomeFnCategory =
-  &[(1.0, sand_beach), (1.0, chaparral_beach), (1.0, jungle_beach), (1.0, palm_beach)];
+  &[b!(1.0, sand_beach), b!(1.0, chaparral_beach), b!(1.0, jungle_beach), b!(1.0, palm_beach)];
 
 const ICE_CAP: BiomeFnCategory = &[
-  (1.0, ice_spikes),
-  (1.0, broken_glacier),
-  (1.0, glacier),
-  (1.0, snowy_plains),
-  (1.0, rocky_plains),
+  b!(1.0, ice_spikes),
+  b!(1.0, broken_glacier),
+  b!(1.0, glacier),
+  b!(1.0, snowy_plains),
+  b!(1.0, rocky_plains),
 ];
 const TUNDRA: BiomeFnCategory = &[
-  (1.0, snowy_plains),
-  (1.0, rocky_plains),
-  (1.0, frozen_meadow),
-  (1.0, frozen_desert),
-  // (1.0, snowy_fir_wood),
-  // (1.0, snowy_spruce_wood),
-  (1.0, snowy_woodland),
+  b!(1.0, snowy_plains),
+  b!(1.0, rocky_plains),
+  b!(1.0, frozen_meadow),
+  b!(1.0, frozen_desert),
+  // b!(1.0, snowy_fir_wood),
+  // b!(1.0, snowy_spruce_wood),
+  b!(1.0, snowy_woodland),
 ];
 const SUB_ARCTIC: BiomeFnCategory =
-  &[(1.0, fir_grove), (1.0, spruce_grove) /* (1.0, seasonal_woodland) */];
+  &[b!(1.0, fir_grove), b!(1.0, spruce_grove) /* b!(1.0, seasonal_woodland) */];
 const COOL_TEMPERATE: BiomeFnCategory = &[
-  // (1.0, boreal_forest),
-  // (1.0, ceader_wood),
-  // (1.0, fir_wood),
-  (1.0, crag),
-  // (1.0, spruce_tiga),
-  // (1.0, twisted_spruce_wood),
-  // (1.0, rocky_spruce),
+  // b!(1.0, boreal_forest),
+  // b!(1.0, ceader_wood),
+  // b!(1.0, fir_wood),
+  b!(1.0, crag),
+  // b!(1.0, spruce_tiga),
+  // b!(1.0, twisted_spruce_wood),
+  // b!(1.0, rocky_spruce),
 ];
 const DRY_TEMPERATE: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, charred_woodland),
-  // (1.0, charred_birch_woodland),
-  // (1.0, deadwood),
-  // (1.0, dry_grassy_wood),
-  // (1.0, dry_wood),
+  b!(1.0, blank),
+  // b!(1.0, charred_woodland),
+  // b!(1.0, charred_birch_woodland),
+  // b!(1.0, deadwood),
+  // b!(1.0, dry_grassy_wood),
+  // b!(1.0, dry_wood),
 ];
 const SAVANNA: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, dead_wood),
-  // (1.0, wooded_savanna),
-  // (1.0, thorn_wood)
+  b!(1.0, blank),
+  // b!(1.0, dead_wood),
+  // b!(1.0, wooded_savanna),
+  // b!(1.0, thorn_wood)
 ];
 const HOT_DESERT: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, flat_desert),
-  // (1.0, dune_sea),
-  // (1.0, stone_desert),
-  // (1.0, red_desert),
-  // (1.0, petrified_forest),
-  // (1.0, bone_lands),
+  b!(1.0, blank),
+  // b!(1.0, flat_desert),
+  // b!(1.0, dune_sea),
+  // b!(1.0, stone_desert),
+  // b!(1.0, red_desert),
+  // b!(1.0, petrified_forest),
+  // b!(1.0, bone_lands),
 ];
 const BAD_LANDS: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, boneland),
-  // (1.0, bad_lands),
-  // (1.0, stone_desert),
+  b!(1.0, blank),
+  // b!(1.0, boneland),
+  // b!(1.0, bad_lands),
+  // b!(1.0, stone_desert),
 ];
 const WET_TEMPERATE: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, temperate_rain_forest),
-  // (1.0, cedar_rock_wood),
-  // (1.0, cedar_wood),
-  // (1.0, elder_woodland),
-  // (1.0, weeping_birchwood),
-  // (1.0, lush_desert),
-  // (1.0, fungal_wood),
-  // (1.0, seasonal_woodland),
+  b!(1.0, blank),
+  // b!(1.0, temperate_rain_forest),
+  // b!(1.0, cedar_rock_wood),
+  // b!(1.0, cedar_wood),
+  // b!(1.0, elder_woodland),
+  // b!(1.0, weeping_birchwood),
+  // b!(1.0, lush_desert),
+  // b!(1.0, fungal_wood),
+  // b!(1.0, seasonal_woodland),
 ];
 const WARM_TEMPERATE: BiomeFnCategory = &[
-  // (1.0, elder_woodland),
-  // (1.0, weeping_birchwood),
-  // (1.0, lush_desert),
-  // (1.0, cherry_blossom_wood),
-  // (1.0, woodland),
-  (1.0, birch_woodland),
-  // (1.0, seasonal_woodland),
-  // (1.0, lavedar_grove),
-  // (1.0, field),
-  // (1.0, aspenwood),
-  // (1.0, elder_birch_woodland),
-  // (1.0, valcano_growth),
+  // b!(1.0, elder_woodland),
+  // b!(1.0, weeping_birchwood),
+  // b!(1.0, lush_desert),
+  // b!(1.0, cherry_blossom_wood),
+  // b!(1.0, woodland),
+  b!(1.0, birch_woodland),
+  // b!(1.0, seasonal_woodland),
+  // b!(1.0, lavedar_grove),
+  // b!(1.0, field),
+  // b!(1.0, aspenwood),
+  // b!(1.0, elder_birch_woodland),
+  // b!(1.0, valcano_growth),
 ];
 const MEDITERANEAN: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, chaparral_flats),
-  // (1.0, redwood_grove),
-  // (1.0, open_plain),
-  // (1.0, sunflower_plain),
-  // (1.0, chaparral_woods),
+  b!(1.0, blank),
+  // b!(1.0, chaparral_flats),
+  // b!(1.0, redwood_grove),
+  // b!(1.0, open_plain),
+  // b!(1.0, sunflower_plain),
+  // b!(1.0, chaparral_woods),
 ];
 const MONSOON: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, mangrove_woods),
-  // (1.0, light_jungle)
+  b!(1.0, blank),
+  // b!(1.0, mangrove_woods),
+  // b!(1.0, light_jungle)
 ];
 const TROPICAL: BiomeFnCategory = &[
-  (1.0, blank),
-  // (1.0, deep_jungle),
-  // (1.0, light_jungle),
-  // (1.0, bamboo_jungle)
+  b!(1.0, blank),
+  // b!(1.0, deep_jungle),
+  // b!(1.0, light_jungle),
+  // b!(1.0, bamboo_jungle)
 ];
 
 // === Biome tables ===
@@ -234,7 +244,7 @@ fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
           } else {
             biomes
               .iter()
-              .map(|(rarity, f)| BiomeBuilder::build("blank", ctx, *rarity, *f))
+              .map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f))
               .collect::<BiomeList>()
           }
         })
