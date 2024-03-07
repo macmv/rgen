@@ -83,7 +83,7 @@ impl WorldBiomes {
 
     WorldBiomes {
       tables:         Tables::new(&ctx),
-      biome_override: true,
+      biome_override: false,
 
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
