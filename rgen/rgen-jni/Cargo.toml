@@ -19,3 +19,6 @@ jni = "0.21.1"
 [features]
 # Links to obfuscated names. Used for release builds.
 obf-names = []
+
+[[bench]]
+name = "chunk"
