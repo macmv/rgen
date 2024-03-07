@@ -123,9 +123,12 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::LogAndStump {
       log:            ctx.blocks.log.with_data(2),
       moss_log:       ctx.blocks.rgen_mossy_stump.with_data(1),
+      ground:         ctx.blocks.grass.default_state,
       plants:         ctx.blocks.stone.default_state.into(),
       avg_per_chunk:  8.0,
       chance_of_moss: 50,
+      is_shrooms:     true,
+      shroom:         ctx.blocks.rgen_polypore.default_state,
     },
   );
   gen.place(

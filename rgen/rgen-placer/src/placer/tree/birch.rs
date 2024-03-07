@@ -70,7 +70,6 @@ impl Placer for BasicBirch {
         for rel_x in -1..=1_i32 {
           for rel_z in -1..=1_i32 {
             if rng.rand_exclusive(0, 9) < 3 {
-              let state = 0;
               // Clones a copy of the mushroom that will be mutable
               let mut mushroom = self.shroom.clone();
 
