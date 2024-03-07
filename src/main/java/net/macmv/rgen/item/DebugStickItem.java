@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class DebugStickItem extends Item {
   @Override
   public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
-    if (!player.getEntityWorld().isRemote) {
+    if (player.getEntityWorld().isRemote) {
       showBlockName(pos, player);
     }
 
@@ -23,7 +23,7 @@ public class DebugStickItem extends Item {
 
   @Override
   public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
-    if (!player.getEntityWorld().isRemote) {
+    if (player.getEntityWorld().isRemote) {
       showBlockName(pos, player);
     }
 
