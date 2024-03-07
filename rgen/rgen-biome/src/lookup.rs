@@ -4,6 +4,7 @@ use rgen_placer::noise::NoiseGenerator;
 use crate::{biome::birch_woodland, builder::BiomeBuilder, WorldBiomes};
 
 enum ContinentalnessCategory {
+  MushroomIsland,
   Sea,
   Coast,
   NearInland,
@@ -26,7 +27,8 @@ impl WorldBiomes {
     let continentalness = self.continentalness_category(seed, pos);
 
     let table: &BiomeTable = match continentalness {
-      ContinentalnessCategory::Sea => &self.tables.blank_table,
+      ContinentalnessCategory::MushroomIsland => &self.tables.blank_table,
+      ContinentalnessCategory::Sea => &self.tables.sea_table,
       ContinentalnessCategory::Coast => &self.tables.beach_table,
 
       // Inland cases
@@ -72,10 +74,11 @@ impl WorldBiomes {
       self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
 
     match continentalness {
-      x if x < 0.1 => ContinentalnessCategory::Sea,
-      x if x < 0.45 => ContinentalnessCategory::Coast,
-      x if x < 0.6 => ContinentalnessCategory::NearInland,
-      x if x < 0.8 => ContinentalnessCategory::MidInland,
+      x if x < 0.02 => ContinentalnessCategory::MushroomIsland,
+      x if x < 0.35 => ContinentalnessCategory::Sea,
+      x if x < 0.40 => ContinentalnessCategory::Coast,
+      x if x < 0.60 => ContinentalnessCategory::NearInland,
+      x if x < 0.80 => ContinentalnessCategory::MidInland,
       _ => ContinentalnessCategory::FarInland,
     }
   }

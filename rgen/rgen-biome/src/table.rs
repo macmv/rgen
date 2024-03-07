@@ -15,6 +15,7 @@ const VALLEY_TABLE: [[&str; 6]; 7] = [
 // === Biome categories ===
 
 const BLANK: BiomeFnCategory = &[birch_woodland];
+const SEA: BiomeFnCategory = &[blank];
 
 const FROZEN_VALLEY: BiomeFnCategory = &[glacier, rockies, broken_glacier];
 const BOG: BiomeFnCategory = &[bog, cold_bog, fall_bog, conifer_swamp];
@@ -40,6 +41,7 @@ const TROPIC_BEACH: BiomeFnCategory = &[sand_beach, chaparral_beach, jungle_beac
 // === Biome tables ===
 
 const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
+const SEA_TABLE: BiomeFnTable = &[&[SEA]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
   &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
@@ -61,6 +63,7 @@ const BEACH_TABLE: BiomeFnTable = &[
 
 pub struct Tables {
   pub blank_table:  BiomeTable,
+  pub sea_table:    BiomeTable,
   pub beach_table:  BiomeTable,
   pub valley_table: BiomeTable,
 }
@@ -69,6 +72,7 @@ impl Tables {
   pub fn new(ctx: &IdContext) -> Tables {
     Tables {
       blank_table:  table(ctx, BLANK_TABLE),
+      sea_table:    table(ctx, SEA_TABLE),
       beach_table:  table(ctx, BEACH_TABLE),
       valley_table: table(ctx, VALLEY_TABLE),
     }
