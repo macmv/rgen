@@ -144,7 +144,7 @@ impl CachedWorld {
     self.request(pos, Stage::NeighborDecorated);
 
     loop {
-      std::thread::sleep(std::time::Duration::from_millis(10));
+      std::thread::sleep(std::time::Duration::from_micros(100));
 
       let w = self.chunks.lock();
       match w.chunks.get(&pos) {
