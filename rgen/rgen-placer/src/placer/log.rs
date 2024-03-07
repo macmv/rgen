@@ -21,7 +21,7 @@ impl Placer for LogAndStump {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    if (self.place_stump(world, rng, pos)) {
+    if self.place_stump(world, rng, pos) {
       self.place_log()
     }
 
@@ -30,12 +30,10 @@ impl Placer for LogAndStump {
 }
 
 impl LogAndStump {
-  fn lenght(&self, rng: &mut Rng) -> u8 { rng.rand_inclusive(2, 5) as u8 }
   fn place_stump(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
-          //println!("false  =========================== {pos:?}");
           return false;
         }
       }
