@@ -10,6 +10,7 @@ public class RustGenerator {
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
   private static native String[] debug_info(int x, int y, int z);
+  private static native String get_biome_at(int x, int y, int z);
 
   // Helpers for the rust code.
 
@@ -47,6 +48,9 @@ public class RustGenerator {
 
   public static String[] getDebugInfo(int x, int y, int z) {
     return debug_info(x, y, z);
+  }
+  public static String getBiomeAt(int x, int y, int z) {
+    return get_biome_at(x, y, z);
   }
 
   public static void make_chunk(char[] data, int x, int z) {

@@ -2,7 +2,7 @@
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
-  sys::{jint, jlong, jobjectArray},
+  sys::{jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
 use rgen_world::Generator;
@@ -189,4 +189,23 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
     env.set_object_array_element(&mut arr, i as i32, env.new_string(line).unwrap()).unwrap();
   }
   arr.as_raw()
+}
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
+  env: JNIEnv,
+  _class: JClass,
+  block_x: jint,
+  block_y: jint,
+  block_z: jint,
+) -> jstring {
+  let pos = Pos::new(block_x, block_y as u8, block_z);
+
+  let biome = Context::run(|ctx| {
+    let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);
+
+    biome.name.to_string()
+  });
+
+  env.new_string(biome).unwrap().as_raw()
 }
