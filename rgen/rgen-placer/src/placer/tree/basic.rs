@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockState, Pos};
+use rgen_base::{BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};

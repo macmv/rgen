@@ -1,4 +1,4 @@
-use rgen_base::BlockSet;
+
 use rgen_placer::placer;
 
 use crate::builder::{BiomeBuilder, PlacerStage};

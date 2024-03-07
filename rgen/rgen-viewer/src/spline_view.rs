@@ -20,7 +20,7 @@ impl SplineViewer {
     }
   }
 
-  pub fn pan(&mut self, dx: f64, dy: f64) { *self.spline.get_mut(1).unwrap().value += dy; }
+  pub fn pan(&mut self, _dx: f64, dy: f64) { *self.spline.get_mut(1).unwrap().value += dy; }
 
   pub fn render(&self, render: &mut crate::Render) {
     for x in 0..100 {

@@ -1,7 +1,7 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::{biome::birch_woodland, builder::BiomeBuilder, WorldBiomes};
+use crate::{builder::BiomeBuilder, WorldBiomes};
 
 enum ContinentalnessCategory {
   MushroomIsland,

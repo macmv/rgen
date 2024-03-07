@@ -7,7 +7,7 @@ fn main() -> Result<(), eframe::Error> {
     viewport: egui::ViewportBuilder::default().with_inner_size([1000.0, 600.0]),
     ..Default::default()
   };
-  eframe::run_native("Spline Editor", options, Box::new(|cc| Box::<SplineEditor>::default()))
+  eframe::run_native("Spline Editor", options, Box::new(|_cc| Box::<SplineEditor>::default()))
 }
 
 struct SplineEditor {

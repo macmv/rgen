@@ -33,7 +33,7 @@ const COOL_VALLEY: BiomeFnCategory =
   &[b!(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
 const SWAMP: BiomeFnCategory =
   &[b!(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
-const DRY_RIVER: BiomeFnCategory = &[b!(1.0, swamp) /* , mangrove_woods */];
+const DRY_RIVER: BiomeFnCategory = &[b!(1.0, plains) /* swamp, mangrove_woods */];
 const WARM_VALLEY: BiomeFnCategory = &[b!(1.0, plains)];
 const HOT_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
 const TROPIC_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];

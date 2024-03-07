@@ -22,27 +22,30 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-const WHITE: u8 = 0;
-const ORANGE: u8 = 1;
-const MAGENTA: u8 = 2;
+// Wool colors:
+// const WHITE: u8 = 0;
+// const ORANGE: u8 = 1;
+// const MAGENTA: u8 = 2;
+// const LIGHT_BLUE: u8 = 3;
+// const YELLOW: u8 = 4;
+// const LIME: u8 = 5;
+// const PINK: u8 = 6;
+// const GRAY: u8 = 7;
+// const SILVER: u8 = 8;
+// const CYAN: u8 = 9;
+// const PURPLE: u8 = 10;
+// const BLUE: u8 = 11;
+// const BROWN: u8 = 12;
+// const GREEN: u8 = 13;
+// const RED: u8 = 14;
+// const BLACK: u8 = 15;
+
 const LIGHT_BLUE: u8 = 3;
-const YELLOW: u8 = 4;
-const LIME: u8 = 5;
-const PINK: u8 = 6;
-const GRAY: u8 = 7;
 const SILVER: u8 = 8;
-const CYAN: u8 = 9;
 const PURPLE: u8 = 10;
 const BLUE: u8 = 11;
 const BROWN: u8 = 12;
 const GREEN: u8 = 13;
-const RED: u8 = 14;
-const BLACK: u8 = 15;
-
-pub fn rocky_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(GRAY);
-}
 
 pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
@@ -95,36 +98,6 @@ pub fn fall_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn conifer_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.top_block = ctx.blocks.wool.with_data(GREEN);
-}
-
-pub fn cool_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(CYAN);
-}
-
-pub fn warm_valley(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(YELLOW);
-}
-
-pub fn swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(GREEN);
-}
-
-pub fn dry_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(ORANGE);
-}
-
-pub fn hot_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(RED);
-}
-
-pub fn tropic_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(LIME);
 }
 
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
