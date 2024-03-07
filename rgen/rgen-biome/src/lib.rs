@@ -14,7 +14,8 @@ mod lookup;
 mod table;
 
 pub struct WorldBiomes {
-  tables: Tables,
+  tables:         Tables,
+  biome_override: bool,
 
   temperature_map: OctavedNoise<PerlinNoise>,
   humidity_map:    OctavedNoise<PerlinNoise>,
@@ -81,7 +82,8 @@ impl WorldBiomes {
     let ctx = IdContext { biomes: biome_ids, blocks };
 
     WorldBiomes {
-      tables: Tables::new(&ctx),
+      tables:         Tables::new(&ctx),
+      biome_override: true,
 
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },

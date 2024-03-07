@@ -24,6 +24,10 @@ impl WorldBiomes {
   pub fn choose_biome(&self, seed: u64, pos: Pos) -> &BiomeBuilder {
     use crate::table::*;
 
+    if self.biome_override {
+      return &self.tables.blank_table[0][0][0];
+    }
+
     let continentalness = self.continentalness_category(seed, pos);
 
     let table: &BiomeTable = match continentalness {
