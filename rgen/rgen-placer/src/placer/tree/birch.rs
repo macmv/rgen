@@ -31,7 +31,6 @@ impl Placer for BasicBirch {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
-          println!("tree failed to build due to grass srounding stump");
           return;
         }
       }
@@ -39,10 +38,8 @@ impl Placer for BasicBirch {
 
     // Checks if on ground
     if world.get(pos) != self.ground {
-      //println!("The tree is floating and has been killed as punishment");
       return;
     }
-    println!("tree built");
 
     // Builds tree
     for y in min_y..=2_i32 {
