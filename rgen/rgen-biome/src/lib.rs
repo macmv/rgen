@@ -288,15 +288,21 @@ impl WorldBiomes {
     for point in points {
       let mut pos = ((point.0 * scale), 64.0, (point.1 * scale));
 
-      for _ in 0..100 {
-        let dx = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(1));
-        let dy = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(2)) / 2.0;
-        let dz = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(3));
+      // A seed unique to this cave.
+      let cave_seed =
+        seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
 
-        let radius_seed =
-          seed.wrapping_add(4) | ((pos.0.round() as u64) << 16) | ((pos.2.round() as u64) << 32);
+      for _ in 0..100 {
+        let dx = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(1));
+        let dy = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(2));
+        let dz = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(3));
+
+        let dy = dy / 2.0;
+
         let radius =
-          (self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, radius_seed) * 0.5 + 0.5) * 4.0
+          (self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(4)) * 0.5
+            + 0.5)
+            * 4.0
             + 1.0;
         let radius_squared = (radius * radius).round() as i32;
         let max_radius = radius.ceil() as i32;
