@@ -109,7 +109,7 @@ impl WorldBiomes {
       noodle_cave_grid:   PointGrid::new(),
       noodle_cave_map:    OctavedNoise { octaves: 2, freq: 1.0 / 64.0, ..Default::default() },
       noodle_density_map: OctavedNoise { octaves: 2, freq: 1.0 / 16.0, ..Default::default() },
-      cheese_cave_map:    OctavedNoise { octaves: 2, freq: 1.0 / 128.0, ..Default::default() },
+      cheese_cave_map:    OctavedNoise { octaves: 4, freq: 1.0 / 128.0, ..Default::default() },
     }
   }
 
@@ -269,7 +269,8 @@ impl WorldBiomes {
   }
 
   fn carve_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.carve_noodle_cave(seed, chunk, chunk_pos)
+    self.carve_noodle_cave(seed, chunk, chunk_pos);
+    self.carve_cheese_cave(seed, chunk, chunk_pos);
   }
 
   fn carve_noodle_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
@@ -336,12 +337,24 @@ impl WorldBiomes {
     }
   }
 
-  // TODO: Use this.
-  #[allow(dead_code)]
-  fn sample_cheese_cave(&self, seed: u64, pos: Pos) -> bool {
+  fn carve_cheese_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     let seed = seed.wrapping_add(200);
-    let _noise = self.noodle_cave_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64, seed);
-    // noise < 0.1;
-    false
+
+    for rel_x in 0..16_u8 {
+      for rel_z in 0..16_u8 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
+
+        for y in 0..=255 {
+          let pos = pos.with_y(y);
+          let noise =
+            self.cheese_cave_map.generate_3d(pos.x as f64, pos.y as f64 * 4.0, pos.z as f64, seed)
+              * 0.5
+              + 0.5;
+          if noise < 0.1 {
+            chunk.set(pos.chunk_rel(), Block::AIR);
+          }
+        }
+      }
+    }
   }
 }
