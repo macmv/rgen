@@ -290,7 +290,7 @@ impl WorldBiomes {
 
       for _ in 0..100 {
         let dx = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(1));
-        let dy = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(2));
+        let dy = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(2)) / 2.0;
         let dz = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, seed.wrapping_add(3));
 
         let radius_seed =
