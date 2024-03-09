@@ -26,7 +26,8 @@ public final class RBlocks {
   public static final Block MOSSY_STONE = register("mossy_stone", new RGenPlantableStone());
   public static final Block POLYPORE = register("polypore", new PolyporeBlock());
 
-  public static final Block LOG = register("log", new RGenLogBlockOne());
+  public static final Block LOG = register("log", new RGenLogBlockOne().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Block LOG2 = register("log2", new RGenLogBlockTwo().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Block MOSSY_STUMP = register("mossy_stump", new RGenMossyLogBlock());
 
   private static Block register(String name, Block block) {

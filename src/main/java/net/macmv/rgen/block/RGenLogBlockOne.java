@@ -12,11 +12,11 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 
 public class RGenLogBlockOne extends BlockLog {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type.meta <= LogType.CEDAR.meta);
 
   public RGenLogBlockOne() {
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.DEAD).withProperty(LOG_AXIS, EnumAxis.Y));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR).withProperty(LOG_AXIS, EnumAxis.Y));
   }
 
   @Override
@@ -27,10 +27,10 @@ public class RGenLogBlockOne extends BlockLog {
   @Override
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     // TODO: Add these back
-    // items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
-    // items.add(new ItemStack(this, 1, LogType.FIR.meta));
-    // items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
-    items.add(new ItemStack(this, 1, LogType.DEAD.meta));
+    items.add(new ItemStack(this, 1, LogType.FIR.meta));
+    items.add(new ItemStack(this, 1, LogType.PALM.meta));
+    items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
   }
 
   @Override
@@ -79,11 +79,14 @@ public class RGenLogBlockOne extends BlockLog {
   }
 
   public static enum LogType implements IStringSerializable {
-    // TODO: Add models for these guys
-    // CEDAR(0, "cedar", MapColor.WOOD),
-    // FIR(1, "fir", MapColor.OBSIDIAN),
-    // SAKURA(2, "sakura", MapColor.SAND),
-    DEAD(3, "dead", MapColor.SAND);
+    FIR(0, "fir", MapColor.OBSIDIAN),
+    PALM(1, "palm", MapColor.SAND),
+    SAKURA(2, "sakura", MapColor.PINK),
+    CEDAR(3, "cedar", MapColor.SAND),
+    MANGROVE(4, "mangrove", MapColor.RED),
+    LAVENDER(5, "lavender", MapColor.PURPLE),
+    SEASONAL(6, "seasonal", MapColor.ORANGE_STAINED_HARDENED_CLAY),
+    DEAD(7, "dead", MapColor.BROWN);
 
     public final int meta;
     public final String name;
@@ -102,12 +105,20 @@ public class RGenLogBlockOne extends BlockLog {
 
     public static LogType fromMeta(int meta) {
       switch (meta) {
-        // case 0:
-        //   return CEDAR;
-        // case 1:
-        //   return FIR;
-        // case 2:
-        //   return SAKURA;
+        case 0:
+          return FIR;
+        case 1:
+          return PALM;
+        case 2:
+          return SAKURA;
+        case 3:
+          return CEDAR;
+        case 4:
+          return MANGROVE;
+        case 5:
+          return LAVENDER;
+        case 6:
+          return SEASONAL;
         default:
           return DEAD;
       }

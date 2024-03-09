@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "axis=y,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_log" },
+    "axis=z,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_log", "x": 90 },
+    "axis=x,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_log", "x": 90, "y": 90 },
+    "axis=none,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_log" },
+    "axis=y,variant=dead": { "model": "rgen:wood/dead/dead_log" },
+    "axis=z,variant=dead": { "model": "rgen:wood/dead/dead_log", "x": 90 },
+    "axis=x,variant=dead": { "model": "rgen:wood/dead/dead_log", "x": 90, "y": 90 },
+    "axis=none,variant=dead": { "model": "rgen:wood/dead/dead_log" }
+  }
+}
