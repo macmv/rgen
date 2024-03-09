@@ -24,7 +24,7 @@ public class REntities {
   private static final ArrayList<EntityEntry> entities = new ArrayList<>();
   private static int id = 0;
 
-  public static Entity FROG = register("frog", FrogEntity.class, FrogEntity::new);
+  public static final Entity FROG = register("frog", FrogEntity.class, FrogEntity::new);
 
   private static <T extends Entity> T register(String name, Class<T> entity, Function<World, T> factory) {
     entities.add(EntityEntryBuilder.<T>create().id(new ResourceLocation(RGen.MODID, name), id).name(name).entity(entity).factory(factory).tracker(150, 1, false).build());
