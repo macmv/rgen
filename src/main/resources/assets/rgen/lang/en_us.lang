@@ -13,6 +13,14 @@ tile.log.cedar.name=Cedar Log
 tile.log2.mangrove.name=Mangrove Log
 tile.log2.dead.name=Dead Log
 
+tile.leaves.fir.name=Fir Leaves
+tile.leaves.palm.name=Palm Leaves
+tile.leaves.sakura.name=Sakura Leaves
+tile.leaves.cedar.name=Cedar Leaves
+tile.leaves2.mangrove.name=Mangrove Leaves
+tile.leaves2.lavender.name=Lavender Leaves
+tile.leaves2.seasonal.name=Seasonal Leaves
+
 tile.loose_rock.small.name=Small Rock
 tile.loose_rock.medium.name=Medium Rock
 tile.loose_rock.large.name=Large Rock
