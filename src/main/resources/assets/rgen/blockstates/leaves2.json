@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "check_decay=true,decayable=true,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_leaves" },
+    "check_decay=true,decayable=false,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_leaves" },
+    "check_decay=false,decayable=true,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_leaves" },
+    "check_decay=false,decayable=false,variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_leaves" },
+    "check_decay=true,decayable=true,variant=lavender": { "model": "rgen:wood/lavender/lavender_leaves" },
+    "check_decay=true,decayable=false,variant=lavender": { "model": "rgen:wood/lavender/lavender_leaves" },
+    "check_decay=false,decayable=true,variant=lavender": { "model": "rgen:wood/lavender/lavender_leaves" },
+    "check_decay=false,decayable=false,variant=lavender": { "model": "rgen:wood/lavender/lavender_leaves" },
+    "check_decay=true,decayable=true,variant=seasonal": { "model": "rgen:wood/seasonal/seasonal_leaves" },
+    "check_decay=true,decayable=false,variant=seasonal": { "model": "rgen:wood/seasonal/seasonal_leaves" },
+    "check_decay=false,decayable=true,variant=seasonal": { "model": "rgen:wood/seasonal/seasonal_leaves" },
+    "check_decay=false,decayable=false,variant=seasonal": { "model": "rgen:wood/seasonal/seasonal_leaves" }
+  }
+}

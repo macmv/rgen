@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "check_decay=true,decayable=true,variant=fir": { "model": "rgen:wood/fir/fir_leaves" },
+    "check_decay=true,decayable=false,variant=fir": { "model": "rgen:wood/fir/fir_leaves" },
+    "check_decay=false,decayable=true,variant=fir": { "model": "rgen:wood/fir/fir_leaves" },
+    "check_decay=false,decayable=false,variant=fir": { "model": "rgen:wood/fir/fir_leaves" },
+    "check_decay=true,decayable=true,variant=palm": { "model": "rgen:wood/palm/palm_leaves" },
+    "check_decay=true,decayable=false,variant=palm": { "model": "rgen:wood/palm/palm_leaves" },
+    "check_decay=false,decayable=true,variant=palm": { "model": "rgen:wood/palm/palm_leaves" },
+    "check_decay=false,decayable=false,variant=palm": { "model": "rgen:wood/palm/palm_leaves" },
+    "check_decay=true,decayable=true,variant=sakura": { "model": "rgen:wood/sakura/sakura_leaves" },
+    "check_decay=true,decayable=false,variant=sakura": { "model": "rgen:wood/sakura/sakura_leaves" },
+    "check_decay=false,decayable=true,variant=sakura": { "model": "rgen:wood/sakura/sakura_leaves" },
+    "check_decay=false,decayable=false,variant=sakura": { "model": "rgen:wood/sakura/sakura_leaves" },
+    "check_decay=true,decayable=true,variant=cedar": { "model": "rgen:wood/cedar/cedar_leaves" },
+    "check_decay=true,decayable=false,variant=cedar": { "model": "rgen:wood/cedar/cedar_leaves" },
+    "check_decay=false,decayable=true,variant=cedar": { "model": "rgen:wood/cedar/cedar_leaves" },
+    "check_decay=false,decayable=false,variant=cedar": { "model": "rgen:wood/cedar/cedar_leaves" }
+  }
+}
