@@ -130,8 +130,13 @@ impl CachedWorld {
     pos: ChunkPos,
     f: impl FnOnce(&Chunk) -> R,
   ) -> R {
-    for x in -RADIUS * 2..=RADIUS * 2 {
-      for z in -RADIUS * 2..=RADIUS * 2 {
+    // The minimum radius required to generate a neighbor decorated chunk is `RADIUS
+    // + 2`. However, this leads to very low parallelism when generating a region of
+    // chunks next to each other. Increasing this by 1 leads to much better real
+    // world performance (~15x), where chunks are generated next to each other
+    // often. Increasing this any more only has negligible speed improvements.
+    for x in -RADIUS * 3..=RADIUS * 3 {
+      for z in -RADIUS * 3..=RADIUS * 3 {
         self.request(pos + ChunkPos::new(x, z), Stage::Base);
       }
     }
