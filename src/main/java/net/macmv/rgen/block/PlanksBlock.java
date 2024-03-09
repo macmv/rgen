@@ -26,10 +26,12 @@ public class PlanksBlock extends Block {
     this.setSoundType(SoundType.WOOD);
   }
 
+  @Override
   public int damageDropped(IBlockState state) {
     return state.getValue(VARIANT).meta;
   }
 
+  @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     for (RGenLogBlockOne.LogType ty : RGenLogBlockOne.LogType.values()) {
       if (ty.meta <= RGenLogBlockOne.LogType.MANGROVE.meta) {
@@ -38,18 +40,22 @@ public class PlanksBlock extends Block {
     }
   }
 
+  @Override
   public IBlockState getStateFromMeta(int meta) {
     return this.getDefaultState().withProperty(VARIANT, RGenLogBlockOne.LogType.fromMeta(meta));
   }
 
+  @Override
   public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
     return state.getValue(VARIANT).mapColor;
   }
 
+  @Override
   public int getMetaFromState(IBlockState state) {
     return state.getValue(VARIANT).meta;
   }
 
+  @Override
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT);
   }
