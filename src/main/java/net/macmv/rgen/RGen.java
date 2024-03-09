@@ -1,6 +1,7 @@
 package net.macmv.rgen;
 
 import net.macmv.rgen.block.RBlocks;
+import net.macmv.rgen.entity.REntities;
 import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.rust.RustGenerator;
 import net.macmv.rgen.world.WorldTypeRGen;
@@ -14,6 +15,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -35,6 +37,8 @@ public class RGen {
     MinecraftForge.EVENT_BUS.register(this);
 
     worldType = new WorldTypeRGen();
+
+    REntities.registerModels();
   }
 
   @SubscribeEvent
@@ -54,6 +58,13 @@ public class RGen {
   @SubscribeEvent
   public static void registerModels(ModelRegistryEvent event) {
     RItems.registerModels();
+  }
+
+  @SubscribeEvent
+  public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
+    IForgeRegistry<EntityEntry> reg = event.getRegistry();
+
+    REntities.registerEntities(reg);
   }
 
   @SideOnly(Side.CLIENT)
