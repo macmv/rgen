@@ -1,14 +1,24 @@
 //! Stores all the actual biome implementations.
 
-mod beach;
 mod blank;
-mod cold;
-mod plains;
+mod coast_regions;
+mod cold_regions;
+mod cool_regions;
+mod dry_regions;
+mod frozen_region;
+mod hot_regions;
+mod temprate_regions;
+mod warm_regions;
 
-pub use beach::*;
 pub use blank::*;
-pub use cold::*;
-pub use plains::*;
+pub use coast_regions::*;
+pub use cold_regions::*;
+pub use cool_regions::*;
+pub use dry_regions::*;
+pub use frozen_region::*;
+pub use hot_regions::*;
+pub use temprate_regions::*;
+pub use warm_regions::*;
 
 pub struct IdContext<'a> {
   pub biomes: &'a Biomes,
