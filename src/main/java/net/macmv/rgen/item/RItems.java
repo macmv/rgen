@@ -71,35 +71,37 @@ public class RItems {
   public static void registerModels() {
     for (Item i : items) {
       if (i.getRegistryName().toString().equals("rgen:log")) {
-        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:fir_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
-        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:palm_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
-        ModelResourceLocation loc2 = new ModelResourceLocation("rgen:sakura_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
-        ModelResourceLocation loc3 = new ModelResourceLocation("rgen:cedar_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 3, loc3);
+        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_log");
+        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_log");
+        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_log");
+        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_log");
       } else if (i.getRegistryName().toString().equals("rgen:log2")) {
-        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:mangrove_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
-        ModelResourceLocation loc3 = new ModelResourceLocation("rgen:dead_log", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 3, loc3);
+        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_log");
+        registerModel(i, RGenLogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_log");
+      } else if (i.getRegistryName().toString().equals("rgen:leaves")) {
+        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_leaves");
+        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_leaves");
+        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_leaves");
+        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_leaves");
+      } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
+        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
+        registerModel(i, RGenLogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
-        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:mossy_oak_stump", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
-        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:mossy_birch_stump", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
+        registerModel(i, 0, "rgen:mossy_oak_stump");
+        registerModel(i, 1, "rgen:mossy_birch_stump");
       } else if (i.getRegistryName().toString().equals("rgen:loose_rock")) {
-        ModelResourceLocation loc0 = new ModelResourceLocation("rgen:small_rock", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 0, loc0);
-        ModelResourceLocation loc1 = new ModelResourceLocation("rgen:medium_rock", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 1, loc1);
-        ModelResourceLocation loc2 = new ModelResourceLocation("rgen:large_rock", "inventory");
-        ModelLoader.setCustomModelResourceLocation(i, 2, loc2);
+        registerModel(i, 0, "rgen:small_rock");
+        registerModel(i, 1, "rgen:medium_rock");
+        registerModel(i, 2, "rgen:large_rock");
       } else {
         ModelResourceLocation location = new ModelResourceLocation(i.getRegistryName(), "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 0, location);
       }
     }
+  }
+
+  private static void registerModel(Item item, int meta, String name) {
+    ModelResourceLocation location = new ModelResourceLocation(name, "inventory");
+    ModelLoader.setCustomModelResourceLocation(item, meta, location);
   }
 }
