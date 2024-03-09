@@ -1,11 +1,12 @@
-use rgen_base::{BlockState, Pos};
+use rgen_base::{Block, BlockSet, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
 pub struct BasicTree {
-  pub trunk:  BlockState,
-  pub leaves: BlockState,
+  pub place_above: BlockSet,
+  pub trunk:       BlockState,
+  pub leaves:      BlockState,
   //pub avg_in_chunk: f64,
 }
 
@@ -15,10 +16,15 @@ impl Placer for BasicTree {
   fn avg_per_chunk(&self) -> f64 { 16.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let height = rng.rand_inclusive(4, 7);
+    let height = rng.rand_inclusive(3, 6);
     let min_y = rng.rand_inclusive(-2, -1);
 
     if pos.y as i32 + height as i32 + 2 >= 255 || pos.y <= 1 {
+      return;
+    }
+    if !self.place_above.contains(world.get(pos))
+      || world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
+    {
       return;
     }
 
@@ -39,7 +45,7 @@ impl Placer for BasicTree {
       }
     }
 
-    for y in 0..height as u8 {
+    for y in 1..=height as u8 {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
   }
