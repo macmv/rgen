@@ -6,6 +6,7 @@ use parking_lot::{Mutex, RwLock};
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
 mod block;
+mod gc;
 
 pub struct Context {
   pub seed:   u64,
@@ -108,6 +109,13 @@ impl CachedWorld {
         slf.work(&ctx, generator.as_ref());
       });
     }
+
+    // spawn up a GC thread to run every 10 seconds.
+    let slf = self.clone();
+    std::thread::spawn(move || loop {
+      std::thread::sleep(std::time::Duration::from_secs(10));
+      slf.gc();
+    });
   }
 
   fn work(&self, ctx: &Context, generator: &(impl Generator + Send + Sync)) {
@@ -147,9 +155,13 @@ impl CachedWorld {
       }
     }
 
-    self.request(pos, Stage::NeighborDecorated);
+    for i in 0.. {
+      // If the GC runs while we're waiting, the chunk might not get generated. This
+      // is here to make sure it always gets generated.
+      if i % 10 == 0 {
+        self.request(pos, Stage::NeighborDecorated);
+      }
 
-    loop {
       std::thread::sleep(std::time::Duration::from_micros(100));
 
       let w = self.chunks.lock();
