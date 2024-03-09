@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "leaf=true,place=none": { "model": "rgen:plants/bamboo/bamboo_leaves" },
+    "leaf=true,place=x": { "model": "rgen:plants/bamboo/bamboo_leaves_x"},
+    "leaf=true,place=z": { "model": "rgen:plants/bamboo/bamboo_leaves_z"},
+    "leaf=true,place=xz": { "model": "rgen:plants/bamboo/bamboo_leaves_xz"},
+    "leaf=false,place=none": { "model": "rgen:plants/bamboo/bamboo"},
+    "leaf=false,place=x": { "model": "rgen:plants/bamboo/bamboo_x"},
+    "leaf=false,place=z": { "model": "rgen:plants/bamboo/bamboo_z"},
+    "leaf=false,place=xz": { "model": "rgen:plants/bamboo/bamboo_xz"}
+  }
+}
