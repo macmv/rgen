@@ -267,3 +267,29 @@ impl Requester {
     }
   }
 }
+
+impl fmt::Display for PartialWorld {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "PartialWorld {{")?;
+
+    let min_x = self.chunks.keys().map(|p| p.x).min().unwrap_or(0);
+    let max_x = self.chunks.keys().map(|p| p.x).max().unwrap_or(0);
+    let min_z = self.chunks.keys().map(|p| p.z).min().unwrap_or(0);
+    let max_z = self.chunks.keys().map(|p| p.z).max().unwrap_or(0);
+
+    for z in min_z..=max_z {
+      write!(f, "\n  ")?;
+      for x in min_x..=max_x {
+        let pos = ChunkPos::new(x, z);
+        let stage = match self.chunks.get(&pos).map(|c| c.stage) {
+          Some(Stage::Base) => "B",
+          Some(Stage::Decorated) => "D",
+          Some(Stage::NeighborDecorated) => "N",
+          None => " ",
+        };
+        write!(f, "{} ", stage)?;
+      }
+    }
+    write!(f, "\n}}")
+  }
+}
