@@ -119,16 +119,12 @@ impl CachedWorld {
   }
 
   fn work(&self, ctx: &Context, generator: &(impl Generator + Send + Sync)) {
-    match self.requester.recv() {
-      Some((pos, stage)) => {
-        match stage {
-          Stage::Base => self.generate_base(ctx, generator, pos),
-          Stage::Decorated => self.generate_decorated(ctx, generator, pos),
-          Stage::NeighborDecorated => self.generate_neighbor_decorated(ctx, generator, pos),
-        };
-      }
-      None => (),
-    }
+    let (pos, stage) = self.requester.recv();
+    match stage {
+      Stage::Base => self.generate_base(ctx, generator, pos),
+      Stage::Decorated => self.generate_decorated(ctx, generator, pos),
+      Stage::NeighborDecorated => self.generate_neighbor_decorated(ctx, generator, pos),
+    };
   }
 
   pub fn generate<R>(
@@ -307,19 +303,9 @@ impl Requester {
     self.tx.send((pos, stage)).unwrap();
   }
 
-  pub fn recv(&self) -> Option<(ChunkPos, Stage)> {
+  pub fn recv(&self) -> (ChunkPos, Stage) {
     match self.rx.recv() {
-      Ok((pos, stage)) => {
-        // let w = self.chunks.read();
-        // let mut s = w.get(&pos).unwrap().lock();
-        // *s = match stage {
-        //   Stage::Base => Stage::Decorated,
-        //   Stage::Decorated => Stage::NeighborDecorated,
-        //   Stage::NeighborDecorated => return None,
-        // };
-        // self.tx.send((pos, *s)).unwrap();
-        Some((pos, stage))
-      }
+      Ok((pos, stage)) => (pos, stage),
       Err(_) => panic!("channel disconnected"),
     }
   }
