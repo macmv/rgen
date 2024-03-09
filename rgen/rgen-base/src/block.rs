@@ -182,6 +182,9 @@ big! { Blocks: BlockInfo
   gold_block => "minecraft:gold_block",
 
   rgen_log => "rgen:log",
+  rgen_log2 => "rgen:log2",
+  rgen_leaves => "rgen:leaves",
+  rgen_leaves2 => "rgen:leaves2",
   rgen_mossy_stump => "rgen:mossy_stump",
   rgen_polypore => "rgen:polypore",
   rgen_mossy_carpet => "rgen:mossy_carpet",

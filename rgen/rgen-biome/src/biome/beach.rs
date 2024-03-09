@@ -1,4 +1,3 @@
-
 use rgen_placer::placer;
 
 use crate::builder::{BiomeBuilder, PlacerStage};
@@ -102,10 +101,10 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 
   gen.place(
-    "dead tree",
+    "dead_tree",
     PlacerStage::Tree,
-    placer::DeadTree { trunk: ctx.blocks.rgen_log.with_data(12) },
-  )
+    placer::DeadTree { trunk: ctx.blocks.rgen_log2.with_data(12) },
+  );
 }
 
 pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -232,6 +231,15 @@ pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sand.default_state;
+
+  gen.place(
+    "palm_tree",
+    PlacerStage::Tree,
+    placer::BasicTree {
+      trunk:  ctx.blocks.rgen_log.with_data(1),
+      leaves: ctx.blocks.rgen_leaves.with_data(1),
+    },
+  )
 }
 
 pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
