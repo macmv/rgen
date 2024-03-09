@@ -29,6 +29,7 @@ public final class RBlocks {
   public static final Block LOG = register("log", new RGenLogBlockOne());
   public static final Block LOG2 = register("log2", new RGenLogBlockTwo());
   public static final Block MOSSY_STUMP = register("mossy_stump", new RGenMossyLogBlock());
+  public static final Block BAMBOO = register("bamboo", new Bamboo());
 
   public static final Block LEAVES = register("leaves", new LeavesBlockOne());
   public static final Block LEAVES2 = register("leaves2", new LeavesBlockTwo());
