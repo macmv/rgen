@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "variant=fir": { "model": "rgen:wood/fir/fir_planks" },
+    "variant=palm": { "model": "rgen:wood/palm/palm_planks" },
+    "variant=sakura": { "model": "rgen:wood/sakura/sakura_planks" },
+    "variant=cedar": { "model": "rgen:wood/cedar/cedar_planks" },
+    "variant=mangrove": { "model": "rgen:wood/mangrove/mangrove_planks" },
+    "variant=dead": { "model": "rgen:wood/dead/dead_planks" }
+  }
+}

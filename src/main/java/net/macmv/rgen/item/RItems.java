@@ -31,6 +31,8 @@ public class RItems {
   public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> RGenLogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
+  public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
 
@@ -86,6 +88,12 @@ public class RItems {
       } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
         registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
         registerModel(i, RGenLogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_leaves");
+      } else if (i.getRegistryName().toString().equals("rgen:planks")) {
+        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_planks");
+        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_planks");
+        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_planks");
+        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_planks");
+        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta, "rgen:mangrove_planks");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
         registerModel(i, 0, "rgen:mossy_oak_stump");
         registerModel(i, 1, "rgen:mossy_birch_stump");

@@ -21,6 +21,12 @@ tile.leaves2.mangrove.name=Mangrove Leaves
 tile.leaves2.lavender.name=Lavender Leaves
 tile.leaves2.seasonal.name=Seasonal Leaves
 
+tile.planks.fir.name=Fir Planks
+tile.planks.palm.name=Palm Planks
+tile.planks.sakura.name=Sakura Planks
+tile.planks.cedar.name=Cedar Planks
+tile.planks.mangrove.name=Mangrove Planks
+
 tile.loose_rock.small.name=Small Rock
 tile.loose_rock.medium.name=Medium Rock
 tile.loose_rock.large.name=Large Rock

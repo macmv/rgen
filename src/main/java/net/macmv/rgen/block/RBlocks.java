@@ -33,6 +33,8 @@ public final class RBlocks {
   public static final Block LEAVES = register("leaves", new LeavesBlockOne().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Block LEAVES2 = register("leaves2", new LeavesBlockTwo().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
+  public static final Block PLANKS = register("planks", new PlanksBlock());
+
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
       block.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
