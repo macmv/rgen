@@ -14,8 +14,8 @@ public class RGenLogBlockTwo extends BlockLog {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type == LogType.MANGROVE || type == LogType.DEAD);
 
   public RGenLogBlockTwo() {
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(LOG_AXIS, EnumAxis.Y));
+    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }
 
   @Override

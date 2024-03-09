@@ -15,8 +15,8 @@ public class RGenLogBlockOne extends BlockLog {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type.meta <= LogType.CEDAR.meta);
 
   public RGenLogBlockOne() {
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR).withProperty(LOG_AXIS, EnumAxis.Y));
+    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }
 
   @Override

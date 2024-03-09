@@ -26,12 +26,12 @@ public final class RBlocks {
   public static final Block MOSSY_STONE = register("mossy_stone", new RGenPlantableStone());
   public static final Block POLYPORE = register("polypore", new PolyporeBlock());
 
-  public static final Block LOG = register("log", new RGenLogBlockOne().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Block LOG2 = register("log2", new RGenLogBlockTwo().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Block LOG = register("log", new RGenLogBlockOne());
+  public static final Block LOG2 = register("log2", new RGenLogBlockTwo());
   public static final Block MOSSY_STUMP = register("mossy_stump", new RGenMossyLogBlock());
 
-  public static final Block LEAVES = register("leaves", new LeavesBlockOne().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Block LEAVES2 = register("leaves2", new LeavesBlockTwo().setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Block LEAVES = register("leaves", new LeavesBlockOne());
+  public static final Block LEAVES2 = register("leaves2", new LeavesBlockTwo());
 
   public static final Block PLANKS = register("planks", new PlanksBlock());
 

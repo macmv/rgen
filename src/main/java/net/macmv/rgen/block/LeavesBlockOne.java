@@ -1,5 +1,6 @@
 package net.macmv.rgen.block;
 
+import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.properties.PropertyEnum;
@@ -26,6 +27,8 @@ public class LeavesBlockOne extends BlockLeaves {
 
     // always have fancy leaves.
     this.leavesFancy = true;
+
+    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }
 
   // TODO: Override
