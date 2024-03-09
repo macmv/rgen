@@ -1,6 +1,7 @@
+use core::fmt;
 use std::{collections::HashMap, sync::Arc};
 
-use crossbeam_channel::{Receiver, RecvError, Sender};
+use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
 
@@ -61,12 +62,8 @@ enum Stage {
 
 struct StagedChunk {
   /// No stage means the chunk is empty.
-  stage: Option<Stage>,
+  stage: Stage,
   chunk: Chunk,
-}
-
-impl Default for StagedChunk {
-  fn default() -> Self { StagedChunk { stage: None, chunk: Chunk::new() } }
 }
 
 /// The size in chunks of the partial world cache.
@@ -79,6 +76,10 @@ struct Requester {
   tx: Sender<(ChunkPos, Stage)>,
   rx: Receiver<(ChunkPos, Stage)>,
 
+  /// These chunks are the state after the entire `rx` has been processed.
+  ///
+  /// Any new `request` calls will look at this list, and be skipped if there is
+  /// already a request for that chunk.
   chunks: RwLock<HashMap<ChunkPos, Mutex<Stage>>>,
 }
 
@@ -115,7 +116,7 @@ impl CachedWorld {
         match stage {
           Stage::Base => self.generate_base(ctx, generator, pos),
           Stage::Decorated => self.generate_decorated(ctx, generator, pos),
-          _ => {}
+          Stage::NeighborDecorated => self.generate_neighbor_decorated(ctx, generator, pos),
         };
       }
       None => (),
@@ -148,7 +149,7 @@ impl CachedWorld {
 
       let w = self.chunks.lock();
       match w.chunks.get(&pos) {
-        Some(chunk) if chunk.stage == Some(Stage::Decorated) => break,
+        Some(chunk) if chunk.stage == Stage::NeighborDecorated => break,
         _ => continue,
       }
     }
@@ -160,13 +161,55 @@ impl CachedWorld {
     }
   }
 
-  fn generate_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
+  fn generate_neighbor_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
     let mut chunks = self.chunks.lock();
+    if chunks.chunks.get(&pos).map(|c| c.stage < Stage::Decorated).unwrap_or(true) {
+      drop(chunks);
+      self.generate_decorated(ctx, generator, pos);
+      self.requester.retry(pos, Stage::NeighborDecorated);
+      return;
+    }
+
     let mut valid = true;
     for x in -RADIUS..=RADIUS {
       for z in -RADIUS..=RADIUS {
-        if !chunks.chunks.contains_key(&(pos + ChunkPos::new(x, z))) {
-          self.request(pos + ChunkPos::new(x, z), Stage::Base);
+        let pos = pos + ChunkPos::new(x, z);
+        if chunks.chunks.get(&pos).map(|c| c.stage < Stage::Decorated).unwrap_or(true) {
+          self.request(pos, Stage::Decorated);
+          valid = false;
+        }
+      }
+    }
+    if !valid {
+      self.requester.retry(pos, Stage::NeighborDecorated);
+      return;
+    }
+
+    match chunks.chunks.get(&pos).unwrap().stage {
+      Stage::Decorated => {
+        chunks.chunks.get_mut(&pos).unwrap().stage = Stage::NeighborDecorated;
+        return;
+      }
+      Stage::NeighborDecorated => return,
+      Stage::Base => unreachable!(),
+    }
+  }
+
+  fn generate_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
+    let mut chunks = self.chunks.lock();
+    if chunks.chunks.get(&pos).is_none() {
+      drop(chunks);
+      self.generate_base(ctx, generator, pos);
+      self.requester.retry(pos, Stage::Decorated);
+      return;
+    }
+
+    let mut valid = true;
+    for x in -RADIUS..=RADIUS {
+      for z in -RADIUS..=RADIUS {
+        let pos = pos + ChunkPos::new(x, z);
+        if chunks.chunks.get(&pos).is_none() {
+          self.request(pos, Stage::Base);
           valid = false;
         }
       }
@@ -176,12 +219,13 @@ impl CachedWorld {
       return;
     }
 
-    let stage = chunks.chunks.get(&pos).map(|c| c.stage).unwrap().unwrap();
-    if stage >= Stage::Decorated {
-      return;
+    match chunks.chunks.get(&pos).unwrap().stage {
+      Stage::Decorated | Stage::NeighborDecorated => return,
+      Stage::Base => {
+        chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
+        generator.decorate(ctx, &mut chunks, pos);
+      }
     }
-    chunks.chunks.get_mut(&pos).unwrap().stage = Some(Stage::Decorated);
-    generator.decorate(ctx, &mut chunks, pos);
   }
 
   fn generate_base(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
@@ -201,7 +245,7 @@ impl CachedWorld {
 
     {
       let mut w = self.chunks.lock();
-      w.chunks.insert(pos, StagedChunk { stage: Some(Stage::Base), chunk });
+      w.chunks.insert(pos, StagedChunk { stage: Stage::Base, chunk });
     }
   }
 }
