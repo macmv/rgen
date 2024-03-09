@@ -155,26 +155,22 @@ impl CachedWorld {
       }
     }
 
-    for i in 0.. {
+    let mut i = 0;
+    loop {
       // If the GC runs while we're waiting, the chunk might not get generated. This
       // is here to make sure it always gets generated.
       if i % 10 == 0 {
         self.request(pos, Stage::NeighborDecorated);
       }
+      i += 1;
 
       std::thread::sleep(std::time::Duration::from_micros(100));
 
       let w = self.chunks.lock();
       match w.chunks.get(&pos) {
-        Some(chunk) if chunk.stage == Stage::NeighborDecorated => break,
+        Some(chunk) if chunk.stage == Stage::NeighborDecorated => break f(&chunk.chunk),
         _ => continue,
       }
-    }
-
-    {
-      let mut w = self.chunks.lock();
-      let chunk = w.chunk(pos).unwrap();
-      f(&chunk)
     }
   }
 
