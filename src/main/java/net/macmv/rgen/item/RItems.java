@@ -41,6 +41,8 @@ public class RItems {
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
   public static final Item MOSSY_STONE = registerBlockItem(RBlocks.MOSSY_STONE);
 
+  public static final Item BAMBOO = registerBlockItem(RBlocks.BAMBOO);
+
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
