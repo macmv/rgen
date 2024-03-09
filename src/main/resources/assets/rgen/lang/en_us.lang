@@ -6,12 +6,12 @@ itemGroup.rgen_decorations=RGen Decorations
 tile.derp_dog.name=Derp Dog
 tile.thatch_roof.name=Thatch Roof
 
-tile.log.fir.name=Fir Wood
-tile.log.palm.name=Palm Wood
-tile.log.sakura.name=Sakura Wood
-tile.log.cedar.name=Cedar Wood
-tile.log2.mangrove.name=Mangrove Wood
-tile.log2.dead.name=Dead Wood
+tile.log.fir.name=Fir Log
+tile.log.palm.name=Palm Log
+tile.log.sakura.name=Sakura Log
+tile.log.cedar.name=Cedar Log
+tile.log2.mangrove.name=Mangrove Log
+tile.log2.dead.name=Dead Log
 
 tile.loose_rock.small.name=Small Rock
 tile.loose_rock.medium.name=Medium Rock
