@@ -1,6 +1,7 @@
 package net.macmv.rgen;
 
 import net.macmv.rgen.block.RBlocks;
+import net.macmv.rgen.entity.REntities;
 import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.rust.RustGenerator;
 import net.macmv.rgen.world.WorldTypeRGen;
@@ -12,8 +13,10 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -29,12 +32,16 @@ public class RGen {
 
   public static WorldTypeRGen worldType;
 
+  @SidedProxy(clientSide = "net.macmv.rgen.RClientProxy", serverSide = "net.macmv.rgen.RCommonProxy")
+  public static RCommonProxy proxy;
 
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent e) {
     MinecraftForge.EVENT_BUS.register(this);
 
     worldType = new WorldTypeRGen();
+
+    proxy.preInit();
   }
 
   @SubscribeEvent
@@ -51,9 +58,17 @@ public class RGen {
     RItems.registerItems(reg);
   }
 
+  @SideOnly(Side.CLIENT)
   @SubscribeEvent
   public static void registerModels(ModelRegistryEvent event) {
     RItems.registerModels();
+  }
+
+  @SubscribeEvent
+  public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
+    IForgeRegistry<EntityEntry> reg = event.getRegistry();
+
+    REntities.registerEntities(reg);
   }
 
   @SideOnly(Side.CLIENT)
