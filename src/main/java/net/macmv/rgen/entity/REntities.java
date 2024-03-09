@@ -29,6 +29,7 @@ public class REntities {
   private static <T extends Entity> T register(String name, Class<T> entity, Function<World, T> factory) {
     entities.add(EntityEntryBuilder.<T>create().id(new ResourceLocation(RGen.MODID, name), id).name(name).entity(entity).factory(factory).tracker(150, 1, false).build());
     id++;
+    // TODO: Not sure if we really need this.
     return null;
   }
 
