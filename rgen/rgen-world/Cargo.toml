@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+crossbeam-channel = "0.5.12"
 lru = "0.12.3"
+parking_lot = "0.12.1"
+rayon = "1.9.0"
 rgen-base.workspace = true
