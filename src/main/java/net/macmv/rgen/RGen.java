@@ -13,6 +13,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -31,6 +32,8 @@ public class RGen {
 
   public static WorldTypeRGen worldType;
 
+  @SidedProxy(clientSide = "net.macmv.rgen.RClientProxy", serverSide = "net.macmv.rgen.RCommonProxy")
+  public static RCommonProxy proxy;
 
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent e) {
@@ -38,7 +41,7 @@ public class RGen {
 
     worldType = new WorldTypeRGen();
 
-    REntities.registerModels();
+    proxy.preInit();
   }
 
   @SubscribeEvent
@@ -55,6 +58,7 @@ public class RGen {
     RItems.registerItems(reg);
   }
 
+  @SideOnly(Side.CLIENT)
   @SubscribeEvent
   public static void registerModels(ModelRegistryEvent event) {
     RItems.registerModels();
