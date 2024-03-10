@@ -100,11 +100,11 @@ lazy_static::lazy_static! {
   // how much to interpolate between `CONTINENTALNESS_TO_HEIGHT` and `CONTINENTALNESS_TO_HEIGHT_RIVER`.
   pub static ref RIVER_INTERPOLATION: Spline<&'static [(f64, f64)]> = Spline::new(&[
     (0.00, 0.0),
-    (0.40, 0.0),
-    (0.47, 0.8),
-    (0.50, 1.0),
-    (0.53, 0.8),
-    (0.60, 0.0),
+    (0.30, 0.0),
+    (0.37, 0.8),
+    (0.40, 1.0),
+    (0.43, 0.8),
+    (0.50, 0.0),
     (1.00, 0.0),
   ]);
 }
