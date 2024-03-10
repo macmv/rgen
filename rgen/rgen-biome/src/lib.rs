@@ -293,7 +293,9 @@ impl WorldBiomes {
 
         // `biome_set` acts like a set, so we need to check if this is a new biome or
         // not. Note that this means every biome name _must_ be unique.
-        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name)) {
+        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
+          && biome_index < biome_set.len()
+        {
           biome_set[biome_index] = Some(biome);
           biome_index += 1;
         }
