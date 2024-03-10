@@ -7,6 +7,7 @@ mod cool_regions;
 mod dry_regions;
 mod frozen_region;
 mod hot_regions;
+mod river;
 mod temprate_regions;
 mod warm_regions;
 
@@ -17,6 +18,7 @@ pub use cool_regions::*;
 pub use dry_regions::*;
 pub use frozen_region::*;
 pub use hot_regions::*;
+pub use river::*;
 pub use temprate_regions::*;
 pub use warm_regions::*;
 

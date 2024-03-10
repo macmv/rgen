@@ -15,6 +15,7 @@ enum ContinentalnessCategory {
 enum PeaksValleysCategory {
   Valley,
   LowSlice,
+  River,
   MidSlice,
   HighSlice,
   Peak,
@@ -50,6 +51,8 @@ impl WorldBiomes {
               &self.tables.valley_table
             }
           }
+
+          PeaksValleysCategory::River => &self.tables.river_table,
 
           PeaksValleysCategory::LowSlice => &self.tables.standard_table,
           PeaksValleysCategory::MidSlice => &self.tables.standard_table,
@@ -106,7 +109,8 @@ impl WorldBiomes {
 
     match peaks_valleys {
       x if x < 0.075 => PeaksValleysCategory::Valley,
-      x if x < 0.2 => PeaksValleysCategory::LowSlice,
+      x if x < 0.47 => PeaksValleysCategory::LowSlice,
+      x if x < 0.53 => PeaksValleysCategory::River,
       x if x < 0.6 => PeaksValleysCategory::MidSlice,
       x if x < 0.85 => PeaksValleysCategory::HighSlice,
       _ => PeaksValleysCategory::Peak,

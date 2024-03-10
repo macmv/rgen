@@ -22,6 +22,7 @@ macro_rules! b {
 
 const BLANK: BiomeFnCategory = &[b!(1.0, birch_woodland)];
 const SEA: BiomeFnCategory = &[b!(1.0, blank)];
+const RIVER: BiomeFnCategory = &[b!(1.0, river)];
 
 const FROZEN_VALLEY: BiomeFnCategory =
   &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
@@ -164,6 +165,7 @@ const TROPICAL: BiomeFnCategory = &[
 
 const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
 const SEA_TABLE: BiomeFnTable = &[&[SEA]];
+const RIVER_TABLE: BiomeFnTable = &[&[RIVER]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
   &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
@@ -205,6 +207,7 @@ pub struct Tables {
   pub beach_table:    BiomeTable,
   pub standard_table: BiomeTable,
   pub valley_table:   BiomeTable,
+  pub river_table:    BiomeTable,
 }
 
 impl Tables {
@@ -215,6 +218,7 @@ impl Tables {
       beach_table:    table(ctx, BEACH_TABLE),
       standard_table: table(ctx, STANDARD_TABLE),
       valley_table:   table(ctx, VALLEY_TABLE),
+      river_table:    table(ctx, RIVER_TABLE),
     }
   }
 }
