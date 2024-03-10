@@ -92,6 +92,12 @@ impl WorldBiomes {
     }
   }
 
+  pub(crate) fn peaks_valleys(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(1);
+
+    self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  }
+
   fn peaks_valleys_category(&self, seed: u64, pos: Pos) -> PeaksValleysCategory {
     let seed = seed.wrapping_add(1);
 

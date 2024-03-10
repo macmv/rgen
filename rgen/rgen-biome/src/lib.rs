@@ -84,6 +84,29 @@ lazy_static::lazy_static! {
     (0.91, 103.0),
     (1.00, 128.0),
   ]);
+
+  pub static ref CONTINENTALNESS_TO_HEIGHT_RIVER: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 60.0),
+    (0.01, 60.0),
+    (0.15, 60.0),
+    (0.26, 60.0),
+    (0.40, 60.0),
+    (0.81, 60.0),
+    (0.91, 60.0),
+    (1.00, 60.0),
+  ]);
+
+  // Using the `peaks_valleys` noise, we sample this spline. The returned value is
+  // how much to interpolate between `CONTINENTALNESS_TO_HEIGHT` and `CONTINENTALNESS_TO_HEIGHT_RIVER`.
+  pub static ref RIVER_INTERPOLATION: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 0.0),
+    (0.40, 0.0),
+    (0.47, 0.8),
+    (0.50, 1.0),
+    (0.53, 0.8),
+    (0.60, 0.0),
+    (1.00, 0.0),
+  ]);
 }
 
 impl WorldBiomes {
@@ -123,9 +146,14 @@ impl WorldBiomes {
       ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
         .clamp(0.0, 1.0);
 
-    let height = CONTINENTALNESS_TO_HEIGHT.sample::<Cosine>(continentalness);
+    let peaks_valleys = self.peaks_valleys(seed, pos);
 
-    height
+    let height = CONTINENTALNESS_TO_HEIGHT.sample::<Cosine>(continentalness);
+    let river_height = CONTINENTALNESS_TO_HEIGHT_RIVER.sample::<Cosine>(continentalness);
+    let river_interpolation = RIVER_INTERPOLATION.sample::<Cosine>(peaks_valleys);
+
+    // `height` will be lower than the river in oceans, so take the min.
+    height.min(height + (river_height - height) * river_interpolation)
   }
 
   pub fn height_at(&self, pos: Pos) -> f64 {
