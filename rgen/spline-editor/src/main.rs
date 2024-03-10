@@ -16,6 +16,8 @@ struct SplineEditor {
   spline:       Spline<Vec<(f64, f64)>>,
   other_spline: Spline<Vec<(f64, f64)>>,
   lerp_spline:  Spline<Vec<(f64, f64)>>,
+
+  lerp: f64,
 }
 
 impl Default for SplineEditor {
@@ -43,14 +45,13 @@ impl Default for SplineEditor {
       ]),
       lerp_spline:  Spline::new(vec![
         (0.00, 1.0),
-        (0.01, 1.0),
-        (0.15, 1.0),
-        (0.26, 1.0),
-        (0.40, 1.0),
-        (0.81, 1.0),
-        (0.91, 1.0),
+        (0.48, 1.0),
+        (0.50, 0.0),
+        (0.52, 1.0),
         (1.00, 1.0),
       ]),
+
+      lerp: 0.0,
     }
   }
 }
@@ -68,6 +69,8 @@ impl eframe::App for SplineEditor {
         draw_editor(ui, &mut self.lerp_spline, 0.0..=1.0);
       });
 
+      ui.add(Slider::new(&mut self.lerp, 0.0..=1.0).text("lerp"));
+
       Plot::new("spline")
         .include_x(0.0)
         .include_x(1.0)
@@ -76,7 +79,7 @@ impl eframe::App for SplineEditor {
         .view_aspect(2.0)
         .show(ui, |plot_ui| {
           let mut spline = self.spline.clone();
-          spline.lerp(&self.other_spline, self.lerp_spline.sample::<Cosine>(0.5));
+          spline.lerp(&self.other_spline, self.lerp_spline.sample::<Cosine>(self.lerp));
 
           plot_spline(plot_ui, &self.spline, 1.0);
           plot_spline(plot_ui, &self.other_spline, 1.0);
