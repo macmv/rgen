@@ -22,18 +22,6 @@ impl<'a> Spline<&'a [(f64, f64)]> {
   pub fn from_slice(storage: &'a [(f64, f64)]) -> Self { Spline { storage } }
 }
 
-impl Spline<Vec<(f64, f64)>> {
-  pub fn lerp(&mut self, other: &Spline<Vec<(f64, f64)>>, fac: f64) {
-    let mut new = Vec::new();
-    for i in 0..self.storage.len() {
-      let (k, v) = self.storage[i];
-      let (_, other_v) = other.storage[i];
-      new.push((k, v + (other_v - v) * fac));
-    }
-    self.storage = new;
-  }
-}
-
 impl<T: SplineStorage + ?Sized> Spline<T> {
   pub fn sample<I: Interpolation>(&self, pos: f64) -> f64 {
     if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {

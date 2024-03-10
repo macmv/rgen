@@ -78,13 +78,15 @@ impl eframe::App for SplineEditor {
         .include_y(128.0)
         .view_aspect(2.0)
         .show(ui, |plot_ui| {
-          let mut spline = self.spline.clone();
-          spline.lerp(&self.other_spline, self.lerp_spline.sample::<Cosine>(self.lerp));
-
           plot_spline(plot_ui, &self.spline, 1.0);
           plot_spline(plot_ui, &self.other_spline, 1.0);
           plot_spline(plot_ui, &self.lerp_spline, 128.0);
-          plot_spline(plot_ui, &spline, 1.0);
+          plot_sample(plot_ui, |x| {
+            let a = self.spline.sample::<Cosine>(x);
+            let b = self.other_spline.sample::<Cosine>(x);
+
+            a + (b - a) * self.lerp_spline.sample::<Cosine>(self.lerp)
+          });
         });
     });
   }
@@ -160,4 +162,18 @@ fn plot_spline(plot_ui: &mut PlotUi, spline: &Spline<Vec<(f64, f64)>>, scale: f6
 
   plot_ui.line(line);
   plot_ui.points(points);
+}
+
+fn plot_sample(plot_ui: &mut PlotUi, sample: impl Fn(f64) -> f64) {
+  let line = Line::new(
+    (0..1000)
+      .map(|i| {
+        let x = i as f64 / 1000.0;
+        let y = sample(x);
+        [x, y]
+      })
+      .collect::<Vec<_>>(),
+  );
+
+  plot_ui.line(line);
 }
