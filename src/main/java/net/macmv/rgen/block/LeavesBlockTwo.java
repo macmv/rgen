@@ -19,16 +19,11 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class LeavesBlockTwo extends BlockLeaves {
+public class LeavesBlockTwo extends LeavesBlock {
   public static final PropertyEnum<RGenLogBlockOne.LogType> VARIANT = PropertyEnum.create("variant", RGenLogBlockOne.LogType.class, ty -> ty.meta >= 4 && ty.meta < 7);
 
   public LeavesBlockTwo() {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, RGenLogBlockOne.LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
-
-    // always have fancy leaves.
-    this.leavesFancy = true;
-
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }
 
   // TODO: Override
@@ -72,10 +67,9 @@ public class LeavesBlockTwo extends BlockLeaves {
     return i;
   }
 
-  // FIXME: Maybe don't use BlockLeaves? Seems to work fine though
   @Override
-  public BlockPlanks.EnumType getWoodType(int meta) {
-    return BlockPlanks.EnumType.OAK;
+  public RGenLogBlockOne.LogType getLogType(IBlockState state) {
+    return state.getValue(VARIANT);
   }
 
   @Override
