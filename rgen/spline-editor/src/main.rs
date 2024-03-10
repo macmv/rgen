@@ -1,5 +1,5 @@
 use eframe::egui::{self, Slider};
-use egui_plot::{Line, Plot, Points};
+use egui_plot::{Line, Plot, PlotUi, Points};
 use rgen_spline::{Cosine, Spline};
 
 fn main() -> Result<(), eframe::Error> {
@@ -76,23 +76,10 @@ impl eframe::App for SplineEditor {
           let mut spline = self.spline.clone();
           spline.lerp(&self.other_spline, self.lerp_spline.sample::<Cosine>(0.5));
 
-          for spline in [&self.spline, &self.other_spline, &spline] {
-            let line = Line::new(
-              (0..1000)
-                .map(|i| {
-                  let x = i as f64 / 1000.0;
-                  let y = spline.sample::<Cosine>(x);
-                  [x, y]
-                })
-                .collect::<Vec<_>>(),
-            );
-
-            let points = Points::new(spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>())
-              .radius(5.0);
-
-            plot_ui.line(line);
-            plot_ui.points(points);
-          }
+          plot_spline(plot_ui, &self.spline, 1.0);
+          plot_spline(plot_ui, &self.other_spline, 1.0);
+          plot_spline(plot_ui, &self.lerp_spline, 128.0);
+          plot_spline(plot_ui, &spline, 1.0);
         });
     });
   }
@@ -145,4 +132,22 @@ fn draw_editor(ui: &mut egui::Ui, spline: &mut Spline<Vec<(f64, f64)>>) {
       spline.storage.push((1.0, 64.0));
     }
   });
+}
+
+fn plot_spline(plot_ui: &mut PlotUi, spline: &Spline<Vec<(f64, f64)>>, scale: f64) {
+  let line = Line::new(
+    (0..1000)
+      .map(|i| {
+        let x = i as f64 / 1000.0;
+        let y = spline.sample::<Cosine>(x);
+        [x, y * scale]
+      })
+      .collect::<Vec<_>>(),
+  );
+
+  let points =
+    Points::new(spline.storage.iter().map(|k| [k.0, k.1 * scale]).collect::<Vec<_>>()).radius(5.0);
+
+  plot_ui.line(line);
+  plot_ui.points(points);
 }
