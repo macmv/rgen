@@ -58,41 +58,11 @@ impl eframe::App for SplineEditor {
     egui::CentralPanel::default().show(ctx, |ui| {
       ui.heading("Spline Editor");
 
-      for i in 0..self.spline.storage.len() {
-        ui.horizontal(|ui| {
-          let t = self.spline.storage[i].0;
-          ui.add(
-            Slider::from_get_set(0.0..=1.0, |v| {
-              if i == 0 || i == self.spline.storage.len() - 1 {
-                return t;
-              }
-
-              if let Some(new_t) = v {
-                let next_t = self.spline.storage[i + 1].0;
-                if new_t >= next_t {
-                  self.spline.storage[i].0 = next_t - 1e-6;
-                  return self.spline.storage[i].0;
-                }
-
-                let prev_t = self.spline.storage[i - 1].0;
-                if new_t < prev_t {
-                  self.spline.storage[i].0 = prev_t;
-                  return self.spline.storage[i].0;
-                }
-
-                self.spline.storage[i].0 = new_t;
-                self.spline.storage[i].0
-              } else {
-                t
-              }
-            })
-            .text("y"),
-          );
-
-          let v = &mut self.spline.storage[i];
-          ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
-        });
-      }
+      ui.horizontal(|ui| {
+        draw_editor(ui, &mut self.spline);
+        draw_editor(ui, &mut self.other_spline);
+        draw_editor(ui, &mut self.lerp_spline);
+      });
 
       if ui.button("Add Key").clicked() {
         let mult = 1.0 - 1.0 / self.spline.storage.len() as f64;
@@ -133,4 +103,44 @@ impl eframe::App for SplineEditor {
         });
     });
   }
+}
+
+fn draw_editor(ui: &mut egui::Ui, spline: &mut Spline<Vec<(f64, f64)>>) {
+  ui.vertical(|ui| {
+    for i in 0..spline.storage.len() {
+      ui.horizontal(|ui| {
+        let t = spline.storage[i].0;
+        ui.add(
+          Slider::from_get_set(0.0..=1.0, |v| {
+            if i == 0 || i == spline.storage.len() - 1 {
+              return t;
+            }
+
+            if let Some(new_t) = v {
+              let next_t = spline.storage[i + 1].0;
+              if new_t >= next_t {
+                spline.storage[i].0 = next_t - 1e-6;
+                return spline.storage[i].0;
+              }
+
+              let prev_t = spline.storage[i - 1].0;
+              if new_t < prev_t {
+                spline.storage[i].0 = prev_t;
+                return spline.storage[i].0;
+              }
+
+              spline.storage[i].0 = new_t;
+              spline.storage[i].0
+            } else {
+              t
+            }
+          })
+          .text("y"),
+        );
+
+        let v = &mut spline.storage[i];
+        ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
+      });
+    }
+  });
 }
