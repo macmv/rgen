@@ -60,7 +60,9 @@ impl eframe::App for SplineEditor {
 
       ui.horizontal(|ui| {
         draw_editor(ui, &mut self.spline);
+        ui.separator();
         draw_editor(ui, &mut self.other_spline);
+        ui.separator();
         draw_editor(ui, &mut self.lerp_spline);
       });
 
