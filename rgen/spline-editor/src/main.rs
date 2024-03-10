@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 use eframe::egui::{self, Slider};
 use egui_plot::{Line, Plot, PlotUi, Points};
 use rgen_spline::{Cosine, Spline};
@@ -59,11 +61,11 @@ impl eframe::App for SplineEditor {
       ui.heading("Spline Editor");
 
       ui.horizontal(|ui| {
-        draw_editor(ui, &mut self.spline);
+        draw_editor(ui, &mut self.spline, 0.0..=128.0);
         ui.separator();
-        draw_editor(ui, &mut self.other_spline);
+        draw_editor(ui, &mut self.other_spline, 0.0..=128.0);
         ui.separator();
-        draw_editor(ui, &mut self.lerp_spline);
+        draw_editor(ui, &mut self.lerp_spline, 0.0..=1.0);
       });
 
       Plot::new("spline")
@@ -85,9 +87,14 @@ impl eframe::App for SplineEditor {
   }
 }
 
-fn draw_editor(ui: &mut egui::Ui, spline: &mut Spline<Vec<(f64, f64)>>) {
+fn draw_editor(
+  ui: &mut egui::Ui,
+  spline: &mut Spline<Vec<(f64, f64)>>,
+  range: RangeInclusive<f64>,
+) {
   ui.vertical(|ui| {
     for i in 0..spline.storage.len() {
+      let range = range.clone();
       ui.horizontal(|ui| {
         let t = spline.storage[i].0;
         ui.add(
@@ -119,7 +126,7 @@ fn draw_editor(ui: &mut egui::Ui, spline: &mut Spline<Vec<(f64, f64)>>) {
         );
 
         let v = &mut spline.storage[i];
-        ui.add(Slider::new(&mut v.1, 0.0..=128.0).text("y"));
+        ui.add(Slider::new(&mut v.1, range).text("y"));
       });
     }
 
@@ -129,7 +136,7 @@ fn draw_editor(ui: &mut egui::Ui, spline: &mut Spline<Vec<(f64, f64)>>) {
         spline.storage[i].0 *= mult;
       }
 
-      spline.storage.push((1.0, 64.0));
+      spline.storage.push((1.0, range.end() / 2.0));
     }
   });
 }
