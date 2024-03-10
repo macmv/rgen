@@ -23,7 +23,6 @@ impl Context {
 pub trait Generator {
   // FIXME: This is only used for rgen-viewer, it kinda needs reworking.
   fn height_at(&self, pos: Pos) -> f64;
-  fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]);
 
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);

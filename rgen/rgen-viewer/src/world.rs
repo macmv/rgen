@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_world::{Context, Generator};
 
+use crate::terrain::TerrainGenerator;
+
 pub struct World<G> {
   pub context:   Context,
   pub generator: G,
@@ -52,20 +54,15 @@ impl<G> World<G> {
   pub fn height_at(&self, pos: Pos) -> f64 { self.column_at(pos).height }
 }
 
-impl<G: Generator> World<G> {
+impl World<TerrainGenerator> {
   pub fn build_chunk(&self, chunk_pos: ChunkPos) -> BiomeChunk {
     let mut columns = [Column::EMPTY; 256];
-
-    let mut biomes = [0; 256];
-    self.generator.generate_biomes(chunk_pos, &mut biomes);
 
     for rel_x in 0..16 {
       for rel_z in 0..16 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
+        let biome = self.generator.biomes.choose_biome(self.generator.seed, pos).id;
         let i = (rel_x * 16 + rel_z) as usize;
-
-        let biome_id = biomes[i];
-        let biome = Biome::from_raw_id(biome_id.into());
 
         let height = self.generator.height_at(pos);
 

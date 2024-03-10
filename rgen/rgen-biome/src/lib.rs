@@ -284,18 +284,6 @@ impl WorldBiomes {
     biome.decorate(blocks, &mut rng, chunk_pos, world);
   }
 
-  pub fn generate_ids(&self, seed: u64, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
-    for x in 0..16 {
-      for z in 0..16 {
-        let i = (x * 16 + z) as usize;
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
-
-        let biome = self.choose_biome(seed, pos);
-        biomes[i] = biome.id.raw_id();
-      }
-    }
-  }
-
   fn carve_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     self.carve_noodle_cave(seed, chunk, chunk_pos);
     self.carve_cheese_cave(seed, chunk, chunk_pos);

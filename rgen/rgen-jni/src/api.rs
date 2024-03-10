@@ -5,7 +5,6 @@ use jni::{
   sys::{jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
-use rgen_world::Generator;
 
 use crate::{ctx::Context, ChunkContext};
 use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos, Pos};
@@ -155,15 +154,19 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
   let mut biome_out = [0; 256];
 
   Context::run(|ctx| {
-    let chunk_ctx =
-      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
+    let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-    ctx.generator.generate_biomes(chunk_ctx.chunk_pos, &mut biome_out);
+    for x in 0..16 {
+      for z in 0..16 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+
+        biome_out[(z << 4 | x) as usize] =
+          ctx.generator.biomes.choose_biome(ctx.generator.seed, pos).id.raw_id() as i8;
+      }
+    }
   });
 
-  let biome_i8s = unsafe { &*(&biome_out as *const [u8] as *const [i8]) };
-
-  env.set_byte_array_region(biomes, 0, &biome_i8s).unwrap();
+  env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
 }
 
 #[no_mangle]

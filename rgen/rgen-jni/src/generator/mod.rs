@@ -10,10 +10,6 @@ pub struct TerrainGenerator {
 impl Generator for TerrainGenerator {
   fn height_at(&self, _: Pos) -> f64 { 0.0 }
 
-  fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
-    self.biomes.generate_ids(self.seed, chunk_pos, biomes);
-  }
-
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     self.biomes.generate_base(self.seed, ctx, chunk, chunk_pos);
   }
