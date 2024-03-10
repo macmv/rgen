@@ -39,7 +39,7 @@ impl Placer for LogAndStump {
     }
 
     if self.place_stump(world, rng, pos) {
-      self.place_log()
+      self.place_log(world, rng, pos);
     }
 
     //call log fn
@@ -102,5 +102,64 @@ impl LogAndStump {
     }
     return true;
   }
-  fn place_log(&self) {}
+
+  fn place_log(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
+    for (dx, dz) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+      //*rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
+      let mut buildable = true;
+      let mut x_axis = true;
+      let length = rng.rand_inclusive(4, 6);
+
+      //let pos = pos + Pos::new(dx, 0, dy);
+      if (world.get(pos + Pos::new(dx * (length - (length - 2)), 0, dz * (length - (length - 2))))
+        != BlockState::AIR)
+        && (world.get(pos + Pos::new(dx * length, 0, dz * length)) != BlockState::AIR)
+      {
+        for i in 1..=length {
+          let i_pos = pos + Pos::new(i * dx, 1, i * dz);
+          if world.get(i_pos) != BlockState::AIR {
+            buildable = false;
+            break;
+          }
+        }
+      } else {
+        buildable = false;
+      }
+
+      if !buildable {
+        //println!("- log was unbuildable!");
+        continue;
+      } else {
+        //println!("- log is buildable!");
+        for i in 2..=length {
+          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
+
+          let mut log_type;
+          let mut grass_on_top;
+          if self.chance_of_moss < rng.rand_inclusive(0, 10) {
+            log_type = self.moss_log;
+            grass_on_top = true;
+          } else {
+            log_type = self.log;
+            grass_on_top = false;
+          }
+
+          log_type.state &= 0b0011; //reset
+
+          if dx != 0 {
+            // x axis be it (5, 6)
+            log_type.state |= 0b0100;
+          } else {
+            // z axis be it (9, 10)
+            log_type.state |= 0b1000;
+          }
+
+          world.set(i_pos + Pos::new(0, 1, 0), log_type);
+          //world.set(i_pos + Pos::new(0, 2, 0), self);
+        }
+        return true;
+      }
+    }
+    false
+  }
 }

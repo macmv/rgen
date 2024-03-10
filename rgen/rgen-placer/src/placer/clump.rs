@@ -24,6 +24,14 @@ pub struct GrassClumps {
   pub attempts: u32,
 }
 
+pub struct PlantClumps {
+  pub place_above:  BlockSet,
+  pub place_plants: BlockSet,
+
+  pub radius:   RangeInclusive<u8>,
+  pub attempts: u32,
+}
+
 pub struct BushClumps {
   pub place_above: BlockSet,
   pub log:         BlockState,
@@ -132,6 +140,30 @@ impl Placer for BushClumps {
             }
           }
         }
+      }
+    }
+  }
+}
+
+impl Placer for PlantClumps {
+  fn radius(&self) -> u8 { *self.radius.end() }
+  fn avg_per_chunk(&self) -> f64 { 3.0 }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+
+    for _ in 0..self.attempts {
+      let mut pos = pos;
+      for _ in 0..radius {
+        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+      }
+
+      let above_pos = pos + Pos::new(0, 1, 0);
+
+      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
+        //let block = *rng.choose(self.place_plants);
+
+        //world.set(above_pos, self.place_plants);
       }
     }
   }
