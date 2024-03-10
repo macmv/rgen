@@ -68,6 +68,7 @@ impl BiomeBuilder {
     rng: &mut Rng,
     chunk_pos: ChunkPos,
     world: &mut PartialWorld,
+    is_in_chunk: impl Fn(Pos) -> bool,
   ) {
     for placer in self.placers.iter() {
       let seed = rng.next();
@@ -86,10 +87,12 @@ impl BiomeBuilder {
           &[blocks.leaves.block],
         );
 
-        // This builds a unique seed for each placer. This gives the placer the same
-        // seed if it crosses chunk boundaries.
-        let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
-        placer.placer.place(world, &mut Rng::new(seed), pos);
+        if is_in_chunk(pos) {
+          // This builds a unique seed for each placer. This gives the placer the same
+          // seed if it crosses chunk boundaries.
+          let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
+          placer.placer.place(world, &mut Rng::new(seed), pos);
+        }
       }
     }
   }

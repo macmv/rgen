@@ -1,4 +1,7 @@
+use std::collections::{HashMap, HashSet};
+
 use biome::IdContext;
+use builder::BiomeBuilder;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   grid::PointGrid,
@@ -275,13 +278,36 @@ impl WorldBiomes {
     world: &mut PartialWorld,
     chunk_pos: ChunkPos,
   ) {
-    let pos = chunk_pos.min_block_pos();
+    let mut biome_names = [[""; 16]; 16];
+    // The length of this list is how many total biomes we support in a single
+    // chunk. If there are more biomes than this, the extra ones will not be
+    // decorated. This is an optimization to avoid allocating here.
+    let mut biome_index = 0;
+    let mut biome_set = [Option::<&BiomeBuilder>::None; 16];
 
-    // FIXME: How do we switch up biomes within a given climate?
-    let mut rng = Rng::new(seed);
-    let biome = self.choose_biome(seed, pos);
+    for x in 0..16 {
+      for z in 0..16 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        let biome = self.choose_biome(seed, pos);
+        biome_names[x as usize][z as usize] = biome.name;
 
-    biome.decorate(blocks, &mut rng, chunk_pos, world);
+        // `biome_set` acts like a set, so we need to check if this is a new biome or
+        // not. Note that this means every biome name _must_ be unique.
+        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name)) {
+          biome_set[biome_index] = Some(biome);
+          biome_index += 1;
+        }
+      }
+    }
+
+    for biome in biome_set.into_iter().flatten() {
+      let mut rng = Rng::new(seed);
+      biome.decorate(blocks, &mut rng, chunk_pos, world, |pos| {
+        let rel_x = pos.x - chunk_pos.min_block_pos().x;
+        let rel_z = pos.z - chunk_pos.min_block_pos().z;
+        biome_names[rel_x as usize][rel_z as usize] == biome.name
+      });
+    }
   }
 
   fn carve_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
