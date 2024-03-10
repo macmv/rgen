@@ -11,14 +11,15 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline:        Spline<Vec<(f64, f64)>>,
-  other_splines: Vec<Spline<Vec<(f64, f64)>>>,
+  spline:       Spline<Vec<(f64, f64)>>,
+  other_spline: Spline<Vec<(f64, f64)>>,
+  lerp_spline:  Spline<Vec<(f64, f64)>>,
 }
 
 impl Default for SplineEditor {
   fn default() -> Self {
     Self {
-      spline:        Spline::new(vec![
+      spline:       Spline::new(vec![
         (0.00, 88.0),
         (0.01, 35.0),
         (0.15, 38.0),
@@ -28,16 +29,26 @@ impl Default for SplineEditor {
         (0.91, 103.0),
         (1.00, 128.0),
       ]),
-      other_splines: vec![Spline::new(vec![
-        (0.00, 88.0),
-        (0.01, 35.0),
-        (0.15, 38.0),
-        (0.26, 52.0),
-        (0.40, 65.0),
-        (0.81, 85.0),
-        (0.91, 103.0),
-        (1.00, 128.0),
-      ])],
+      other_spline: Spline::new(vec![
+        (0.00, 60.0),
+        (0.01, 60.0),
+        (0.15, 60.0),
+        (0.26, 60.0),
+        (0.40, 60.0),
+        (0.81, 60.0),
+        (0.91, 60.0),
+        (1.00, 60.0),
+      ]),
+      lerp_spline:  Spline::new(vec![
+        (0.00, 1.0),
+        (0.01, 1.0),
+        (0.15, 1.0),
+        (0.26, 1.0),
+        (0.40, 1.0),
+        (0.81, 1.0),
+        (0.91, 1.0),
+        (1.00, 1.0),
+      ]),
     }
   }
 }
@@ -99,7 +110,10 @@ impl eframe::App for SplineEditor {
         .include_y(128.0)
         .view_aspect(2.0)
         .show(ui, |plot_ui| {
-          for spline in std::iter::once(&self.spline).chain(self.other_splines.iter()) {
+          let mut spline = self.spline.clone();
+          spline.lerp(&self.other_spline, self.lerp_spline.sample::<Cosine>(0.5));
+
+          for spline in [&self.spline, &self.other_spline, &spline] {
             let line = Line::new(
               (0..1000)
                 .map(|i| {
