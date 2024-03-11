@@ -148,7 +148,7 @@ impl WorldViewer {
         };
 
         let height_color = Color::RGB(brightness, brightness, brightness);
-        let biome_color = color_for_biome(context, biome);
+        let biome_color = biome.color();
 
         let biome_color = if meter_height < 64.0 { Color::RGB(0, 157, 196) } else { biome_color };
 
@@ -175,19 +175,4 @@ impl WorldViewer {
 
     self.completed_tx.send((region_pos, chunk)).unwrap();
   }
-}
-pub fn color_for_biome(ctx: &Context, biome: Biome) -> Color {
-  let biome_hex = match biome {
-    b if b == ctx.biomes.ice_plains => 0x518ded,
-    b if b == ctx.biomes.cold_taiga => 0x3265db,
-    b if b == ctx.biomes.extreme_hills => 0x4f6aab,
-    b if b == ctx.biomes.plains => 0x61b086,
-    b if b == ctx.biomes.savanna => 0xa19d55,
-    _ => {
-      //println!("unknown biome {b:?}");
-      0x000000
-    }
-  };
-
-  Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
 }

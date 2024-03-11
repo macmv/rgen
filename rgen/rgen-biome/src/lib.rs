@@ -1,5 +1,4 @@
 use biome::IdContext;
-use builder::BiomeBuilder;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
   grid::PointGrid,
@@ -14,6 +13,8 @@ mod biome;
 mod builder;
 mod lookup;
 mod table;
+
+pub use builder::BiomeBuilder;
 
 pub struct WorldBiomes {
   tables:         Tables,
