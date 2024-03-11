@@ -36,6 +36,8 @@ public final class RBlocks {
 
   public static final Block PLANKS = register("planks", new PlanksBlock());
 
+  public static final Block FLOWER = register("flower", new FlowerBlock());
+
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
       block.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);

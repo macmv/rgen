@@ -1,10 +1,7 @@
 package net.macmv.rgen.item;
 
 import net.macmv.rgen.RGen;
-import net.macmv.rgen.block.LooseRockBlock;
-import net.macmv.rgen.block.RBlocks;
-import net.macmv.rgen.block.RGenLogBlockOne;
-import net.macmv.rgen.block.RGenMossyLogBlock;
+import net.macmv.rgen.block.*;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -30,6 +27,8 @@ public class RItems {
 
   public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> RGenLogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+
+  public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
@@ -96,6 +95,8 @@ public class RItems {
         registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_planks");
         registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_planks");
         registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta, "rgen:mangrove_planks");
+      } else if (i.getRegistryName().toString().equals("rgen:flower")) {
+        registerModel(i, FlowerBlock.FlowerType.FORGET_ME_NOT.meta, "rgen:forget_me_not");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
         registerModel(i, 0, "rgen:mossy_oak_stump");
         registerModel(i, 1, "rgen:mossy_birch_stump");
