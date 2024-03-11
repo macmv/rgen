@@ -7,7 +7,6 @@ use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::T
 mod queue;
 mod region;
 mod render;
-mod spline_view;
 mod terrain;
 mod view;
 mod world;
@@ -86,8 +85,6 @@ pub fn main() -> Result<(), String> {
   let mut view_coords = (0.0, 0.0);
   let mut drag_pos = None;
 
-  let mut spline_view = spline_view::SplineViewer::new();
-
   let texture_creator = render.canvas.texture_creator();
   let mut texture_cache = HashMap::<RegionPos, Texture>::new();
 
@@ -153,8 +150,6 @@ pub fn main() -> Result<(), String> {
             view_coords.1 += d_y;
 
             drag_pos = Some((x, y));
-
-            spline_view.pan(d_x, d_y);
           }
         }
 
@@ -252,8 +247,6 @@ pub fn main() -> Result<(), String> {
         zoom,
       ))?;
     }
-
-    spline_view.render(&mut render);
 
     render.present();
 
