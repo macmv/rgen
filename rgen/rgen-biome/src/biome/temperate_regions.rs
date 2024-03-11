@@ -64,4 +64,15 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place:       ctx.blocks.tallgrass.with_data(1),
     },
   );
+
+  gen.place(
+    "forget me not",
+    PlacerStage::Sand2,
+    placer::Spread {
+      place:         ctx.blocks.rgen_flower.with_data(0),
+      replace:       ctx.blocks.grass.default_state.into(),
+      radius:        1..=3,
+      avg_per_chunk: 0.6,
+    },
+  );
 }

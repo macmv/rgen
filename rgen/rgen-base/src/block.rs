@@ -188,6 +188,7 @@ big! { Blocks: BlockInfo
   rgen_mossy_stump => "rgen:mossy_stump",
   rgen_polypore => "rgen:polypore",
   rgen_mossy_carpet => "rgen:mossy_carpet",
+  rgen_flower => "rgen:flower",
 }
 
 big! { Biomes: Biome
