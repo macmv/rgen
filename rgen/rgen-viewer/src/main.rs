@@ -140,9 +140,9 @@ pub fn main() -> Result<(), String> {
         Event::MouseMotion { x, y, .. } => {
           mouse_pos = (x, y);
           hover_pos = Pos::new(
-            (view_coords.0 + x as f64 / zoom as f64).round() as i32,
+            (view_coords.0 + x as f64 / zoom) as i32,
             0,
-            (view_coords.1 + y as f64 / zoom as f64).round() as i32,
+            (view_coords.1 + y as f64 / zoom) as i32,
           );
 
           if let Some((i_x, i_y)) = drag_pos {
