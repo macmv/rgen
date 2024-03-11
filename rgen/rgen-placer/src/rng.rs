@@ -29,7 +29,7 @@ pub trait Random {
 
   fn shuffle<T>(&mut self, slice: &mut [T]) {
     for i in 0..slice.len() {
-      let j = self.rand_exclusive(i as i32, slice.len() as i32) as usize;
+      let j = self.rand_exclusive(0, slice.len() as i32) as usize;
       slice.swap(i, j);
     }
   }
