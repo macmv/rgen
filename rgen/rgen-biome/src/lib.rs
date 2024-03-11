@@ -142,7 +142,7 @@ impl WorldBiomes {
       .clamp(0.0, 1.0)
   }
 
-  fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
+  pub fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
     let continentalness =
       ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
         .clamp(0.0, 1.0);
@@ -155,13 +155,6 @@ impl WorldBiomes {
 
     // `height` will be lower than the river in oceans, so take the min.
     height.min(height + (river_height - height) * river_interpolation)
-  }
-
-  pub fn height_at(&self, pos: Pos) -> f64 {
-    // let noise_height = self.height_map.generate(pos.x as f64, pos.z as f64, 0) +
-    // 1.0; noise_height * 64.0
-
-    self.sample_height(0, pos)
   }
 
   pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {

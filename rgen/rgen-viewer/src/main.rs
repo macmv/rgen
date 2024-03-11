@@ -238,8 +238,8 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        let biome = generated_chunks.column_at(hover_pos).biome;
-        f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
+        let biome = world.generator.biomes.choose_biome(world.generator.seed, hover_pos);
+        f.render(0, 48, format!("Biome: {}", biome.name));
       }
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
