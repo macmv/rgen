@@ -18,8 +18,8 @@ pub struct WorldViewer {
   chunks:            RwLock<HashMap<RegionPos, RenderBuffer>>,
   other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<RegionPos, RenderBuffer>>>,
 
-  pub completed_tx: Sender<(RegionPos, RenderBuffer)>,
-  pub completed_rx: Receiver<(RegionPos, RenderBuffer)>,
+  pub completed_tx: Sender<(RegionPos, RenderMode, RenderBuffer)>,
+  pub completed_rx: Receiver<(RegionPos, RenderMode, RenderBuffer)>,
 }
 
 impl WorldViewer {
@@ -37,9 +37,14 @@ impl WorldViewer {
   }
 
   pub fn recv_chunks(&self) {
+    let self_mode = *self.mode.lock();
     let mut w = self.chunks.write();
-    for (pos, chunk) in self.completed_rx.try_iter() {
-      w.insert(pos, chunk);
+    for (pos, mode, chunk) in self.completed_rx.try_iter() {
+      if mode == self_mode {
+        w.insert(pos, chunk);
+      } else {
+        self.other_mode_chunks.lock().entry(mode).or_insert_with(HashMap::new).insert(pos, chunk);
+      }
     }
   }
 
@@ -71,6 +76,7 @@ impl WorldViewer {
 
   pub fn render_chunk(&self, world: &WorldReadLock, region_pos: RegionPos) {
     let mut chunk = RenderBuffer::new(REGION_SIZE as u32, REGION_SIZE as u32);
+    let mode = *self.mode.lock();
 
     for rel_x in 0..REGION_SIZE {
       for rel_z in 0..REGION_SIZE {
@@ -125,7 +131,7 @@ impl WorldViewer {
 
         let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
 
-        let brightness = match *self.mode.lock() {
+        let brightness = match mode {
           RenderMode::Height => (meter_height * 2.0) as u8,
           RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
           RenderMode::Aspect => {
@@ -172,6 +178,6 @@ impl WorldViewer {
       }
     }
 
-    self.completed_tx.send((region_pos, chunk)).unwrap();
+    self.completed_tx.send((region_pos, mode, chunk)).unwrap();
   }
 }
