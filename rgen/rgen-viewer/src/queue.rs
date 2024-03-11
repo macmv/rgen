@@ -1,5 +1,5 @@
 use std::{
-  collections::{HashMap, HashSet},
+  collections::HashMap,
   sync::{
     atomic::{AtomicU8, Ordering},
     Arc,
@@ -80,24 +80,27 @@ impl RenderQueue {
       let min_circle = state.center - ChunkPos::new(i, i);
       let max_circle = state.center + ChunkPos::new(i, i);
 
-      for x in min_circle.x..=max_circle.x {
-        for z in min_circle.z..=max_circle.z {
-          let chunk_pos = ChunkPos::new(x, z);
+      let x_iter = (min_circle.x..=max_circle.x)
+        .into_iter()
+        .flat_map(|x| [min_circle.z, max_circle.z].into_iter().map(move |z| ChunkPos::new(x, z)));
+      let z_iter = (min_circle.z + 1..max_circle.z)
+        .into_iter()
+        .flat_map(|z| [min_circle.x, max_circle.x].into_iter().map(move |x| ChunkPos::new(x, z)));
 
-          if chunk_pos.x < state.min_chunk.x
-            || chunk_pos.x > state.max_chunk.x
-            || chunk_pos.z < state.min_chunk.z
-            || chunk_pos.z > state.max_chunk.z
-          {
-            continue;
-          }
+      for chunk_pos in x_iter.chain(z_iter) {
+        if chunk_pos.x < state.min_chunk.x
+          || chunk_pos.x > state.max_chunk.x
+          || chunk_pos.z < state.min_chunk.z
+          || chunk_pos.z > state.max_chunk.z
+        {
+          continue;
+        }
 
-          if !generated_chunks.has_chunk(chunk_pos) {
-            generating.push(chunk_pos);
-          }
-          if !rendered_chunks.contains_key(&chunk_pos) {
-            rendering.push(chunk_pos);
-          }
+        if !generated_chunks.has_chunk(chunk_pos) {
+          generating.push(chunk_pos);
+        }
+        if !rendered_chunks.contains_key(&chunk_pos) {
+          rendering.push(chunk_pos);
         }
       }
     }
