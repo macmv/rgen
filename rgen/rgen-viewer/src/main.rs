@@ -64,7 +64,6 @@ pub fn main() -> Result<(), String> {
   let world_view = Arc::new(WorldViewer::new());
 
   let queue = Arc::new(RenderQueue::new());
-  queue.spawn_generation_threads(&world);
   queue.spawn_render_threads(&world, &world_view);
 
   render.clear();
@@ -172,13 +171,11 @@ pub fn main() -> Result<(), String> {
     let max_chunk = RegionPos::from_pos(max_pos) + RegionPos::new(2, 2);
 
     world_view.recv_chunks();
-    world.recv_chunks();
 
     {
-      let generated_chunks = world.read();
       let rendered_chunks = world_view.read_chunks();
 
-      queue.update(&generated_chunks, &rendered_chunks, |state| {
+      queue.update(&rendered_chunks, |state| {
         state.min_chunk = min_chunk;
         state.max_chunk = max_chunk;
         state.center = (min_chunk + max_chunk) / 2;
@@ -227,7 +224,7 @@ pub fn main() -> Result<(), String> {
         }
       }
 
-      let meter_height = generated_chunks.height_at(hover_pos);
+      let meter_height = world.height_at(hover_pos);
 
       if let Some(f) = &font {
         let mut f = FontRender { font: f, render: &mut render };

@@ -9,11 +9,8 @@ use std::{
 use parking_lot::Mutex;
 
 use crate::{
-  region::RegionPos,
-  render::RenderBuffer,
-  terrain::TerrainGenerator,
-  view::WorldViewer,
-  world::{World, WorldReadLock},
+  region::RegionPos, render::RenderBuffer, terrain::TerrainGenerator, view::WorldViewer,
+  world::World,
 };
 
 /// This struct stores the rendering state as of the last frame. This is updated
@@ -23,8 +20,7 @@ use crate::{
 pub struct RenderQueue {
   state: Mutex<RenderState>,
 
-  generating: Mutex<Vec<RegionPos>>,
-  rendering:  Mutex<Vec<RegionPos>>,
+  rendering: Mutex<Vec<RegionPos>>,
 
   // Queue age is a bit interesting. The function to find the next rendering chunk is O(N), where N
   // is the number of chunks at the head of the queue that cannot be rendered yet, because their
@@ -50,7 +46,6 @@ pub struct RenderState {
 impl RenderQueue {
   pub fn update(
     &self,
-    generated_chunks: &WorldReadLock,
     rendered_chunks: &HashMap<RegionPos, RenderBuffer>,
     updater: impl FnOnce(&mut RenderState),
   ) {
@@ -60,23 +55,20 @@ impl RenderQueue {
 
     if *state != old_state || self.queue_age.fetch_add(1, Ordering::SeqCst) > 20 {
       self.queue_age.store(0, Ordering::SeqCst);
-      self.regenerate_queue(&state, generated_chunks, &rendered_chunks);
+      self.regenerate_queue(&state, &rendered_chunks);
     }
   }
 
   fn regenerate_queue(
     &self,
     state: &RenderState,
-    generated_chunks: &WorldReadLock,
     rendered_chunks: &HashMap<RegionPos, RenderBuffer>,
   ) {
-    let mut generating = self.generating.lock();
     let mut rendering = self.rendering.lock();
 
-    generating.clear();
     rendering.clear();
 
-    for i in 0..=state.radius {
+    for i in 0..state.radius {
       let min_circle = state.center - RegionPos::new(i, i);
       let max_circle = state.center + RegionPos::new(i, i);
 
@@ -96,46 +88,17 @@ impl RenderQueue {
           continue;
         }
 
-        if !generated_chunks.has_chunk(region_pos) {
-          generating.push(region_pos);
-        }
-        // Generate chunks 1 block further out than rendered.
-        if !rendered_chunks.contains_key(&region_pos) && i < state.radius {
+        if !rendered_chunks.contains_key(&region_pos) {
           rendering.push(region_pos);
         }
       }
     }
 
-    generating.reverse();
     rendering.reverse();
   }
 
-  /// Pulls off the next chunk to be generated.
-  pub fn pop_generate(&self) -> Option<RegionPos> { self.generating.lock().pop() }
-
   /// Pulls off the next chunk to be rendered.
-  pub fn pop_render<'a>(&self, world: WorldReadLock<'a>) -> Option<(RegionPos, WorldReadLock<'a>)> {
-    let mut rendering = self.rendering.lock();
-
-    for i in (0..rendering.len()).into_iter().rev() {
-      let region_pos = rendering[i];
-      if world.has_chunk(region_pos + RegionPos::new(1, 1))
-        && world.has_chunk(region_pos + RegionPos::new(1, 0))
-        && world.has_chunk(region_pos + RegionPos::new(1, -1))
-        && world.has_chunk(region_pos + RegionPos::new(0, 1))
-        && world.has_chunk(region_pos)
-        && world.has_chunk(region_pos + RegionPos::new(0, -1))
-        && world.has_chunk(region_pos + RegionPos::new(-1, 1))
-        && world.has_chunk(region_pos + RegionPos::new(-1, 0))
-        && world.has_chunk(region_pos + RegionPos::new(-1, -1))
-      {
-        rendering.remove(i);
-        return Some((region_pos, world));
-      }
-    }
-
-    None
-  }
+  pub fn pop_render<'a>(&self) -> Option<RegionPos> { self.rendering.lock().pop() }
 }
 
 const POOL_SIZE: usize = 8;
@@ -152,27 +115,8 @@ impl RenderQueue {
     RenderQueue {
       state: Mutex::new(state),
 
-      generating: Mutex::new(vec![]),
-      rendering:  Mutex::new(vec![]),
-      queue_age:  AtomicU8::new(0),
-    }
-  }
-
-  pub fn spawn_generation_threads(self: &Arc<Self>, world: &Arc<World<TerrainGenerator>>) {
-    for _ in 0..POOL_SIZE {
-      let slf = self.clone();
-      let world = world.clone();
-
-      std::thread::spawn(move || loop {
-        if let Some(region_pos) = slf.pop_generate() {
-          world.build_chunk(region_pos);
-        } else {
-          // If there's nothing to do, it means the screen is full. So wait around for a
-          // while, as it usually means nothing is happening, so we don't want to spin a
-          // bunch.
-          std::thread::sleep(std::time::Duration::from_millis(100));
-        }
-      });
+      rendering: Mutex::new(vec![]),
+      queue_age: AtomicU8::new(0),
     }
   }
 
@@ -187,8 +131,8 @@ impl RenderQueue {
       let view = view.clone();
 
       std::thread::spawn(move || loop {
-        if let Some((region_pos, read_lock)) = slf.pop_render(world.read()) {
-          view.render_chunk(&read_lock, region_pos);
+        if let Some(region_pos) = slf.pop_render() {
+          view.render_chunk(&world, region_pos);
         } else {
           // If there's nothing to do, it means the screen is full. So wait around for a
           // while, as it usually means nothing is happening, so we don't want to spin a

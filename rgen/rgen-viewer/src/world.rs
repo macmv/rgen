@@ -16,8 +16,6 @@ pub struct World<G> {
   pub context:   Context,
   pub generator: G,
 
-  chunks: RwLock<HashMap<RegionPos, BiomeChunk>>,
-
   pub completed_tx: Sender<(RegionPos, BiomeChunk)>,
   pub completed_rx: Receiver<(RegionPos, BiomeChunk)>,
 }
@@ -69,72 +67,23 @@ impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
     let (ctx, crx) = crossbeam_channel::bounded(64);
 
-    World {
-      context,
-      generator,
-      chunks: RwLock::new(HashMap::new()),
-
-      completed_tx: ctx,
-      completed_rx: crx,
-    }
+    World { context, generator, completed_tx: ctx, completed_rx: crx }
   }
-
-  pub fn recv_chunks(&self) {
-    if self.completed_rx.is_empty() {
-      return;
-    }
-
-    // All the render threads grab read locks on the chunks, so don't block the main
-    // thread for too long when receiving incoming chunks.
-    let Some(mut w) = self.chunks.try_write_for(Duration::from_millis(10)) else {
-      return;
-    };
-
-    for (pos, chunk) in self.completed_rx.try_iter() {
-      w.insert(pos, chunk);
-    }
-  }
-
-  pub fn read(&self) -> WorldReadLock { WorldReadLock { chunks: self.chunks.read() } }
-}
-
-pub struct WorldReadLock<'a> {
-  chunks: RwLockReadGuard<'a, HashMap<RegionPos, BiomeChunk>>,
-}
-
-impl WorldReadLock<'_> {
-  pub fn has_chunk(&self, region_pos: RegionPos) -> bool { self.chunks.contains_key(&region_pos) }
-
-  #[track_caller]
-  pub fn column_at(&self, pos: Pos) -> Column {
-    let region_pos = RegionPos::from_pos(pos);
-    self.chunks.get(&region_pos).map(|c| c.column_at(pos)).unwrap_or_default()
-  }
-
-  #[track_caller]
-  pub fn height_at(&self, pos: Pos) -> f64 { self.column_at(pos).height }
 }
 
 impl World<TerrainGenerator> {
-  pub fn build_chunk(&self, region_pos: RegionPos) {
-    let mut columns = Box::new([[Column::EMPTY; REGION_SIZE as usize]; REGION_SIZE as usize]);
+  pub fn column_at(&self, pos: Pos) -> Column {
+    let biome = self.generator.biomes.choose_biome(self.generator.seed, pos);
 
-    for rel_x in 0..REGION_SIZE {
-      for rel_z in 0..REGION_SIZE {
-        let pos = region_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
-        let biome = self.generator.biomes.choose_biome(self.generator.seed, pos);
+    let height = self.generator.biomes.sample_height(self.generator.seed, pos);
 
-        let height = self.generator.biomes.sample_height(self.generator.seed, pos);
+    let continentalness = self.generator.biomes.sample_continentalness(self.generator.seed, pos);
 
-        let continentalness =
-          self.generator.biomes.sample_continentalness(self.generator.seed, pos);
+    Column { height, biome: BiomeInfo::new(&self.context, biome, continentalness) }
+  }
 
-        columns[rel_x as usize][rel_z as usize] =
-          Column { height, biome: BiomeInfo::new(&self.context, biome, continentalness) };
-      }
-    }
-
-    self.completed_tx.send((region_pos, BiomeChunk { columns })).unwrap();
+  pub fn height_at(&self, pos: Pos) -> f64 {
+    self.generator.biomes.sample_height(self.generator.seed, pos)
   }
 }
 
