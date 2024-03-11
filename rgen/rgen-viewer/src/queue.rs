@@ -137,8 +137,7 @@ impl RenderQueue {
   }
 }
 
-// Spawn up 16 threads to generate chunks.
-const POOL_SIZE: usize = 16;
+const POOL_SIZE: usize = 8;
 
 impl RenderQueue {
   pub fn new() -> RenderQueue {
