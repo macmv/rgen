@@ -8,7 +8,7 @@
 use rgen_base::Pos;
 use std::ops::{Add, Div, Sub};
 
-pub const REGION_SIZE: i32 = 64;
+pub const REGION_SIZE: i32 = 128;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct RegionPos {
