@@ -1,4 +1,4 @@
-use rgen_base::{BlockSet, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -7,7 +7,7 @@ pub struct LogAndStump {
   pub log:            BlockState,
   pub moss_log:       BlockState,
   pub ground:         BlockState,
-  pub plants:         BlockSet,
+  pub plants:         BlockFilter,
   pub avg_per_chunk:  f64,
   pub chance_of_moss: i32,
   pub is_shrooms:     bool,

@@ -1,10 +1,10 @@
-use rgen_base::{Block, BlockSet, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
 
 pub struct Scatter {
-  pub place_above: BlockSet,
+  pub place_above: BlockFilter,
   pub place:       BlockState,
 
   pub attempts: u32,

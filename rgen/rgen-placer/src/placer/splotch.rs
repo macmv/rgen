@@ -1,12 +1,12 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{BlockSet, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
 
 pub struct Splotch {
-  pub replace: BlockSet,
+  pub replace: BlockFilter,
   pub place:   BlockState,
 
   pub radius: RangeInclusive<u8>,

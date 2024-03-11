@@ -1,13 +1,13 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockSet, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
 
 /// Creates spreads(cirlcesish) of blocks 1 above the ground level.
 pub struct Spread {
-  pub replace:       BlockSet,
+  pub replace:       BlockFilter,
   pub place:         BlockState,
   pub radius:        RangeInclusive<u8>,
   pub avg_per_chunk: f64,

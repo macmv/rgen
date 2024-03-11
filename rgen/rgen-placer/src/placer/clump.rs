@@ -1,12 +1,12 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockSet, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
 
 pub struct Clumps {
-  pub place_above: BlockSet,
+  pub place_above: BlockFilter,
   pub place:       BlockState,
 
   pub radius:        RangeInclusive<u8>,
@@ -15,7 +15,7 @@ pub struct Clumps {
 }
 
 pub struct GrassClumps {
-  pub place_above:      BlockSet,
+  pub place_above:      BlockFilter,
   pub place_short:      BlockState,
   pub place_tall_lower: BlockState,
   pub place_tall_upper: BlockState,
@@ -25,15 +25,15 @@ pub struct GrassClumps {
 }
 
 pub struct PlantClumps {
-  pub place_above:  BlockSet,
-  pub place_plants: BlockSet,
+  pub place_above:  BlockFilter,
+  pub place_plants: BlockFilter,
 
   pub radius:   RangeInclusive<u8>,
   pub attempts: u32,
 }
 
 pub struct BushClumps {
-  pub place_above: BlockSet,
+  pub place_above: BlockFilter,
   pub log:         BlockState,
   pub leaves:      BlockState,
 

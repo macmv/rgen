@@ -1,10 +1,10 @@
-use rgen_base::{Block, BlockSet, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
 pub struct BasicTree {
-  pub place_above: BlockSet,
+  pub place_above: BlockFilter,
   pub trunk:       BlockState,
   pub leaves:      BlockState,
   //pub avg_in_chunk: f64,

@@ -87,7 +87,8 @@ impl BlockInfo {
 impl BlockState {
   pub const AIR: BlockState = BlockState { block: Block::AIR, state: 0 };
 
-  pub(crate) fn from_raw_id(id: u16) -> BlockState {
+  /// Only public for testing.
+  pub fn from_raw_id(id: u16) -> BlockState {
     BlockState { block: Block(id >> 4), state: (id & 0xf) as u8 }
   }
 
