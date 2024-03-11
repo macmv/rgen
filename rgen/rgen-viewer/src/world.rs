@@ -1,27 +1,12 @@
-use std::{collections::HashMap, time::Duration};
-
-use crossbeam_channel::{Receiver, Sender};
-use parking_lot::{RwLock, RwLockReadGuard};
 use rgen_base::{Biome, Pos};
 use rgen_biome::BiomeBuilder;
 use rgen_world::Context;
 
-use crate::{
-  color::Color,
-  region::{RegionPos, REGION_SIZE},
-  terrain::TerrainGenerator,
-};
+use crate::{color::Color, terrain::TerrainGenerator};
 
 pub struct World<G> {
   pub context:   Context,
   pub generator: G,
-
-  pub completed_tx: Sender<(RegionPos, BiomeChunk)>,
-  pub completed_rx: Receiver<(RegionPos, BiomeChunk)>,
-}
-
-pub struct BiomeChunk {
-  columns: Box<[[Column; REGION_SIZE as usize]; REGION_SIZE as usize]>,
 }
 
 #[derive(Clone, Copy)]
@@ -64,11 +49,7 @@ impl Default for Column {
 }
 
 impl<G> World<G> {
-  pub fn new(context: Context, generator: G) -> World<G> {
-    let (ctx, crx) = crossbeam_channel::bounded(64);
-
-    World { context, generator, completed_tx: ctx, completed_rx: crx }
-  }
+  pub fn new(context: Context, generator: G) -> World<G> { World { context, generator } }
 }
 
 impl World<TerrainGenerator> {
@@ -84,14 +65,6 @@ impl World<TerrainGenerator> {
 
   pub fn height_at(&self, pos: Pos) -> f64 {
     self.generator.biomes.sample_height(self.generator.seed, pos)
-  }
-}
-
-impl BiomeChunk {
-  pub fn column_at(&self, pos: Pos) -> Column {
-    let x = (pos.x % REGION_SIZE + REGION_SIZE) % REGION_SIZE;
-    let z = (pos.z % REGION_SIZE + REGION_SIZE) % REGION_SIZE;
-    self.columns[x as usize][z as usize]
   }
 }
 
