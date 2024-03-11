@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{RwLock, RwLockReadGuard};
@@ -56,7 +56,16 @@ impl<G> World<G> {
   }
 
   pub fn recv_chunks(&self) {
-    let mut w = self.chunks.write();
+    if self.completed_rx.is_empty() {
+      return;
+    }
+
+    // All the render threads grab read locks on the chunks, so don't block the main
+    // thread for too long when receiving incoming chunks.
+    let Some(mut w) = self.chunks.try_write_for(Duration::from_millis(10)) else {
+      return;
+    };
+
     for (pos, chunk) in self.completed_rx.try_iter() {
       w.insert(pos, chunk);
     }
