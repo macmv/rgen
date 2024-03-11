@@ -128,8 +128,8 @@ pub fn main() -> Result<(), String> {
           let zoom_after =
             if y > 0 { (zoom * 2.0).min(MAX_ZOOM) } else { (zoom / 2.0).max(MIN_ZOOM) };
 
-          let mouse_block_x = view_coords.0 + mouse_pos.0 as f64 / zoom as f64;
-          let mouse_block_y = view_coords.1 + mouse_pos.1 as f64 / zoom as f64;
+          let mouse_block_x = view_coords.0 + mouse_pos.0 as f64 / zoom;
+          let mouse_block_y = view_coords.1 + mouse_pos.1 as f64 / zoom;
 
           view_coords.0 = -(mouse_pos.0 as f64 / zoom_after as f64) + mouse_block_x;
           view_coords.1 = -(mouse_pos.1 as f64 / zoom_after as f64) + mouse_block_y;
@@ -146,8 +146,8 @@ pub fn main() -> Result<(), String> {
           );
 
           if let Some((i_x, i_y)) = drag_pos {
-            let d_x = (i_x - x) as f64 / zoom as f64;
-            let d_y = (i_y - y) as f64 / zoom as f64;
+            let d_x = (i_x - x) as f64 / zoom;
+            let d_y = (i_y - y) as f64 / zoom;
 
             view_coords.0 += d_x;
             view_coords.1 += d_y;
