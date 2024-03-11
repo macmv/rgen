@@ -17,7 +17,7 @@ impl Placer for Monument {
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let height = rng.rand_inclusive(4, 9);
 
-    if pos.y as i32 + height as i32 + 2 >= 255 || pos.y <= 1 {
+    if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;
     }
 
@@ -29,7 +29,7 @@ impl Placer for Monument {
     }
 
     //structure
-    for rel_y in 0..height as u8 {
+    for rel_y in 0..height {
       let mut air_count = 0;
       for rel_x in -1..=1_i32 {
         for rel_z in -1..=1_i32 {

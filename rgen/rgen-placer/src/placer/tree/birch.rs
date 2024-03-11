@@ -23,7 +23,7 @@ impl Placer for BasicBirch {
     let min_y = rng.rand_inclusive(-2, -1);
 
     // Checks if outside world boundry
-    if pos.y as i32 + height as i32 + 2 >= 255 || pos.y <= 1 {
+    if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;
     }
 
@@ -54,19 +54,19 @@ impl Placer for BasicBirch {
           if (y == 1 || y == 2) && (x.abs() == 2 || z.abs() == 2) {
             continue;
           }
-          world.set(pos + Pos::new(x, (y + height) as u8, z), self.leaves);
+          world.set(pos + Pos::new(x, y + height, z), self.leaves);
         }
       }
     }
 
     // Builds trunk
-    for y in 0..height as u8 {
+    for y in 0..height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
 
     // Builds polypores
     if self.is_shrooms {
-      for rel_y in 2..=4_u8 {
+      for rel_y in 2..=4_i32 {
         for rel_x in -1..=1_i32 {
           for rel_z in -1..=1_i32 {
             if rng.rand_exclusive(0, 9) < 3 {

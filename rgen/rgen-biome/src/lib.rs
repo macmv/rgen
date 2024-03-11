@@ -1,5 +1,3 @@
-use std::collections::{HashMap, HashSet};
-
 use biome::IdContext;
 use builder::BiomeBuilder;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
@@ -185,7 +183,7 @@ impl WorldBiomes {
 
         if max_height < 64.0 {
           for y in 0..=63 {
-            if y < max_height as u8 {
+            if y < max_height as i32 {
               chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.stone.block);
             } else {
               chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.water.block);
@@ -263,11 +261,11 @@ impl WorldBiomes {
     }
   }
 
-  fn sample_sub_layer_depth(&self, seed: u64, pos: Pos) -> u8 {
+  fn sample_sub_layer_depth(&self, seed: u64, pos: Pos) -> i32 {
     let seed = seed.wrapping_add(10);
 
     let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64, seed);
-    let depth = (noise * 2.0 + 3.0).round() as u8;
+    let depth = (noise * 2.0 + 3.0).round() as i32;
     depth
   }
 
@@ -356,7 +354,7 @@ impl WorldBiomes {
           pos.1 += dy;
           pos.2 += dz;
 
-          let pos = Pos::new(pos.0 as i32, pos.1 as u8, pos.2 as i32);
+          let pos = Pos::new(pos.0 as i32, pos.1 as i32, pos.2 as i32);
           for y in -max_radius..=max_radius {
             for z in -max_radius..=max_radius {
               for x in -max_radius..=max_radius {
@@ -366,7 +364,7 @@ impl WorldBiomes {
                 }
                 let dist_to_center = r as f64 / radius_squared as f64;
 
-                let pos = Pos::new(pos.x + x, (pos.y as i32 + y) as u8, pos.z + z);
+                let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
                 if pos.in_chunk(chunk_pos) {
                   let density = self.noodle_density_map.generate_3d(
                     pos.x as f64,

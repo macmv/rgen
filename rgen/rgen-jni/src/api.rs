@@ -177,7 +177,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   block_y: jint,
   block_z: jint,
 ) -> jobjectArray {
-  let pos = Pos::new(block_x, block_y as u8, block_z);
+  let pos = Pos::new(block_x, block_y, block_z);
 
   let lines = Context::run(|ctx| {
     let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);
@@ -203,7 +203,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
   block_y: jint,
   block_z: jint,
 ) -> jstring {
-  let pos = Pos::new(block_x, block_y as u8, block_z);
+  let pos = Pos::new(block_x, block_y, block_z);
 
   let biome = Context::run(|ctx| {
     let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);

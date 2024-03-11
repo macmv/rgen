@@ -7,20 +7,20 @@ use std::ops::{Add, Div, Sub};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkRelPos {
   x: u8,
-  y: u8,
+  y: i32,
   z: u8,
 }
 
 impl ChunkRelPos {
   #[track_caller]
-  pub fn new(x: u8, y: u8, z: u8) -> ChunkRelPos {
+  pub fn new(x: u8, y: i32, z: u8) -> ChunkRelPos {
     assert!(x < 16);
     assert!(z < 16);
     ChunkRelPos { x, y, z }
   }
 
   pub fn x(&self) -> u8 { self.x }
-  pub fn y(&self) -> u8 { self.y }
+  pub fn y(&self) -> i32 { self.y }
   pub fn z(&self) -> u8 { self.z }
 
   /// Returns the current position, with the Y set to the given value.
@@ -31,25 +31,25 @@ impl ChunkRelPos {
   ///
   /// assert_eq!(pos.with_y(6), ChunkRelPos::new(3, 6, 5));
   /// ```
-  pub fn with_y(&self, y: u8) -> ChunkRelPos { ChunkRelPos { x: self.x, y, z: self.z } }
+  pub fn with_y(&self, y: i32) -> ChunkRelPos { ChunkRelPos { x: self.x, y, z: self.z } }
 }
 
 /// A position in the world.
 ///
-/// The X and Z coordinates are unbounded, and the Y coordinate is in the range
-/// 0..256.
+/// The X, Y and Z coordinates are unbounded. Positions outside the world will
+/// generally be considered air, and ignored when placed on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Pos {
   pub x: i32,
-  pub y: u8,
+  pub y: i32,
   pub z: i32,
 }
 
 impl Pos {
-  pub fn new(x: i32, y: u8, z: i32) -> Pos { Pos { x, y, z } }
+  pub fn new(x: i32, y: i32, z: i32) -> Pos { Pos { x, y, z } }
 
   pub fn x(&self) -> i32 { self.x }
-  pub fn y(&self) -> u8 { self.y }
+  pub fn y(&self) -> i32 { self.y }
   pub fn z(&self) -> i32 { self.z }
 
   /// Returns `true` if the position is in the given chunk position.
@@ -109,7 +109,7 @@ impl Pos {
   ///
   /// assert_eq!(pos.with_y(6), Pos::new(3, 6, 5));
   /// ```
-  pub fn with_y(&self, y: u8) -> Pos { Pos { x: self.x, y, z: self.z } }
+  pub fn with_y(&self, y: i32) -> Pos { Pos { x: self.x, y, z: self.z } }
 }
 
 /// The position of a chunk in the world.

@@ -6,6 +6,8 @@ pub struct Chunk {
   data: Box<[u16]>,
 }
 
+fn pos_in_world(pos: ChunkRelPos) -> bool { pos.y() >= 0 && pos.y() < 256 }
+
 fn pos_to_index(pos: ChunkRelPos) -> usize {
   ((pos.x() as usize) << 12) | ((pos.z() as usize) << 8) | (pos.y() as usize)
 }
@@ -32,12 +34,18 @@ impl Chunk {
     self.set_state(pos, BlockState { block, state: 0 });
   }
   pub fn set_state(&mut self, pos: ChunkRelPos, state: BlockState) {
-    self.data[pos_to_index(pos)] = state.raw_id();
+    if pos_in_world(pos) {
+      self.data[pos_to_index(pos)] = state.raw_id();
+    }
   }
 
   pub fn get(&self, pos: ChunkRelPos) -> Block { self.get_state(pos).block }
   pub fn get_state(&self, pos: ChunkRelPos) -> BlockState {
-    BlockState::from_raw_id(self.data[pos_to_index(pos)])
+    if pos_in_world(pos) {
+      BlockState::from_raw_id(self.data[pos_to_index(pos)])
+    } else {
+      BlockState::AIR
+    }
   }
 
   pub fn data(&self) -> &[u16] { &self.data }

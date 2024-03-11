@@ -131,7 +131,7 @@ impl Placer for BushClumps {
             let side_below = pos
               + Pos::new(
                 rng.rand_inclusive(-2, 2),
-                rng.rand_inclusive(0, 1) as u8,
+                rng.rand_inclusive(0, 1),
                 rng.rand_inclusive(-2, 2),
               );
             let side = side_below + Pos::new(0, 1, 0);

@@ -16,11 +16,7 @@ impl Placer for Splatter {
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     for _ in 0..self.attempts {
       let pos = pos
-        + Pos::new(
-          rng.rand_inclusive(-8, 8),
-          rng.rand_inclusive(-4, 4) as u8,
-          rng.rand_inclusive(-8, 8),
-        );
+        + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
 
       if world.get(pos) == self.replace {
         world.set(pos, self.place);

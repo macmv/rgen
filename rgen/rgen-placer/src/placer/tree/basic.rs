@@ -19,7 +19,7 @@ impl Placer for BasicTree {
     let height = rng.rand_inclusive(3, 6);
     let min_y = rng.rand_inclusive(-2, -1);
 
-    if pos.y as i32 + height as i32 + 2 >= 255 || pos.y <= 1 {
+    if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;
     }
     if !self.place_above.contains(world.get(pos))
@@ -40,12 +40,12 @@ impl Placer for BasicTree {
             continue;
           }
 
-          world.set(pos + Pos::new(x, (y + height) as u8, z), self.leaves);
+          world.set(pos + Pos::new(x, y + height, z), self.leaves);
         }
       }
     }
 
-    for y in 1..=height as u8 {
+    for y in 1..=height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
   }
