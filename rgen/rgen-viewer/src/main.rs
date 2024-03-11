@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Instant};
 
-use rgen_base::{Biome, ChunkPos, Pos};
+use rgen_base::{ChunkPos, Pos};
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
