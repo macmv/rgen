@@ -2,8 +2,7 @@ use std::{collections::HashMap, mem};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
-use rgen_base::{Biome, Pos};
-use rgen_world::Context;
+use rgen_base::Pos;
 use sdl2::pixels::Color;
 
 use crate::{
