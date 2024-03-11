@@ -23,7 +23,7 @@ pub struct World<G> {
 }
 
 pub struct BiomeChunk {
-  columns: [[Column; REGION_SIZE as usize]; REGION_SIZE as usize],
+  columns: Box<[[Column; REGION_SIZE as usize]; REGION_SIZE as usize]>,
 }
 
 #[derive(Clone, Copy)]
@@ -117,7 +117,7 @@ impl WorldReadLock<'_> {
 
 impl World<TerrainGenerator> {
   pub fn build_chunk(&self, region_pos: RegionPos) {
-    let mut columns = [[Column::EMPTY; REGION_SIZE as usize]; REGION_SIZE as usize];
+    let mut columns = Box::new([[Column::EMPTY; REGION_SIZE as usize]; REGION_SIZE as usize]);
 
     for rel_x in 0..REGION_SIZE {
       for rel_z in 0..REGION_SIZE {
