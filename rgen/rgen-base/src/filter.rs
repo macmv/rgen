@@ -4,6 +4,15 @@ use smallvec::SmallVec;
 
 use crate::{Block, BlockState};
 
+/// A block filter is a filter for matching against blocks. It can match
+/// individual block states (like oak stairs facing north), or entire blocks
+/// (like any log block), or a combination of those (like any bottom slabs or
+/// any logs).
+///
+/// This filter can also be set to many every block, using the `Any` variant.
+///
+/// The main way to use a `BlockFilter` is to check if it contains a block
+/// state, using the [`contains`](BlockFilter::contains) function.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BlockFilter {
   /// Matches any block.
@@ -92,6 +101,33 @@ impl BitOr for BlockFilter {
 }
 
 impl BlockFilter {
+  /// Checks if a block filter contains the given block state.
+  ///
+  /// ```
+  /// # use rgen_base::{Block, BlockFilter, BlockState};
+  /// # let stone_block = BlockState::from_raw_id(16).block;
+  /// # let grass_block = BlockState::from_raw_id(32).block;
+  /// let default_grass = BlockState { block: grass_block, state: 0 };
+  /// let snowy_grass = BlockState { block: grass_block, state: 1 };
+  ///
+  /// let filter: BlockFilter = [grass_block, Block::AIR].into();
+  ///
+  /// assert!(filter.contains(default_grass));
+  /// assert!(filter.contains(snowy_grass));
+  /// assert!(!filter.contains(stone_block.into()));
+  /// assert!(filter.contains(Block::AIR.into()));
+  ///
+  /// let any_filter = BlockFilter::All;
+  ///
+  /// assert!(any_filter.contains(default_grass));
+  /// assert!(any_filter.contains(snowy_grass));
+  /// assert!(any_filter.contains(stone_block.into()));
+  /// assert!(any_filter.contains(Block::AIR.into()));
+  ///
+  /// let snowy_filter: BlockFilter = [snowy_grass].into();
+  /// assert!(!snowy_filter.contains(default_grass));
+  /// assert!(snowy_filter.contains(snowy_grass));
+  /// ```
   pub fn contains(&self, state: BlockState) -> bool {
     match self {
       BlockFilter::All => true,
