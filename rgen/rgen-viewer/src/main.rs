@@ -29,16 +29,11 @@ use crate::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum RenderMode {
-  /// Number 1
-  Height,
-  /// Number 2
-  Slope,
-  /// Number 3
-  Aspect,
-  /// Number 4
-  Brightness,
-  /// Number 5
-  BiomeColors,
+  /// Renders biome colors.
+  Biomes,
+
+  /// Renders the continentalness map.
+  Continentalness,
 }
 
 const MIN_ZOOM: f64 = 0.5;
@@ -110,23 +105,11 @@ pub fn main() -> Result<(), String> {
         Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'main,
 
         Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
-          world_view.set_mode(RenderMode::Height);
+          world_view.set_mode(RenderMode::Biomes);
           texture_cache.clear();
         }
         Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
-          world_view.set_mode(RenderMode::Slope);
-          texture_cache.clear();
-        }
-        Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
-          world_view.set_mode(RenderMode::Aspect);
-          texture_cache.clear();
-        }
-        Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
-          world_view.set_mode(RenderMode::Brightness);
-          texture_cache.clear();
-        }
-        Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
-          world_view.set_mode(RenderMode::BiomeColors);
+          world_view.set_mode(RenderMode::Continentalness);
           texture_cache.clear();
         }
 

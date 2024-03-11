@@ -27,7 +27,7 @@ impl WorldViewer {
     let (ctx, crx) = crossbeam_channel::bounded(64);
 
     WorldViewer {
-      mode:              Mutex::new(RenderMode::Brightness),
+      mode:              Mutex::new(RenderMode::Biomes),
       chunks:            RwLock::new(HashMap::new()),
       other_mode_chunks: Mutex::new(HashMap::new()),
 
@@ -131,49 +131,33 @@ impl WorldViewer {
 
         let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
 
-        let brightness = match mode {
-          RenderMode::Height => (meter_height * 2.0) as u8,
-          RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
-          RenderMode::Aspect => {
-            //let asp = (cell_aspect * 255.0 / std::f64::consts::PI) as u8;
-            //println!("Aspect: {asp}");
-            (cell_aspect * 255.0 / std::f64::consts::PI) as u8
-          }
-          RenderMode::Brightness => {
-            //let bright = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
-            //println!("Brightness: {bright}");
-            (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8
-          }
-          RenderMode::BiomeColors => 0,
-          //
-          //HSV
-          //Hue:0-360         - This is the color of the terrain
-          //Saturation:0-100  - This is the terrain height
-          //Value:0-100       - Keep locked too set darkness to max-light
-        };
+        let brightness = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
 
         let height_color = Color::RGB(brightness, brightness, brightness);
         let biome_color = biome.color();
 
         let biome_color = if meter_height < 64.0 { Color::RGB(0, 157, 196) } else { biome_color };
 
+        let main_color = match mode {
+          RenderMode::Biomes => biome_color,
+          RenderMode::Continentalness => Color::RGB(
+            (biome.continentalness * 255.0) as u8,
+            (biome.continentalness * 255.0) as u8,
+            (biome.continentalness * 255.0) as u8,
+          ),
+        };
+
         let transparency = 40;
         let alpha = (255 * transparency / 100) as u8;
-        let r = std::cmp::min(
-          ((height_color.r as u16 * alpha as u16 + biome_color.r as u16 * (255 - alpha as u16))
-            / 255) as u8,
-          255,
-        );
-        let g = std::cmp::min(
-          ((height_color.g as u16 * alpha as u16 + biome_color.g as u16 * (255 - alpha as u16))
-            / 255) as u8,
-          255,
-        );
-        let b = std::cmp::min(
-          ((height_color.b as u16 * alpha as u16 + biome_color.b as u16 * (255 - alpha as u16))
-            / 255) as u8,
-          255,
-        );
+        let r = ((height_color.r as u16 * alpha as u16
+          + main_color.r as u16 * (255 - alpha as u16))
+          / 255) as u8;
+        let g = ((height_color.g as u16 * alpha as u16
+          + main_color.g as u16 * (255 - alpha as u16))
+          / 255) as u8;
+        let b = ((height_color.b as u16 * alpha as u16
+          + main_color.b as u16 * (255 - alpha as u16))
+          / 255) as u8;
         chunk.set(rel_x, rel_z, Color::RGB(r, g, b));
       }
     }

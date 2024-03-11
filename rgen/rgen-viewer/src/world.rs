@@ -40,6 +40,8 @@ pub struct BiomeInfo {
   pub biome: Biome,
   pub name:  &'static str,
   pub color: u32,
+
+  pub continentalness: f64,
 }
 
 impl Column {
@@ -47,10 +49,15 @@ impl Column {
 }
 
 impl BiomeInfo {
-  const VOID: BiomeInfo = BiomeInfo { biome: Biome::VOID, name: "Void", color: 0x000000 };
+  const VOID: BiomeInfo = BiomeInfo {
+    biome:           Biome::VOID,
+    name:            "Void",
+    color:           0x000000,
+    continentalness: 0.0,
+  };
 
-  pub fn new(ctx: &Context, biome: &BiomeBuilder) -> BiomeInfo {
-    BiomeInfo { biome: biome.id, name: biome.name, color: biome_color(ctx, biome) }
+  pub fn new(ctx: &Context, biome: &BiomeBuilder, continentalness: f64) -> BiomeInfo {
+    BiomeInfo { biome: biome.id, name: biome.name, color: biome_color(ctx, biome), continentalness }
   }
 }
 
@@ -119,8 +126,11 @@ impl World<TerrainGenerator> {
 
         let height = self.generator.biomes.sample_height(self.generator.seed, pos);
 
+        let continentalness =
+          self.generator.biomes.sample_continentalness(self.generator.seed, pos);
+
         columns[rel_x as usize][rel_z as usize] =
-          Column { height, biome: BiomeInfo::new(&self.context, biome) };
+          Column { height, biome: BiomeInfo::new(&self.context, biome, continentalness) };
       }
     }
 
