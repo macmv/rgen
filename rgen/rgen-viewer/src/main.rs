@@ -34,6 +34,9 @@ enum RenderMode {
   BiomeColors,
 }
 
+const MIN_ZOOM: f64 = 0.5;
+const MAX_ZOOM: f64 = 32.0;
+
 pub fn main() -> Result<(), String> {
   let arg = std::env::args().nth(1).unwrap_or("".to_string());
 
@@ -80,7 +83,7 @@ pub fn main() -> Result<(), String> {
   // Current block hoverred on.
   let mut hover_pos = Pos::new(0, 0, 0);
 
-  let mut zoom = 4;
+  let mut zoom = 0.5_f64;
   // The top-left corner of the screen, in fractional blocks.
   let mut view_coords = (0.0, 0.0);
   let mut drag_pos = None;
@@ -123,7 +126,7 @@ pub fn main() -> Result<(), String> {
 
         Event::MouseWheel { y, .. } => {
           let zoom_after =
-            if y > 0 { (zoom as i32 * 2).min(32) as u32 } else { (zoom as i32 / 2).max(1) as u32 };
+            if y > 0 { (zoom * 2.0).min(MAX_ZOOM) } else { (zoom / 2.0).max(MIN_ZOOM) };
 
           let mouse_block_x = view_coords.0 + mouse_pos.0 as f64 / zoom as f64;
           let mouse_block_y = view_coords.1 + mouse_pos.1 as f64 / zoom as f64;
@@ -163,8 +166,8 @@ pub fn main() -> Result<(), String> {
     let screen_height = render.canvas.output_size().unwrap().1;
 
     let view_pos = Pos::new(view_coords.0.floor() as i32, 0, view_coords.1.floor() as i32);
-    let max_pos =
-      view_pos + Pos::new(screen_width as i32 / zoom as i32, 0, screen_height as i32 / zoom as i32);
+    let max_pos = view_pos
+      + Pos::new((screen_width as f64 / zoom) as i32, 0, (screen_height as f64 / zoom) as i32);
 
     // -1 to +1 to make sure we render all chunks that are partially in view.
     // We add an extra 1 chunk outside of that to make panning smoother.
@@ -218,10 +221,10 @@ pub fn main() -> Result<(), String> {
             &tex,
             None,
             Some(Rect::new(
-              pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
-              pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-              zoom * REGION_SIZE as u32,
-              zoom * REGION_SIZE as u32,
+              (pos.x as f64 * zoom - view_coords.0 * zoom) as i32,
+              (pos.z as f64 * zoom - view_coords.1 * zoom) as i32,
+              (zoom * REGION_SIZE as f64) as u32,
+              (zoom * REGION_SIZE as f64) as u32,
             )),
           )?;
         }
@@ -241,10 +244,10 @@ pub fn main() -> Result<(), String> {
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
       render.canvas.draw_rect(Rect::new(
-        hover_pos.x() * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
-        hover_pos.z() * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-        zoom,
-        zoom,
+        hover_pos.x() * zoom as i32 - (view_coords.0 * zoom) as i32,
+        hover_pos.z() * zoom as i32 - (view_coords.1 * zoom) as i32,
+        zoom as u32,
+        zoom as u32,
       ))?;
     }
 
