@@ -7,9 +7,9 @@ use std::{
 };
 
 use parking_lot::Mutex;
-use rgen_base::ChunkPos;
 
 use crate::{
+  region::RegionPos,
   render::RenderBuffer,
   terrain::TerrainGenerator,
   view::WorldViewer,
@@ -23,8 +23,8 @@ use crate::{
 pub struct RenderQueue {
   state: Mutex<RenderState>,
 
-  generating: Mutex<Vec<ChunkPos>>,
-  rendering:  Mutex<Vec<ChunkPos>>,
+  generating: Mutex<Vec<RegionPos>>,
+  rendering:  Mutex<Vec<RegionPos>>,
 
   // Queue age is a bit interesting. The function to find the next rendering chunk is O(N), where N
   // is the number of chunks at the head of the queue that cannot be rendered yet, because their
@@ -41,9 +41,9 @@ pub struct RenderQueue {
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct RenderState {
-  pub min_chunk: ChunkPos,
-  pub max_chunk: ChunkPos,
-  pub center:    ChunkPos,
+  pub min_chunk: RegionPos,
+  pub max_chunk: RegionPos,
+  pub center:    RegionPos,
   pub radius:    i32,
 }
 
@@ -51,7 +51,7 @@ impl RenderQueue {
   pub fn update(
     &self,
     generated_chunks: &WorldReadLock,
-    rendered_chunks: &HashMap<ChunkPos, RenderBuffer>,
+    rendered_chunks: &HashMap<RegionPos, RenderBuffer>,
     updater: impl FnOnce(&mut RenderState),
   ) {
     let mut state = self.state.lock();
@@ -68,7 +68,7 @@ impl RenderQueue {
     &self,
     state: &RenderState,
     generated_chunks: &WorldReadLock,
-    rendered_chunks: &HashMap<ChunkPos, RenderBuffer>,
+    rendered_chunks: &HashMap<RegionPos, RenderBuffer>,
   ) {
     let mut generating = self.generating.lock();
     let mut rendering = self.rendering.lock();
@@ -77,30 +77,30 @@ impl RenderQueue {
     rendering.clear();
 
     for i in 0..state.radius {
-      let min_circle = state.center - ChunkPos::new(i, i);
-      let max_circle = state.center + ChunkPos::new(i, i);
+      let min_circle = state.center - RegionPos::new(i, i);
+      let max_circle = state.center + RegionPos::new(i, i);
 
       let x_iter = (min_circle.x..=max_circle.x)
         .into_iter()
-        .flat_map(|x| [min_circle.z, max_circle.z].into_iter().map(move |z| ChunkPos::new(x, z)));
+        .flat_map(|x| [min_circle.z, max_circle.z].into_iter().map(move |z| RegionPos::new(x, z)));
       let z_iter = (min_circle.z + 1..max_circle.z)
         .into_iter()
-        .flat_map(|z| [min_circle.x, max_circle.x].into_iter().map(move |x| ChunkPos::new(x, z)));
+        .flat_map(|z| [min_circle.x, max_circle.x].into_iter().map(move |x| RegionPos::new(x, z)));
 
-      for chunk_pos in x_iter.chain(z_iter) {
-        if chunk_pos.x < state.min_chunk.x
-          || chunk_pos.x > state.max_chunk.x
-          || chunk_pos.z < state.min_chunk.z
-          || chunk_pos.z > state.max_chunk.z
+      for region_pos in x_iter.chain(z_iter) {
+        if region_pos.x < state.min_chunk.x
+          || region_pos.x > state.max_chunk.x
+          || region_pos.z < state.min_chunk.z
+          || region_pos.z > state.max_chunk.z
         {
           continue;
         }
 
-        if !generated_chunks.has_chunk(chunk_pos) {
-          generating.push(chunk_pos);
+        if !generated_chunks.has_chunk(region_pos) {
+          generating.push(region_pos);
         }
-        if !rendered_chunks.contains_key(&chunk_pos) {
-          rendering.push(chunk_pos);
+        if !rendered_chunks.contains_key(&region_pos) {
+          rendering.push(region_pos);
         }
       }
     }
@@ -110,26 +110,26 @@ impl RenderQueue {
   }
 
   /// Pulls off the next chunk to be generated.
-  pub fn pop_generate(&self) -> Option<ChunkPos> { self.generating.lock().pop() }
+  pub fn pop_generate(&self) -> Option<RegionPos> { self.generating.lock().pop() }
 
   /// Pulls off the next chunk to be rendered.
-  pub fn pop_render<'a>(&self, world: WorldReadLock<'a>) -> Option<(ChunkPos, WorldReadLock<'a>)> {
+  pub fn pop_render<'a>(&self, world: WorldReadLock<'a>) -> Option<(RegionPos, WorldReadLock<'a>)> {
     let mut rendering = self.rendering.lock();
 
     for i in (0..rendering.len()).into_iter().rev() {
-      let chunk_pos = rendering[i];
-      if world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
-        && world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
-        && world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
-        && world.has_chunk(chunk_pos + ChunkPos::new(0, 1))
-        && world.has_chunk(chunk_pos)
-        && world.has_chunk(chunk_pos + ChunkPos::new(0, -1))
-        && world.has_chunk(chunk_pos + ChunkPos::new(-1, 1))
-        && world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
-        && world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
+      let region_pos = rendering[i];
+      if world.has_chunk(region_pos + RegionPos::new(1, 1))
+        && world.has_chunk(region_pos + RegionPos::new(1, 0))
+        && world.has_chunk(region_pos + RegionPos::new(1, -1))
+        && world.has_chunk(region_pos + RegionPos::new(0, 1))
+        && world.has_chunk(region_pos)
+        && world.has_chunk(region_pos + RegionPos::new(0, -1))
+        && world.has_chunk(region_pos + RegionPos::new(-1, 1))
+        && world.has_chunk(region_pos + RegionPos::new(-1, 0))
+        && world.has_chunk(region_pos + RegionPos::new(-1, -1))
       {
         rendering.remove(i);
-        return Some((chunk_pos, world));
+        return Some((region_pos, world));
       }
     }
 
@@ -143,9 +143,9 @@ const POOL_SIZE: usize = 16;
 impl RenderQueue {
   pub fn new() -> RenderQueue {
     let state = RenderState {
-      min_chunk: ChunkPos::new(0, 0),
-      max_chunk: ChunkPos::new(0, 0),
-      center:    ChunkPos::new(0, 0),
+      min_chunk: RegionPos::new(0, 0),
+      max_chunk: RegionPos::new(0, 0),
+      center:    RegionPos::new(0, 0),
       radius:    0,
     };
 
@@ -164,8 +164,8 @@ impl RenderQueue {
       let world = world.clone();
 
       std::thread::spawn(move || loop {
-        if let Some(chunk_pos) = slf.pop_generate() {
-          world.build_chunk(chunk_pos);
+        if let Some(region_pos) = slf.pop_generate() {
+          world.build_chunk(region_pos);
         } else {
           // If there's nothing to do, it means the screen is full. So wait around for a
           // while, as it usually means nothing is happening, so we don't want to spin a
@@ -187,8 +187,8 @@ impl RenderQueue {
       let view = view.clone();
 
       std::thread::spawn(move || loop {
-        if let Some((chunk_pos, read_lock)) = slf.pop_render(world.read()) {
-          view.render_chunk(&world.context, &read_lock, chunk_pos);
+        if let Some((region_pos, read_lock)) = slf.pop_render(world.read()) {
+          view.render_chunk(&world.context, &read_lock, region_pos);
         } else {
           // If there's nothing to do, it means the screen is full. So wait around for a
           // while, as it usually means nothing is happening, so we don't want to spin a

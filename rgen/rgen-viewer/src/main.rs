@@ -1,10 +1,11 @@
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
-use rgen_base::{ChunkPos, Pos};
+use rgen_base::Pos;
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::Texture};
 
 mod queue;
+mod region;
 mod render;
 mod spline_view;
 mod terrain;
@@ -14,7 +15,11 @@ mod world;
 use terrain::TerrainGenerator;
 use world::World;
 
-use crate::{queue::RenderQueue, view::WorldViewer};
+use crate::{
+  queue::RenderQueue,
+  region::{RegionPos, REGION_SIZE},
+  view::WorldViewer,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum RenderMode {
@@ -84,7 +89,7 @@ pub fn main() -> Result<(), String> {
   let mut spline_view = spline_view::SplineViewer::new();
 
   let texture_creator = render.canvas.texture_creator();
-  let mut texture_cache = HashMap::<ChunkPos, Texture>::new();
+  let mut texture_cache = HashMap::<RegionPos, Texture>::new();
 
   let mut last_frame = Instant::now();
 
@@ -168,8 +173,8 @@ pub fn main() -> Result<(), String> {
 
     // -1 to +1 to make sure we render all chunks that are partially in view.
     // We add an extra 1 chunk outside of that to make panning smoother.
-    let min_chunk = view_pos.chunk() + ChunkPos::new(-2, -2);
-    let max_chunk = max_pos.chunk() + ChunkPos::new(2, 2);
+    let min_chunk = RegionPos::from_pos(view_pos) + RegionPos::new(-2, -2);
+    let max_chunk = RegionPos::from_pos(max_pos) + RegionPos::new(2, 2);
 
     world_view.recv_chunks();
     world.recv_chunks();
@@ -189,35 +194,39 @@ pub fn main() -> Result<(), String> {
 
       for chunk_x in min_chunk.x..=max_chunk.x {
         for chunk_z in min_chunk.z..=max_chunk.z {
-          let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+          let region_pos = RegionPos::new(chunk_x, chunk_z);
 
-          let tex = match texture_cache.get(&chunk_pos) {
+          let tex = match texture_cache.get(&region_pos) {
             Some(t) => t,
             None => {
-              if let Some(c) = rendered_chunks.get(&chunk_pos) {
+              if let Some(c) = rendered_chunks.get(&region_pos) {
                 let mut tex = texture_creator
-                  .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
+                  .create_texture_streaming(
+                    Some(sdl2::pixels::PixelFormatEnum::ARGB8888),
+                    REGION_SIZE as u32,
+                    REGION_SIZE as u32,
+                  )
                   .unwrap();
 
                 c.copy_to_sdl2(&mut tex);
 
-                texture_cache.insert(chunk_pos, tex);
-                texture_cache.get(&chunk_pos).unwrap()
+                texture_cache.insert(region_pos, tex);
+                texture_cache.get(&region_pos).unwrap()
               } else {
                 continue;
               }
             }
           };
 
-          let pos = chunk_pos.min_block_pos();
+          let pos = region_pos.min_block_pos();
           render.canvas.copy(
             &tex,
             None,
             Some(Rect::new(
               pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
               pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-              zoom * 16,
-              zoom * 16,
+              zoom * REGION_SIZE as u32,
+              zoom * REGION_SIZE as u32,
             )),
           )?;
         }

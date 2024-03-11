@@ -2,20 +2,25 @@ use std::{collections::HashMap, mem};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
-use rgen_base::{Biome, ChunkPos, Pos};
+use rgen_base::{Biome, Pos};
 use rgen_world::Context;
 use sdl2::pixels::Color;
 
-use crate::{render::RenderBuffer, world::WorldReadLock, RenderMode};
+use crate::{
+  region::{RegionPos, REGION_SIZE},
+  render::RenderBuffer,
+  world::WorldReadLock,
+  RenderMode,
+};
 
 pub struct WorldViewer {
   pub mode: Mutex<RenderMode>,
 
-  chunks:            RwLock<HashMap<ChunkPos, RenderBuffer>>,
-  other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>>,
+  chunks:            RwLock<HashMap<RegionPos, RenderBuffer>>,
+  other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<RegionPos, RenderBuffer>>>,
 
-  pub completed_tx: Sender<(ChunkPos, RenderBuffer)>,
-  pub completed_rx: Receiver<(ChunkPos, RenderBuffer)>,
+  pub completed_tx: Sender<(RegionPos, RenderBuffer)>,
+  pub completed_rx: Receiver<(RegionPos, RenderBuffer)>,
 }
 
 impl WorldViewer {
@@ -61,16 +66,16 @@ impl WorldViewer {
     *self_mode = mode;
   }
 
-  pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<ChunkPos, RenderBuffer>> {
+  pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<RegionPos, RenderBuffer>> {
     self.chunks.read()
   }
 
-  pub fn render_chunk(&self, context: &Context, world: &WorldReadLock, chunk_pos: ChunkPos) {
-    let mut chunk = RenderBuffer::new(16, 16);
+  pub fn render_chunk(&self, context: &Context, world: &WorldReadLock, region_pos: RegionPos) {
+    let mut chunk = RenderBuffer::new(REGION_SIZE as u32, REGION_SIZE as u32);
 
-    for rel_x in 0..16 {
-      for rel_z in 0..16 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
+    for rel_x in 0..REGION_SIZE {
+      for rel_z in 0..REGION_SIZE {
+        let pos = region_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
         let column = world.column_at(pos);
 
         let biome = column.biome;
@@ -168,7 +173,7 @@ impl WorldViewer {
       }
     }
 
-    self.completed_tx.send((chunk_pos, chunk)).unwrap();
+    self.completed_tx.send((region_pos, chunk)).unwrap();
   }
 }
 pub fn color_for_biome(ctx: &Context, biome: Biome) -> Color {
