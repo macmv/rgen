@@ -1,8 +1,14 @@
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
-use rgen_base::Pos;
+use rgen_base::{ChunkPos, Pos};
 use rgen_world::Context;
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::Texture};
+use sdl2::{
+  event::Event,
+  keyboard::Keycode,
+  pixels::Color,
+  rect::{Point, Rect},
+  render::Texture,
+};
 
 mod queue;
 mod region;
@@ -93,6 +99,8 @@ pub fn main() -> Result<(), String> {
 
   let mut last_frame = Instant::now();
 
+  let mut settings = Settings { chunk_borders: false };
+
   'main: loop {
     for event in render.events.poll_iter() {
       match event {
@@ -119,6 +127,10 @@ pub fn main() -> Result<(), String> {
         Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
           world_view.set_mode(RenderMode::BiomeColors);
           texture_cache.clear();
+        }
+
+        Event::KeyDown { keycode: Some(Keycode::G), .. } => {
+          settings.chunk_borders = !settings.chunk_borders;
         }
 
         Event::MouseButtonDown { x, y, .. } => drag_pos = Some((x, y)),
@@ -251,6 +263,45 @@ pub fn main() -> Result<(), String> {
       ))?;
     }
 
+    if settings.chunk_borders {
+      let min_chunk = view_pos.chunk();
+      let max_chunk = max_pos.chunk();
+
+      let min_pos = min_chunk.min_block_pos();
+      let max_pos = max_chunk.min_block_pos() + Pos::new(15, 0, 15);
+
+      render.canvas.set_draw_color(Color::RGB(255, 255, 0));
+      for x in min_chunk.x..=max_chunk.x {
+        let pos = ChunkPos::new(x, 0).min_block_pos();
+
+        render.canvas.draw_line(
+          Point::new(
+            (pos.x as f64 * zoom) as i32 - (view_coords.0 * zoom) as i32,
+            (min_pos.z as f64 * zoom) as i32 - (view_coords.1 * zoom) as i32,
+          ),
+          Point::new(
+            (pos.x as f64 * zoom) as i32 - (view_coords.0 * zoom) as i32,
+            (max_pos.z as f64 * zoom) as i32 - (view_coords.1 * zoom) as i32,
+          ),
+        )?;
+      }
+
+      for z in min_chunk.z..=max_chunk.z {
+        let pos = ChunkPos::new(0, z).min_block_pos();
+
+        render.canvas.draw_line(
+          Point::new(
+            (min_pos.x as f64 * zoom) as i32 - (view_coords.0 * zoom) as i32,
+            (pos.z as f64 * zoom) as i32 - (view_coords.1 * zoom) as i32,
+          ),
+          Point::new(
+            (max_pos.x as f64 * zoom) as i32 - (view_coords.0 * zoom) as i32,
+            (pos.z as f64 * zoom) as i32 - (view_coords.1 * zoom) as i32,
+          ),
+        )?;
+      }
+    }
+
     render.present();
 
     let elapsed = last_frame.elapsed();
@@ -322,4 +373,8 @@ impl FontRender<'_> {
       .copy(&texture, None, Rect::new(x, y, surface.width(), surface.height()))
       .unwrap();
   }
+}
+
+struct Settings {
+  chunk_borders: bool,
 }
