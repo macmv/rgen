@@ -3,12 +3,13 @@ use std::{
   mem,
 };
 
-use crossbeam_channel::{Receiver, Sender};
+use crossbeam_channel::{Receiver, Sender, TrySendError};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
-use rgen_base::{ChunkPos, Pos};
+use rgen_base::{Biome, ChunkPos, Pos};
+use rgen_world::Context;
 use sdl2::pixels::Color;
 
-use crate::{render::RenderBuffer, terrain::TerrainGenerator, world::World, RenderMode};
+use crate::{render::RenderBuffer, world::WorldReadLock, RenderMode};
 
 pub struct WorldViewer {
   pub mode: Mutex<RenderMode>,
@@ -23,7 +24,7 @@ pub struct WorldViewer {
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
-    let (tx, rx) = crossbeam_channel::bounded(32);
+    let (tx, rx) = crossbeam_channel::bounded(16);
 
     WorldViewer {
       mode:              Mutex::new(RenderMode::Brightness),
@@ -33,6 +34,21 @@ impl WorldViewer {
       render_requested: Mutex::new(HashSet::new()),
       render_tx:        tx,
       render_rx:        rx,
+    }
+  }
+
+  fn request(&self, pos: ChunkPos) {
+    let mut render_requested = self.render_requested.lock();
+    if render_requested.insert(pos) {
+      match self.render_tx.try_send(pos) {
+        Ok(_) => {}
+        Err(TrySendError::Full(_)) => {
+          render_requested.remove(&pos);
+        }
+        Err(TrySendError::Disconnected(_)) => {
+          panic!("Render thread disconnected");
+        }
+      }
     }
   }
 
@@ -62,25 +78,22 @@ impl WorldViewer {
     self.chunks.read()
   }
 
-  pub fn request_render(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
-    if self.chunks.read().contains_key(&chunk_pos) {
-      return;
-    }
-
+  pub fn request_render(&self, world: &WorldReadLock, chunk_pos: ChunkPos) {
     if world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
       && world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
       && world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
       && world.has_chunk(chunk_pos + ChunkPos::new(0, 1))
+      && world.has_chunk(chunk_pos)
       && world.has_chunk(chunk_pos + ChunkPos::new(0, -1))
       && world.has_chunk(chunk_pos + ChunkPos::new(-1, 1))
       && world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
       && world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
     {
-      self.render_tx.send(chunk_pos).unwrap();
+      self.request(chunk_pos);
     }
   }
 
-  pub fn render_chunk(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
+  pub fn render_chunk(&self, context: &Context, world: &WorldReadLock, chunk_pos: ChunkPos) {
     let mut chunk = RenderBuffer::new(16, 16);
 
     for rel_x in 0..16 {
@@ -158,7 +171,7 @@ impl WorldViewer {
         };
 
         let height_color = Color::RGB(brightness, brightness, brightness);
-        let biome_color = world.color_for_biome(biome);
+        let biome_color = color_for_biome(context, biome);
 
         let biome_color = if meter_height < 64.0 { Color::RGB(0, 157, 196) } else { biome_color };
 
@@ -185,4 +198,19 @@ impl WorldViewer {
 
     self.chunks.write().insert(chunk_pos, chunk);
   }
+}
+pub fn color_for_biome(ctx: &Context, biome: Biome) -> Color {
+  let biome_hex = match biome {
+    b if b == ctx.biomes.ice_plains => 0x518ded,
+    b if b == ctx.biomes.cold_taiga => 0x3265db,
+    b if b == ctx.biomes.extreme_hills => 0x4f6aab,
+    b if b == ctx.biomes.plains => 0x61b086,
+    b if b == ctx.biomes.savanna => 0xa19d55,
+    _ => {
+      //println!("unknown biome {b:?}");
+      0x000000
+    }
+  };
+
+  Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
 }

@@ -167,6 +167,8 @@ pub fn main() -> Result<(), String> {
 
     {
       let t = Instant::now();
+      let generated_chunks = world.read();
+      let rendered_chunks = world_view.read_chunks();
 
       // Loop in a spiral to generate the middle first.
       let middle_chunk = (min_chunk + max_chunk) / 2;
@@ -195,42 +197,39 @@ pub fn main() -> Result<(), String> {
               break 'chunk_building;
             }
 
-            if world.has_chunk(chunk_pos) {
-              world_view.request_render(&world, chunk_pos);
-            } else {
-              world.request(chunk_pos);
+            match (generated_chunks.has_chunk(chunk_pos), rendered_chunks.get(&chunk_pos)) {
+              (true, Some(_)) => continue,
+              (true, None) => world_view.request_render(&generated_chunks, chunk_pos),
+              (false, _) => world.request(chunk_pos),
             }
           }
         }
       }
 
-      {
-        let chunks = world_view.read_chunks();
-        for chunk_x in min_chunk.x..=max_chunk.x {
-          for chunk_z in min_chunk.z..=max_chunk.z {
-            let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+      for chunk_x in min_chunk.x..=max_chunk.x {
+        for chunk_z in min_chunk.z..=max_chunk.z {
+          let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-            if let Some(c) = chunks.get(&chunk_pos) {
-              let pos = chunk_pos.min_block_pos();
+          if let Some(c) = rendered_chunks.get(&chunk_pos) {
+            let pos = chunk_pos.min_block_pos();
 
-              c.copy_to_sdl2(&mut temp_texture);
+            c.copy_to_sdl2(&mut temp_texture);
 
-              render.canvas.copy(
-                &temp_texture,
-                None,
-                Some(Rect::new(
-                  pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
-                  pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-                  zoom * 16,
-                  zoom * 16,
-                )),
-              )?;
-            }
+            render.canvas.copy(
+              &temp_texture,
+              None,
+              Some(Rect::new(
+                pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
+                pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
+                zoom * 16,
+                zoom * 16,
+              )),
+            )?;
           }
         }
       }
 
-      let meter_height = world.height_at(hover_pos);
+      let meter_height = generated_chunks.height_at(hover_pos);
 
       if let Some(f) = &font {
         let mut f = FontRender { font: f, render: &mut render };
@@ -238,7 +237,7 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        let biome = world.column_at(hover_pos).biome;
+        let biome = generated_chunks.column_at(hover_pos).biome;
         f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
       }
 
@@ -266,23 +265,7 @@ pub fn main() -> Result<(), String> {
   Ok(())
 }
 
-impl World<TerrainGenerator> {
-  pub fn color_for_biome(&self, biome: Biome) -> Color {
-    let biome_hex = match biome {
-      b if b == self.context.biomes.ice_plains => 0x518ded,
-      b if b == self.context.biomes.cold_taiga => 0x3265db,
-      b if b == self.context.biomes.extreme_hills => 0x4f6aab,
-      b if b == self.context.biomes.plains => 0x61b086,
-      b if b == self.context.biomes.savanna => 0xa19d55,
-      _ => {
-        //println!("unknown biome {b:?}");
-        0x000000
-      }
-    };
-
-    Color::RGB((biome_hex >> 16) as u8 / 4, (biome_hex >> 8) as u8 / 4, biome_hex as u8 / 4)
-  }
-}
+impl World<TerrainGenerator> {}
 
 struct Render {
   #[allow(unused)]
@@ -373,7 +356,7 @@ fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &Arc<Worl
         Err(_) => break,
       };
 
-      view.render_chunk(&world, chunk_pos);
+      view.render_chunk(&world.context, &world.read(), chunk_pos);
     });
   }
 }

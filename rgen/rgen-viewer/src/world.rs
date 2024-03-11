@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use crossbeam_channel::{Receiver, Sender};
-use parking_lot::{Mutex, RwLock};
+use crossbeam_channel::{Receiver, Sender, TrySendError};
+use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_world::{Context, Generator};
 
@@ -43,7 +43,7 @@ impl Default for Column {
 
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
-    let (tx, rx) = crossbeam_channel::bounded(32);
+    let (tx, rx) = crossbeam_channel::bounded(16);
 
     World {
       context,
@@ -57,19 +57,34 @@ impl<G> World<G> {
 
   pub fn request(&self, pos: ChunkPos) {
     // Don't request chunks twice.
-    if self.requested.lock().insert(pos) {
-      self.request_tx.send(pos).unwrap();
+    let mut requested = self.requested.lock();
+    if requested.insert(pos) {
+      match self.request_tx.try_send(pos) {
+        Ok(_) => {}
+        Err(TrySendError::Full(_)) => {
+          requested.remove(&pos);
+        }
+        Err(TrySendError::Disconnected(_)) => {
+          panic!("Render thread disconnected");
+        }
+      }
     }
   }
 
-  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool {
-    self.chunks.read().contains_key(&chunk_pos)
-  }
+  pub fn read(&self) -> WorldReadLock { WorldReadLock { chunks: self.chunks.read() } }
+}
+
+pub struct WorldReadLock<'a> {
+  chunks: RwLockReadGuard<'a, HashMap<ChunkPos, BiomeChunk>>,
+}
+
+impl WorldReadLock<'_> {
+  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
 
   #[track_caller]
   pub fn column_at(&self, pos: Pos) -> Column {
     let chunk_pos = pos.chunk();
-    self.chunks.read().get(&chunk_pos).map(|c| c.column_at(pos.chunk_rel())).unwrap_or_default()
+    self.chunks.get(&chunk_pos).map(|c| c.column_at(pos.chunk_rel())).unwrap_or_default()
   }
 
   #[track_caller]
