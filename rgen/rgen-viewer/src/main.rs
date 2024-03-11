@@ -196,7 +196,7 @@ pub fn main() -> Result<(), String> {
             }
 
             if world.has_chunk(chunk_pos) {
-              world_view.place_chunk(&world, chunk_pos);
+              world_view.request_render(&world, chunk_pos);
             } else {
               world.request(chunk_pos);
             }

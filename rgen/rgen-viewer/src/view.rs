@@ -62,7 +62,7 @@ impl WorldViewer {
     self.chunks.read()
   }
 
-  pub fn place_chunk(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
+  pub fn request_render(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
     if self.chunks.read().contains_key(&chunk_pos) {
       return;
     }
