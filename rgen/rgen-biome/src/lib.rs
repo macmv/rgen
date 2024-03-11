@@ -102,11 +102,11 @@ lazy_static::lazy_static! {
   // how much to interpolate between `CONTINENTALNESS_TO_HEIGHT` and `CONTINENTALNESS_TO_HEIGHT_RIVER`.
   pub static ref RIVER_INTERPOLATION: Spline<&'static [(f64, f64)]> = Spline::new(&[
     (0.00, 0.0),
-    (0.30, 0.0),
-    (0.37, 0.8),
+    (0.35, 0.0),
+    (0.39, 0.8),
     (0.40, 1.0),
-    (0.43, 0.8),
-    (0.50, 0.0),
+    (0.41, 0.8),
+    (0.45, 0.0),
     (1.00, 0.0),
   ]);
 }
@@ -123,7 +123,7 @@ impl WorldBiomes {
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
-      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
+      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
