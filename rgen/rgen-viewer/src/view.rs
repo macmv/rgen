@@ -1,9 +1,6 @@
-use std::{
-  collections::{HashMap, HashSet},
-  mem,
-};
+use std::{collections::HashMap, mem};
 
-use crossbeam_channel::{Receiver, Sender, TrySendError};
+use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_world::Context;
@@ -17,27 +14,18 @@ pub struct WorldViewer {
   chunks:            RwLock<HashMap<ChunkPos, RenderBuffer>>,
   other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>>,
 
-  pub render_requested: Mutex<HashSet<ChunkPos>>,
-  pub render_tx:        Sender<ChunkPos>,
-  pub render_rx:        Receiver<ChunkPos>,
-
   pub completed_tx: Sender<(ChunkPos, RenderBuffer)>,
   pub completed_rx: Receiver<(ChunkPos, RenderBuffer)>,
 }
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
-    let (tx, rx) = crossbeam_channel::bounded(64);
     let (ctx, crx) = crossbeam_channel::bounded(64);
 
     WorldViewer {
       mode:              Mutex::new(RenderMode::Brightness),
       chunks:            RwLock::new(HashMap::new()),
       other_mode_chunks: Mutex::new(HashMap::new()),
-
-      render_requested: Mutex::new(HashSet::new()),
-      render_tx:        tx,
-      render_rx:        rx,
 
       completed_tx: ctx,
       completed_rx: crx,
@@ -48,24 +36,6 @@ impl WorldViewer {
     let mut w = self.chunks.write();
     for (pos, chunk) in self.completed_rx.try_iter() {
       w.insert(pos, chunk);
-    }
-  }
-
-  fn request(&self, pos: ChunkPos) -> bool {
-    let mut render_requested = self.render_requested.lock();
-    if render_requested.insert(pos) {
-      match self.render_tx.try_send(pos) {
-        Ok(_) => true,
-        Err(TrySendError::Full(_)) => {
-          render_requested.remove(&pos);
-          false
-        }
-        Err(TrySendError::Disconnected(_)) => {
-          panic!("Render thread disconnected");
-        }
-      }
-    } else {
-      true
     }
   }
 
@@ -93,25 +63,6 @@ impl WorldViewer {
 
   pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<ChunkPos, RenderBuffer>> {
     self.chunks.read()
-  }
-
-  /// Returns `true` if the chunk was succesfully requested, `false` if the
-  /// channel is full.
-  pub fn request_render(&self, world: &WorldReadLock, chunk_pos: ChunkPos) -> bool {
-    if world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
-      && world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
-      && world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
-      && world.has_chunk(chunk_pos + ChunkPos::new(0, 1))
-      && world.has_chunk(chunk_pos)
-      && world.has_chunk(chunk_pos + ChunkPos::new(0, -1))
-      && world.has_chunk(chunk_pos + ChunkPos::new(-1, 1))
-      && world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
-      && world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
-    {
-      self.request(chunk_pos)
-    } else {
-      true
-    }
   }
 
   pub fn render_chunk(&self, context: &Context, world: &WorldReadLock, chunk_pos: ChunkPos) {

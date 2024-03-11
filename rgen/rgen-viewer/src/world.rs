@@ -1,7 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
-use crossbeam_channel::{Receiver, Sender, TrySendError};
-use parking_lot::{Mutex, RwLock, RwLockReadGuard};
+use crossbeam_channel::{Receiver, Sender};
+use parking_lot::{RwLock, RwLockReadGuard};
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_world::{Context, Generator};
 
@@ -12,12 +12,6 @@ pub struct World<G> {
   pub generator: G,
 
   chunks: RwLock<HashMap<ChunkPos, BiomeChunk>>,
-
-  requested:      Mutex<HashSet<ChunkPos>>,
-  // Requests a chunk to be generated. These chunks are indenpendant of each other (ie, they are
-  // not decorated).
-  pub request_tx: Sender<ChunkPos>,
-  pub request_rx: Receiver<ChunkPos>,
 
   pub completed_tx: Sender<(ChunkPos, BiomeChunk)>,
   pub completed_rx: Receiver<(ChunkPos, BiomeChunk)>,
@@ -46,16 +40,12 @@ impl Default for Column {
 
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
-    let (tx, rx) = crossbeam_channel::bounded(64);
     let (ctx, crx) = crossbeam_channel::bounded(64);
 
     World {
       context,
       generator,
       chunks: RwLock::new(HashMap::new()),
-      requested: Mutex::new(HashSet::new()),
-      request_tx: tx,
-      request_rx: rx,
 
       completed_tx: ctx,
       completed_rx: crx,
@@ -66,27 +56,6 @@ impl<G> World<G> {
     let mut w = self.chunks.write();
     for (pos, chunk) in self.completed_rx.try_iter() {
       w.insert(pos, chunk);
-    }
-  }
-
-  /// Returns `true` if the chunk was succesfully requested, `false` if the
-  /// channel is full.
-  pub fn request(&self, pos: ChunkPos) -> bool {
-    // Don't request chunks twice.
-    let mut requested = self.requested.lock();
-    if requested.insert(pos) {
-      match self.request_tx.try_send(pos) {
-        Ok(_) => true,
-        Err(TrySendError::Full(_)) => {
-          requested.remove(&pos);
-          false
-        }
-        Err(TrySendError::Disconnected(_)) => {
-          panic!("Render thread disconnected");
-        }
-      }
-    } else {
-      true
     }
   }
 

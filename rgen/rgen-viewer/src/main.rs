@@ -4,6 +4,7 @@ use rgen_base::{ChunkPos, Pos};
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::Texture};
 
+mod queue;
 mod render;
 mod spline_view;
 mod terrain;
@@ -13,7 +14,7 @@ mod world;
 use terrain::TerrainGenerator;
 use world::World;
 
-use crate::view::WorldViewer;
+use crate::{queue::RenderQueue, view::WorldViewer};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum RenderMode {
@@ -52,7 +53,9 @@ pub fn main() -> Result<(), String> {
   let world = Arc::new(World::new(context, terrain));
   let world_view = Arc::new(WorldViewer::new());
 
-  spawn_generation_thread(&world, &world_view);
+  let queue = Arc::new(RenderQueue::new());
+  queue.spawn_generation_threads(&world);
+  queue.spawn_render_threads(&world, &world_view);
 
   render.clear();
   render.present();
@@ -175,41 +178,14 @@ pub fn main() -> Result<(), String> {
       let generated_chunks = world.read();
       let rendered_chunks = world_view.read_chunks();
 
-      // Loop in a spiral to generate the middle first.
-      let middle_chunk = (min_chunk + max_chunk) / 2;
+      queue.update(&generated_chunks, &rendered_chunks, |state| {
+        state.min_chunk = min_chunk;
+        state.max_chunk = max_chunk;
+        state.center = (min_chunk + max_chunk) / 2;
 
-      let half_screen = middle_chunk - min_chunk;
-      let radius = half_screen.x.max(half_screen.z);
-
-      'chunk_building: for i in 0..radius {
-        let min_circle = middle_chunk - ChunkPos::new(i, i);
-        let max_circle = middle_chunk + ChunkPos::new(i, i);
-
-        for x in min_circle.x..=max_circle.x {
-          for z in min_circle.z..=max_circle.z {
-            let chunk_pos = ChunkPos::new(x, z);
-
-            if chunk_pos.x < min_chunk.x
-              || chunk_pos.x > max_chunk.x
-              || chunk_pos.z < min_chunk.z
-              || chunk_pos.z > max_chunk.z
-            {
-              continue;
-            }
-
-            let sent =
-              match (generated_chunks.has_chunk(chunk_pos), rendered_chunks.get(&chunk_pos)) {
-                (true, Some(_)) => continue,
-                (true, None) => world_view.request_render(&generated_chunks, chunk_pos),
-                (false, _) => world.request(chunk_pos),
-              };
-            // If any channels are full, break.
-            if !sent {
-              break 'chunk_building;
-            }
-          }
-        }
-      }
+        let half_screen = state.center - min_chunk;
+        state.radius = half_screen.x.max(half_screen.z);
+      });
 
       for chunk_x in min_chunk.x..=max_chunk.x {
         for chunk_z in min_chunk.z..=max_chunk.z {
@@ -340,41 +316,5 @@ impl FontRender<'_> {
       .canvas
       .copy(&texture, None, Rect::new(x, y, surface.width(), surface.height()))
       .unwrap();
-  }
-}
-
-fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &Arc<WorldViewer>) {
-  // Spawn up 16 threads to generate chunks.
-  const POOL_SIZE: usize = 16;
-
-  // Generation threads
-  for _ in 0..POOL_SIZE {
-    let rx = world.request_rx.clone();
-    let world = world.clone();
-
-    std::thread::spawn(move || loop {
-      let chunk_pos = match rx.recv() {
-        Ok(p) => p,
-        Err(_) => break,
-      };
-
-      world.build_chunk(chunk_pos);
-    });
-  }
-
-  // Rendering threads
-  for _ in 0..POOL_SIZE {
-    let rx = view.render_rx.clone();
-    let world = world.clone();
-    let view = view.clone();
-
-    std::thread::spawn(move || loop {
-      let chunk_pos = match rx.recv() {
-        Ok(p) => p,
-        Err(_) => break,
-      };
-
-      view.render_chunk(&world.context, &world.read(), chunk_pos);
-    });
   }
 }
