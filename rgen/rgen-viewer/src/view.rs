@@ -1,4 +1,4 @@
-use std::{collections::HashMap, mem};
+use std::{collections::HashMap, mem, time::Duration};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
@@ -39,7 +39,9 @@ impl WorldViewer {
 
   pub fn recv_chunks(&self) {
     let self_mode = *self.mode.lock();
-    let mut w = self.chunks.write();
+    let Some(mut w) = self.chunks.try_write_for(Duration::from_millis(10)) else {
+      return;
+    };
     for (pos, mode, chunk) in self.completed_rx.try_iter() {
       if mode == self_mode {
         w.insert(pos, chunk);
