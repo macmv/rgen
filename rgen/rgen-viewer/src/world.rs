@@ -143,8 +143,12 @@ fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> u32 {
     b if b == ctx.biomes.extreme_hills => 0x4f6aab,
     b if b == ctx.biomes.plains => 0x61b086,
     b if b == ctx.biomes.savanna => 0xa19d55,
+    b if b == ctx.biomes.river => 0x3487ba,
+    b if b == ctx.biomes.stone_beach => 0x527185,
+    b if b == ctx.biomes.birch_forest => 0x3fba7b,
+    b if b == ctx.biomes.beaches => 0xd6bf6d,
     b => {
-      println!("unknown biome {b:?}");
+      println!("no color for biome {}", ctx.biomes.name_of(b));
       0x000000
     }
   }

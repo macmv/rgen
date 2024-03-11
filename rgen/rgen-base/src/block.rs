@@ -56,6 +56,11 @@ impl BlockInfo {
     }
   }
 
+  fn from_raw_id(id: i32) -> BlockInfo {
+    assert!(id >= 0 && id < 256);
+    BlockInfo::temp_new("", id)
+  }
+
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   /// Prefer `with_property` when possible, as that will use the named
   /// properties, which are almost always clearer.
@@ -137,20 +142,17 @@ macro_rules! big {
 
       /// Only public for testing.
       pub fn test_blocks() -> $struct_name {
-        // let mut id = 0;
+        let mut id = 0;
         $struct_name {
-          $($id: $item::default(),)*
+          $($id: $item::from_raw_id({ id += 1; id }),)*
         }
-        // todo!()
       }
 
-      pub fn name_of(&self, _v: $item) -> &'static str {
-        ""
-        // $(
-        //   if v == self.$id { return $name }
-        // )*
-        // if v == $item::$default_name { return $default_str }
-        // unreachable!();
+      pub fn name_of(&self, v: $item) -> &'static str {
+        $(
+          if v == self.$id { return $name }
+        )*
+        $default_str
       }
     }
   };
