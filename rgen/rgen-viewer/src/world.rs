@@ -1,5 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
+use crossbeam_channel::{Receiver, Sender};
+use parking_lot::{Mutex, RwLock};
 use rgen_base::{Biome, ChunkPos, ChunkRelPos, Pos};
 use rgen_world::{Context, Generator};
 
@@ -9,7 +11,13 @@ pub struct World<G> {
   pub context:   Context,
   pub generator: G,
 
-  chunks: HashMap<ChunkPos, BiomeChunk>,
+  chunks: RwLock<HashMap<ChunkPos, BiomeChunk>>,
+
+  requested:      Mutex<HashSet<ChunkPos>>,
+  // Requests a chunk to be generated. These chunks are indenpendant of each other (ie, they are
+  // not decorated).
+  pub request_tx: Sender<ChunkPos>,
+  pub request_rx: Receiver<ChunkPos>,
 }
 
 pub struct BiomeChunk {
@@ -35,19 +43,33 @@ impl Default for Column {
 
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
-    World { context, generator, chunks: HashMap::new() }
+    let (tx, rx) = crossbeam_channel::bounded(32);
+
+    World {
+      context,
+      generator,
+      chunks: RwLock::new(HashMap::new()),
+      requested: Mutex::new(HashSet::new()),
+      request_tx: tx,
+      request_rx: rx,
+    }
   }
 
-  pub fn set_chunk(&mut self, chunk_pos: ChunkPos, chunk: BiomeChunk) {
-    self.chunks.insert(chunk_pos, chunk);
+  pub fn request(&self, pos: ChunkPos) {
+    // Don't request chunks twice.
+    if self.requested.lock().insert(pos) {
+      self.request_tx.send(pos).unwrap();
+    }
   }
 
-  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool { self.chunks.contains_key(&chunk_pos) }
+  pub fn has_chunk(&self, chunk_pos: ChunkPos) -> bool {
+    self.chunks.read().contains_key(&chunk_pos)
+  }
 
   #[track_caller]
   pub fn column_at(&self, pos: Pos) -> Column {
     let chunk_pos = pos.chunk();
-    self.chunks.get(&chunk_pos).map(|c| c.column_at(pos.chunk_rel())).unwrap_or_default()
+    self.chunks.read().get(&chunk_pos).map(|c| c.column_at(pos.chunk_rel())).unwrap_or_default()
   }
 
   #[track_caller]
@@ -55,7 +77,7 @@ impl<G> World<G> {
 }
 
 impl World<TerrainGenerator> {
-  pub fn build_chunk(&self, chunk_pos: ChunkPos) -> BiomeChunk {
+  pub fn build_chunk(&self, chunk_pos: ChunkPos) {
     let mut columns = [Column::EMPTY; 256];
 
     for rel_x in 0..16 {
@@ -70,7 +92,7 @@ impl World<TerrainGenerator> {
       }
     }
 
-    BiomeChunk { columns }
+    self.chunks.write().insert(chunk_pos, BiomeChunk { columns });
   }
 }
 

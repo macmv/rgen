@@ -1,5 +1,6 @@
 use std::{collections::HashMap, mem};
 
+use parking_lot::{RwLock, RwLockReadGuard};
 use rgen_base::{ChunkPos, Pos};
 use sdl2::pixels::Color;
 
@@ -8,8 +9,7 @@ use crate::{render::RenderBuffer, terrain::TerrainGenerator, world::World, Rende
 pub struct WorldViewer {
   pub mode: RenderMode,
 
-  chunks: HashMap<ChunkPos, RenderBuffer>,
-
+  chunks:            RwLock<HashMap<ChunkPos, RenderBuffer>>,
   other_mode_chunks: HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>,
 }
 
@@ -17,7 +17,7 @@ impl WorldViewer {
   pub fn new() -> WorldViewer {
     WorldViewer {
       mode:              RenderMode::Brightness,
-      chunks:            HashMap::new(),
+      chunks:            RwLock::new(HashMap::new()),
       other_mode_chunks: HashMap::new(),
     }
   }
@@ -27,25 +27,27 @@ impl WorldViewer {
       return;
     }
 
+    let mut chunks = self.chunks.write();
+
     match self.other_mode_chunks.remove(&mode) {
       Some(mut other) => {
-        mem::swap(&mut self.chunks, &mut other);
+        mem::swap(&mut *chunks, &mut other);
         self.other_mode_chunks.insert(self.mode, other);
       }
       None => {
-        self.other_mode_chunks.insert(self.mode, mem::take(&mut self.chunks));
+        self.other_mode_chunks.insert(self.mode, mem::take(&mut *chunks));
       }
     }
 
     self.mode = mode;
   }
 
-  pub fn get_chunk(&self, chunk_pos: ChunkPos) -> Option<&RenderBuffer> {
-    self.chunks.get(&chunk_pos)
+  pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<ChunkPos, RenderBuffer>> {
+    self.chunks.read()
   }
 
   pub fn place_chunk(&mut self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
-    if self.chunks.contains_key(&chunk_pos) {
+    if self.chunks.read().contains_key(&chunk_pos) {
       return;
     }
 
@@ -163,6 +165,6 @@ impl WorldViewer {
       }
     }
 
-    self.chunks.insert(chunk_pos, chunk);
+    self.chunks.write().insert(chunk_pos, chunk);
   }
 }

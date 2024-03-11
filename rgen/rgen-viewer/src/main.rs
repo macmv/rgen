@@ -1,7 +1,5 @@
-use std::{collections::HashSet, sync::Arc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
-use crossbeam_channel::{Receiver, Sender, TrySendError};
-use parking_lot::RwLock;
 use rgen_base::{Biome, ChunkPos, Pos};
 use rgen_world::Context;
 use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
@@ -13,7 +11,7 @@ mod view;
 mod world;
 
 use terrain::TerrainGenerator;
-use world::{BiomeChunk, World};
+use world::World;
 
 use crate::view::WorldViewer;
 
@@ -51,9 +49,10 @@ pub fn main() -> Result<(), String> {
 
   let context = Context::new_test(seed);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
-  let world = Arc::new(RwLock::new(World::new(context, terrain)));
+  let world = Arc::new(World::new(context, terrain));
 
-  let (completed_chunks, request_chunk) = spawn_generation_thread(&world);
+  let mut world_view = WorldViewer::new();
+  spawn_generation_thread(&world, &world_view);
 
   render.clear();
   render.present();
@@ -78,8 +77,6 @@ pub fn main() -> Result<(), String> {
   // The top-left corner of the screen, in fractional blocks.
   let mut view_coords = (0.0, 0.0);
   let mut drag_pos = None;
-
-  let mut world_view = WorldViewer::new();
 
   let mut spline_view = spline_view::SplineViewer::new();
 
@@ -154,14 +151,6 @@ pub fn main() -> Result<(), String> {
       }
     }
 
-    {
-      let mut w = world.write();
-
-      while let Ok((chunk_pos, chunk)) = completed_chunks.try_recv() {
-        w.set_chunk(chunk_pos, chunk);
-      }
-    }
-
     render.clear();
 
     let screen_width = render.canvas.output_size().unwrap().0;
@@ -177,8 +166,6 @@ pub fn main() -> Result<(), String> {
     let max_chunk = max_pos.chunk() + ChunkPos::new(2, 2);
 
     {
-      let w = world.read();
-
       let t = Instant::now();
 
       // Loop in a spiral to generate the middle first.
@@ -208,43 +195,42 @@ pub fn main() -> Result<(), String> {
               break 'chunk_building;
             }
 
-            if w.has_chunk(chunk_pos) {
-              world_view.place_chunk(&w, chunk_pos);
+            if world.has_chunk(chunk_pos) {
+              world_view.place_chunk(&world, chunk_pos);
             } else {
-              match request_chunk.try_send(chunk_pos) {
-                Ok(()) => {}
-                Err(TrySendError::Disconnected(_)) => panic!("chunk generation died"),
-                Err(TrySendError::Full(_)) => break 'chunk_building,
-              }
+              world.request(chunk_pos);
             }
           }
         }
       }
 
-      for chunk_x in min_chunk.x..=max_chunk.x {
-        for chunk_z in min_chunk.z..=max_chunk.z {
-          let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
+      {
+        let chunks = world_view.read_chunks();
+        for chunk_x in min_chunk.x..=max_chunk.x {
+          for chunk_z in min_chunk.z..=max_chunk.z {
+            let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-          if let Some(c) = world_view.get_chunk(chunk_pos) {
-            let pos = chunk_pos.min_block_pos();
+            if let Some(c) = chunks.get(&chunk_pos) {
+              let pos = chunk_pos.min_block_pos();
 
-            c.copy_to_sdl2(&mut temp_texture);
+              c.copy_to_sdl2(&mut temp_texture);
 
-            render.canvas.copy(
-              &temp_texture,
-              None,
-              Some(Rect::new(
-                pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
-                pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-                zoom * 16,
-                zoom * 16,
-              )),
-            )?;
+              render.canvas.copy(
+                &temp_texture,
+                None,
+                Some(Rect::new(
+                  pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
+                  pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
+                  zoom * 16,
+                  zoom * 16,
+                )),
+              )?;
+            }
           }
         }
       }
 
-      let meter_height = w.height_at(hover_pos);
+      let meter_height = world.height_at(hover_pos);
 
       if let Some(f) = &font {
         let mut f = FontRender { font: f, render: &mut render };
@@ -252,8 +238,8 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        let biome = w.column_at(hover_pos).biome;
-        f.render(0, 48, format!("Biome: {}", w.context.biomes.name_of(biome)));
+        let biome = world.column_at(hover_pos).biome;
+        f.render(0, 48, format!("Biome: {}", world.context.biomes.name_of(biome)));
       }
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -356,22 +342,13 @@ impl FontRender<'_> {
   }
 }
 
-fn spawn_generation_thread(
-  world: &Arc<RwLock<World<TerrainGenerator>>>,
-) -> (Receiver<(ChunkPos, BiomeChunk)>, Sender<ChunkPos>) {
+fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &WorldViewer) {
   // Spawn up 16 threads to generate chunks.
   const POOL_SIZE: usize = 16;
 
-  let (tx, rx) = crossbeam_channel::bounded(POOL_SIZE * 8);
-  let (ctx, crx) = crossbeam_channel::bounded(POOL_SIZE * 8);
-
-  let generated_chunks = Arc::new(RwLock::new(HashSet::new()));
-
   for _ in 0..POOL_SIZE {
-    let rx = rx.clone();
-    let ctx = ctx.clone();
+    let rx = world.request_rx.clone();
     let world = world.clone();
-    let generated_chunks = generated_chunks.clone();
 
     std::thread::spawn(move || loop {
       let chunk_pos = match rx.recv() {
@@ -379,21 +356,7 @@ fn spawn_generation_thread(
         Err(_) => break,
       };
 
-      if generated_chunks.read().contains(&chunk_pos) {
-        continue;
-      }
-
-      let chunk = world.read().build_chunk(chunk_pos);
-
-      let mut gc = generated_chunks.write();
-      gc.insert(chunk_pos);
-
-      match ctx.send((chunk_pos, chunk)) {
-        Ok(()) => {}
-        Err(_) => break,
-      }
+      world.build_chunk(chunk_pos);
     });
   }
-
-  (crx, tx)
 }
