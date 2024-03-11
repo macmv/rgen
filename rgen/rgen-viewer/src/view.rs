@@ -3,9 +3,9 @@ use std::{collections::HashMap, mem};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::Pos;
-use sdl2::pixels::Color;
 
 use crate::{
+  color::Color,
   region::{RegionPos, REGION_SIZE},
   render::RenderBuffer,
   world::WorldReadLock,
@@ -129,36 +129,21 @@ impl WorldViewer {
           + altidue.cos() * cell_slope.cos() * (azimuth - cell_aspect).cos())
         .acos();
 
-        let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
+        let brightness = ((solar_incidence_angle).cos() + 1.0) / 2.0;
 
-        let brightness = (brightness as f64 * 0.2 + meter_height as f64 * 2.0) as u8;
+        let height_color =
+          Color::from_gray(brightness as f32 * 0.2 + (meter_height as f32 / 256.0) * 2.0);
+        let biome_color = biome.color;
 
-        let height_color = Color::RGB(brightness, brightness, brightness);
-        let biome_color = biome.color();
-
-        let biome_color = if meter_height < 64.0 { Color::RGB(0, 157, 196) } else { biome_color };
+        let biome_color = if meter_height < 64.0 { Color::from_hex(0x009dc4) } else { biome_color };
 
         let main_color = match mode {
           RenderMode::Biomes => biome_color,
-          RenderMode::Continentalness => Color::RGB(
-            (biome.continentalness * 255.0) as u8,
-            (biome.continentalness * 255.0) as u8,
-            (biome.continentalness * 255.0) as u8,
-          ),
+          RenderMode::Continentalness => Color::from_gray(biome.continentalness as f32),
         };
 
-        let transparency = 40;
-        let alpha = (255 * transparency / 100) as u8;
-        let r = ((height_color.r as u16 * alpha as u16
-          + main_color.r as u16 * (255 - alpha as u16))
-          / 255) as u8;
-        let g = ((height_color.g as u16 * alpha as u16
-          + main_color.g as u16 * (255 - alpha as u16))
-          / 255) as u8;
-        let b = ((height_color.b as u16 * alpha as u16
-          + main_color.b as u16 * (255 - alpha as u16))
-          / 255) as u8;
-        chunk.set(rel_x, rel_z, Color::RGB(r, g, b));
+        let alpha = 40.0 / 100.0;
+        chunk.set(rel_x, rel_z, height_color.fade(main_color, alpha).to_sdl2());
       }
     }
 

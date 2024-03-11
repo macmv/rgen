@@ -10,6 +10,7 @@ use sdl2::{
   render::Texture,
 };
 
+mod color;
 mod queue;
 mod region;
 mod render;

@@ -5,9 +5,9 @@ use parking_lot::{RwLock, RwLockReadGuard};
 use rgen_base::{Biome, Pos};
 use rgen_biome::BiomeBuilder;
 use rgen_world::Context;
-use sdl2::pixels::Color;
 
 use crate::{
+  color::Color,
   region::{RegionPos, REGION_SIZE},
   terrain::TerrainGenerator,
 };
@@ -39,7 +39,7 @@ pub struct Column {
 pub struct BiomeInfo {
   pub biome: Biome,
   pub name:  &'static str,
-  pub color: u32,
+  pub color: Color,
 
   pub continentalness: f64,
 }
@@ -52,7 +52,7 @@ impl BiomeInfo {
   const VOID: BiomeInfo = BiomeInfo {
     biome:           Biome::VOID,
     name:            "Void",
-    color:           0x000000,
+    color:           Color::BLACK,
     continentalness: 0.0,
   };
 
@@ -146,8 +146,8 @@ impl BiomeChunk {
   }
 }
 
-fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> u32 {
-  match biome.id {
+fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> Color {
+  Color::from_hex(match biome.id {
     b if b == ctx.biomes.ice_plains => 0x518ded,
     b if b == ctx.biomes.cold_taiga => 0x3265db,
     b if b == ctx.biomes.extreme_hills => 0x4f6aab,
@@ -161,11 +161,5 @@ fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> u32 {
       println!("no color for biome {}", ctx.biomes.name_of(b));
       0x000000
     }
-  }
-}
-
-impl BiomeInfo {
-  pub fn color(&self) -> Color {
-    Color::RGB((self.color >> 16) as u8, (self.color >> 8) as u8, self.color as u8)
-  }
+  })
 }
