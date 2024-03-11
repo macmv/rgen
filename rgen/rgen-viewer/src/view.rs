@@ -24,7 +24,7 @@ pub struct WorldViewer {
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
-    let (tx, rx) = crossbeam_channel::bounded(16);
+    let (tx, rx) = crossbeam_channel::bounded(64);
 
     WorldViewer {
       mode:              Mutex::new(RenderMode::Brightness),
@@ -37,18 +37,21 @@ impl WorldViewer {
     }
   }
 
-  fn request(&self, pos: ChunkPos) {
+  fn request(&self, pos: ChunkPos) -> bool {
     let mut render_requested = self.render_requested.lock();
     if render_requested.insert(pos) {
       match self.render_tx.try_send(pos) {
-        Ok(_) => {}
+        Ok(_) => true,
         Err(TrySendError::Full(_)) => {
           render_requested.remove(&pos);
+          false
         }
         Err(TrySendError::Disconnected(_)) => {
           panic!("Render thread disconnected");
         }
       }
+    } else {
+      true
     }
   }
 
@@ -78,7 +81,9 @@ impl WorldViewer {
     self.chunks.read()
   }
 
-  pub fn request_render(&self, world: &WorldReadLock, chunk_pos: ChunkPos) {
+  /// Returns `true` if the chunk was succesfully requested, `false` if the
+  /// channel is full.
+  pub fn request_render(&self, world: &WorldReadLock, chunk_pos: ChunkPos) -> bool {
     if world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
       && world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
       && world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
@@ -89,7 +94,9 @@ impl WorldViewer {
       && world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
       && world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
     {
-      self.request(chunk_pos);
+      self.request(chunk_pos)
+    } else {
+      true
     }
   }
 

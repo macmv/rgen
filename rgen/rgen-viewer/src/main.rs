@@ -169,7 +169,6 @@ pub fn main() -> Result<(), String> {
     let max_chunk = max_pos.chunk() + ChunkPos::new(2, 2);
 
     {
-      let t = Instant::now();
       let generated_chunks = world.read();
       let rendered_chunks = world_view.read_chunks();
 
@@ -195,15 +194,15 @@ pub fn main() -> Result<(), String> {
               continue;
             }
 
-            // Only place chunks for 16ms.
-            if t.elapsed().as_millis() > 16 {
+            let sent =
+              match (generated_chunks.has_chunk(chunk_pos), rendered_chunks.get(&chunk_pos)) {
+                (true, Some(_)) => continue,
+                (true, None) => world_view.request_render(&generated_chunks, chunk_pos),
+                (false, _) => world.request(chunk_pos),
+              };
+            // If any channels are full, break.
+            if !sent {
               break 'chunk_building;
-            }
-
-            match (generated_chunks.has_chunk(chunk_pos), rendered_chunks.get(&chunk_pos)) {
-              (true, Some(_)) => continue,
-              (true, None) => world_view.request_render(&generated_chunks, chunk_pos),
-              (false, _) => world.request(chunk_pos),
             }
           }
         }

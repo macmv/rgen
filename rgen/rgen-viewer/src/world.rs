@@ -43,7 +43,7 @@ impl Default for Column {
 
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
-    let (tx, rx) = crossbeam_channel::bounded(16);
+    let (tx, rx) = crossbeam_channel::bounded(64);
 
     World {
       context,
@@ -55,19 +55,24 @@ impl<G> World<G> {
     }
   }
 
-  pub fn request(&self, pos: ChunkPos) {
+  /// Returns `true` if the chunk was succesfully requested, `false` if the
+  /// channel is full.
+  pub fn request(&self, pos: ChunkPos) -> bool {
     // Don't request chunks twice.
     let mut requested = self.requested.lock();
     if requested.insert(pos) {
       match self.request_tx.try_send(pos) {
-        Ok(_) => {}
+        Ok(_) => true,
         Err(TrySendError::Full(_)) => {
           requested.remove(&pos);
+          false
         }
         Err(TrySendError::Disconnected(_)) => {
           panic!("Render thread disconnected");
         }
       }
+    } else {
+      true
     }
   }
 
