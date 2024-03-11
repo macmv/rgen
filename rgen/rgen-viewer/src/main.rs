@@ -23,6 +23,7 @@ use world::World;
 use crate::{
   queue::RenderQueue,
   region::{RegionPos, REGION_SIZE},
+  render::{FontRender, Render},
   view::WorldViewer,
 };
 
@@ -316,64 +317,6 @@ pub fn main() -> Result<(), String> {
 }
 
 impl World<TerrainGenerator> {}
-
-struct Render {
-  #[allow(unused)]
-  sdl_context: sdl2::Sdl,
-  ttf_context: Option<sdl2::ttf::Sdl2TtfContext>,
-  events:      sdl2::EventPump,
-  canvas:      sdl2::render::Canvas<sdl2::video::Window>,
-}
-
-impl Render {
-  pub fn new() -> Result<Render, String> {
-    let sdl_context = sdl2::init()?;
-    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
-    let video_subsystem = sdl_context.video()?;
-
-    let screen = video_subsystem.current_display_mode(0).unwrap();
-
-    let window = video_subsystem
-      .window("RGen Viewer", (screen.w / 2) as u32, (screen.h / 2) as u32)
-      .position_centered()
-      .resizable()
-      .build()
-      .map_err(|e| e.to_string())?;
-
-    let events = sdl_context.event_pump()?;
-
-    let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
-
-    Ok(Render { sdl_context, ttf_context: Some(ttf_context), events, canvas })
-  }
-
-  pub fn clear(&mut self) {
-    self.canvas.set_draw_color(Color::RGB(0, 0, 0));
-    self.canvas.clear();
-  }
-
-  pub fn present(&mut self) { self.canvas.present(); }
-}
-
-struct FontRender<'a> {
-  font:   &'a sdl2::ttf::Font<'a, 'a>,
-  render: &'a mut Render,
-}
-
-impl FontRender<'_> {
-  pub fn render(&mut self, x: i32, y: i32, text: impl AsRef<str>) {
-    let texture_creator = self.render.canvas.texture_creator();
-
-    let surface = self.font.render(text.as_ref()).blended(Color::RGB(255, 255, 255)).unwrap();
-    let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-
-    self
-      .render
-      .canvas
-      .copy(&texture, None, Rect::new(x, y, surface.width(), surface.height()))
-      .unwrap();
-  }
-}
 
 struct Settings {
   chunk_borders: bool,
