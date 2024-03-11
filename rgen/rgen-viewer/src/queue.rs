@@ -1,10 +1,4 @@
-use std::{
-  collections::HashMap,
-  sync::{
-    atomic::{AtomicU8, Ordering},
-    Arc,
-  },
-};
+use std::{collections::HashMap, sync::Arc};
 
 use parking_lot::Mutex;
 
@@ -21,18 +15,6 @@ pub struct RenderQueue {
   state: Mutex<RenderState>,
 
   rendering: Mutex<Vec<RegionPos>>,
-
-  // Queue age is a bit interesting. The function to find the next rendering chunk is O(N), where N
-  // is the number of chunks at the head of the queue that cannot be rendered yet, because their
-  // neighbors haven't been generated.
-  //
-  // So, when the list of chunks to render is small, its easiest to just search through it on each
-  // thread. However, once the list gets longer, it starts becoming too slow.
-  //
-  // This is where the queue age comes in. This number is incremented every frame, and if it gets
-  // too large, the above queues are re-generated, to reset the number of chunks that need to be
-  // searched every time a render thread goes to pull a new chunk.
-  queue_age: AtomicU8,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -53,8 +35,7 @@ impl RenderQueue {
     let old_state = state.clone();
     updater(&mut state);
 
-    if *state != old_state || self.queue_age.fetch_add(1, Ordering::SeqCst) > 20 {
-      self.queue_age.store(0, Ordering::SeqCst);
+    if *state != old_state {
       self.regenerate_queue(&state, &rendered_chunks);
     }
   }
@@ -112,12 +93,7 @@ impl RenderQueue {
       radius:    0,
     };
 
-    RenderQueue {
-      state: Mutex::new(state),
-
-      rendering: Mutex::new(vec![]),
-      queue_age: AtomicU8::new(0),
-    }
+    RenderQueue { state: Mutex::new(state), rendering: Mutex::new(vec![]) }
   }
 
   pub fn spawn_render_threads(
