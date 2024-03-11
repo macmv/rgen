@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
 
 mod block;
 mod gc;
@@ -21,9 +21,6 @@ impl Context {
 }
 
 pub trait Generator {
-  // FIXME: This is only used for rgen-viewer, it kinda needs reworking.
-  fn height_at(&self, pos: Pos) -> f64;
-
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
 }

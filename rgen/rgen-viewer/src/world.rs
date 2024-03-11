@@ -3,7 +3,7 @@ use std::{collections::HashMap, time::Duration};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{RwLock, RwLockReadGuard};
 use rgen_base::{Biome, Pos};
-use rgen_world::{Context, Generator};
+use rgen_world::Context;
 
 use crate::{
   region::{RegionPos, REGION_SIZE},
@@ -100,7 +100,7 @@ impl World<TerrainGenerator> {
         let pos = region_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
         let biome = self.generator.biomes.choose_biome(self.generator.seed, pos).id;
 
-        let height = self.generator.height_at(pos);
+        let height = self.generator.biomes.sample_height(self.generator.seed, pos);
 
         columns[rel_x as usize][rel_z as usize] = Column { height, biome };
       }
