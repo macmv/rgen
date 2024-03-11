@@ -7,14 +7,15 @@ use crate::{rng::Random, Placer, Rng};
 
 /// Creates spreads(cirlcesish) of blocks 1 above the ground level.
 pub struct Spread {
-  pub replace: BlockSet,
-  pub place:   BlockState,
-  pub radius:  RangeInclusive<u8>,
+  pub replace:       BlockSet,
+  pub place:         BlockState,
+  pub radius:        RangeInclusive<u8>,
+  pub avg_per_chunk: f64,
 }
 
 impl Placer for Spread {
   fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { 1.0 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let radius =

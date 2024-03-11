@@ -40,9 +40,10 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
-      place:   ctx.blocks.rgen_mossy_carpet.default_state,
-      replace: ctx.blocks.grass.default_state.into(),
-      radius:  4..=5,
+      place:         ctx.blocks.rgen_mossy_carpet.default_state,
+      replace:       ctx.blocks.grass.default_state.into(),
+      radius:        4..=5,
+      avg_per_chunk: 1.0,
     },
   );
   gen.place(
