@@ -104,7 +104,10 @@ impl LogAndStump {
   }
 
   fn place_log(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
-    for (dx, dz) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+    let mut dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+    rng.shuffle(&mut dirs);
+
+    for (dx, dz) in dirs {
       //*rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
       let mut buildable = true;
       let mut x_axis = true;

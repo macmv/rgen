@@ -27,6 +27,13 @@ impl Random for Rng {
 pub trait Random {
   fn next(&mut self) -> u64;
 
+  fn shuffle<T>(&mut self, slice: &mut [T]) {
+    for i in 0..slice.len() {
+      let j = self.rand_exclusive(i as i32, slice.len() as i32) as usize;
+      slice.swap(i, j);
+    }
+  }
+
   #[track_caller]
   fn rand_inclusive(&mut self, min: i32, max: i32) -> i32 {
     assert!(min <= max, "min must be less than or equal to max");
