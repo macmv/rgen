@@ -188,7 +188,7 @@ impl RenderQueue {
 
       std::thread::spawn(move || loop {
         if let Some((region_pos, read_lock)) = slf.pop_render(world.read()) {
-          view.render_chunk(&world.context, &read_lock, region_pos);
+          view.render_chunk(&read_lock, region_pos);
         } else {
           // If there's nothing to do, it means the screen is full. So wait around for a
           // while, as it usually means nothing is happening, so we don't want to spin a

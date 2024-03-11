@@ -70,7 +70,7 @@ impl WorldViewer {
     self.chunks.read()
   }
 
-  pub fn render_chunk(&self, context: &Context, world: &WorldReadLock, region_pos: RegionPos) {
+  pub fn render_chunk(&self, world: &WorldReadLock, region_pos: RegionPos) {
     let mut chunk = RenderBuffer::new(REGION_SIZE as u32, REGION_SIZE as u32);
 
     for rel_x in 0..REGION_SIZE {
