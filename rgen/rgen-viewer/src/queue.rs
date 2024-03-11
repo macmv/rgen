@@ -82,7 +82,7 @@ impl RenderQueue {
   pub fn pop_render<'a>(&self) -> Option<RegionPos> { self.rendering.lock().pop() }
 }
 
-const POOL_SIZE: usize = 8;
+const POOL_SIZE: usize = 32;
 
 impl RenderQueue {
   pub fn new() -> RenderQueue {
