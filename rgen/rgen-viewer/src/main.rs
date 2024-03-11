@@ -50,8 +50,8 @@ pub fn main() -> Result<(), String> {
   let context = Context::new_test(seed);
   let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
   let world = Arc::new(World::new(context, terrain));
+  let world_view = Arc::new(WorldViewer::new());
 
-  let mut world_view = WorldViewer::new();
   spawn_generation_thread(&world, &world_view);
 
   render.clear();
@@ -342,10 +342,11 @@ impl FontRender<'_> {
   }
 }
 
-fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &WorldViewer) {
+fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &Arc<WorldViewer>) {
   // Spawn up 16 threads to generate chunks.
   const POOL_SIZE: usize = 16;
 
+  // Generation threads
   for _ in 0..POOL_SIZE {
     let rx = world.request_rx.clone();
     let world = world.clone();
@@ -357,6 +358,22 @@ fn spawn_generation_thread(world: &Arc<World<TerrainGenerator>>, view: &WorldVie
       };
 
       world.build_chunk(chunk_pos);
+    });
+  }
+
+  // Rendering threads
+  for _ in 0..POOL_SIZE {
+    let rx = view.render_rx.clone();
+    let world = world.clone();
+    let view = view.clone();
+
+    std::thread::spawn(move || loop {
+      let chunk_pos = match rx.recv() {
+        Ok(p) => p,
+        Err(_) => break,
+      };
+
+      view.render_chunk(&world, chunk_pos);
     });
   }
 }

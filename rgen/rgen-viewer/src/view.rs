@@ -1,68 +1,86 @@
-use std::{collections::HashMap, mem};
+use std::{
+  collections::{HashMap, HashSet},
+  mem,
+};
 
-use parking_lot::{RwLock, RwLockReadGuard};
+use crossbeam_channel::{Receiver, Sender};
+use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::{ChunkPos, Pos};
 use sdl2::pixels::Color;
 
 use crate::{render::RenderBuffer, terrain::TerrainGenerator, world::World, RenderMode};
 
 pub struct WorldViewer {
-  pub mode: RenderMode,
+  pub mode: Mutex<RenderMode>,
 
   chunks:            RwLock<HashMap<ChunkPos, RenderBuffer>>,
-  other_mode_chunks: HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>,
+  other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<ChunkPos, RenderBuffer>>>,
+
+  pub render_requested: Mutex<HashSet<ChunkPos>>,
+  pub render_tx:        Sender<ChunkPos>,
+  pub render_rx:        Receiver<ChunkPos>,
 }
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
+    let (tx, rx) = crossbeam_channel::bounded(32);
+
     WorldViewer {
-      mode:              RenderMode::Brightness,
+      mode:              Mutex::new(RenderMode::Brightness),
       chunks:            RwLock::new(HashMap::new()),
-      other_mode_chunks: HashMap::new(),
+      other_mode_chunks: Mutex::new(HashMap::new()),
+
+      render_requested: Mutex::new(HashSet::new()),
+      render_tx:        tx,
+      render_rx:        rx,
     }
   }
 
-  pub fn set_mode(&mut self, mode: RenderMode) {
-    if mode == self.mode {
+  pub fn set_mode(&self, mode: RenderMode) {
+    let mut self_mode = self.mode.lock();
+    if mode == *self_mode {
       return;
     }
 
     let mut chunks = self.chunks.write();
+    let mut other_mode_chunks = self.other_mode_chunks.lock();
 
-    match self.other_mode_chunks.remove(&mode) {
+    match other_mode_chunks.remove(&mode) {
       Some(mut other) => {
         mem::swap(&mut *chunks, &mut other);
-        self.other_mode_chunks.insert(self.mode, other);
+        other_mode_chunks.insert(*self_mode, other);
       }
       None => {
-        self.other_mode_chunks.insert(self.mode, mem::take(&mut *chunks));
+        other_mode_chunks.insert(*self_mode, mem::take(&mut *chunks));
       }
     }
 
-    self.mode = mode;
+    *self_mode = mode;
   }
 
   pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<ChunkPos, RenderBuffer>> {
     self.chunks.read()
   }
 
-  pub fn place_chunk(&mut self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
+  pub fn place_chunk(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
     if self.chunks.read().contains_key(&chunk_pos) {
       return;
     }
 
-    if !world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(0, 1))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(0, -1))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(-1, 1))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
-      || !world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
+    if world.has_chunk(chunk_pos + ChunkPos::new(1, 1))
+      && world.has_chunk(chunk_pos + ChunkPos::new(1, 0))
+      && world.has_chunk(chunk_pos + ChunkPos::new(1, -1))
+      && world.has_chunk(chunk_pos + ChunkPos::new(0, 1))
+      && world.has_chunk(chunk_pos + ChunkPos::new(0, -1))
+      && world.has_chunk(chunk_pos + ChunkPos::new(-1, 1))
+      && world.has_chunk(chunk_pos + ChunkPos::new(-1, 0))
+      && world.has_chunk(chunk_pos + ChunkPos::new(-1, -1))
     {
-      return;
+      self.render_tx.send(chunk_pos).unwrap();
     }
+  }
 
+  pub fn render_chunk(&self, world: &World<TerrainGenerator>, chunk_pos: ChunkPos) {
     let mut chunk = RenderBuffer::new(16, 16);
 
     for rel_x in 0..16 {
@@ -118,7 +136,7 @@ impl WorldViewer {
 
         let brightness = ((((solar_incidence_angle).cos() + 1.0) / 2.0) * 255.0) as u8;
 
-        let brightness = match self.mode {
+        let brightness = match *self.mode.lock() {
           RenderMode::Height => (meter_height * 2.0) as u8,
           RenderMode::Slope => (cell_slope * 255.0 / std::f64::consts::PI) as u8,
           RenderMode::Aspect => {
