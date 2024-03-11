@@ -76,7 +76,7 @@ impl RenderQueue {
     generating.clear();
     rendering.clear();
 
-    for i in 0..state.radius {
+    for i in 0..=state.radius {
       let min_circle = state.center - RegionPos::new(i, i);
       let max_circle = state.center + RegionPos::new(i, i);
 
@@ -99,7 +99,8 @@ impl RenderQueue {
         if !generated_chunks.has_chunk(region_pos) {
           generating.push(region_pos);
         }
-        if !rendered_chunks.contains_key(&region_pos) {
+        // Generate chunks 1 block further out than rendered.
+        if !rendered_chunks.contains_key(&region_pos) && i < state.radius {
           rendering.push(region_pos);
         }
       }
