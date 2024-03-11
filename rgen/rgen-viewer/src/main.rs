@@ -1,8 +1,8 @@
-use std::{sync::Arc, time::Instant};
+use std::{collections::HashMap, sync::Arc, time::Instant};
 
 use rgen_base::{ChunkPos, Pos};
 use rgen_world::Context;
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::Texture};
 
 mod render;
 mod spline_view;
@@ -81,9 +81,7 @@ pub fn main() -> Result<(), String> {
   let mut spline_view = spline_view::SplineViewer::new();
 
   let texture_creator = render.canvas.texture_creator();
-  let mut temp_texture = texture_creator
-    .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
-    .unwrap();
+  let mut texture_cache = HashMap::<ChunkPos, Texture>::new();
 
   let mut last_frame = Instant::now();
 
@@ -95,19 +93,24 @@ pub fn main() -> Result<(), String> {
         Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'main,
 
         Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
-          world_view.set_mode(RenderMode::Height)
+          world_view.set_mode(RenderMode::Height);
+          texture_cache.clear();
         }
         Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
-          world_view.set_mode(RenderMode::Slope)
+          world_view.set_mode(RenderMode::Slope);
+          texture_cache.clear();
         }
         Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
-          world_view.set_mode(RenderMode::Aspect)
+          world_view.set_mode(RenderMode::Aspect);
+          texture_cache.clear();
         }
         Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
-          world_view.set_mode(RenderMode::Brightness)
+          world_view.set_mode(RenderMode::Brightness);
+          texture_cache.clear();
         }
         Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
-          world_view.set_mode(RenderMode::BiomeColors)
+          world_view.set_mode(RenderMode::BiomeColors);
+          texture_cache.clear();
         }
 
         Event::MouseButtonDown { x, y, .. } => drag_pos = Some((x, y)),
@@ -210,22 +213,35 @@ pub fn main() -> Result<(), String> {
         for chunk_z in min_chunk.z..=max_chunk.z {
           let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
 
-          if let Some(c) = rendered_chunks.get(&chunk_pos) {
-            let pos = chunk_pos.min_block_pos();
+          let tex = match texture_cache.get(&chunk_pos) {
+            Some(t) => t,
+            None => {
+              if let Some(c) = rendered_chunks.get(&chunk_pos) {
+                let mut tex = texture_creator
+                  .create_texture_streaming(Some(sdl2::pixels::PixelFormatEnum::ARGB8888), 16, 16)
+                  .unwrap();
 
-            c.copy_to_sdl2(&mut temp_texture);
+                c.copy_to_sdl2(&mut tex);
 
-            render.canvas.copy(
-              &temp_texture,
-              None,
-              Some(Rect::new(
-                pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
-                pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
-                zoom * 16,
-                zoom * 16,
-              )),
-            )?;
-          }
+                texture_cache.insert(chunk_pos, tex);
+                texture_cache.get(&chunk_pos).unwrap()
+              } else {
+                continue;
+              }
+            }
+          };
+
+          let pos = chunk_pos.min_block_pos();
+          render.canvas.copy(
+            &tex,
+            None,
+            Some(Rect::new(
+              pos.x * zoom as i32 - (view_coords.0 * zoom as f64) as i32,
+              pos.z * zoom as i32 - (view_coords.1 * zoom as f64) as i32,
+              zoom * 16,
+              zoom * 16,
+            )),
+          )?;
         }
       }
 
