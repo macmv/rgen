@@ -18,6 +18,9 @@ pub struct World<G> {
   // not decorated).
   pub request_tx: Sender<ChunkPos>,
   pub request_rx: Receiver<ChunkPos>,
+
+  pub completed_tx: Sender<(ChunkPos, BiomeChunk)>,
+  pub completed_rx: Receiver<(ChunkPos, BiomeChunk)>,
 }
 
 pub struct BiomeChunk {
@@ -44,6 +47,7 @@ impl Default for Column {
 impl<G> World<G> {
   pub fn new(context: Context, generator: G) -> World<G> {
     let (tx, rx) = crossbeam_channel::bounded(64);
+    let (ctx, crx) = crossbeam_channel::bounded(64);
 
     World {
       context,
@@ -52,6 +56,16 @@ impl<G> World<G> {
       requested: Mutex::new(HashSet::new()),
       request_tx: tx,
       request_rx: rx,
+
+      completed_tx: ctx,
+      completed_rx: crx,
+    }
+  }
+
+  pub fn recv_chunks(&self) {
+    let mut w = self.chunks.write();
+    for (pos, chunk) in self.completed_rx.try_iter() {
+      w.insert(pos, chunk);
     }
   }
 
@@ -112,7 +126,7 @@ impl World<TerrainGenerator> {
       }
     }
 
-    self.chunks.write().insert(chunk_pos, BiomeChunk { columns });
+    self.completed_tx.send((chunk_pos, BiomeChunk { columns })).unwrap();
   }
 }
 

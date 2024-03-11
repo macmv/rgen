@@ -20,11 +20,15 @@ pub struct WorldViewer {
   pub render_requested: Mutex<HashSet<ChunkPos>>,
   pub render_tx:        Sender<ChunkPos>,
   pub render_rx:        Receiver<ChunkPos>,
+
+  pub completed_tx: Sender<(ChunkPos, RenderBuffer)>,
+  pub completed_rx: Receiver<(ChunkPos, RenderBuffer)>,
 }
 
 impl WorldViewer {
   pub fn new() -> WorldViewer {
     let (tx, rx) = crossbeam_channel::bounded(64);
+    let (ctx, crx) = crossbeam_channel::bounded(64);
 
     WorldViewer {
       mode:              Mutex::new(RenderMode::Brightness),
@@ -34,6 +38,16 @@ impl WorldViewer {
       render_requested: Mutex::new(HashSet::new()),
       render_tx:        tx,
       render_rx:        rx,
+
+      completed_tx: ctx,
+      completed_rx: crx,
+    }
+  }
+
+  pub fn recv_chunks(&self) {
+    let mut w = self.chunks.write();
+    for (pos, chunk) in self.completed_rx.try_iter() {
+      w.insert(pos, chunk);
     }
   }
 
@@ -203,7 +217,7 @@ impl WorldViewer {
       }
     }
 
-    self.chunks.write().insert(chunk_pos, chunk);
+    self.completed_tx.send((chunk_pos, chunk)).unwrap();
   }
 }
 pub fn color_for_biome(ctx: &Context, biome: Biome) -> Color {

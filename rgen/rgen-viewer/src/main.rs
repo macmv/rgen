@@ -168,6 +168,9 @@ pub fn main() -> Result<(), String> {
     let min_chunk = view_pos.chunk() + ChunkPos::new(-2, -2);
     let max_chunk = max_pos.chunk() + ChunkPos::new(2, 2);
 
+    world_view.recv_chunks();
+    world.recv_chunks();
+
     {
       let generated_chunks = world.read();
       let rendered_chunks = world_view.read_chunks();
