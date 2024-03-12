@@ -210,7 +210,8 @@ impl WorldBiomes {
       }
     }
 
-    self.carve_cave(seed, chunk, chunk_pos);
+    // TODO: Don't carve through water.
+    // self.carve_cave(seed, chunk, chunk_pos);
 
     self.generate_top_layer(seed, &ctx.blocks, chunk, chunk_pos);
   }
