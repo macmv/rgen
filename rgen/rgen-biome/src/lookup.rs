@@ -99,8 +99,8 @@ impl WorldBiomes {
 
     match peaks_valleys {
       x if x < 0.075 => PeaksValleysCategory::Valley,
-      x if x < 0.39 => PeaksValleysCategory::LowSlice,
-      x if x < 0.41 => PeaksValleysCategory::River,
+      x if x < 0.48 => PeaksValleysCategory::LowSlice,
+      x if x < 0.52 => PeaksValleysCategory::River,
       x if x < 0.6 => PeaksValleysCategory::MidSlice,
       x if x < 0.85 => PeaksValleysCategory::HighSlice,
       _ => PeaksValleysCategory::Peak,
