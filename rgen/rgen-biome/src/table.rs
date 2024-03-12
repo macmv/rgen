@@ -20,7 +20,7 @@ macro_rules! b {
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[b!(1.0, birch_woodland)];
+const BLANK: BiomeFnCategory = &[b!(1.0, dry_grassy_wood)];
 const SEA: BiomeFnCategory = &[b!(1.0, blank)];
 const RIVER: BiomeFnCategory = &[b!(1.0, river)];
 

@@ -15,6 +15,16 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
   gen.top_block = ctx.blocks.grass.default_state;
 
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BasicDryBush {
+      avg_in_chunk: 8 as f64,
+      leaves:       ctx.blocks.leaves.default_state,
+      place_above:  ctx.blocks.grass.block.into(),
+      trunk:        ctx.blocks.log.default_state,
+    },
+  )
   //loose dry oak tree
   //loose dry oak bush
   //grass

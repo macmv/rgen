@@ -14,4 +14,4 @@ pub use scatter::Scatter;
 pub use splatter::Splatter;
 pub use splotch::Splotch;
 pub use spread::Spread;
-pub use tree::{BasicBirch, BasicTree, DeadTree};
+pub use tree::*;
