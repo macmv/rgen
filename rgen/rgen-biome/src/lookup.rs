@@ -82,8 +82,7 @@ impl WorldBiomes {
   }
 
   fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
-    let continentalness =
-      self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
+    let continentalness = self.sample_continentalness(seed, pos);
 
     match continentalness {
       x if x < 0.02 => ContinentalnessCategory::MushroomIsland,
@@ -95,17 +94,8 @@ impl WorldBiomes {
     }
   }
 
-  pub(crate) fn peaks_valleys(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(1);
-
-    self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
-  }
-
   fn peaks_valleys_category(&self, seed: u64, pos: Pos) -> PeaksValleysCategory {
-    let seed = seed.wrapping_add(1);
-
-    let peaks_valleys =
-      self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
+    let peaks_valleys = self.sample_peaks_valleys(seed, pos);
 
     match peaks_valleys {
       x if x < 0.075 => PeaksValleysCategory::Valley,
@@ -118,9 +108,7 @@ impl WorldBiomes {
   }
 
   fn erosion_category(&self, seed: u64, pos: Pos) -> u8 {
-    let seed = seed.wrapping_add(2);
-
-    let erosion = self.erosion_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5;
+    let erosion = self.sample_erosion(seed, pos);
 
     // FIXME: This is dumb
     (erosion * 6.9999) as u8

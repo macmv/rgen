@@ -76,7 +76,7 @@ pub struct WorldBiomes {
 }
 
 lazy_static::lazy_static! {
-  pub static ref CONTINENTALNESS_TO_HEIGHT: Spline<&'static [(f64, f64)]> = Spline::new(&[
+  pub static ref CONTINENTALNESS: Spline<&'static [(f64, f64)]> = Spline::new(&[
     (0.00, 88.0),
     (0.01, 35.0),
     (0.15, 38.0),
@@ -87,27 +87,25 @@ lazy_static::lazy_static! {
     (1.00, 128.0),
   ]);
 
-  pub static ref CONTINENTALNESS_TO_HEIGHT_RIVER: Spline<&'static [(f64, f64)]> = Spline::new(&[
-    (0.00, 60.0),
-    (0.01, 60.0),
-    (0.15, 60.0),
-    (0.26, 60.0),
-    (0.40, 60.0),
-    (0.81, 60.0),
-    (0.91, 60.0),
-    (1.00, 60.0),
+  pub static ref EROSION: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 1.0),
+    (0.01, 0.8),
+    (0.15, 0.7),
+    (0.26, 0.5),
+    (0.40, 0.3),
+    (0.81, 0.2),
+    (0.91, 0.1),
+    (1.00, 0.0),
   ]);
 
-  // Using the `peaks_valleys` noise, we sample this spline. The returned value is
-  // how much to interpolate between `CONTINENTALNESS_TO_HEIGHT` and `CONTINENTALNESS_TO_HEIGHT_RIVER`.
-  pub static ref RIVER_INTERPOLATION: Spline<&'static [(f64, f64)]> = Spline::new(&[
-    (0.00, 0.0),
-    (0.35, 0.0),
-    (0.39, 0.8),
-    (0.40, 1.0),
-    (0.41, 0.8),
-    (0.45, 0.0),
-    (1.00, 0.0),
+  pub static ref PEAKS_VALLEYS: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 16.0),
+    (0.40, 8.0),
+    (0.47, 2.0),
+    (0.50, 0.0),
+    (0.53, 2.0),
+    (0.60, 8.0),
+    (1.00, 16.0),
   ]);
 }
 
@@ -123,7 +121,7 @@ impl WorldBiomes {
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
-      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
+      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
@@ -139,23 +137,28 @@ impl WorldBiomes {
   }
 
   pub fn sample_continentalness(&self, seed: u64, pos: Pos) -> f64 {
-    ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
+    (self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5)
       .clamp(0.0, 1.0)
   }
 
+  pub fn sample_peaks_valleys(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(1);
+
+    (self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5).clamp(0.0, 1.0)
+  }
+
+  pub fn sample_erosion(&self, seed: u64, pos: Pos) -> f64 {
+    let seed = seed.wrapping_add(2);
+
+    (self.erosion_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5).clamp(0.0, 1.0)
+  }
+
   pub fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
-    let continentalness =
-      ((self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) + 1.0) / 2.0)
-        .clamp(0.0, 1.0);
+    let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(seed, pos));
+    let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(seed, pos));
+    let e = EROSION.sample::<Cosine>(self.sample_erosion(seed, pos));
 
-    let peaks_valleys = self.peaks_valleys(seed, pos);
-
-    let height = CONTINENTALNESS_TO_HEIGHT.sample::<Cosine>(continentalness);
-    let river_height = CONTINENTALNESS_TO_HEIGHT_RIVER.sample::<Cosine>(continentalness);
-    let river_interpolation = RIVER_INTERPOLATION.sample::<Cosine>(peaks_valleys);
-
-    // `height` will be lower than the river in oceans, so take the min.
-    height.min(height + (river_height - height) * river_interpolation)
+    (c + p - 64.0) * e + 64.0
   }
 
   pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {

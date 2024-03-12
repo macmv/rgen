@@ -13,17 +13,22 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct SplineEditor {
-  spline:       Spline<Vec<(f64, f64)>>,
-  other_spline: Spline<Vec<(f64, f64)>>,
-  lerp_spline:  Spline<Vec<(f64, f64)>>,
+  // This spline maps noise values to Y heights.
+  continentalness_spline: Spline<Vec<(f64, f64)>>,
 
-  lerp: f64,
+  // These two splines map noise values to multipliers away from sea level.
+  erosion_spline:       Spline<Vec<(f64, f64)>>,
+  peaks_valleys_spline: Spline<Vec<(f64, f64)>>,
+
+  erosion:         f64,
+  continentalness: f64,
+  peaks_valleys:   f64,
 }
 
 impl Default for SplineEditor {
   fn default() -> Self {
     Self {
-      spline:       Spline::new(vec![
+      continentalness_spline: Spline::new(vec![
         (0.00, 88.0),
         (0.01, 35.0),
         (0.15, 38.0),
@@ -33,27 +38,29 @@ impl Default for SplineEditor {
         (0.91, 103.0),
         (1.00, 128.0),
       ]),
-      other_spline: Spline::new(vec![
-        (0.00, 60.0),
-        (0.01, 60.0),
-        (0.15, 60.0),
-        (0.26, 60.0),
-        (0.40, 60.0),
-        (0.81, 60.0),
-        (0.91, 60.0),
-        (1.00, 60.0),
-      ]),
-      lerp_spline:  Spline::new(vec![
-        (0.00, 0.0),
-        (0.40, 0.0),
-        (0.47, 0.8),
-        (0.50, 1.0),
-        (0.53, 0.8),
-        (0.60, 0.0),
+      erosion_spline:         Spline::new(vec![
+        (0.00, 1.0),
+        (0.01, 0.8),
+        (0.15, 0.7),
+        (0.26, 0.5),
+        (0.40, 0.3),
+        (0.81, 0.2),
+        (0.91, 0.1),
         (1.00, 0.0),
       ]),
+      peaks_valleys_spline:   Spline::new(vec![
+        (0.00, 16.0),
+        (0.40, 8.0),
+        (0.47, 2.0),
+        (0.50, 0.0),
+        (0.53, 2.0),
+        (0.60, 8.0),
+        (1.00, 16.0),
+      ]),
 
-      lerp: 0.0,
+      continentalness: 0.0,
+      erosion:         0.0,
+      peaks_valleys:   0.0,
     }
   }
 }
@@ -64,14 +71,16 @@ impl eframe::App for SplineEditor {
       ui.heading("Spline Editor");
 
       ui.horizontal(|ui| {
-        draw_editor(ui, &mut self.spline, 0.0..=128.0);
+        draw_editor(ui, &mut self.continentalness_spline, 0.0..=128.0);
         ui.separator();
-        draw_editor(ui, &mut self.other_spline, 0.0..=128.0);
+        draw_editor(ui, &mut self.erosion_spline, 0.0..=1.0);
         ui.separator();
-        draw_editor(ui, &mut self.lerp_spline, 0.0..=1.0);
+        draw_editor(ui, &mut self.peaks_valleys_spline, 0.0..=32.0);
       });
 
-      ui.add(Slider::new(&mut self.lerp, 0.0..=1.0).text("lerp"));
+      ui.add(Slider::new(&mut self.continentalness, 0.0..=1.0).text("Continentalness"));
+      ui.add(Slider::new(&mut self.erosion, 0.0..=1.0).text("Erosion"));
+      ui.add(Slider::new(&mut self.peaks_valleys, 0.0..=1.0).text("Peaks and Valleys"));
 
       Plot::new("spline")
         .include_x(0.0)
@@ -80,14 +89,16 @@ impl eframe::App for SplineEditor {
         .include_y(128.0)
         .view_aspect(2.0)
         .show(ui, |plot_ui| {
-          plot_spline(plot_ui, &self.spline, 1.0);
-          plot_spline(plot_ui, &self.other_spline, 1.0);
-          plot_spline(plot_ui, &self.lerp_spline, 128.0);
-          plot_sample(plot_ui, |x| {
-            let a = self.spline.sample::<Cosine>(x);
-            let b = self.other_spline.sample::<Cosine>(x);
+          plot_spline(plot_ui, &self.continentalness_spline, 1.0);
+          plot_spline(plot_ui, &self.erosion_spline, 128.0);
+          plot_spline(plot_ui, &self.peaks_valleys_spline, 4.0);
 
-            a + (b - a) * self.lerp_spline.sample::<Cosine>(self.lerp)
+          plot_sample(plot_ui, |x| {
+            let c = self.continentalness_spline.sample::<Cosine>(x);
+            let p = self.peaks_valleys_spline.sample::<Cosine>(self.peaks_valleys);
+            let e = self.erosion_spline.sample::<Cosine>(self.erosion);
+
+            (c + p - 64.0) * e + 64.0
           });
         });
     });

@@ -182,8 +182,15 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   let lines = Context::run(|ctx| {
     let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);
     let continentalness = ctx.generator.biomes.sample_continentalness(ctx.generator.seed, pos);
+    let erosion = ctx.generator.biomes.sample_erosion(ctx.generator.seed, pos);
+    let peaks_valleys = ctx.generator.biomes.sample_peaks_valleys(ctx.generator.seed, pos);
 
-    [format!("biome: {}", biome.name), format!("continentalness: {continentalness:.5}")]
+    [
+      format!("biome: {}", biome.name),
+      format!("continentalness: {continentalness:.5}"),
+      format!("erosion: {erosion:.5}"),
+      format!("peaks valleys: {peaks_valleys:.5}"),
+    ]
   });
 
   let mut arr = env
