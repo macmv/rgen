@@ -25,6 +25,8 @@ pub struct BiomeInfo {
   pub color: Color,
 
   pub continentalness: f64,
+  pub erosion:         f64,
+  pub peaks_valleys:   f64,
 }
 
 impl Column {
@@ -37,10 +39,25 @@ impl BiomeInfo {
     name:            "void",
     color:           Color::BLACK,
     continentalness: 0.0,
+    erosion:         0.0,
+    peaks_valleys:   0.0,
   };
 
-  pub fn new(ctx: &Context, biome: &BiomeBuilder, continentalness: f64) -> BiomeInfo {
-    BiomeInfo { biome: biome.id, name: biome.name, color: biome_color(ctx, biome), continentalness }
+  pub fn new(
+    ctx: &Context,
+    biome: &BiomeBuilder,
+    continentalness: f64,
+    erosion: f64,
+    peaks_valleys: f64,
+  ) -> BiomeInfo {
+    BiomeInfo {
+      biome: biome.id,
+      name: biome.name,
+      color: biome_color(ctx, biome),
+      continentalness,
+      erosion,
+      peaks_valleys,
+    }
   }
 }
 
@@ -59,8 +76,13 @@ impl World<TerrainGenerator> {
     let height = self.generator.biomes.sample_height(self.generator.seed, pos);
 
     let continentalness = self.generator.biomes.sample_continentalness(self.generator.seed, pos);
+    let erosion = self.generator.biomes.sample_erosion(self.generator.seed, pos);
+    let peaks_valleys = self.generator.biomes.sample_peaks_valleys(self.generator.seed, pos);
 
-    Column { height, biome: BiomeInfo::new(&self.context, biome, continentalness) }
+    Column {
+      height,
+      biome: BiomeInfo::new(&self.context, biome, continentalness, erosion, peaks_valleys),
+    }
   }
 
   pub fn height_at(&self, pos: Pos) -> f64 {

@@ -143,6 +143,8 @@ impl WorldViewer {
         let main_color = match mode {
           RenderMode::Biomes => biome_color,
           RenderMode::Continentalness => Color::from_gray(biome.continentalness as f32),
+          RenderMode::Erosion => Color::from_gray(biome.erosion as f32),
+          RenderMode::PeaksValleys => Color::from_gray(biome.peaks_valleys as f32),
         };
 
         let alpha = 40.0 / 100.0;

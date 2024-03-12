@@ -35,6 +35,8 @@ enum RenderMode {
 
   /// Renders the continentalness map.
   Continentalness,
+  Erosion,
+  PeaksValleys,
 }
 
 const MIN_ZOOM: f64 = 0.5;
@@ -110,6 +112,14 @@ pub fn main() -> Result<(), String> {
         }
         Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
           world_view.set_mode(RenderMode::Continentalness);
+          texture_cache.clear();
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
+          world_view.set_mode(RenderMode::Erosion);
+          texture_cache.clear();
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
+          world_view.set_mode(RenderMode::PeaksValleys);
           texture_cache.clear();
         }
 
@@ -234,6 +244,16 @@ pub fn main() -> Result<(), String> {
 
         let biome = world.generator.biomes.choose_biome(world.generator.seed, hover_pos);
         f.render(0, 48, format!("Biome: {}", biome.name));
+
+        let continentalness =
+          world.generator.biomes.sample_continentalness(world.generator.seed, hover_pos);
+        let erosion = world.generator.biomes.sample_erosion(world.generator.seed, hover_pos);
+        let peaks_valleys =
+          world.generator.biomes.sample_peaks_valleys(world.generator.seed, hover_pos);
+
+        f.render(0, 72, format!("Continentalness: {:.5}", continentalness));
+        f.render(0, 96, format!("Erosion: {:.5}", erosion));
+        f.render(0, 120, format!("Peaks and Valleys: {:.5}", peaks_valleys));
       }
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
