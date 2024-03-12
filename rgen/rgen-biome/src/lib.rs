@@ -1,7 +1,7 @@
 use biome::IdContext;
+use cave::CaveCarver;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
-  grid::PointGrid,
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, PerlinNoise},
   Rng,
 };
@@ -11,6 +11,7 @@ use table::Tables;
 
 mod biome;
 mod builder;
+mod cave;
 mod lookup;
 mod table;
 
@@ -19,6 +20,8 @@ pub use builder::BiomeBuilder;
 pub struct WorldBiomes {
   tables:         Tables,
   biome_override: bool,
+
+  cave: CaveCarver,
 
   temperature_map: OctavedNoise<PerlinNoise>,
   humidity_map:    OctavedNoise<PerlinNoise>,
@@ -65,14 +68,6 @@ pub struct WorldBiomes {
 
   /// Controlls the depth of the sub layer (usually dirt).
   sub_layer_map: OctavedNoise<PerlinNoise>,
-
-  noodle_cave_grid: PointGrid,
-
-  /// Noodle caves are the long thin tunnels, the "normal" caves.
-  noodle_cave_map:    OctavedNoise<PerlinNoise>,
-  noodle_density_map: OctavedNoise<PerlinNoise>,
-  /// Cheese caves are the big caverns.
-  cheese_cave_map:    OctavedNoise<PerlinNoise>,
 }
 
 lazy_static::lazy_static! {
@@ -119,6 +114,8 @@ impl WorldBiomes {
       tables:         Tables::new(&ctx),
       biome_override: false,
 
+      cave: CaveCarver::new(&ctx),
+
       temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
@@ -130,11 +127,6 @@ impl WorldBiomes {
       density_map: OctavedNoise { octaves: 5, freq: 1.0 / 64.0, ..Default::default() },
 
       sub_layer_map: OctavedNoise { octaves: 3, freq: 1.0 / 20.0, ..Default::default() },
-
-      noodle_cave_grid:   PointGrid::new(),
-      noodle_cave_map:    OctavedNoise { octaves: 2, freq: 1.0 / 64.0, ..Default::default() },
-      noodle_density_map: OctavedNoise { octaves: 2, freq: 1.0 / 16.0, ..Default::default() },
-      cheese_cave_map:    OctavedNoise { octaves: 4, freq: 1.0 / 128.0, ..Default::default() },
     }
   }
 
@@ -220,8 +212,7 @@ impl WorldBiomes {
       }
     }
 
-    // TODO: Don't carve through water.
-    // self.carve_cave(seed, chunk, chunk_pos);
+    self.cave.carve(seed, chunk, chunk_pos);
 
     self.generate_top_layer(seed, &ctx.blocks, chunk, chunk_pos);
   }
@@ -312,102 +303,6 @@ impl WorldBiomes {
         let rel_z = pos.z - chunk_pos.min_block_pos().z;
         biome_names[rel_x as usize][rel_z as usize] == biome.name
       });
-    }
-  }
-
-  fn carve_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.carve_noodle_cave(seed, chunk, chunk_pos);
-    self.carve_cheese_cave(seed, chunk, chunk_pos);
-  }
-
-  fn carve_noodle_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    let radius = 100;
-    let scale = 48.0;
-
-    let min_pos = chunk_pos.min_block_pos();
-    let cave_min_x = ((min_pos.x - radius) as f64) / scale;
-    let cave_min_z = ((min_pos.z - radius) as f64) / scale;
-    let cave_max_x = ((min_pos.x + 16 + radius) as f64) / scale;
-    let cave_max_z = ((min_pos.z + 16 + radius) as f64) / scale;
-
-    let points =
-      self.noodle_cave_grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
-    for point in points {
-      let mut pos = ((point.0 * scale), 64.0, (point.1 * scale));
-
-      // A seed unique to this cave.
-      let cave_seed =
-        seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
-
-      for _ in 0..100 {
-        let dx = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(1));
-        let dy = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(2));
-        let dz = self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(3));
-
-        let dy = dy / 2.0;
-
-        let radius =
-          (self.noodle_cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(4)) * 0.5
-            + 0.5)
-            * 4.0
-            + 1.0;
-        let radius_squared = (radius * radius).round() as i32;
-        let max_radius = radius.ceil() as i32;
-
-        for _ in 0..5 {
-          pos.0 += dx;
-          pos.1 += dy;
-          pos.2 += dz;
-
-          let pos = Pos::new(pos.0 as i32, pos.1 as i32, pos.2 as i32);
-          for y in -max_radius..=max_radius {
-            for z in -max_radius..=max_radius {
-              for x in -max_radius..=max_radius {
-                let r = x * x + y * y + z * z;
-                if r > radius_squared {
-                  continue;
-                }
-                let dist_to_center = r as f64 / radius_squared as f64;
-
-                let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
-                if pos.in_chunk(chunk_pos) {
-                  let density = self.noodle_density_map.generate_3d(
-                    pos.x as f64,
-                    pos.y as f64,
-                    pos.z as f64,
-                    seed,
-                  ) * 0.4
-                    + 0.6;
-                  if density > dist_to_center {
-                    chunk.set(pos.chunk_rel(), Block::AIR);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  fn carve_cheese_cave(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    let seed = seed.wrapping_add(200);
-
-    for rel_x in 0..16_u8 {
-      for rel_z in 0..16_u8 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
-
-        for y in 0..=255 {
-          let pos = pos.with_y(y);
-          let noise =
-            self.cheese_cave_map.generate_3d(pos.x as f64, pos.y as f64 * 4.0, pos.z as f64, seed)
-              * 0.5
-              + 0.5;
-          if noise < 0.1 {
-            chunk.set(pos.chunk_rel(), Block::AIR);
-          }
-        }
-      }
     }
   }
 }
