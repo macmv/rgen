@@ -92,14 +92,14 @@ const DRY_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, charred_woodland),
   // b!(1.0, charred_birch_woodland),
   // b!(1.0, deadwood),
-  // b!(1.0, dry_grassy_wood),
-  // b!(1.0, dry_wood),
+  b!(1.0, dry_grassy_wood),
+  b!(1.0, dry_wood),
 ];
 const SAVANNA: BiomeFnCategory = &[
-  b!(1.0, blank),
-  // b!(1.0, dead_wood),
-  // b!(1.0, wooded_savanna),
-  // b!(1.0, thorn_wood)
+  //b!(1.0, blank),
+  //b!(1.0, dead_wood),
+  b!(1.0, wooded_savanna),
+  b!(1.0, thorn_wood),
 ];
 const HOT_DESERT: BiomeFnCategory = &[
   b!(1.0, blank),
