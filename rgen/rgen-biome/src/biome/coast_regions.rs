@@ -236,9 +236,10 @@ pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "palm_tree",
     PlacerStage::Tree,
     placer::BasicTree {
-      place_above: gen.top_block.into(),
-      trunk:       ctx.blocks.rgen_log.with_data(1),
-      leaves:      ctx.blocks.rgen_leaves.with_data(1),
+      avg_in_chunk: 16.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.rgen_log.with_data(1),
+      leaves:       ctx.blocks.rgen_leaves.with_data(1),
     },
   )
 }
@@ -346,9 +347,10 @@ pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "basic jungle tree",
     PlacerStage::Tree,
     placer::BasicTree {
-      place_above: gen.top_block.into(),
-      trunk:       ctx.blocks.log.with_data(3),
-      leaves:      ctx.blocks.leaves.with_data(3),
+      avg_in_chunk: 16.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.log.with_data(3),
+      leaves:       ctx.blocks.leaves.with_data(3),
     },
   )
 }

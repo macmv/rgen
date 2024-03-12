@@ -9,6 +9,41 @@ const SILVER: u8 = 8;
 pub fn dry_grassy_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
   gen.top_block = ctx.blocks.grass.default_state;
+
+  gen.place(
+    "bushes",
+    PlacerStage::Tree,
+    placer::BasicDryBush {
+      avg_in_chunk: 4 as f64,
+      leaves:       ctx.blocks.leaves.default_state,
+      place_above:  ctx.blocks.grass.block.into(),
+      trunk:        ctx.blocks.log.default_state,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    800,
+      place_above: [ctx.blocks.grass.block].into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 60,
+    },
+  );
 }
 
 pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -24,7 +59,42 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_above:  ctx.blocks.grass.block.into(),
       trunk:        ctx.blocks.log.default_state,
     },
-  )
+  );
+
+  gen.place(
+    "sparce_tree",
+    PlacerStage::Sand,
+    placer::BasicTree {
+      avg_in_chunk: 0.1,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.log.default_state,
+      leaves:       ctx.blocks.leaves.default_state,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    400,
+      place_above: [ctx.blocks.grass.block].into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 20,
+    },
+  );
   //loose dry oak tree
   //loose dry oak bush
   //grass

@@ -108,9 +108,10 @@ pub fn snowy_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "spruce_tree",
     PlacerStage::Sand,
     placer::BasicTree {
-      place_above: gen.top_block.into(),
-      trunk:       ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.default_state,
+      avg_in_chunk: 16.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.log.default_state,
+      leaves:       ctx.blocks.leaves.default_state,
     },
   );
 }
@@ -123,9 +124,10 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "fir_tree",
     PlacerStage::Sand,
     placer::BasicTree {
-      place_above: gen.top_block.into(),
-      trunk:       ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.default_state,
+      avg_in_chunk: 16.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.log.default_state,
+      leaves:       ctx.blocks.leaves.default_state,
     },
   );
 }
@@ -138,9 +140,10 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "spruce_tree",
     PlacerStage::Sand,
     placer::BasicTree {
-      place_above: gen.top_block.into(),
-      trunk:       ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.default_state,
+      avg_in_chunk: 16.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.log.default_state,
+      leaves:       ctx.blocks.leaves.default_state,
     },
   );
 }
