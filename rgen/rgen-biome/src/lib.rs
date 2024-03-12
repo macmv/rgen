@@ -88,24 +88,26 @@ lazy_static::lazy_static! {
   ]);
 
   pub static ref EROSION: Spline<&'static [(f64, f64)]> = Spline::new(&[
-    (0.00, 1.0),
-    (0.01, 0.8),
-    (0.15, 0.7),
-    (0.26, 0.5),
-    (0.40, 0.3),
-    (0.81, 0.2),
-    (0.91, 0.1),
-    (1.00, 0.0),
+    (0.00, 1.00),
+    (0.01, 0.70),
+    (0.15, 0.60),
+    (0.26, 0.50),
+    (0.40, 0.20),
+    (0.81, 0.15),
+    (0.91, 0.05),
+    (1.00, 0.00),
   ]);
 
   pub static ref PEAKS_VALLEYS: Spline<&'static [(f64, f64)]> = Spline::new(&[
-    (0.00, 16.0),
-    (0.40, 8.0),
-    (0.47, 2.0),
-    (0.50, 0.0),
-    (0.53, 2.0),
-    (0.60, 8.0),
-    (1.00, 16.0),
+    (0.00, 256.0),
+    (0.30, 128.0),
+    (0.40, 0.0),
+    (0.47, 0.0),
+    (0.50, -32.0),
+    (0.53, 0.0),
+    (0.60, 0.0),
+    (0.70, 128.0),
+    (1.00, 256.0),
   ]);
 }
 
@@ -158,7 +160,12 @@ impl WorldBiomes {
     let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(seed, pos));
     let e = EROSION.sample::<Cosine>(self.sample_erosion(seed, pos));
 
-    (c + p - 64.0) * e + 64.0
+    // FIXME: Remove this, and figure out how to keep oceans
+    if c < 64.0 {
+      c
+    } else {
+      (c + p - 64.0) * e + 64.0
+    }
   }
 
   pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
