@@ -25,7 +25,7 @@ impl<Noise: NoiseGenerator> NoiseGenerator for OctavedNoise<Noise> {
       y *= self.lacu;
 
       let seed = seed + octave as u64;
-      res += self.noise.generate(x, y, seed) * self.pers.powi(octave as i32) * res;
+      res += self.noise.generate(x, y, seed) * self.pers.powi(octave as i32);
     }
 
     // Make sure the noise is in the range [-1.0, 1.0).

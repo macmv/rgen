@@ -2,7 +2,7 @@ use biome::IdContext;
 use cave::CaveCarver;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_placer::{
-  noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, PerlinNoise},
+  noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise},
   Rng,
 };
 use rgen_spline::{Cosine, Spline};
@@ -34,7 +34,7 @@ pub struct WorldBiomes {
   /// - Near Inland (plains)
   /// - Mid Inland (forest, small mountains)
   /// - Far Inland (mountains)
-  continentalness_map: OctavedNoise<PerlinNoise>,
+  continentalness_map: OctavedNoise<OpenSimplexNoise>,
 
   /// Defines the approximate height of the type of biome. Note that this isn't
   /// the height map, its almost the height goal of the biome that is chosen.
@@ -48,7 +48,7 @@ pub struct WorldBiomes {
   /// - Mid Slice (forest, small mountains)
   /// - High Slice (mountains)
   /// - Peak (extreme hills)
-  peaks_valleys_map: OctavedNoise<PerlinNoise>,
+  peaks_valleys_map: OctavedNoise<OpenSimplexNoise>,
 
   /// Defines how erroded the land is.
   ///
@@ -58,16 +58,16 @@ pub struct WorldBiomes {
   /// - Not eroded (mountains)
   /// - Somewhat eroded (forests, plains)
   /// - most eroded (swamps, deserts)
-  erosion_map: OctavedNoise<PerlinNoise>,
+  erosion_map: OctavedNoise<OpenSimplexNoise>,
 
   /// Variance determines which biome to pick out of a list. Its basically
   /// random.
-  variance_map: OctavedNoise<PerlinNoise>,
+  variance_map: OctavedNoise<OpenSimplexNoise>,
 
   density_map: OctavedNoise<PerlinNoise>,
 
   /// Controlls the depth of the sub layer (usually dirt).
-  sub_layer_map: OctavedNoise<PerlinNoise>,
+  sub_layer_map: OctavedNoise<OpenSimplexNoise>,
 }
 
 lazy_static::lazy_static! {
