@@ -11,10 +11,18 @@ pub struct OpenSimplexNoise;
 impl NoiseGenerator for OpenSimplexNoise {
   fn generate(&self, x: f64, y: f64, seed: u64) -> f64 {
     thread_local! {
-      static PERM: RefCell<PermutationTable> = RefCell::new(PermutationTable::init(0));
+      static PERM: RefCell<(u64, PermutationTable)> = RefCell::new((0, PermutationTable::init(0)));
     }
 
-    PERM.with(|p| noise_2(Vector2::new(x, y), &p.borrow()))
+    PERM.with(|p| {
+      let mut p = p.borrow_mut();
+      if p.0 != seed {
+        p.0 = seed;
+        p.1 = PermutationTable::init(seed);
+      }
+
+      noise_2(Vector2::new(x, y), &p.1)
+    })
   }
 }
 
