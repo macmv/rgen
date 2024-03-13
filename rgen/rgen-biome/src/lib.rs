@@ -120,7 +120,7 @@ impl WorldBiomes {
       humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
 
       continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
-      peaks_valleys_map:   OctavedNoise { octaves: 8, freq: 1.0 / 256.0, ..Default::default() },
+      peaks_valleys_map:   OctavedNoise { octaves: 6, freq: 1.0 / 256.0, ..Default::default() },
       erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
       variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
 
