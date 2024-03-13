@@ -117,10 +117,14 @@ impl NoodleCave<'_> {
       for y in -max_radius..=max_radius {
         for z in -max_radius..=max_radius {
           for x in -max_radius..=max_radius {
-            let r = x * x + y * y + z * z;
+            // Squish the cave a bit, so its wider than it is tall.
+            let x0 = x * 4 / 5;
+            let z0 = z * 4 / 5;
+            let r = x0 * x0 + y * y + z0 * z0;
             if r > radius_squared {
               continue;
             }
+
             let dist_to_center = r as f64 / radius_squared as f64;
 
             let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
