@@ -180,6 +180,7 @@ impl NoodleCave<'_> {
                   Pos::new(0, -1, 0),
                 ] {
                   let pos = pos + offset;
+                  // Chunk borders: we don't care! We can let a bit of floating water exist.
                   if !pos.in_chunk(chunk_pos) {
                     continue;
                   }
@@ -188,6 +189,7 @@ impl NoodleCave<'_> {
 
                   if block == self.carver.water {
                     near_water = true;
+                    break;
                   }
                 }
 
