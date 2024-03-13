@@ -170,6 +170,35 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
 }
 
 #[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1region(
+  env: JNIEnv,
+  _class: JClass,
+  biomes: JByteArray,
+  block_x: jint,
+  block_z: jint,
+  width: jint,
+  height: jint,
+) {
+  let len = env.get_array_length(&biomes).unwrap();
+  assert_eq!(len, width * height, "biomes array must be 256 elements long");
+
+  let mut biome_out = vec![0; (width * height) as usize];
+
+  Context::run(|ctx| {
+    for x in block_x..block_x + width {
+      for z in block_z..block_z + height {
+        let pos = Pos::new(x, 0, z);
+
+        biome_out[(z * width + x) as usize] =
+          ctx.generator.biomes.choose_biome(ctx.generator.seed, pos).id.raw_id() as i8;
+      }
+    }
+  });
+
+  env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
+}
+
+#[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   mut env: JNIEnv,
   _class: JClass,

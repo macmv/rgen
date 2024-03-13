@@ -12,7 +12,7 @@ public class WorldTypeRGen extends WorldType {
 
   @Override
   public BiomeProvider getBiomeProvider(World world) {
-    return super.getBiomeProvider(world);
+    return new RGenBiomeProvider(world.getSeed());
   }
 
   @Override
