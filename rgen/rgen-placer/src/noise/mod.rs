@@ -1,7 +1,9 @@
 mod octaved;
+mod open_simplex;
 mod perlin;
 
 pub use octaved::OctavedNoise;
+pub use open_simplex::OpenSimplexNoise;
 pub use perlin::PerlinNoise;
 
 pub trait NoiseGenerator {
