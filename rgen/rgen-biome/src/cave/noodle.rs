@@ -14,6 +14,12 @@ pub struct NoodleCarver {
   density_map: OctavedNoise<PerlinNoise>,
 }
 
+struct NoodleCave<'a> {
+  carver:    &'a NoodleCarver,
+  pos:       (f64, f64, f64),
+  cave_seed: u64,
+}
+
 impl NoodleCarver {
   pub fn new(_ctx: &IdContext) -> Self {
     NoodleCarver {
@@ -35,52 +41,100 @@ impl NoodleCarver {
 
     let points = self.grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
     for point in points {
-      let mut pos = ((point.0 * scale), 64.0, (point.1 * scale));
+      let pos = ((point.0 * scale), 64.0, (point.1 * scale));
 
       // A seed unique to this cave.
       let cave_seed =
         seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
 
+      let mut cave = NoodleCave { carver: self, pos, cave_seed };
+
       for _ in 0..100 {
-        let dx = self.cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(1));
-        let dy = self.cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(2));
-        let dz = self.cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(3));
+        cave.dig(chunk, chunk_pos);
+      }
+    }
+  }
+}
 
-        let dy = dy / 2.0;
+impl NoodleCave<'_> {
+  fn radius(&self) -> f64 {
+    (self.carver.cave_map.generate_3d(
+      self.pos.0,
+      self.pos.1,
+      self.pos.2,
+      self.cave_seed.wrapping_add(4),
+    ) * 0.5
+      + 0.5)
+      * 4.0
+      + 1.0
+  }
 
-        let radius =
-          (self.cave_map.generate_3d(pos.0, pos.1, pos.2, cave_seed.wrapping_add(4)) * 0.5 + 0.5)
-            * 4.0
-            + 1.0;
-        let radius_squared = (radius * radius).round() as i32;
-        let max_radius = radius.ceil() as i32;
+  fn dig(&mut self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    let dx = self.carver.cave_map.generate_3d(
+      self.pos.0,
+      self.pos.1,
+      self.pos.2,
+      self.cave_seed.wrapping_add(1),
+    );
+    let dy = self.carver.cave_map.generate_3d(
+      self.pos.0,
+      self.pos.1,
+      self.pos.2,
+      self.cave_seed.wrapping_add(2),
+    );
+    let dz = self.carver.cave_map.generate_3d(
+      self.pos.0,
+      self.pos.1,
+      self.pos.2,
+      self.cave_seed.wrapping_add(3),
+    );
 
-        for _ in 0..5 {
-          pos.0 += dx;
-          pos.1 += dy;
-          pos.2 += dz;
+    let dy = dy / 2.0;
 
-          let pos = Pos::new(pos.0 as i32, pos.1 as i32, pos.2 as i32);
-          for y in -max_radius..=max_radius {
-            for z in -max_radius..=max_radius {
-              for x in -max_radius..=max_radius {
-                let r = x * x + y * y + z * z;
-                if r > radius_squared {
-                  continue;
-                }
-                let dist_to_center = r as f64 / radius_squared as f64;
+    let radius = self.radius();
 
-                let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
-                if pos.in_chunk(chunk_pos) {
-                  let density =
-                    self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64, seed)
-                      * 0.4
-                      + 0.6;
+    self.dig_delta(chunk_pos, chunk, radius, dx, dy, dz);
+  }
 
-                  if density > dist_to_center {
-                    chunk.set(pos.chunk_rel(), Block::AIR);
-                  }
-                }
+  fn dig_delta(
+    &mut self,
+    chunk_pos: ChunkPos,
+    chunk: &mut Chunk,
+    radius: f64,
+    dx: f64,
+    dy: f64,
+    dz: f64,
+  ) {
+    let radius_squared = (radius * radius).round() as i32;
+    let max_radius = radius.ceil() as i32;
+
+    for _ in 0..5 {
+      self.pos.0 += dx;
+      self.pos.1 += dy;
+      self.pos.2 += dz;
+
+      let pos = self.block_pos();
+      for y in -max_radius..=max_radius {
+        for z in -max_radius..=max_radius {
+          for x in -max_radius..=max_radius {
+            let r = x * x + y * y + z * z;
+            if r > radius_squared {
+              continue;
+            }
+            let dist_to_center = r as f64 / radius_squared as f64;
+
+            let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
+            if pos.in_chunk(chunk_pos) {
+              let density = self.carver.density_map.generate_3d(
+                pos.x as f64,
+                pos.y as f64,
+                pos.z as f64,
+                self.cave_seed,
+              ) * 0.4
+                + 0.6;
+
+              if density > dist_to_center {
+                chunk.set(pos.chunk_rel(), Block::AIR);
               }
             }
           }
@@ -88,4 +142,6 @@ impl NoodleCarver {
       }
     }
   }
+
+  fn block_pos(&self) -> Pos { Pos::new(self.pos.0 as i32, self.pos.1 as i32, self.pos.2 as i32) }
 }
