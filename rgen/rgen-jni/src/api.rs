@@ -2,7 +2,7 @@
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
-  sys::{jint, jlong, jobjectArray, jstring},
+  sys::{jbyte, jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
 
@@ -185,9 +185,9 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
   let mut biome_out = vec![0; (width * height) as usize];
 
   Context::run(|ctx| {
-    for x in block_x..block_x + width {
-      for z in block_z..block_z + height {
-        let pos = Pos::new(x, 0, z);
+    for x in 0..width {
+      for z in 0..height {
+        let pos = Pos::new(x + block_x, 0, z + block_z);
 
         biome_out[(z * width + x) as usize] =
           ctx.generator.biomes.choose_biome(ctx.generator.seed, pos).id.raw_id() as i8;
@@ -233,6 +233,21 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
 
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
+  _env: JNIEnv,
+  _class: JClass,
+  block_x: jint,
+  block_z: jint,
+) -> jbyte {
+  let pos = Pos::new(block_x, 0, block_z);
+
+  Context::run(|ctx| {
+    let biome = ctx.generator.biomes.choose_biome(ctx.generator.seed, pos);
+    biome.id.raw_id() as i8
+  })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1at(
   env: JNIEnv,
   _class: JClass,
   block_x: jint,

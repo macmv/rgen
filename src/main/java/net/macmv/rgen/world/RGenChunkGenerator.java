@@ -45,6 +45,8 @@ public class RGenChunkGenerator extends ChunkGeneratorOverworld {
 
     build_rust_chunk(primer, x, z);
 
+    this.vanillaDecorator.generate(world, x, z, primer);
+
     Chunk chunk = new Chunk(this.world, primer, x, z);
 
     RustGenerator.make_biomes(chunk.getBiomeArray(), x, z);
@@ -139,6 +141,6 @@ public class RGenChunkGenerator extends ChunkGeneratorOverworld {
 
     long endTime = System.nanoTime();
     long duration = (endTime - startTime);
-    System.out.println("chunk took " + (float) duration / 1_000_000f + " millis");
+    // System.out.println("chunk took " + (float) duration / 1_000_000f + " millis");
   }
 }
