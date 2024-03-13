@@ -20,7 +20,7 @@ macro_rules! b {
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[b!(1.0, dry_wood)];
+const BLANK: BiomeFnCategory = &[b!(1.0, redwood_grove)];
 const SEA: BiomeFnCategory = &[b!(1.0, blank)];
 const RIVER: BiomeFnCategory = &[b!(1.0, river)];
 
@@ -140,12 +140,12 @@ const WARM_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, valcano_growth),
 ];
 const MEDITERANEAN: BiomeFnCategory = &[
-  b!(1.0, blank),
-  // b!(1.0, chaparral_flats),
-  // b!(1.0, redwood_grove),
-  // b!(1.0, open_plain),
-  // b!(1.0, sunflower_plain),
-  // b!(1.0, chaparral_woods),
+  //b!(1.0, blank),
+  b!(1.0, chaparral_flats),
+  b!(1.0, redwood_grove),
+  b!(1.0, open_plain),
+  b!(1.0, sunflower_plain),
+  b!(1.0, chaparral_woods),
 ];
 const MONSOON: BiomeFnCategory = &[
   b!(1.0, blank),
