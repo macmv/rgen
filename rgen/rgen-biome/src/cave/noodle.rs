@@ -17,11 +17,17 @@ pub struct NoodleCarver {
 struct NoodleCave<'a> {
   carver:    &'a NoodleCarver,
   pos:       (f64, f64, f64),
+  origin:    (f64, f64, f64),
   cave_seed: u64,
 
   // -1.0 or 1.0
   direction: f64,
 }
+
+const CAVE_RADIUS: i32 = 96;
+// FIXME: This needs to be as much as 30 blocks smaller than the radius to avoid
+// all the chunk border artifacts. Need to figure out whats going on with this.
+const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
   pub fn new(_ctx: &IdContext) -> Self {
@@ -33,14 +39,13 @@ impl NoodleCarver {
   }
 
   pub fn carve(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    let radius = 100;
     let scale = 48.0;
 
     let min_pos = chunk_pos.min_block_pos();
-    let cave_min_x = ((min_pos.x - radius) as f64) / scale;
-    let cave_min_z = ((min_pos.z - radius) as f64) / scale;
-    let cave_max_x = ((min_pos.x + 16 + radius) as f64) / scale;
-    let cave_max_z = ((min_pos.z + 16 + radius) as f64) / scale;
+    let cave_min_x = ((min_pos.x - CAVE_RADIUS) as f64) / scale;
+    let cave_min_z = ((min_pos.z - CAVE_RADIUS) as f64) / scale;
+    let cave_max_x = ((min_pos.x + 16 + CAVE_RADIUS) as f64) / scale;
+    let cave_max_z = ((min_pos.z + 16 + CAVE_RADIUS) as f64) / scale;
 
     let points = self.grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
     for point in points {
@@ -50,13 +55,17 @@ impl NoodleCarver {
       let cave_seed =
         seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
 
-      let mut cave = NoodleCave { carver: self, pos, cave_seed, direction: 1.0 };
+      let mut cave = NoodleCave { carver: self, pos, origin: pos, cave_seed, direction: 1.0 };
       for _ in 0..100 {
-        cave.dig(chunk, chunk_pos);
+        if cave.dig(chunk, chunk_pos) {
+          break;
+        }
       }
-      let mut cave = NoodleCave { carver: self, pos, cave_seed, direction: -1.0 };
+      let mut cave = NoodleCave { carver: self, pos, origin: pos, cave_seed, direction: -1.0 };
       for _ in 0..100 {
-        cave.dig(chunk, chunk_pos);
+        if cave.dig(chunk, chunk_pos) {
+          break;
+        }
       }
     }
   }
@@ -75,7 +84,7 @@ impl NoodleCave<'_> {
       + 1.0
   }
 
-  fn dig(&mut self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn dig(&mut self, chunk: &mut Chunk, chunk_pos: ChunkPos) -> bool {
     let dx = self.carver.cave_map.generate_3d(
       self.pos.0,
       self.pos.1,
@@ -99,7 +108,7 @@ impl NoodleCave<'_> {
 
     let radius = self.radius();
 
-    self.dig_delta(chunk_pos, chunk, radius, dx, dy, dz);
+    self.dig_delta(chunk_pos, chunk, radius, dx, dy, dz)
   }
 
   fn dig_delta(
@@ -110,7 +119,7 @@ impl NoodleCave<'_> {
     dx: f64,
     dy: f64,
     dz: f64,
-  ) {
+  ) -> bool {
     let radius_squared = (radius * radius).round() as i32;
     let max_radius = radius.ceil() as i32;
 
@@ -118,6 +127,15 @@ impl NoodleCave<'_> {
       self.pos.0 += dx;
       self.pos.1 += dy;
       self.pos.2 += dz;
+
+      if self.pos.1 < 0.0 || self.pos.1 > 256.0 {
+        return true;
+      }
+      if (self.pos.0 - self.origin.0).abs() > MAX_CAVE_AREA
+        || (self.pos.2 - self.origin.2).abs() > MAX_CAVE_AREA
+      {
+        return true;
+      }
 
       let pos = self.block_pos();
       for y in -max_radius..=max_radius {
@@ -151,6 +169,7 @@ impl NoodleCave<'_> {
         }
       }
     }
+    false
   }
 
   fn block_pos(&self) -> Pos { Pos::new(self.pos.0 as i32, self.pos.1 as i32, self.pos.2 as i32) }
