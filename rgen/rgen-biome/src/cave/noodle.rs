@@ -18,6 +18,9 @@ struct NoodleCave<'a> {
   carver:    &'a NoodleCarver,
   pos:       (f64, f64, f64),
   cave_seed: u64,
+
+  // -1.0 or 1.0
+  direction: f64,
 }
 
 impl NoodleCarver {
@@ -41,14 +44,17 @@ impl NoodleCarver {
 
     let points = self.grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
     for point in points {
-      let pos = ((point.0 * scale), 64.0, (point.1 * scale));
+      let pos = ((point.0 * scale), 32.0, (point.1 * scale));
 
       // A seed unique to this cave.
       let cave_seed =
         seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
 
-      let mut cave = NoodleCave { carver: self, pos, cave_seed };
-
+      let mut cave = NoodleCave { carver: self, pos, cave_seed, direction: 1.0 };
+      for _ in 0..100 {
+        cave.dig(chunk, chunk_pos);
+      }
+      let mut cave = NoodleCave { carver: self, pos, cave_seed, direction: -1.0 };
       for _ in 0..100 {
         cave.dig(chunk, chunk_pos);
       }
@@ -75,19 +81,19 @@ impl NoodleCave<'_> {
       self.pos.1,
       self.pos.2,
       self.cave_seed.wrapping_add(1),
-    );
+    ) * self.direction;
     let dy = self.carver.cave_map.generate_3d(
       self.pos.0,
       self.pos.1,
       self.pos.2,
       self.cave_seed.wrapping_add(2),
-    );
+    ) * self.direction;
     let dz = self.carver.cave_map.generate_3d(
       self.pos.0,
       self.pos.1,
       self.pos.2,
       self.cave_seed.wrapping_add(3),
-    );
+    ) * self.direction;
 
     let dy = dy / 2.0;
 
