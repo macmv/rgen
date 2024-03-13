@@ -12,6 +12,8 @@ pub struct NoodleCarver {
 
   cave_map:    OctavedNoise<PerlinNoise>,
   density_map: OctavedNoise<PerlinNoise>,
+
+  water: Block,
 }
 
 struct NoodleCave<'a> {
@@ -30,11 +32,13 @@ const CAVE_RADIUS: i32 = 96;
 const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
-  pub fn new(_ctx: &IdContext) -> Self {
+  pub fn new(ctx: &IdContext) -> Self {
     NoodleCarver {
       grid:        PointGrid::new(),
       cave_map:    OctavedNoise { octaves: 2, freq: 1.0 / 64.0, ..Default::default() },
       density_map: OctavedNoise { octaves: 2, freq: 1.0 / 16.0, ..Default::default() },
+
+      water: ctx.blocks.water.block,
     }
   }
 
@@ -138,6 +142,8 @@ impl NoodleCave<'_> {
       }
 
       let pos = self.block_pos();
+
+      let mut hit_water = false;
       for y in -max_radius..=max_radius {
         for z in -max_radius..=max_radius {
           for x in -max_radius..=max_radius {
@@ -162,11 +168,41 @@ impl NoodleCave<'_> {
                 + 0.6;
 
               if density > dist_to_center {
-                chunk.set(pos.chunk_rel(), Block::AIR);
+                // TODO: This is pretty dumb. Maybe add a concept of "near water" so we can skip
+                // this sometimes?
+                let mut near_water = false;
+                for offset in [
+                  Pos::new(-1, 0, 0),
+                  Pos::new(1, 0, 0),
+                  Pos::new(0, 0, -1),
+                  Pos::new(0, 0, 1),
+                  Pos::new(0, 1, 0),
+                  Pos::new(0, -1, 0),
+                ] {
+                  let pos = pos + offset;
+                  if !pos.in_chunk(chunk_pos) {
+                    continue;
+                  }
+
+                  let block = chunk.get(pos.chunk_rel());
+
+                  if block == self.carver.water {
+                    near_water = true;
+                  }
+                }
+
+                if near_water {
+                  hit_water = true;
+                } else {
+                  chunk.set(pos.chunk_rel(), Block::AIR);
+                }
               }
             }
           }
         }
+      }
+      if hit_water {
+        return true;
       }
     }
     false
