@@ -26,6 +26,17 @@ pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 
   gen.place(
+    "ponzel",
+    PlacerStage::Sand,
+    placer::Splatter {
+      replace: ctx.blocks.grass.default_state,
+      place:   ctx.blocks.dirt.with_data(2),
+
+      attempts: 300,
+    },
+  );
+
+  gen.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
