@@ -5,8 +5,8 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 
-public class WorldTypeRGen extends WorldType {
-  public WorldTypeRGen() {
+public class RGenWorldType extends WorldType {
+  public RGenWorldType() {
     super("rgen");
   }
 

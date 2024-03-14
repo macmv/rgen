@@ -4,7 +4,7 @@ import net.macmv.rgen.block.RBlocks;
 import net.macmv.rgen.entity.REntities;
 import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.rust.RustGenerator;
-import net.macmv.rgen.world.WorldTypeRGen;
+import net.macmv.rgen.world.RGenWorldType;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
@@ -30,7 +30,7 @@ public class RGen {
   public static final String VERSION = "1.0";
   public static Logger LOG = LogManager.getLogger(RGen.MODID);
 
-  public static WorldTypeRGen worldType;
+  public static RGenWorldType RGEN_WORLD_TYPE;
 
   @SidedProxy(clientSide = "net.macmv.rgen.RClientProxy", serverSide = "net.macmv.rgen.RCommonProxy")
   public static RCommonProxy proxy;
@@ -39,7 +39,7 @@ public class RGen {
   public void preInit(FMLPreInitializationEvent e) {
     MinecraftForge.EVENT_BUS.register(this);
 
-    worldType = new WorldTypeRGen();
+    RGEN_WORLD_TYPE = new RGenWorldType();
 
     proxy.preInit();
   }
