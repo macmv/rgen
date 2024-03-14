@@ -10,7 +10,6 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.grass.default_state;
   gen.sub_layer = ctx.blocks.dirt.default_state;
 
-  /*
   gen.place(
     "grass clumps",
     PlacerStage::Sand,
@@ -24,7 +23,6 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
       radius: 3..=8,
     },
   );
-  */
 }
 
 // Wool colors:
