@@ -8,7 +8,7 @@ const SILVER: u8 = 8;
 
 pub fn chaparral_flats(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
@@ -62,15 +62,15 @@ pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 pub fn open_plain(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn sunflower_plain(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn chaparral_woods(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.grass.default_state;
 }
 
 pub fn dry_grassy_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -182,14 +182,19 @@ pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
       attempts: 50,
     },
   );
+}
+pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.savanna;
+  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+
   gen.place(
-    "gravel",
+    "grass",
     PlacerStage::Sand,
     placer::Splatter {
       replace: ctx.blocks.stone.default_state,
-      place:   ctx.blocks.gravel.default_state,
+      place:   ctx.blocks.grass.default_state,
 
-      attempts: 100,
+      attempts: 50,
     },
   );
 }

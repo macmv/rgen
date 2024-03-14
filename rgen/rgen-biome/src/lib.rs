@@ -112,7 +112,7 @@ impl WorldBiomes {
 
     WorldBiomes {
       tables:         Tables::new(&ctx),
-      biome_override: true,
+      biome_override: false,
 
       cave: CaveCarver::new(&ctx),
 
