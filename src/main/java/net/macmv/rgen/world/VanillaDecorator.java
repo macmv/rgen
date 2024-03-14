@@ -32,9 +32,9 @@ public class VanillaDecorator {
   }
 
   public void generate(World world, int x, int z, ChunkPrimer chunk) {
-    // TODO: Vanilla caves go brrr
-    this.caveGenerator.generate(world, x, z, chunk);
-    this.ravineGenerator.generate(world, x, z, chunk);
+    // NOTE: If we ever want to add vanilla caves/ravines, we can do so with this.
+    // this.caveGenerator.generate(world, x, z, chunk);
+    // this.ravineGenerator.generate(world, x, z, chunk);
 
     this.mineshaftGenerator.generate(world, x, z, chunk);
     this.villageGenerator.generate(world, x, z, chunk);
