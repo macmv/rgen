@@ -57,31 +57,38 @@ impl Structure {
       return;
     }
 
-    let mut new_storage = vec![BlockState::AIR; self.storage.len()];
+    fn idx(structure: &Structure, x: u32, y: u32, z: u32) -> usize {
+      (y * structure.depth * structure.width + z * structure.width + x) as usize
+    }
 
     for y in 0..self.height {
-      for z in 0..self.depth {
-        for x in 0..self.width {
-          let new_x = match delta {
-            1 => self.depth - 1 - z,
-            2 => self.width - 1 - x,
-            3 => z,
-            _ => x,
-          };
-          let new_z = match delta {
-            1 => x,
-            2 => self.depth - 1 - z,
-            3 => self.width - 1 - x,
-            _ => z,
-          };
-          new_storage[(y * self.depth * self.width + new_z * self.width + new_x) as usize] =
-            self.storage[(y * self.depth * self.width + z * self.width + x) as usize];
+      for z in 0..self.depth / 2 {
+        for x in 0..=self.width / 2 {
+          let q1 = idx(self, x, y, z);
+          let q2 = idx(self, z, y, self.width - 1 - x);
+          let q3 = idx(self, self.width - 1 - x, y, self.depth - 1 - z);
+          let q4 = idx(self, self.depth - 1 - z, y, x);
+
+          match delta {
+            1 => {
+              self.storage.swap(q1, q4);
+              self.storage.swap(q3, q2);
+              self.storage.swap(q1, q3);
+            }
+            2 => {
+              self.storage.swap(q1, q3);
+              self.storage.swap(q2, q4);
+            }
+            3 => {
+              self.storage.swap(q1, q2);
+              self.storage.swap(q3, q4);
+              self.storage.swap(q1, q3);
+            }
+            _ => {}
+          }
         }
       }
     }
-
-    self.storage = new_storage;
-    std::mem::swap(&mut self.width, &mut self.depth);
   }
 }
 
