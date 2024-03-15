@@ -2328,6 +2328,13 @@ name = "rgen-spline"
 version = "0.1.0"
 
 [[package]]
+name = "rgen-structure"
+version = "0.1.0"
+dependencies = [
+ "rgen-base",
+]
+
+[[package]]
 name = "rgen-viewer"
 version = "0.1.0"
 dependencies = [
