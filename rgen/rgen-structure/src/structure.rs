@@ -108,7 +108,7 @@ mod tests {
 
     #[rustfmt::skip]
     let original = vec![
-      s, s, s,
+      s, s, w,
       w, w, l,
       s, s, s,
     ];
@@ -116,17 +116,17 @@ mod tests {
     let rotated_1 = vec![
       s, w, s,
       s, w, s,
-      s, l, s,
+      s, l, w,
     ];
     #[rustfmt::skip]
     let rotated_2 = vec![
       s, s, s,
       l, w, w,
-      s, s, s,
+      w, s, s,
     ];
     #[rustfmt::skip]
     let rotated_3 = vec![
-      s, l, s,
+      w, l, s,
       s, w, s,
       s, w, s,
     ];
