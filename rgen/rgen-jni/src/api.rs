@@ -174,8 +174,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
   env: JNIEnv,
   _class: JClass,
   biomes: JByteArray,
-  block_x: jint,
-  block_z: jint,
+  cell_x: jint,
+  cell_z: jint,
   width: jint,
   height: jint,
 ) {
@@ -187,7 +187,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
   Context::run(|ctx| {
     for x in 0..width {
       for z in 0..height {
-        let pos = Pos::new(x + block_x, 0, z + block_z);
+        let pos = Pos::new((x + cell_x) * 4, 0, (z + cell_z) * 4);
 
         biome_out[(z * width + x) as usize] =
           ctx.generator.biomes.choose_biome(ctx.generator.seed, pos).id.raw_id() as i8;

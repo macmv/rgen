@@ -9,7 +9,7 @@ public class RustGenerator {
   private static native void init_generator(long seed);
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
-  private static native void build_biomes_region(byte[] data, int blockX, int blockZ, int width, int height);
+  private static native void build_biomes_region(byte[] data, int cellX, int cellZ, int width, int height);
   private static native String[] debug_info(int x, int y, int z);
   private static native String get_biome_name_at(int x, int y, int z);
   private static native byte get_biome_at(int x, int z);
@@ -61,8 +61,8 @@ public class RustGenerator {
   public static void make_biomes(byte[] biomes, int x, int z) {
     build_biomes(biomes, x, z);
   }
-  public static void make_biomes_region(byte[] biomes, int blockX, int blockZ, int width, int height) {
-    build_biomes_region(biomes, blockX, blockZ, width, height);
+  public static void make_biomes_region_4x4(byte[] biomes, int cellX, int cellZ, int width, int height) {
+    build_biomes_region(biomes, cellX, cellZ, width, height);
   }
   public static byte biome_id_at(int x, int z) {
     return get_biome_at(x, z);

@@ -30,15 +30,15 @@ public class RGenBiomeProvider extends BiomeProvider {
     long start = System.nanoTime();
 
     IntCache.resetIntCache();
-    int minX = x - range;
-    int minZ = z - range;
-    int maxX = x + range;
-    int maxZ = z + range;
+    int minX = (x - range) / 4;
+    int minZ = (z - range) / 4;
+    int maxX = (x + range) / 4;
+    int maxZ = (z + range) / 4;
     int width = maxX - minX + 1;
     int height = maxZ - minZ + 1;
 
     byte[] biomes = new byte[width * height];
-    RustGenerator.make_biomes_region(biomes, minX, minZ, width, height);
+    RustGenerator.make_biomes_region_4x4(biomes, minX, minZ, width, height);
 
     BlockPos blockpos = null;
     int foundIndex = 0;
@@ -63,15 +63,15 @@ public class RGenBiomeProvider extends BiomeProvider {
   @Override
   public boolean areBiomesViable(int x, int z, int radius, List<Biome> allowed) {
     IntCache.resetIntCache();
-    int minX = x - radius;
-    int minZ = z - radius;
-    int maxX = x + radius;
-    int maxZ = z + radius;
+    int minX = (x - radius) / 4;
+    int minZ = (z - radius) / 4;
+    int maxX = (x + radius) / 4;
+    int maxZ = (z + radius) / 4;
     int width = maxX - minX + 1;
     int height = maxZ - minZ + 1;
 
     byte[] biomes = new byte[width * height];
-    RustGenerator.make_biomes_region(biomes, minX, minZ, width, height);
+    RustGenerator.make_biomes_region_4x4(biomes, minX, minZ, width, height);
 
     for (int i = 0; i < width * height; i++) {
       Biome biome = Biome.getBiome(biomes[i]);
