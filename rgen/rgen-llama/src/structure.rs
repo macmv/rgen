@@ -13,9 +13,11 @@ pub struct Structure {
 }
 
 impl Structure {
+  pub(crate) fn empty() -> Self { Structure { width: 0, height: 0, depth: 0, storage: Vec::new() } }
+
   #[cfg(test)]
   fn new_test(width: u32, height: u32, depth: u32, storage: Vec<BlockState>) -> Self {
-    Self { width, height, depth, storage }
+    Structure { width, height, depth, storage }
   }
 
   /// Returns the width of the structure, or the number of blocks on the
