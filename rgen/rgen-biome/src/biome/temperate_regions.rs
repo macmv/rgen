@@ -4,6 +4,28 @@ use crate::builder::PlacerStage;
 
 use super::{BiomeBuilder, IdContext};
 
+pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.top_block = ctx.blocks.grass.default_state;
+
+  gen.place(
+    "fir_tree",
+    PlacerStage::Sand,
+    placer::Sakura {
+      avg_in_chunk: 4.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.rgen_log.with_data(2),
+      leaves:       ctx.blocks.rgen_leaves.with_data(2),
+      large_size:   true,
+    },
+  );
+}
+
+pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.top_block = ctx.blocks.grass.default_state;
+}
+
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.top_block = ctx.blocks.grass.default_state;
