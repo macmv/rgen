@@ -109,10 +109,8 @@ lazy_static::lazy_static! {
 }
 
 impl WorldBiomes {
-  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
+  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> Self {
     let ctx = IdContext { biomes: biome_ids, blocks };
-
-    let seed = 0;
 
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
@@ -121,7 +119,7 @@ impl WorldBiomes {
       tables:         Tables::new(&ctx),
       biome_override: false,
 
-      cave: CaveCarver::new(&ctx),
+      cave: CaveCarver::new(&ctx, seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
       humidity_map:    OctavedNoise::new(seed, 1.0 / 4096.0),

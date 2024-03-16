@@ -8,6 +8,7 @@ use crate::biome::IdContext;
 
 /// Noodle caves are the long thin tunnels, the "normal" caves.
 pub struct NoodleCarver {
+  seed: u64,
   grid: PointGrid,
 
   cave_map:    OctavedNoise<PerlinNoise, 2>,
@@ -31,11 +32,10 @@ const CAVE_RADIUS: i32 = 96;
 const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
-  pub fn new(ctx: &IdContext) -> Self {
-    // FIXME
-    let seed = 0;
-
+  pub fn new(ctx: &IdContext, seed: u64) -> Self {
     NoodleCarver {
+      seed: seed + 0,
+
       grid:        PointGrid::new(),
       cave_map:    OctavedNoise::new(seed, 1.0 / 64.0),
       density_map: OctavedNoise::new(seed, 1.0 / 16.0),
@@ -53,9 +53,8 @@ impl NoodleCarver {
     let cave_max_x = ((min_pos.x + 16 + CAVE_RADIUS) as f64) / scale;
     let cave_max_z = ((min_pos.z + 16 + CAVE_RADIUS) as f64) / scale;
 
-    // FIXME
-    let seed = 0;
-    let points = self.grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
+    let points =
+      self.grid.points_in_area(self.seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
     for point in points {
       let pos = ((point.0 * scale), 32.0, (point.1 * scale));
 

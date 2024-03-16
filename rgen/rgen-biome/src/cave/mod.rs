@@ -13,8 +13,8 @@ pub struct CaveCarver {
 }
 
 impl CaveCarver {
-  pub fn new(ctx: &IdContext) -> Self {
-    CaveCarver { noodle: NoodleCarver::new(ctx), cheese: CheeseCarver::new(ctx) }
+  pub fn new(ctx: &IdContext, seed: u64) -> Self {
+    CaveCarver { noodle: NoodleCarver::new(ctx, seed), cheese: CheeseCarver::new(ctx, seed) }
   }
 
   pub fn carve(&self, chunk: &mut Chunk, pos: ChunkPos) {

@@ -11,10 +11,7 @@ pub struct CheeseCarver {
 }
 
 impl CheeseCarver {
-  pub fn new(ctx: &IdContext) -> Self {
-    // FIXME
-    let seed = 0;
-
+  pub fn new(ctx: &IdContext, seed: u64) -> Self {
     CheeseCarver {
       cave_map: OctavedNoise::new(seed, 1.0 / 128.0),
 
