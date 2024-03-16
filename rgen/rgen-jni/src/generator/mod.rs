@@ -21,7 +21,7 @@ impl Generator for TerrainGenerator {
 
 impl TerrainGenerator {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> TerrainGenerator {
-    TerrainGenerator { seed, biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids) }
+    TerrainGenerator { seed, biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids, seed) }
   }
 }
 
