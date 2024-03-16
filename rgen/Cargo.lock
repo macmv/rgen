@@ -2299,6 +2299,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "rgen-base",
+ "rgen-llama",
  "rgen-placer",
  "rgen-spline",
  "rgen-world",
@@ -2313,6 +2314,13 @@ dependencies = [
  "rgen-biome",
  "rgen-placer",
  "rgen-world",
+]
+
+[[package]]
+name = "rgen-llama"
+version = "0.1.0"
+dependencies = [
+ "rgen-base",
 ]
 
 [[package]]
