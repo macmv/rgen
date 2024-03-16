@@ -2,6 +2,8 @@
 the following is a collected list of problems and things that still need to be done
 Tasks are broken into catagories and each item is listed by a name of the task followed by a description and then the name of the assignee if it has been assigned anyone is free to assign themselves to any task or do double duty on somthing(but please talk to the person so you don't do the same steps). 
 
+(**) means that this item requires a disison this can be as simple as the assignee making a choice or maybe siting down with other to discuss it
+
 ## Blocks
 
 ### Bamboo
@@ -12,4 +14,16 @@ Tasks are broken into catagories and each item is listed by a name of the task f
 - Crafting | Bamboo needs to be craftable into things what things still needs to be decided
 - Burnable | Bamboo needs to be able to be placed into a furnace to be used as a fuel
 
-### 
+### Mossy Stumps
+
+### Basalt
+- Texture | A bassalt texture is needed
+- Block | a bassalt block is needed
+- 
+
+### Polypores
+- Sideways Boundry Boxes | The boundry box of a polypore needs to be changed from a whole block to a side of a block
+- **Droping | Should polypores be dropable and should it be a simple as breaking with a fist or need silk touch
+- **Placment | If players can place polypores they need to be placeable by the way their facing like buttons
+
+
