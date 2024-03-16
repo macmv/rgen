@@ -1,29 +1,17 @@
-use super::NoiseGenerator;
+use super::{NoiseGenerator, SeededNoise};
 
-use std::{
-  cell::RefCell,
-  ops::{Add, AddAssign, Mul, MulAssign, Sub},
-};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub};
 
-#[derive(Default, Debug, Copy, Clone)]
-pub struct OpenSimplexNoise;
+pub struct OpenSimplexNoise {
+  perm: PermutationTable,
+}
+
+impl SeededNoise for OpenSimplexNoise {
+  fn new(seed: u64) -> Self { OpenSimplexNoise { perm: PermutationTable::init(seed) } }
+}
 
 impl NoiseGenerator for OpenSimplexNoise {
-  fn generate(&self, x: f64, y: f64, seed: u64) -> f64 {
-    thread_local! {
-      static PERM: RefCell<(u64, PermutationTable)> = RefCell::new((0, PermutationTable::init(0)));
-    }
-
-    PERM.with(|p| {
-      let mut p = p.borrow_mut();
-      if p.0 != seed {
-        p.0 = seed;
-        p.1 = PermutationTable::init(seed);
-      }
-
-      noise_2(Vector2::new(x, y), &p.1)
-    })
-  }
+  fn generate(&self, x: f64, y: f64) -> f64 { noise_2(Vector2::new(x, y), &self.perm) }
 }
 
 impl PermutationTable {

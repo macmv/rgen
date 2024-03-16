@@ -1,10 +1,16 @@
-use super::{NoiseGenerator, NoiseGenerator3D};
+use super::{NoiseGenerator, NoiseGenerator3D, SeededNoise};
 
 #[derive(Default, Debug, Copy, Clone)]
-pub struct PerlinNoise;
+pub struct PerlinNoise {
+  pub seed: u64,
+}
+
+impl SeededNoise for PerlinNoise {
+  fn new(seed: u64) -> Self { PerlinNoise { seed } }
+}
 
 impl NoiseGenerator for PerlinNoise {
-  fn generate(&self, x: f64, y: f64, seed: u64) -> f64 {
+  fn generate(&self, x: f64, y: f64) -> f64 {
     let x0 = if x > 0.0 { x as i32 } else { (x - 1.0) as i32 };
     let x1 = x0 + 1;
 
@@ -14,10 +20,10 @@ impl NoiseGenerator for PerlinNoise {
     let xd = s_curve(x - x0 as f64);
     let yd = s_curve(y - y0 as f64);
 
-    let x0y0 = generate_random_value(x0, y0, seed as i32);
-    let x1y0 = generate_random_value(x1, y0, seed as i32);
-    let x0y1 = generate_random_value(x0, y1, seed as i32);
-    let x1y1 = generate_random_value(x1, y1, seed as i32);
+    let x0y0 = generate_random_value(x0, y0, self.seed as i32);
+    let x1y0 = generate_random_value(x1, y0, self.seed as i32);
+    let x0y1 = generate_random_value(x0, y1, self.seed as i32);
+    let x1y1 = generate_random_value(x1, y1, self.seed as i32);
 
     let v1 = interpolate(x0y0, x1y0, xd);
     let v2 = interpolate(x0y1, x1y1, xd);
@@ -27,7 +33,7 @@ impl NoiseGenerator for PerlinNoise {
 }
 
 impl NoiseGenerator3D for PerlinNoise {
-  fn generate_3d(&self, x: f64, y: f64, z: f64, seed: u64) -> f64 {
+  fn generate_3d(&self, x: f64, y: f64, z: f64) -> f64 {
     let x0 = if x > 0.0 { x as i32 } else { (x - 1.0) as i32 };
     let x1 = x0 + 1;
 
@@ -41,14 +47,14 @@ impl NoiseGenerator3D for PerlinNoise {
     let yd = s_curve(y - y0 as f64);
     let zd = s_curve(z - z0 as f64);
 
-    let x0y0z0 = generate_random_value_3d(x0, y0, z0, seed as i32);
-    let x1y0z0 = generate_random_value_3d(x1, y0, z0, seed as i32);
-    let x0y1z0 = generate_random_value_3d(x0, y1, z0, seed as i32);
-    let x1y1z0 = generate_random_value_3d(x1, y1, z0, seed as i32);
-    let x0y0z1 = generate_random_value_3d(x0, y0, z1, seed as i32);
-    let x1y0z1 = generate_random_value_3d(x1, y0, z1, seed as i32);
-    let x0y1z1 = generate_random_value_3d(x0, y1, z1, seed as i32);
-    let x1y1z1 = generate_random_value_3d(x1, y1, z1, seed as i32);
+    let x0y0z0 = generate_random_value_3d(x0, y0, z0, self.seed as i32);
+    let x1y0z0 = generate_random_value_3d(x1, y0, z0, self.seed as i32);
+    let x0y1z0 = generate_random_value_3d(x0, y1, z0, self.seed as i32);
+    let x1y1z0 = generate_random_value_3d(x1, y1, z0, self.seed as i32);
+    let x0y0z1 = generate_random_value_3d(x0, y0, z1, self.seed as i32);
+    let x1y0z1 = generate_random_value_3d(x1, y0, z1, self.seed as i32);
+    let x0y1z1 = generate_random_value_3d(x0, y1, z1, self.seed as i32);
+    let x1y1z1 = generate_random_value_3d(x1, y1, z1, self.seed as i32);
 
     let v1z0 = interpolate(x0y0z0, x1y0z0, xd);
     let v2z0 = interpolate(x0y1z0, x1y1z0, xd);

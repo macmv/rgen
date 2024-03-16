@@ -1,31 +1,52 @@
-use super::{NoiseGenerator, NoiseGenerator3D};
+use super::{NoiseGenerator, NoiseGenerator3D, SeededNoise};
 
 #[derive(Debug, Copy, Clone)]
-pub struct OctavedNoise<Noise> {
-  pub octaves: usize,
-  pub freq:    f64,
-  pub pers:    f64,
-  pub lacu:    f64,
-  pub noise:   Noise,
+pub struct OctavedNoise<Noise, const O: usize> {
+  pub freq:   f64,
+  pub pers:   f64,
+  pub lacu:   f64,
+  pub layers: [Noise; O],
 }
 
-impl<N: Default> Default for OctavedNoise<N> {
-  fn default() -> Self { Self { octaves: 4, freq: 1.0, pers: 0.5, lacu: 2.0, noise: N::default() } }
+impl<N: SeededNoise, const O: usize> OctavedNoise<N, O> {
+  pub fn new(seed: u64, freq: f64) -> Self {
+    Self {
+      freq,
+      pers: 0.5,
+      lacu: 2.0,
+      layers: match (0..O).map(|i| N::new(seed + i as u64)).collect::<Vec<_>>().try_into() {
+        Ok(layers) => layers,
+        Err(_) => unreachable!(),
+      },
+    }
+  }
+
+  pub fn with_freq(mut self, freq: f64) -> Self {
+    self.freq = freq;
+    self
+  }
+  pub fn with_pers(mut self, pers: f64) -> Self {
+    self.pers = pers;
+    self
+  }
+  pub fn with_lacu(mut self, lacu: f64) -> Self {
+    self.lacu = lacu;
+    self
+  }
 }
 
-impl<Noise: NoiseGenerator> NoiseGenerator for OctavedNoise<Noise> {
-  fn generate(&self, x: f64, y: f64, seed: u64) -> f64 {
+impl<Noise: NoiseGenerator, const O: usize> NoiseGenerator for OctavedNoise<Noise, O> {
+  fn generate(&self, x: f64, y: f64) -> f64 {
     let mut x = x * self.freq;
     let mut y = y * self.freq;
 
-    let mut res = self.noise.generate(x, y, seed);
+    let mut res = self.layers[0].generate(x, y);
 
-    for octave in 1..self.octaves {
+    for octave in 1..O {
       x *= self.lacu;
       y *= self.lacu;
 
-      let seed = seed + octave as u64;
-      res += self.noise.generate(x, y, seed) * self.pers.powi(octave as i32);
+      res += self.layers[octave].generate(x, y) * self.pers.powi(octave as i32);
     }
 
     // Make sure the noise is in the range [-1.0, 1.0).
@@ -33,17 +54,16 @@ impl<Noise: NoiseGenerator> NoiseGenerator for OctavedNoise<Noise> {
   }
 }
 
-impl<Noise: NoiseGenerator3D> NoiseGenerator3D for OctavedNoise<Noise> {
-  fn generate_3d(&self, x: f64, y: f64, z: f64, seed: u64) -> f64 {
+impl<Noise: NoiseGenerator3D, const O: usize> NoiseGenerator3D for OctavedNoise<Noise, O> {
+  fn generate_3d(&self, x: f64, y: f64, z: f64) -> f64 {
     let mut x = x * self.freq;
     let mut y = y * self.freq;
     let mut z = z * self.freq;
     let mut pers = 1.0f64;
 
-    (0..self.octaves)
+    (0..O)
       .fold(0.0, |value, octave| {
-        let seed = seed + octave as u64;
-        let value = value + self.noise.generate_3d(x, y, z, seed) * pers;
+        let value = value + self.layers[octave].generate_3d(x, y, z) * pers;
 
         x *= self.lacu;
         y *= self.lacu;

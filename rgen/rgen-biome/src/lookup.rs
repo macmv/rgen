@@ -22,14 +22,14 @@ enum PeaksValleysCategory {
 }
 
 impl WorldBiomes {
-  pub fn choose_biome(&self, seed: u64, pos: Pos) -> &BiomeBuilder {
+  pub fn choose_biome(&self, pos: Pos) -> &BiomeBuilder {
     use crate::table::*;
 
     if self.biome_override {
       return &self.tables.blank_table[0][0][0];
     }
 
-    let continentalness = self.continentalness_category(seed, pos);
+    let continentalness = self.continentalness_category(pos);
 
     let table: &BiomeTable = match continentalness {
       ContinentalnessCategory::MushroomIsland => &self.tables.blank_table,
@@ -38,11 +38,11 @@ impl WorldBiomes {
 
       // Inland cases
       _ => {
-        let peaks_valleys = self.peaks_valleys_category(seed, pos);
+        let peaks_valleys = self.peaks_valleys_category(pos);
 
         match peaks_valleys {
           PeaksValleysCategory::Valley => {
-            let erosion = self.erosion_category(seed, pos);
+            let erosion = self.erosion_category(pos);
 
             if erosion <= 4 {
               // river table
@@ -64,14 +64,14 @@ impl WorldBiomes {
 
     // let table = &self.tables.beach_table;
 
-    let temperature = self.temperature(seed, pos);
-    let humidity = self.humidity(seed, pos);
+    let temperature = self.temperature(pos);
+    let humidity = self.humidity(pos);
 
     let biomes = &table[(temperature * table.len() as f64) as usize]
       [(humidity * table[0].len() as f64) as usize];
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
-    let mut variance = self.variance(seed, pos) * total;
+    let mut variance = self.variance(pos) * total;
     for biome in biomes {
       variance -= biome.rarity;
       if variance <= 0.0 {
@@ -81,8 +81,8 @@ impl WorldBiomes {
     &biomes[0]
   }
 
-  fn continentalness_category(&self, seed: u64, pos: Pos) -> ContinentalnessCategory {
-    let continentalness = self.sample_continentalness(seed, pos);
+  fn continentalness_category(&self, pos: Pos) -> ContinentalnessCategory {
+    let continentalness = self.sample_continentalness(pos);
 
     match continentalness {
       x if x < 0.02 => ContinentalnessCategory::MushroomIsland,
@@ -94,8 +94,8 @@ impl WorldBiomes {
     }
   }
 
-  fn peaks_valleys_category(&self, seed: u64, pos: Pos) -> PeaksValleysCategory {
-    let peaks_valleys = self.sample_peaks_valleys(seed, pos);
+  fn peaks_valleys_category(&self, pos: Pos) -> PeaksValleysCategory {
+    let peaks_valleys = self.sample_peaks_valleys(pos);
 
     match peaks_valleys {
       x if x < 0.075 => PeaksValleysCategory::Valley,
@@ -107,28 +107,22 @@ impl WorldBiomes {
     }
   }
 
-  fn erosion_category(&self, seed: u64, pos: Pos) -> u8 {
-    let erosion = self.sample_erosion(seed, pos);
+  fn erosion_category(&self, pos: Pos) -> u8 {
+    let erosion = self.sample_erosion(pos);
 
     // FIXME: This is dumb
     (erosion * 6.9999) as u8
   }
 
-  fn temperature(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(3);
-
-    self.temperature_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  fn temperature(&self, pos: Pos) -> f64 {
+    self.temperature_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 
-  fn humidity(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(4);
-
-    self.humidity_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  fn humidity(&self, pos: Pos) -> f64 {
+    self.humidity_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 
-  fn variance(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(5);
-
-    self.variance_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5
+  fn variance(&self, pos: Pos) -> f64 {
+    self.variance_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 }
