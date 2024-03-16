@@ -91,6 +91,12 @@ impl<'a> Parser<'a> {
       rows.push(row);
     }
 
+    // Rows in the file are defined top-down, but everything else wants them
+    // bottom-up.
+    rows.reverse();
+
+    let height = rows.len() as u32;
+
     let mut blocks = vec![];
     for row in rows {
       for i in 0..width {
@@ -98,10 +104,7 @@ impl<'a> Parser<'a> {
       }
     }
 
-    ast.layers.insert(
-      name.to_string(),
-      Layer { name: name.to_string(), width, height: blocks.len() as u32, blocks },
-    );
+    ast.layers.insert(name.to_string(), Layer { name: name.to_string(), width, height, blocks });
     ast.ordered.push(name.to_string());
   }
 

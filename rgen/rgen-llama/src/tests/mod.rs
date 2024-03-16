@@ -7,4 +7,7 @@ fn parse_house() {
   let house = crate::parse(&blocks, include_str!("./house.ll"));
 
   assert_eq!(house.get(Pos::new(0, 0, 0)), blocks.stone.default_state);
+  assert_eq!(house.get(Pos::new(1, 0, 0)), blocks.stone.default_state);
+  assert_eq!(house.get(Pos::new(0, 0, 1)), blocks.stone.default_state);
+  assert_eq!(house.get(Pos::new(0, 1, 0)), blocks.cobblestone.default_state);
 }

@@ -1,7 +1,9 @@
-_: minecraft:planks
-D: minecraft:wooden_door
+# _: minecraft:planks
+# D: minecraft:wooden_door
+# X: minecraft:cobblestone
+_: minecraft:stone
+D: minecraft:dirt
 X: minecraft:cobblestone
-
 
 layer wall
     X X

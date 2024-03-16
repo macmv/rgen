@@ -13,11 +13,18 @@ pub struct Structure {
 }
 
 impl Structure {
-  pub(crate) fn empty() -> Self { Structure { width: 0, height: 0, depth: 0, storage: Vec::new() } }
-
   #[cfg(test)]
   fn new_test(width: u32, height: u32, depth: u32, storage: Vec<BlockState>) -> Self {
     Structure { width, height, depth, storage }
+  }
+
+  pub fn new(width: u32, height: u32, depth: u32) -> Self {
+    Structure {
+      width,
+      height,
+      depth,
+      storage: vec![BlockState::AIR; (width * height * depth) as usize],
+    }
   }
 
   /// Returns the width of the structure, or the number of blocks on the
@@ -48,6 +55,18 @@ impl Structure {
         + pos.x as u32) as usize]
     } else {
       BlockState::AIR
+    }
+  }
+
+  /// Sets the block in the structure at the given relative position. Panics if
+  /// the position is outside the structure.
+  pub fn set(&mut self, pos: Pos, state: BlockState) {
+    if self.contains(pos) {
+      self.storage[(pos.y as u32 * self.depth * self.width
+        + pos.z as u32 * self.width
+        + pos.x as u32) as usize] = state;
+    } else {
+      panic!("position {:?} is out of bounds", pos);
     }
   }
 
