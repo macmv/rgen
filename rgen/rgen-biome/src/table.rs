@@ -20,7 +20,7 @@ macro_rules! b {
 
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[b!(1.0, blank)];
+const BLANK: BiomeFnCategory = &[b!(1.0, cherry_blossom_grove)];
 const SEA: BiomeFnCategory = &[b!(1.0, blank)];
 const RIVER: BiomeFnCategory = &[b!(1.0, river)];
 
@@ -57,8 +57,13 @@ const DRY_BEACH: BiomeFnCategory = &[
   b!(1.0, dry_shores),
   b!(1.0, chaparral_beach),
 ];
-const TROPIC_BEACH: BiomeFnCategory =
-  &[b!(1.0, sand_beach), b!(1.0, chaparral_beach), b!(1.0, jungle_beach), b!(1.0, palm_beach)];
+const TROPIC_BEACH: BiomeFnCategory = &[
+  b!(1.0, sand_beach),
+  b!(1.0, chaparral_beach),
+  b!(1.0, jungle_beach),
+  b!(1.0, palm_beach),
+  //bladjlaf
+];
 
 const ICE_CAP: BiomeFnCategory = &[
   b!(1.0, ice_spikes),
@@ -136,7 +141,8 @@ const WARM_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, elder_woodland),
   // b!(1.0, weeping_birchwood),
   // b!(1.0, lush_desert),
-  // b!(1.0, cherry_blossom_wood),
+  b!(1.0, cherry_blossom_wood),
+  b!(1.0, cherry_blossom_grove),
   // b!(1.0, woodland),
   b!(1.0, birch_woodland),
   // b!(1.0, seasonal_woodland),
