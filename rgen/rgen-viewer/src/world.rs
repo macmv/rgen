@@ -71,13 +71,13 @@ impl<G> World<G> {
 
 impl World<TerrainGenerator> {
   pub fn column_at(&self, pos: Pos) -> Column {
-    let biome = self.generator.biomes.choose_biome(self.generator.seed, pos);
+    let biome = self.generator.biomes.choose_biome(pos);
 
-    let height = self.generator.biomes.sample_height(self.generator.seed, pos);
+    let height = self.generator.biomes.sample_height(pos);
 
-    let continentalness = self.generator.biomes.sample_continentalness(self.generator.seed, pos);
-    let erosion = self.generator.biomes.sample_erosion(self.generator.seed, pos);
-    let peaks_valleys = self.generator.biomes.sample_peaks_valleys(self.generator.seed, pos);
+    let continentalness = self.generator.biomes.sample_continentalness(pos);
+    let erosion = self.generator.biomes.sample_erosion(pos);
+    let peaks_valleys = self.generator.biomes.sample_peaks_valleys(pos);
 
     Column {
       height,
@@ -85,9 +85,7 @@ impl World<TerrainGenerator> {
     }
   }
 
-  pub fn height_at(&self, pos: Pos) -> f64 {
-    self.generator.biomes.sample_height(self.generator.seed, pos)
-  }
+  pub fn height_at(&self, pos: Pos) -> f64 { self.generator.biomes.sample_height(pos) }
 }
 
 fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> Color {

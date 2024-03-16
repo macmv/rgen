@@ -242,14 +242,12 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        let biome = world.generator.biomes.choose_biome(world.generator.seed, hover_pos);
+        let biome = world.generator.biomes.choose_biome(hover_pos);
         f.render(0, 48, format!("Biome: {}", biome.name));
 
-        let continentalness =
-          world.generator.biomes.sample_continentalness(world.generator.seed, hover_pos);
-        let erosion = world.generator.biomes.sample_erosion(world.generator.seed, hover_pos);
-        let peaks_valleys =
-          world.generator.biomes.sample_peaks_valleys(world.generator.seed, hover_pos);
+        let continentalness = world.generator.biomes.sample_continentalness(hover_pos);
+        let erosion = world.generator.biomes.sample_erosion(hover_pos);
+        let peaks_valleys = world.generator.biomes.sample_peaks_valleys(hover_pos);
 
         f.render(0, 72, format!("Continentalness: {:.5}", continentalness));
         f.render(0, 96, format!("Erosion: {:.5}", erosion));
