@@ -10,7 +10,7 @@ X X X X X X
 X X X X X X
 X X X X X X
 _ _ _ _ _ _
-===
+==
 
 layer middle
     X X
@@ -19,7 +19,7 @@ X         X
 X         X
 X         X
 _ _ _ _ _ _
-===
+==
 
 layer door
     X X
@@ -28,7 +28,7 @@ X         X
 D         X
 D         X
 _ _ _ _ _ _
-===
+==
 
-repeat layer middle
-repeat layer wall
+repeat middle
+repeat wall
