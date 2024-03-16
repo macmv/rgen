@@ -17,6 +17,6 @@ members = [
 rgen-spline = { path = "rgen-spline" }
 rgen-base = { path = "rgen-base" }
 rgen-placer = { path = "rgen-placer" }
-rgen-structure = { path = "rgen-structure" }
+rgen-llama = { path = "rgen-llama" }
 rgen-biome = { path = "rgen-biome" }
 rgen-world = { path = "rgen-world" }

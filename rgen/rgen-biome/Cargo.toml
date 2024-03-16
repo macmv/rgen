@@ -7,5 +7,6 @@ edition = "2021"
 lazy_static = "1.4.0"
 rgen-spline.workspace = true
 rgen-base.workspace = true
+rgen-llama.workspace = true
 rgen-placer.workspace = true
 rgen-world.workspace = true

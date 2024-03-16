@@ -2299,6 +2299,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "rgen-base",
+ "rgen-llama",
  "rgen-placer",
  "rgen-spline",
  "rgen-world",
