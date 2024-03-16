@@ -9,12 +9,12 @@ pub struct OctavedNoise<Noise, const O: usize> {
 }
 
 impl<N: SeededNoise, const O: usize> OctavedNoise<N, O> {
-  pub fn new(freq: f64) -> Self {
+  pub fn new(seed: u64, freq: f64) -> Self {
     Self {
       freq,
       pers: 0.5,
       lacu: 2.0,
-      layers: match (0..O).map(|i| N::new(i as u64)).collect::<Vec<_>>().try_into() {
+      layers: match (0..O).map(|i| N::new(seed + i as u64)).collect::<Vec<_>>().try_into() {
         Ok(layers) => layers,
         Err(_) => unreachable!(),
       },

@@ -7,7 +7,7 @@ use test::Bencher;
 
 #[bench]
 fn bench_perlin(b: &mut Bencher) {
-  let noise: OctavedNoise<PerlinNoise, 16> = OctavedNoise::new(1.0 / 4096.0);
+  let noise: OctavedNoise<PerlinNoise, 16> = OctavedNoise::new(0, 1.0 / 4096.0);
 
   b.iter(|| {
     test::black_box(noise.generate(0.0, 0.0));
@@ -16,7 +16,7 @@ fn bench_perlin(b: &mut Bencher) {
 
 #[bench]
 fn bench_open_simplex(b: &mut Bencher) {
-  let noise: OctavedNoise<OpenSimplexNoise, 16> = OctavedNoise::new(1.0 / 4096.0);
+  let noise: OctavedNoise<OpenSimplexNoise, 16> = OctavedNoise::new(0, 1.0 / 4096.0);
 
   b.iter(|| {
     test::black_box(noise.generate(0.0, 0.0));
