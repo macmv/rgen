@@ -15,6 +15,20 @@ Tasks are broken into catagories and each item is listed by a name of the task f
 - Burnable | Bamboo needs to be able to be placed into a furnace to be used as a fuel
 
 ### Mossy Stumps
+- Droping | mossy stumps need to drop their parrent log and a mossy block
+- Crafting | crafted from a log and a mossy block
+- Sound | breaking should sound like a log but walking should sound like grass or custom moss sound
+
+### Mossy Block
+- Sound | walking on it should sound like grass or a custom moss sound
+
+### Mossy Carpet
+- Sound | walking on it should sound like grass or a custom moss sound
+- Placement | Can't be placed on self or nonsolid blocks 
+- Crafting | Should be craftable from 2 moss blocks to make 6 carpet
+- water | when hit with water it should break simialr to other plant blocks in minecraft
+
+
 
 ### Basalt
 - Texture | A bassalt texture is needed
@@ -26,5 +40,6 @@ Tasks are broken into catagories and each item is listed by a name of the task f
 - Sideways Boundry Boxes | The boundry box of a polypore needs to be changed from a whole block to a side of a block
 - **Droping | Should polypores be dropable and should it be a simple as breaking with a fist or need silk touch
 - **Placment | If players can place polypores they need to be placeable by the way their facing like buttons
+- water | like most plants in minecraft polypores should break under water
 
 
