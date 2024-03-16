@@ -19,7 +19,8 @@ Tasks are broken into catagories and each item is listed by a name of the task f
 ### Basalt
 - Texture | A bassalt texture is needed
 - Block | a bassalt block is needed
-- 
+- Like Stone | the block needs to feel and act like a stone like block
+- **Variants | should variants of bassalt like in vanilla be added
 
 ### Polypores
 - Sideways Boundry Boxes | The boundry box of a polypore needs to be changed from a whole block to a side of a block
