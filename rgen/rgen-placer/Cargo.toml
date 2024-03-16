@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 rgen-base.workspace = true
 rgen-world.workspace = true
+
+[[bench]]
+name = "noise"
