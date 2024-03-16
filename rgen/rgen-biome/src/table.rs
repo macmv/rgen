@@ -76,8 +76,11 @@ const TUNDRA: BiomeFnCategory = &[
   // b!(1.0, snowy_spruce_wood),
   b!(1.0, snowy_woodland),
 ];
-const SUB_ARCTIC: BiomeFnCategory =
-  &[b!(1.0, fir_grove), b!(1.0, spruce_grove) /* b!(1.0, seasonal_woodland) */];
+const SUB_ARCTIC: BiomeFnCategory = &[
+  b!(1.0, fir_grove),
+  b!(1.0, spruce_grove),
+  //b!(1.0, seasonal_woodland)
+];
 const COOL_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, boreal_forest),
   // b!(1.0, ceader_wood),
