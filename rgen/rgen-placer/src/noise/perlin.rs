@@ -1,12 +1,12 @@
-use super::{NoiseGenerator, NoiseGenerator3D};
+use super::{NoiseGenerator, NoiseGenerator3D, SeededNoise};
 
 #[derive(Default, Debug, Copy, Clone)]
 pub struct PerlinNoise {
   pub seed: u64,
 }
 
-impl PerlinNoise {
-  pub fn new(seed: u64) -> Self { PerlinNoise { seed } }
+impl SeededNoise for PerlinNoise {
+  fn new(seed: u64) -> Self { PerlinNoise { seed } }
 }
 
 impl NoiseGenerator for PerlinNoise {

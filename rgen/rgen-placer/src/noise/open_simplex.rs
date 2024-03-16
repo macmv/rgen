@@ -1,4 +1,4 @@
-use super::NoiseGenerator;
+use super::{NoiseGenerator, SeededNoise};
 
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub};
 
@@ -6,8 +6,8 @@ pub struct OpenSimplexNoise {
   perm: PermutationTable,
 }
 
-impl OpenSimplexNoise {
-  pub fn new(seed: u64) -> Self { OpenSimplexNoise { perm: PermutationTable::init(seed) } }
+impl SeededNoise for OpenSimplexNoise {
+  fn new(seed: u64) -> Self { OpenSimplexNoise { perm: PermutationTable::init(seed) } }
 }
 
 impl NoiseGenerator for OpenSimplexNoise {
