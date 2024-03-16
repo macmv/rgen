@@ -154,6 +154,13 @@ macro_rules! big {
         )*
         $default_str
       }
+
+      pub fn by_name(&self, name: &str) -> Option<&$item> {
+        match name {
+          $($name => Some(&self.$id),)*
+          _ => None
+        }
+      }
     }
   };
 }
