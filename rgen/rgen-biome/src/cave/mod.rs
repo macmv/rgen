@@ -17,8 +17,8 @@ impl CaveCarver {
     CaveCarver { noodle: NoodleCarver::new(ctx), cheese: CheeseCarver::new(ctx) }
   }
 
-  pub fn carve(&self, seed: u64, chunk: &mut Chunk, pos: ChunkPos) {
-    self.noodle.carve(seed, chunk, pos);
-    self.cheese.carve(seed, chunk, pos);
+  pub fn carve(&self, chunk: &mut Chunk, pos: ChunkPos) {
+    self.noodle.carve(chunk, pos);
+    self.cheese.carve(chunk, pos);
   }
 }

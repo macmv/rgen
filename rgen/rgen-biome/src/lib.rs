@@ -18,13 +18,15 @@ mod table;
 pub use builder::BiomeBuilder;
 
 pub struct WorldBiomes {
+  seed: u64,
+
   tables:         Tables,
   biome_override: bool,
 
   cave: CaveCarver,
 
-  temperature_map: OctavedNoise<PerlinNoise>,
-  humidity_map:    OctavedNoise<PerlinNoise>,
+  temperature_map: OctavedNoise<PerlinNoise, 8>,
+  humidity_map:    OctavedNoise<PerlinNoise, 8>,
 
   /// Defines how far inland or how far into the sea any given block is.
   ///
@@ -34,7 +36,7 @@ pub struct WorldBiomes {
   /// - Near Inland (plains)
   /// - Mid Inland (forest, small mountains)
   /// - Far Inland (mountains)
-  continentalness_map: OctavedNoise<OpenSimplexNoise>,
+  continentalness_map: OctavedNoise<OpenSimplexNoise, 8>,
 
   /// Defines the approximate height of the type of biome. Note that this isn't
   /// the height map, its almost the height goal of the biome that is chosen.
@@ -48,7 +50,7 @@ pub struct WorldBiomes {
   /// - Mid Slice (forest, small mountains)
   /// - High Slice (mountains)
   /// - Peak (extreme hills)
-  peaks_valleys_map: OctavedNoise<OpenSimplexNoise>,
+  peaks_valleys_map: OctavedNoise<OpenSimplexNoise, 6>,
 
   /// Defines how erroded the land is.
   ///
@@ -58,16 +60,16 @@ pub struct WorldBiomes {
   /// - Not eroded (mountains)
   /// - Somewhat eroded (forests, plains)
   /// - most eroded (swamps, deserts)
-  erosion_map: OctavedNoise<OpenSimplexNoise>,
+  erosion_map: OctavedNoise<OpenSimplexNoise, 8>,
 
   /// Variance determines which biome to pick out of a list. Its basically
   /// random.
-  variance_map: OctavedNoise<OpenSimplexNoise>,
+  variance_map: OctavedNoise<OpenSimplexNoise, 8>,
 
-  density_map: OctavedNoise<PerlinNoise>,
+  density_map: OctavedNoise<PerlinNoise, 5>,
 
   /// Controlls the depth of the sub layer (usually dirt).
-  sub_layer_map: OctavedNoise<OpenSimplexNoise>,
+  sub_layer_map: OctavedNoise<OpenSimplexNoise, 3>,
 }
 
 lazy_static::lazy_static! {
@@ -110,47 +112,47 @@ impl WorldBiomes {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes) -> Self {
     let ctx = IdContext { biomes: biome_ids, blocks };
 
+    let seed = 0;
+
     WorldBiomes {
+      // this is dumb but it makes rustfmt look nicer.
+      seed: seed + 0,
+
       tables:         Tables::new(&ctx),
       biome_override: false,
 
       cave: CaveCarver::new(&ctx),
 
-      temperature_map: OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
-      humidity_map:    OctavedNoise { octaves: 8, freq: 1.0 / 4096.0, ..Default::default() },
+      temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
+      humidity_map:    OctavedNoise::new(seed, 1.0 / 4096.0),
 
-      continentalness_map: OctavedNoise { octaves: 8, freq: 1.0 / 1024.0, ..Default::default() },
-      peaks_valleys_map:   OctavedNoise { octaves: 6, freq: 1.0 / 256.0, ..Default::default() },
-      erosion_map:         OctavedNoise { octaves: 8, freq: 1.0 / 2048.0, ..Default::default() },
-      variance_map:        OctavedNoise { octaves: 8, freq: 1.0 / 512.0, ..Default::default() },
+      continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
+      peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
+      erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
+      variance_map:        OctavedNoise::new(seed, 1.0 / 512.0),
 
-      density_map: OctavedNoise { octaves: 5, freq: 1.0 / 64.0, ..Default::default() },
+      density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
-      sub_layer_map: OctavedNoise { octaves: 3, freq: 1.0 / 20.0, ..Default::default() },
+      sub_layer_map: OctavedNoise::new(seed, 1.0 / 20.0),
     }
   }
 
-  pub fn sample_continentalness(&self, seed: u64, pos: Pos) -> f64 {
-    (self.continentalness_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5)
-      .clamp(0.0, 1.0)
+  pub fn sample_continentalness(&self, pos: Pos) -> f64 {
+    (self.continentalness_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
-  pub fn sample_peaks_valleys(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(1);
-
-    (self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5).clamp(0.0, 1.0)
+  pub fn sample_peaks_valleys(&self, pos: Pos) -> f64 {
+    (self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
-  pub fn sample_erosion(&self, seed: u64, pos: Pos) -> f64 {
-    let seed = seed.wrapping_add(2);
-
-    (self.erosion_map.generate(pos.x as f64, pos.z as f64, seed) * 0.5 + 0.5).clamp(0.0, 1.0)
+  pub fn sample_erosion(&self, pos: Pos) -> f64 {
+    (self.erosion_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
-  pub fn sample_height(&self, seed: u64, pos: Pos) -> f64 {
-    let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(seed, pos));
-    let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(seed, pos));
-    let e = EROSION.sample::<Cosine>(self.sample_erosion(seed, pos));
+  pub fn sample_height(&self, pos: Pos) -> f64 {
+    let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(pos));
+    let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(pos));
+    let e = EROSION.sample::<Cosine>(self.sample_erosion(pos));
 
     // FIXME: Remove this, and figure out how to keep oceans
     if c < 64.0 {
@@ -160,7 +162,7 @@ impl WorldBiomes {
     }
   }
 
-  pub fn generate_base(&self, seed: u64, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  pub fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -174,7 +176,7 @@ impl WorldBiomes {
         // placed or not.
         //
         // So, the height isn't really "height," its more the hilliness of the terrain.
-        let max_height = self.sample_height(seed, pos);
+        let max_height = self.sample_height(pos);
         let min_height = 64.0 - max_height / 128.0;
 
         if max_height < 64.0 {
@@ -190,8 +192,7 @@ impl WorldBiomes {
             let pos = pos.with_y(y);
 
             let noise =
-              self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64, seed) * 0.5
-                + 0.5;
+              self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64) * 0.5 + 0.5;
 
             let limit = (y as f64 - min_height) / (max_height - min_height);
 
@@ -212,18 +213,12 @@ impl WorldBiomes {
       }
     }
 
-    self.cave.carve(seed, chunk, chunk_pos);
+    self.cave.carve(chunk, chunk_pos);
 
-    self.generate_top_layer(seed, &ctx.blocks, chunk, chunk_pos);
+    self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
   }
 
-  pub fn generate_top_layer(
-    &self,
-    seed: u64,
-    blocks: &Blocks,
-    chunk: &mut Chunk,
-    chunk_pos: ChunkPos,
-  ) {
+  pub fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
@@ -241,13 +236,13 @@ impl WorldBiomes {
         let pos =
           chunk_pos.min_block_pos() + Pos::new(rel_pos.x().into(), rel_pos.y(), rel_pos.z().into());
 
-        let biome = self.choose_biome(seed, pos);
+        let biome = self.choose_biome(pos);
 
         if chunk.get(rel_pos) == blocks.stone.block {
           chunk.set_state(rel_pos, biome.top_block);
         }
 
-        for depth in 1..self.sample_sub_layer_depth(seed, pos) {
+        for depth in 1..self.sample_sub_layer_depth(pos) {
           let rel_pos = rel_pos.with_y(rel_pos.y() - depth);
           if chunk.get(rel_pos) == blocks.stone.block {
             chunk.set_state(rel_pos, biome.sub_layer);
@@ -257,21 +252,13 @@ impl WorldBiomes {
     }
   }
 
-  fn sample_sub_layer_depth(&self, seed: u64, pos: Pos) -> i32 {
-    let seed = seed.wrapping_add(10);
-
-    let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64, seed);
+  fn sample_sub_layer_depth(&self, pos: Pos) -> i32 {
+    let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64);
     let depth = (noise * 2.0 + 3.0).round() as i32;
     depth
   }
 
-  pub fn decorate(
-    &self,
-    blocks: &Blocks,
-    seed: u64,
-    world: &mut PartialWorld,
-    chunk_pos: ChunkPos,
-  ) {
+  pub fn decorate(&self, blocks: &Blocks, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     let mut biome_names = [[""; 16]; 16];
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
@@ -282,7 +269,7 @@ impl WorldBiomes {
     for x in 0..16 {
       for z in 0..16 {
         let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
-        let biome = self.choose_biome(seed, pos);
+        let biome = self.choose_biome(pos);
         biome_names[x as usize][z as usize] = biome.name;
 
         // `biome_set` acts like a set, so we need to check if this is a new biome or
@@ -297,7 +284,7 @@ impl WorldBiomes {
     }
 
     for biome in biome_set.into_iter().flatten() {
-      let mut rng = Rng::new(seed);
+      let mut rng = Rng::new(self.seed);
       biome.decorate(blocks, &mut rng, chunk_pos, world, |pos| {
         let rel_x = pos.x - chunk_pos.min_block_pos().x;
         let rel_z = pos.z - chunk_pos.min_block_pos().z;

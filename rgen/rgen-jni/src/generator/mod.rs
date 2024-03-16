@@ -9,11 +9,11 @@ pub struct TerrainGenerator {
 
 impl Generator for TerrainGenerator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.biomes.generate_base(self.seed, ctx, chunk, chunk_pos);
+    self.biomes.generate_base(ctx, chunk, chunk_pos);
   }
 
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
-    self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
+    self.biomes.decorate(&ctx.blocks, world, chunk_pos);
 
     world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
   }

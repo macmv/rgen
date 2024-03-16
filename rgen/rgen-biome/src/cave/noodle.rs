@@ -10,17 +10,16 @@ use crate::biome::IdContext;
 pub struct NoodleCarver {
   grid: PointGrid,
 
-  cave_map:    OctavedNoise<PerlinNoise>,
-  density_map: OctavedNoise<PerlinNoise>,
+  cave_map:    OctavedNoise<PerlinNoise, 2>,
+  density_map: OctavedNoise<PerlinNoise, 2>,
 
   water: Block,
 }
 
 struct NoodleCave<'a> {
-  carver:    &'a NoodleCarver,
-  pos:       (f64, f64, f64),
-  origin:    (f64, f64, f64),
-  cave_seed: u64,
+  carver: &'a NoodleCarver,
+  pos:    (f64, f64, f64),
+  origin: (f64, f64, f64),
 
   // -1.0 or 1.0
   direction: f64,
@@ -33,16 +32,19 @@ const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
   pub fn new(ctx: &IdContext) -> Self {
+    // FIXME
+    let seed = 0;
+
     NoodleCarver {
       grid:        PointGrid::new(),
-      cave_map:    OctavedNoise { octaves: 2, freq: 1.0 / 64.0, ..Default::default() },
-      density_map: OctavedNoise { octaves: 2, freq: 1.0 / 16.0, ..Default::default() },
+      cave_map:    OctavedNoise::new(seed, 1.0 / 64.0),
+      density_map: OctavedNoise::new(seed, 1.0 / 16.0),
 
       water: ctx.blocks.water.block,
     }
   }
 
-  pub fn carve(&self, seed: u64, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  pub fn carve(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     let scale = 48.0;
 
     let min_pos = chunk_pos.min_block_pos();
@@ -51,21 +53,23 @@ impl NoodleCarver {
     let cave_max_x = ((min_pos.x + 16 + CAVE_RADIUS) as f64) / scale;
     let cave_max_z = ((min_pos.z + 16 + CAVE_RADIUS) as f64) / scale;
 
+    // FIXME
+    let seed = 0;
     let points = self.grid.points_in_area(seed, cave_min_x, cave_min_z, cave_max_x, cave_max_z);
     for point in points {
       let pos = ((point.0 * scale), 32.0, (point.1 * scale));
 
-      // A seed unique to this cave.
-      let cave_seed =
-        seed ^ (((pos.0 * 2048.0).round() as u64) << 8) ^ (((pos.2 * 2048.0).round() as u64) << 16);
+      // FIXME: This code used to make a unique seed for each cave, but we can't
+      // easily change the seed of an open simplex noise map. Maybe continue using
+      // perlin here?
 
-      let mut cave = NoodleCave { carver: self, pos, origin: pos, cave_seed, direction: 1.0 };
+      let mut cave = NoodleCave { carver: self, pos, origin: pos, direction: 1.0 };
       for _ in 0..100 {
         if cave.dig(chunk, chunk_pos) {
           break;
         }
       }
-      let mut cave = NoodleCave { carver: self, pos, origin: pos, cave_seed, direction: -1.0 };
+      let mut cave = NoodleCave { carver: self, pos, origin: pos, direction: -1.0 };
       for _ in 0..100 {
         if cave.dig(chunk, chunk_pos) {
           break;
@@ -77,36 +81,13 @@ impl NoodleCarver {
 
 impl NoodleCave<'_> {
   fn radius(&self) -> f64 {
-    (self.carver.cave_map.generate_3d(
-      self.pos.0,
-      self.pos.1,
-      self.pos.2,
-      self.cave_seed.wrapping_add(4),
-    ) * 0.5
-      + 0.5)
-      * 4.0
-      + 1.0
+    (self.carver.cave_map.generate_3d(self.pos.0, self.pos.1, self.pos.2) * 0.5 + 0.5) * 4.0 + 1.0
   }
 
   fn dig(&mut self, chunk: &mut Chunk, chunk_pos: ChunkPos) -> bool {
-    let dx = self.carver.cave_map.generate_3d(
-      self.pos.0,
-      self.pos.1,
-      self.pos.2,
-      self.cave_seed.wrapping_add(1),
-    ) * self.direction;
-    let dy = self.carver.cave_map.generate_3d(
-      self.pos.0,
-      self.pos.1,
-      self.pos.2,
-      self.cave_seed.wrapping_add(2),
-    ) * self.direction;
-    let dz = self.carver.cave_map.generate_3d(
-      self.pos.0,
-      self.pos.1,
-      self.pos.2,
-      self.cave_seed.wrapping_add(3),
-    ) * self.direction;
+    let dx = self.carver.cave_map.generate_3d(self.pos.0, self.pos.1, self.pos.2) * self.direction;
+    let dy = self.carver.cave_map.generate_3d(self.pos.0, self.pos.1, self.pos.2) * self.direction;
+    let dz = self.carver.cave_map.generate_3d(self.pos.0, self.pos.1, self.pos.2) * self.direction;
 
     let dy = dy / 2.0;
 
@@ -159,13 +140,9 @@ impl NoodleCave<'_> {
 
             let pos = Pos::new(pos.x + x, pos.y + y, pos.z + z);
             if pos.in_chunk(chunk_pos) {
-              let density = self.carver.density_map.generate_3d(
-                pos.x as f64,
-                pos.y as f64,
-                pos.z as f64,
-                self.cave_seed,
-              ) * 0.4
-                + 0.6;
+              let density =
+                self.carver.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64) * 0.4
+                  + 0.6;
 
               if density > dist_to_center {
                 // TODO: This is pretty dumb. Maybe add a concept of "near water" so we can skip
