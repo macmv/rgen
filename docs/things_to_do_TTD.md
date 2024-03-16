@@ -1,4 +1,4 @@
-# Things to do
+# Things To Do or TTD
 the following is a collected list of problems and things that still need to be done
 Tasks are broken into catagories and each item is listed by a name of the task followed by a description and then the name of the assignee if it has been assigned anyone is free to assign themselves to any task or do double duty on somthing(but please talk to the person so you don't do the same steps). 
 
