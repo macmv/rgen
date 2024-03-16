@@ -2316,6 +2316,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "rgen-llama"
+version = "0.1.0"
+dependencies = [
+ "rgen-base",
+]
+
+[[package]]
 name = "rgen-placer"
 version = "0.1.0"
 dependencies = [
@@ -2326,13 +2333,6 @@ dependencies = [
 [[package]]
 name = "rgen-spline"
 version = "0.1.0"
-
-[[package]]
-name = "rgen-structure"
-version = "0.1.0"
-dependencies = [
- "rgen-base",
-]
 
 [[package]]
 name = "rgen-viewer"

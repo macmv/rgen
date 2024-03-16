@@ -4,7 +4,7 @@ members = [
   "rgen-spline",
   "rgen-base",
   "rgen-placer",
-  "rgen-structure",
+  "rgen-llama",
   "rgen-biome",
   "rgen-world",
   "rgen-jni",
