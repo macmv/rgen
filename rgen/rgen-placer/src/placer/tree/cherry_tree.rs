@@ -25,14 +25,13 @@ impl Placer for Sakura {
     }
 
     // Checks if tree will be built on air
-    if !self.place_above.contains(world.get(pos))
-      || world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
-    {
+    let below_pos = pos + Pos::new(0, -1, 0);
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
       return;
     }
 
-    // Does the trunk
-    for y in 1..=height {
+    // Builds the trunk.
+    for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
 
@@ -42,7 +41,7 @@ impl Placer for Sakura {
 
 impl Sakura {
   fn build_cannopy(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    //Leaf box 2
+    // Leaf box 2
     for rel_y in -1..=2_i32 {
       for rel_x in -2..=2_i32 {
         for rel_z in -2..=2_i32 {
@@ -52,7 +51,8 @@ impl Sakura {
         }
       }
     }
-    //Leaf rim
+
+    // Leaf rim
     for &a in [-3, 3].iter() {
       for b in -2..=2_i32 {
         let rel_x = a;
@@ -64,8 +64,8 @@ impl Sakura {
         self.build_drape(world, pos + Pos::new(rel_x, 1, rel_z), rng);
       }
     }
-    //Crown
 
+    // Crown
     for x in -1..=1_i32 {
       for z in -1..=1_i32 {
         // Remove the corners.
@@ -78,9 +78,8 @@ impl Sakura {
         }
       }
     }
-
-    //
   }
+
   fn build_drape(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
     let mut low = [0, 0, 0, 0, 1, 1, 2, 3];
     rng.shuffle(&mut low);
@@ -90,8 +89,5 @@ impl Sakura {
         world.set(pos + Pos::new(0, rel_y * -1, 0), self.leaves);
       }
     }
-
-    //
   }
-  // fn
 }

@@ -37,9 +37,9 @@ impl Placer for Bamboo {
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;
     }
-    if !self.place_above.contains(world.get(pos))
-      || world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
-    {
+
+    let below_pos = pos + Pos::new(0, -1, 0);
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
       return;
     }
 
@@ -68,19 +68,13 @@ impl Placer for Bamboo {
     leaf.state &= 0b0011;
     leaf.state |= 0b0100;
 
-    for y in 1..=height {
-      if y > height - 3 {
-        if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR {
-          world.set(pos + Pos::new(0, y, 0), leaf);
-        } else {
-          return;
-        }
+    for y in 0..=height {
+      let pos = pos + Pos::new(0, y, 0);
+
+      if world.get(pos) == BlockState::AIR {
+        world.set(pos, if y > height - 3 { leaf } else { shoot });
       } else {
-        if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR {
-          world.set(pos + Pos::new(0, y, 0), shoot);
-        } else {
-          return;
-        }
+        return;
       }
     }
   }
@@ -99,9 +93,9 @@ impl Placer for BambooClump {
         pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
       }
 
-      let above_pos = pos + Pos::new(0, 1, 0);
+      let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
         self.bamboo.place(world, rng, pos);
       }
     }

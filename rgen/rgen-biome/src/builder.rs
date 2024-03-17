@@ -86,6 +86,7 @@ impl BiomeBuilder {
           Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32),
           &[blocks.leaves.block],
         );
+        let pos = pos.with_y(pos.y + 1);
 
         if is_in_chunk(pos) {
           // This builds a unique seed for each placer. This gives the placer the same

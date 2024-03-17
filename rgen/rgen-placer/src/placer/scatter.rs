@@ -18,10 +18,10 @@ impl Placer for Scatter {
       let pos = pos
         + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
 
-      let above_pos = pos + Pos::new(0, 1, 0);
+      let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
-        world.set(above_pos, self.place);
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+        world.set(pos, self.place);
       }
     }
   }

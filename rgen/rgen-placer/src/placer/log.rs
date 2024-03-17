@@ -27,22 +27,21 @@ impl Placer for LogAndStump {
     // Checks to make sure is in open space
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
+        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != BlockState::AIR {
           return;
         }
       }
     }
 
     // Checks if on ground
-    if world.get(pos) != self.ground {
+    let below_pos = pos + Pos::new(0, -1, 0);
+    if world.get(below_pos) != self.ground {
       return;
     }
 
     if self.place_stump(world, rng, pos) {
       self.place_log(world, rng, pos);
     }
-
-    //call log fn
   }
 }
 
@@ -50,17 +49,17 @@ impl LogAndStump {
   fn place_stump(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
+        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != BlockState::AIR {
           return false;
         }
       }
     }
-    world.set(pos + Pos::new(0, 1, 0), self.moss_log);
+    world.set(pos, self.moss_log);
 
     if self.is_shrooms {
       for rel_x in -1..=1_i32 {
         for rel_z in -1..=1_i32 {
-          if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
+          if world.get(pos + Pos::new(rel_x, 0, rel_z)) != BlockState::AIR {
             continue;
           }
           if rng.rand_exclusive(0, 9) < 3 {
@@ -94,7 +93,7 @@ impl LogAndStump {
               mushroom.state |= 0b0000;
             }
 
-            world.set(pos + Pos::new(rel_x, 1, rel_z), mushroom)
+            world.set(pos + Pos::new(rel_x, 0, rel_z), mushroom)
           }
           // ()
         }
@@ -108,18 +107,15 @@ impl LogAndStump {
     rng.shuffle(&mut dirs);
 
     for (dx, dz) in dirs {
-      //*rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
       let mut buildable = true;
-      let mut x_axis = true;
       let length = rng.rand_inclusive(4, 6);
 
-      //let pos = pos + Pos::new(dx, 0, dy);
-      if (world.get(pos + Pos::new(dx * (length - (length - 2)), 0, dz * (length - (length - 2))))
+      if (world.get(pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2))))
         != BlockState::AIR)
-        && (world.get(pos + Pos::new(dx * length, 0, dz * length)) != BlockState::AIR)
+        && (world.get(pos + Pos::new(dx * length, -1, dz * length)) != BlockState::AIR)
       {
         for i in 1..=length {
-          let i_pos = pos + Pos::new(i * dx, 1, i * dz);
+          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
           if world.get(i_pos) != BlockState::AIR {
             buildable = false;
             break;
@@ -130,21 +126,16 @@ impl LogAndStump {
       }
 
       if !buildable {
-        //println!("- log was unbuildable!");
         continue;
       } else {
-        //println!("- log is buildable!");
         for i in 2..=length {
           let i_pos = pos + Pos::new(i * dx, 0, i * dz);
 
           let mut log_type;
-          let mut grass_on_top;
           if self.chance_of_moss < rng.rand_inclusive(0, 10) {
             log_type = self.moss_log;
-            grass_on_top = true;
           } else {
             log_type = self.log;
-            grass_on_top = false;
           }
 
           log_type.state &= 0b0011; //reset
@@ -157,8 +148,7 @@ impl LogAndStump {
             log_type.state |= 0b1000;
           }
 
-          world.set(i_pos + Pos::new(0, 1, 0), log_type);
-          //world.set(i_pos + Pos::new(0, 2, 0), self);
+          world.set(i_pos, log_type);
         }
         return true;
       }

@@ -18,8 +18,9 @@ impl Placer for Splatter {
       let pos = pos
         + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
 
-      if world.get(pos) == self.replace {
-        world.set(pos, self.place);
+      let below_pos = pos + Pos::new(0, -1, 0);
+      if world.get(below_pos) == self.replace {
+        world.set(below_pos, self.place);
       }
     }
   }

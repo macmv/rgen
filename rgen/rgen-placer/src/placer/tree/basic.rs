@@ -21,12 +21,13 @@ impl Placer for BasicTree {
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;
     }
-    if !self.place_above.contains(world.get(pos))
-      || world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
-    {
+
+    let below_pos = pos + Pos::new(0, -1, 0);
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
       return;
     }
-    // Does the main body
+
+    // Builds the main body.
     for y in -2..=-1_i32 {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
@@ -34,13 +35,16 @@ impl Placer for BasicTree {
           if (x.abs() == 2 && z.abs() == 2) && rng.rand_inclusive(0, 1) == 0 {
             continue;
           }
-          if world.get(pos + Pos::new(x, y + height, z)) == BlockState::AIR {
-            world.set(pos + Pos::new(x, y + height, z), self.leaves);
+
+          let pos = pos + Pos::new(x, y + height, z);
+          if world.get(pos) == BlockState::AIR {
+            world.set(pos, self.leaves);
           }
         }
       }
     }
-    // Does the peak
+
+    // Builds the peak.
     for y in 0..=1_i32 {
       for x in -1..=1_i32 {
         for z in -1..=1_i32 {
@@ -48,14 +52,17 @@ impl Placer for BasicTree {
           if x.abs() == 1 && z.abs() == 1 && y == 1 {
             continue; // next loop
           }
-          if world.get(pos + Pos::new(x, y + height, z)) == BlockState::AIR {
-            world.set(pos + Pos::new(x, y + height, z), self.leaves);
+
+          let pos = pos + Pos::new(x, y + height, z);
+          if world.get(pos) == BlockState::AIR {
+            world.set(pos, self.leaves);
           }
         }
       }
     }
-    // Does the trunk
-    for y in 1..=height {
+
+    // Builds the trunk.
+    for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
   }

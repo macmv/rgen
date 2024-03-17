@@ -30,14 +30,14 @@ impl Placer for BasicBirch {
     // Checks to make sure is in open space
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 1, rel_z)) != BlockState::AIR {
+        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != BlockState::AIR {
           return;
         }
       }
     }
 
     // Checks if on ground
-    if world.get(pos) != self.ground {
+    if world.get(pos + Pos::new(0, -1, 0)) != self.ground {
       return;
     }
 

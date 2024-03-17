@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -77,12 +77,13 @@ impl Placer for Sequoia {
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    if !self.place_above.contains(world.get(pos)) {
+    if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
       return;
     }
-    // creates lower trunk
+
+    // Creates lower trunk.
     let min_y = rng.rand_inclusive(4, 6);
-    for rel_y in -1..min_y {
+    for rel_y in -2..min_y {
       for rel_x in 0..=1_i32 {
         for rel_z in 0..=1_i32 {
           if world.get(pos + Pos::new(rel_x, rel_y, rel_z)) == BlockState::AIR {
@@ -91,7 +92,8 @@ impl Placer for Sequoia {
         }
       }
     }
-    // creates bottom rim
+
+    // Create bottom rim.
     let mut height = min_y;
     for (x, row) in LEVEL_II.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
@@ -100,8 +102,8 @@ impl Placer for Sequoia {
       self.place_trunk_slice(world, pos, height);
     }
 
-    // creates the grade As
-    for repeats in 1..rng.rand_inclusive(2, 3) {
+    // Creates the grade 'A's
+    for _ in 1..rng.rand_inclusive(2, 3) {
       height += 1;
       for (x, row) in LEVEL_A.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
@@ -119,8 +121,8 @@ impl Placer for Sequoia {
       self.place_trunk_slice(world, pos, height);
     }
 
-    //Grade Bs
-    for repeats in 1..rng.rand_inclusive(3, 4) {
+    // Grade 'B's
+    for _ in 1..rng.rand_inclusive(3, 4) {
       height += 1;
       for (x, row) in LEVEL_B.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
@@ -138,8 +140,8 @@ impl Placer for Sequoia {
       self.place_trunk_slice(world, pos, height);
     }
 
-    //Grade Cs
-    for repeats in 1..rng.rand_inclusive(2, 3) {
+    // Grade 'C's
+    for _ in 1..rng.rand_inclusive(2, 3) {
       height += 1;
       for (x, row) in LEVEL_C.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
@@ -157,7 +159,7 @@ impl Placer for Sequoia {
       self.place_trunk_slice(world, pos, height);
     }
 
-    //CROWN
+    // Crown.
     height += 1;
     for (x, row) in LEVEL_II.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
@@ -173,16 +175,14 @@ impl Placer for Sequoia {
       }
     }
     self.place_trunk_slice(world, pos, height);
-    //Pointy top
 
+    // Pointy top.
     for rel_x in 0..=1_i32 {
       for rel_z in 0..=1_i32 {
         world.set(pos + Pos::new(rel_x, height, rel_z), self.leaves);
         world.set(pos + Pos::new(rel_x, height + 1, rel_z), self.leaves);
       }
     }
-
-    //
   }
 }
 
@@ -199,6 +199,7 @@ impl Sequoia {
       }
     }
   }
+
   fn place_trunk_slice(&self, world: &mut PartialWorld, pos: Pos, height: i32) {
     for rel_x in 0..=1_i32 {
       for rel_z in 0..=1_i32 {
@@ -208,6 +209,7 @@ impl Sequoia {
       }
     }
   }
+
   fn place_leaf_slice(
     &self,
     world: &mut PartialWorld,

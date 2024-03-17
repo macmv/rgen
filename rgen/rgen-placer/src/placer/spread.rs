@@ -36,10 +36,9 @@ impl Placer for Spread {
             continue;
           }
 
-          let block_above = pos + Pos::new(0, 1, 0);
-
-          if self.replace.contains(world.get(pos)) && world.get(block_above).block == Block::AIR {
-            world.set(block_above, self.place);
+          let below_pos = pos + Pos::new(0, -1, 0);
+          if self.replace.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+            world.set(pos, self.place);
           }
         }
       }
