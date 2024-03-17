@@ -1,5 +1,6 @@
 use rgen_base::{BlockState, Pos};
 
+#[derive(Clone)]
 pub struct Structure {
   // Width on the X-axis
   width:  u32,
