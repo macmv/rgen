@@ -40,18 +40,12 @@ pub struct TerrainGenerator {
 }
 
 impl Generator for TerrainGenerator {
-  fn height_at(&self, _: Pos) -> f64 { 0.0 }
-
-  fn generate_biomes(&self, chunk_pos: ChunkPos, biomes: &mut [u8; 256]) {
-    self.biomes.generate_ids(self.seed, chunk_pos, biomes);
-  }
-
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.biomes.generate_base(self.seed, ctx, chunk, chunk_pos);
+    self.biomes.generate_base(ctx, chunk, chunk_pos);
   }
 
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
-    self.biomes.decorate(&ctx.blocks, self.seed, world, chunk_pos);
+    self.biomes.decorate(&ctx.blocks, world, chunk_pos);
 
     world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
   }
@@ -59,6 +53,6 @@ impl Generator for TerrainGenerator {
 
 impl TerrainGenerator {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> TerrainGenerator {
-    TerrainGenerator { seed, biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids) }
+    TerrainGenerator { seed, biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids, seed) }
   }
 }
