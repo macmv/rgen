@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
@@ -60,6 +60,20 @@ impl Placer for Clumps {
       if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
         world.set(pos, self.place);
       }
+    }
+  }
+}
+
+impl GrassClumps {
+  pub fn new(blocks: &Blocks) -> Self {
+    GrassClumps {
+      place_above:      blocks.grass.default_state.into(),
+      place_short:      blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 60,
     }
   }
 }

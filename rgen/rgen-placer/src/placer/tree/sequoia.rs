@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -69,6 +69,17 @@ pub struct Sequoia {
   pub trunk:        BlockState,
   pub leaves:       BlockState,
   pub avg_in_chunk: f64,
+}
+
+impl Sequoia {
+  pub fn new(blocks: &Blocks) -> Self {
+    Sequoia {
+      avg_in_chunk: 3 as f64,
+      leaves:       blocks.rgen_leaves.with_data(3),
+      place_above:  blocks.grass.block.into(),
+      trunk:        blocks.rgen_log.with_data(3),
+    }
+  }
 }
 
 impl Placer for Sequoia {

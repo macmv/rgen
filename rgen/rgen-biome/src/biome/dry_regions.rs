@@ -14,16 +14,7 @@ pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
   gen.top_block = ctx.blocks.grass.default_state;
 
-  gen.place(
-    "Sequoia",
-    PlacerStage::Tree,
-    placer::Sequoia {
-      avg_in_chunk: 3 as f64,
-      leaves:       ctx.blocks.rgen_leaves.with_data(3),
-      place_above:  ctx.blocks.grass.block.into(),
-      trunk:        ctx.blocks.rgen_log.with_data(3),
-    },
-  );
+  gen.place("Sequoia", PlacerStage::Tree, placer::Sequoia::new(ctx.blocks));
 
   gen.place(
     "ponzel",
@@ -46,19 +37,7 @@ pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      gen.top_block.into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
-
-      radius:   4..=10,
-      attempts: 60,
-    },
-  )
+  gen.place("grass", PlacerStage::Tree, placer::GrassClumps::new(ctx.blocks))
 }
 pub fn open_plain(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
@@ -98,19 +77,7 @@ pub fn dry_grassy_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      gen.top_block.into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
-
-      radius:   4..=10,
-      attempts: 60,
-    },
-  );
+  gen.place("grass", PlacerStage::Tree, placer::GrassClumps::new(ctx.blocks));
 }
 
 pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -152,15 +119,7 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "grass",
     PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      gen.top_block.into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
-
-      radius:   4..=10,
-      attempts: 20,
-    },
+    placer::GrassClumps { attempts: 20, ..placer::GrassClumps::new(ctx.blocks) },
   );
   //loose dry oak tree
   //loose dry oak bush
