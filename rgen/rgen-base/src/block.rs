@@ -219,4 +219,6 @@ big! { Biomes: Biome
   jungle => "minecraft:jungle",
   birch_forest => "minecraft:birch_forest_hills",
   river => "minecraft:river",
+  mesa => "minecraft:mesa",
+  desert => "minecraft:desert",
 }

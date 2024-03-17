@@ -112,9 +112,9 @@ const SAVANNA: BiomeFnCategory = &[
   b!(1.0, chaparral_woods),
 ];
 const HOT_DESERT: BiomeFnCategory = &[
-  b!(1.0, blank),
+  // b!(1.0, blank),
   // b!(1.0, flat_desert),
-  // b!(1.0, dune_sea),
+  b!(1.0, dune_sea),
   // b!(1.0, stone_desert),
   // b!(1.0, red_desert),
   // b!(1.0, petrified_forest),
