@@ -2,6 +2,7 @@
 
 use crate::PartialWorld;
 use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
+use rgen_llama::Structure;
 
 impl PartialWorld {
   pub(crate) fn chunk(&mut self, pos: ChunkPos) -> Option<&Chunk> {
@@ -25,6 +26,20 @@ impl PartialWorld {
       chunk.set_state(pos.chunk_rel(), block.into());
     } else {
       // TODO: Log a warning when writing outside the world.
+    }
+  }
+
+  pub fn place_structure(&mut self, pos: Pos, structure: &Structure) {
+    for y in 0..structure.height() {
+      for z in 0..structure.depth() {
+        for x in 0..structure.width() {
+          let rel_pos = Pos::new(x as i32, y as i32, z as i32);
+          let block = structure.get(rel_pos);
+          if block != BlockState::AIR {
+            self.set(pos + rel_pos, block);
+          }
+        }
+      }
     }
   }
 

@@ -2328,6 +2328,7 @@ name = "rgen-placer"
 version = "0.1.0"
 dependencies = [
  "rgen-base",
+ "rgen-llama",
  "rgen-world",
 ]
 
@@ -2359,6 +2360,7 @@ dependencies = [
  "parking_lot",
  "rayon",
  "rgen-base",
+ "rgen-llama",
 ]
 
 [[package]]
