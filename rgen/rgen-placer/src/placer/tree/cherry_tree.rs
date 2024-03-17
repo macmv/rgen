@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
 use rgen_llama::Structure;
 use rgen_world::PartialWorld;
 
@@ -12,6 +12,24 @@ pub struct Sakura {
   pub large_size:   bool,
 
   pub drapes: Vec<Structure>,
+}
+
+impl Sakura {
+  pub fn new(blocks: &Blocks) -> Self {
+    Sakura {
+      avg_in_chunk: 4.0,
+      place_above:  blocks.grass.default_state.into(),
+      trunk:        blocks.rgen_log.with_data(2),
+      leaves:       blocks.rgen_leaves.with_data(2),
+      large_size:   false,
+
+      drapes: vec![
+        rgen_llama::parse(blocks, include_str!("structure/drape_1.ll")),
+        rgen_llama::parse(blocks, include_str!("structure/drape_2.ll")),
+        rgen_llama::parse(blocks, include_str!("structure/drape_3.ll")),
+      ],
+    }
+  }
 }
 
 impl Placer for Sakura {
