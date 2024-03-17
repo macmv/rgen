@@ -1,9 +1,9 @@
+use std::ops::RangeInclusive;
+
 use rgen_base::{Block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
-
-use super::birch;
 
 pub struct Bamboo {
   pub place_above:  BlockFilter,
@@ -12,13 +12,22 @@ pub struct Bamboo {
   pub avg_in_chunk: f64,
 }
 
+pub struct BambooClump {
+  pub bamboo: Bamboo,
+
+  pub place_above:   BlockFilter,
+  pub radius:        RangeInclusive<u8>,
+  pub attempts:      u32,
+  pub avg_per_chunk: f64,
+}
+
 impl Placer for Bamboo {
   fn radius(&self) -> u8 { 2 }
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let mut height = 15;
+    let height;
     if self.pint_size {
       height = rng.rand_inclusive(8, 14);
     } else {
@@ -72,6 +81,28 @@ impl Placer for Bamboo {
         } else {
           return;
         }
+      }
+    }
+  }
+}
+
+impl Placer for BambooClump {
+  fn radius(&self) -> u8 { *self.radius.end() }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+
+    for _ in 0..self.attempts {
+      let mut pos = pos;
+      for _ in 0..radius {
+        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+      }
+
+      let above_pos = pos + Pos::new(0, 1, 0);
+
+      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
+        self.bamboo.place(world, rng, pos);
       }
     }
   }

@@ -22,11 +22,17 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
-    placer::Bamboo {
-      avg_in_chunk: 3.0,
-      place_above:  gen.top_block.into(),
-      stalk:        ctx.blocks.rgen_bamboo.default_state,
-      pint_size:    true,
+    placer::BambooClump {
+      attempts:      30,
+      avg_per_chunk: 3.0,
+      place_above:   gen.top_block.into(),
+      radius:        1..=4,
+      bamboo:        placer::Bamboo {
+        place_above:  gen.top_block.into(),
+        stalk:        ctx.blocks.rgen_bamboo.default_state,
+        pint_size:    true,
+        avg_in_chunk: 0.0,
+      },
     },
   );
 
