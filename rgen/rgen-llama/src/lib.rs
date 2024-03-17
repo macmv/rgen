@@ -55,12 +55,17 @@ pub fn parse(blocks: &Blocks, input: &str) -> Structure {
         }
 
         let name = ast.names.get(&block).unwrap();
-        let name = format!("{}:{}", name.category, name.block);
+        let block_name = format!("{}:{}", name.category, name.block);
 
-        structure.set(
-          Pos::new(x as i32, y as i32, z as i32),
-          blocks.by_name(&name).unwrap_or_else(|| panic!("no such block {name}")).default_state,
-        );
+        let block =
+          blocks.by_name(&block_name).unwrap_or_else(|| panic!("no such block {block_name}"));
+
+        let state = match name.state {
+          Some(state) => block.with_data(state as u8),
+          None => block.default_state,
+        };
+
+        structure.set(Pos::new(x as i32, y as i32, z as i32), state);
       }
     }
   }
