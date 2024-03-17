@@ -111,6 +111,10 @@ impl Structure {
         }
       }
     }
+
+    if delta % 2 == 1 {
+      std::mem::swap(&mut self.width, &mut self.depth);
+    }
   }
 }
 
