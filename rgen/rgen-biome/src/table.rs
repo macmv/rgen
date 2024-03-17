@@ -121,9 +121,8 @@ const HOT_DESERT: BiomeFnCategory = &[
   // b!(1.0, bone_lands),
 ];
 const BAD_LANDS: BiomeFnCategory = &[
-  b!(1.0, blank),
   // b!(1.0, boneland),
-  // b!(1.0, bad_lands),
+  b!(1.0, bad_lands),
   // b!(1.0, stone_desert),
 ];
 const WET_TEMPERATE: BiomeFnCategory = &[

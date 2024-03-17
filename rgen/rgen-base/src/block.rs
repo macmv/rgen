@@ -190,6 +190,8 @@ big! { Blocks: BlockInfo
   // 0 - normal    1 - chiseled     2 - smooth (?)
   red_sandstone => "minecraft:red_sandstone",
   gold_block => "minecraft:gold_block",
+  hardened_clay => "minecraft:hardened_clay",
+  stained_hardened_clay => "minecraft:stained_hardened_clay",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",
