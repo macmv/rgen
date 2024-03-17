@@ -9,7 +9,7 @@ mod frozen_region;
 mod hot_regions;
 mod river;
 mod temperate_regions;
-mod warm_regions;
+mod tropical_regions;
 
 pub use blank::*;
 pub use coast_regions::*;
@@ -20,7 +20,7 @@ pub use frozen_region::*;
 pub use hot_regions::*;
 pub use river::*;
 pub use temperate_regions::*;
-pub use warm_regions::*;
+pub use tropical_regions::*;
 
 pub struct IdContext<'a> {
   pub biomes: &'a Biomes,
