@@ -9,7 +9,71 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
-    "fir_tree",
+    "Small Cherry Tree",
+    PlacerStage::Sand,
+    placer::Sakura {
+      avg_in_chunk: 4.0,
+      place_above:  gen.top_block.into(),
+      trunk:        ctx.blocks.rgen_log.with_data(2),
+      leaves:       ctx.blocks.rgen_leaves.with_data(2),
+      large_size:   false,
+    },
+  );
+  gen.place(
+    "sprinkling of bamboo",
+    PlacerStage::Sand,
+    placer::Bamboo {
+      avg_in_chunk: 3.0,
+      place_above:  gen.top_block.into(),
+      stalk:        ctx.blocks.rgen_bamboo.default_state,
+      pint_size:    true,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    800,
+      place_above: [ctx.blocks.grass.block].into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+
+  gen.place(
+    "tall grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 60,
+    },
+  );
+
+  gen.place(
+    "Lilac",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block.into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(1), // lilac bottom
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // double plant top
+
+      radius:   4..=10,
+      attempts: 20,
+    },
+  );
+}
+
+pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.top_block = ctx.blocks.grass.default_state;
+  gen.place(
+    "Cherry Tree",
     PlacerStage::Sand,
     placer::Sakura {
       avg_in_chunk: 4.0,
@@ -19,11 +83,6 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       large_size:   true,
     },
   );
-}
-
-pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.birch_forest;
-  gen.top_block = ctx.blocks.grass.default_state;
 }
 
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
