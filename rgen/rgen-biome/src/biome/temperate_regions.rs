@@ -17,6 +17,12 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       trunk:        ctx.blocks.rgen_log.with_data(2),
       leaves:       ctx.blocks.rgen_leaves.with_data(2),
       large_size:   false,
+
+      drapes: vec![
+        rgen_llama::parse(ctx.blocks, include_str!("structure/drape_1.ll")),
+        rgen_llama::parse(ctx.blocks, include_str!("structure/drape_2.ll")),
+        rgen_llama::parse(ctx.blocks, include_str!("structure/drape_3.ll")),
+      ],
     },
   );
   gen.place(
@@ -87,6 +93,8 @@ pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
       trunk:        ctx.blocks.rgen_log.with_data(2),
       leaves:       ctx.blocks.rgen_leaves.with_data(2),
       large_size:   true,
+
+      drapes: vec![],
     },
   );
 }

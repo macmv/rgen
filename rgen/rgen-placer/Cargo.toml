@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 rgen-base.workspace = true
+rgen-llama.workspace = true
 rgen-world.workspace = true
 
 [[bench]]

@@ -1,4 +1,5 @@
 use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_llama::Structure;
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -9,6 +10,8 @@ pub struct Sakura {
   pub leaves:       BlockState,
   pub avg_in_chunk: f64,
   pub large_size:   bool,
+
+  pub drapes: Vec<Structure>,
 }
 
 impl Placer for Sakura {
@@ -53,16 +56,8 @@ impl Sakura {
     }
 
     // Leaf rim
-    for &a in [-3, 3].iter() {
-      for b in -2..=2_i32 {
-        let rel_x = a;
-        let rel_z = b;
-        self.build_drape(world, pos + Pos::new(rel_x, 1, rel_z), rng);
-
-        let rel_x = b;
-        let rel_z = a;
-        self.build_drape(world, pos + Pos::new(rel_x, 1, rel_z), rng);
-      }
+    for (rel_x, rel_z, rotation) in [(0, 1, 0), (-1, 0, 1), (0, -1, 2), (1, 0, 3)] {
+      self.build_drape(world, pos, rel_x, rel_z, rotation, rng);
     }
 
     // Crown
@@ -80,14 +75,23 @@ impl Sakura {
     }
   }
 
-  fn build_drape(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    let mut low = [0, 0, 0, 0, 1, 1, 2, 3];
-    rng.shuffle(&mut low);
-
-    for rel_y in 0..=low[0] {
-      if world.get(pos + Pos::new(0, rel_y * -1, 0)) == BlockState::AIR {
-        world.set(pos + Pos::new(0, rel_y * -1, 0), self.leaves);
-      }
+  fn build_drape(
+    &self,
+    world: &mut PartialWorld,
+    pos: Pos,
+    dx: i32,
+    dz: i32,
+    rotation: i32,
+    rng: &mut Rng,
+  ) {
+    if self.drapes.is_empty() {
+      return;
     }
+
+    let mut drape = rng.choose(&self.drapes).clone();
+    drape.rotate(rotation);
+    // Listen. I don't want to know why this works. I shouldn't need to know why
+    // this works. But it does.
+    world.place_structure(pos + Pos::new(dx * 3 - dz.abs() * 2, -2, dz * 3 - dx.abs() * 2), &drape);
   }
 }
