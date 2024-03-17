@@ -1,5 +1,5 @@
 use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
-use rgen_placer::grid::PointGrid;
+use rgen_placer::{grid::PointGrid, Random, Rng};
 
 use crate::biome::IdContext;
 
@@ -47,6 +47,8 @@ struct Village<'a> {
   generator: &'a VillageGenerator,
 
   roads: Vec<Road>,
+
+  origin: Pos,
 }
 
 struct Road {
@@ -56,18 +58,17 @@ struct Road {
 
 impl<'a> Village<'a> {
   pub fn new(generator: &'a VillageGenerator, seed: u64, origin: Pos) -> Self {
-    let roads = vec![
-      Road { start: origin, end: origin + Pos::new(16, 0, 0) },
-      Road { start: origin, end: origin + Pos::new(0, 0, 16) },
-    ];
+    let mut roads = vec![];
+    let mut rng = Rng::new(seed);
+    recursive_road(&mut roads, &mut rng, origin, origin, 0);
 
-    Village { generator, roads }
+    Village { generator, roads, origin }
   }
 
   pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for road in &self.roads {
-      for x in road.start.x..=road.end.x {
-        for z in road.start.z..=road.end.z {
+      for x in road.start.x.min(road.end.x)..=road.start.x.max(road.end.x) {
+        for z in road.start.z.min(road.end.z)..=road.start.z.max(road.end.z) {
           let pos = Pos::new(x, 100, z);
 
           for dx in -1..=1 {
@@ -82,6 +83,57 @@ impl<'a> Village<'a> {
           }
         }
       }
+
+      if road.start.in_chunk(chunk_pos) {
+        chunk.set_state(
+          road.start.chunk_rel().with_y(100),
+          BlockState { block: self.generator.road_block.block, state: 1 },
+        );
+      }
+      if road.end.in_chunk(chunk_pos) {
+        chunk.set_state(
+          road.end.chunk_rel().with_y(100),
+          BlockState { block: self.generator.road_block.block, state: 2 },
+        );
+      }
     }
+
+    if self.origin.in_chunk(chunk_pos) {
+      chunk.set_state(self.origin.chunk_rel().with_y(101), self.generator.road_block);
+    }
+  }
+}
+
+fn recursive_road(roads: &mut Vec<Road>, rng: &mut Rng, origin: Pos, pos: Pos, depth: u32) {
+  if depth > 3 {
+    return;
+  }
+
+  let mut dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+  rng.shuffle(&mut dirs);
+
+  for (dx, dz) in dirs {
+    if rng.rand_inclusive(0, 2) < 1 {
+      continue;
+    }
+
+    let length = rng.rand_inclusive(8, 32);
+
+    let new_pos = pos + Pos::new(dx * length, 0, dz * length);
+    if roads.iter().any(|road| {
+      let min_x = road.start.x.min(road.end.x) - 4;
+      let max_x = road.start.x.max(road.end.x) + 4;
+      let min_z = road.start.z.min(road.end.z) - 4;
+      let max_z = road.start.z.max(road.end.z) + 4;
+
+      new_pos.x >= min_x && new_pos.x <= max_x && new_pos.z >= min_z && new_pos.z <= max_z
+    }) {
+      continue;
+    }
+
+    let road = Road { start: pos, end: new_pos };
+    roads.push(road);
+
+    recursive_road(roads, rng, origin, new_pos, depth + 1);
   }
 }
