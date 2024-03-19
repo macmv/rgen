@@ -4,6 +4,7 @@ import net.macmv.rgen.RGen;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
 
@@ -37,6 +38,7 @@ public final class RBlocks {
   public static final Block PLANKS = register("planks", new PlanksBlock());
 
   public static final Block FLOWER = register("flower", new FlowerBlock());
+  public static final Block CACTUS_ARM = register("cactus_arm", new Block(Material.PLANTS));
 
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
