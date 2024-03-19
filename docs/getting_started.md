@@ -30,6 +30,22 @@ Building a tree
 ## Lime System
 adds limestone block
 limestone is needed to make concrete powder
+## Cactus system
+changing between cacuts types is done by crafting other cactus fruits and gets you the next cactus in this list and then loops
+**Green** is used for green dye and gets you the large varient
+**Orange** is used for orange dye and gets you a Small cactus plant
+**Pink** is used for pink dye and gest you the Tiny cactus plant
+**Aged** can be crafted into **green** dye or be planted for a vanilla cactus 
+
+### Green cactus fruit
+- Cactus as added by rgen act like a tree they have three life stages the first is the cacutus made of the cactus block and has cactus arms 
+- When a cactus is broken the block drops 2-3 **green** cactus fruit and the arms drop 1-2 **green** cactus fruit
+- A **green** cactus fruit that is placed becomes a Juvenile cactus which after a set lenght of time or the use of bone meal will grow into a cactus tree syle plant
+- A **green** cactus fruit that is put into a furnace becomes cactus green dye 
+- A **green** cactus fruit that is crafted gets you an **orange** cactus fruit
+
+
+
 
 ## The Moss System
 ### Current status
