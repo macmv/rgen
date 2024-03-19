@@ -34,8 +34,8 @@ impl PointGrid {
     max_x: f64,
     max_y: f64,
   ) -> impl Iterator<Item = (f64, f64)> + 'a {
-    (min_x as i32..=max_x.ceil() as i32).flat_map(move |x| {
-      (min_y as i32..=max_y.ceil() as i32).filter_map(move |y| {
+    (min_x.floor() as i32..=max_x.ceil() as i32).flat_map(move |x| {
+      (min_y.floor() as i32..=max_y.ceil() as i32).filter_map(move |y| {
         let p = self.point_in_square(seed, x, y);
         if p.0 >= min_x && p.0 <= max_x && p.1 >= min_y && p.1 <= max_y {
           Some(p)
@@ -92,5 +92,22 @@ mod tests {
       assert!(p.0 >= -1.0 && p.0 <= 0.0);
       assert!(p.1 >= -1.0 && p.1 <= 0.0);
     }
+  }
+
+  #[test]
+  fn negative_works() {
+    const SEED: u64 = 1234;
+    let grid = PointGrid::new();
+
+    let points: Vec<_> = grid.points_in_area(SEED, -1.0, -1.0, 0.0, 0.0).collect();
+    assert_eq!(points.len(), 1);
+
+    // FIXME: It'd be nice to test this without relying on the seed. Ah well.
+    assert_eq!(points[0], (-0.3343546994343295, -0.5086268462493613));
+
+    let points_2: Vec<_> = grid.points_in_area(SEED, -0.4, -1.0, -0.3, 0.0).collect();
+    assert_eq!(points_2.len(), 1);
+
+    assert_eq!(points_2[0], points[0]);
   }
 }
