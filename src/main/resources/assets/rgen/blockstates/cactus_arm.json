@@ -1,0 +1,7 @@
+{
+  "variants": {
+      "normal": {
+          "model": "rgen:wood/cactus/cactus_arm"
+      }
+  }
+}
