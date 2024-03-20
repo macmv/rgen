@@ -1,6 +1,6 @@
 use biome::IdContext;
 use cave::CaveCarver;
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise},
   Rng,
@@ -211,7 +211,7 @@ impl WorldBiomes {
       }
     }
 
-    self.cave.carve(chunk, chunk_pos);
+    self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
   }
@@ -220,30 +220,34 @@ impl WorldBiomes {
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
-        let rel_pos = ChunkRelPos::new(x, 0, z);
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        let sub_layer_depth = self.sample_sub_layer_depth(pos);
 
-        let mut y = 255;
-        while y > 0 {
-          let block = chunk.get(rel_pos.with_y(y));
+        // FIXME: Sample 3D noise here and don't just use the min height.
+        let max_height = self.sample_height(pos);
+        let min_height = 64.0 - max_height / 128.0;
+
+        let mut depth = 0;
+        for y in (min_height as i32..=255).rev() {
+          let pos = pos.with_y(y);
+          let rel_pos = pos.chunk_rel();
+
+          let block = chunk.get(pos.chunk_rel());
           if block != Block::AIR && ![blocks.leaves.block].contains(&block) {
-            break;
+            depth += 1;
+          } else {
+            depth = 0;
           }
-          y -= 1;
-        }
-        let rel_pos = rel_pos.with_y(y);
-        let pos =
-          chunk_pos.min_block_pos() + Pos::new(rel_pos.x().into(), rel_pos.y(), rel_pos.z().into());
 
-        let biome = self.choose_biome(pos);
-
-        if chunk.get(rel_pos) == blocks.stone.block {
-          chunk.set_state(rel_pos, biome.top_block);
-        }
-
-        for depth in 1..self.sample_sub_layer_depth(pos) {
-          let rel_pos = rel_pos.with_y(rel_pos.y() - depth);
-          if chunk.get(rel_pos) == blocks.stone.block {
-            chunk.set_state(rel_pos, biome.sub_layer);
+          let biome = self.choose_biome(pos);
+          if depth == 1 {
+            if chunk.get(rel_pos) == blocks.stone.block {
+              chunk.set_state(rel_pos, biome.top_block);
+            }
+          } else if depth <= sub_layer_depth {
+            if chunk.get(rel_pos) == blocks.stone.block {
+              chunk.set_state(rel_pos, biome.sub_layer);
+            }
           }
         }
       }

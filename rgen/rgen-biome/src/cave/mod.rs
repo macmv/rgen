@@ -5,7 +5,7 @@ use cheese::CheeseCarver;
 use noodle::NoodleCarver;
 use rgen_base::{Chunk, ChunkPos};
 
-use crate::biome::IdContext;
+use crate::{biome::IdContext, WorldBiomes};
 
 pub struct CaveCarver {
   noodle: NoodleCarver,
@@ -17,8 +17,8 @@ impl CaveCarver {
     CaveCarver { noodle: NoodleCarver::new(ctx, seed), cheese: CheeseCarver::new(ctx, seed) }
   }
 
-  pub fn carve(&self, chunk: &mut Chunk, pos: ChunkPos) {
+  pub fn carve(&self, world: &WorldBiomes, chunk: &mut Chunk, pos: ChunkPos) {
     self.noodle.carve(chunk, pos);
-    self.cheese.carve(chunk, pos);
+    self.cheese.carve(world, chunk, pos);
   }
 }
