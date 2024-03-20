@@ -1,7 +1,7 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::{builder::BiomeBuilder, WorldBiomes};
+use crate::{builder::BiomeBuilder, table::BiomeTable, WorldBiomes};
 
 enum ContinentalnessCategory {
   MushroomIsland,
@@ -23,8 +23,35 @@ enum PeaksValleysCategory {
 
 impl WorldBiomes {
   pub fn choose_biome(&self, pos: Pos) -> &BiomeBuilder {
-    use crate::table::*;
+    // FIXME: Use 3D noise here.
+    if pos.y < 62 {
+      self.choose_cave_biome(pos)
+    } else {
+      self.choose_surface_biome(pos)
+    }
+  }
 
+  fn choose_cave_biome(&self, pos: Pos) -> &BiomeBuilder {
+    let temperature = self.temperature(pos);
+    let humidity = self.humidity(pos);
+
+    let table = &self.tables.cave_table;
+
+    let biomes = &table[(temperature * table.len() as f64) as usize]
+      [(humidity * table[0].len() as f64) as usize];
+
+    let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
+    let mut variance = self.variance(pos) * total;
+    for biome in biomes {
+      variance -= biome.rarity;
+      if variance <= 0.0 {
+        return biome;
+      }
+    }
+    &biomes[0]
+  }
+
+  fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
     if self.biome_override {
       return &self.tables.blank_table[0][0][0];
     }

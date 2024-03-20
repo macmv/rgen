@@ -270,7 +270,8 @@ impl WorldBiomes {
 
     for x in 0..16 {
       for z in 0..16 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        // Check at Y=255, to get all the surface biomes.
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
         let biome = self.choose_biome(pos);
         biome_names[x as usize][z as usize] = biome.name;
 
