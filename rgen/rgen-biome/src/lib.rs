@@ -232,21 +232,27 @@ impl WorldBiomes {
           let pos = pos.with_y(y);
           let rel_pos = pos.chunk_rel();
 
-          let block = chunk.get(pos.chunk_rel());
-          if block != Block::AIR && ![blocks.leaves.block].contains(&block) {
+          // FIXME: Stop copy pasting this all over.
+          let noise =
+            self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64) * 0.5 + 0.5;
+          let limit = (y as f64 - min_height) / (max_height - min_height);
+          let underground = noise > limit;
+
+          if underground {
             depth += 1;
           } else {
             depth = 0;
           }
 
           let biome = self.choose_biome(pos);
-          if depth == 1 {
+          if depth <= sub_layer_depth {
             if chunk.get(rel_pos) == blocks.stone.block {
-              chunk.set_state(rel_pos, biome.top_block);
-            }
-          } else if depth <= sub_layer_depth {
-            if chunk.get(rel_pos) == blocks.stone.block {
-              chunk.set_state(rel_pos, biome.sub_layer);
+              // Don't use depth, use y + 1, so that we account for caves.
+              if chunk.get(rel_pos.with_y(y + 1)) == Block::AIR {
+                chunk.set_state(rel_pos, biome.top_block);
+              } else {
+                chunk.set_state(rel_pos, biome.sub_layer);
+              }
             }
           }
         }

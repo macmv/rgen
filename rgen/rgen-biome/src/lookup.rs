@@ -1,5 +1,5 @@
 use rgen_base::Pos;
-use rgen_placer::noise::NoiseGenerator;
+use rgen_placer::noise::{NoiseGenerator, NoiseGenerator3D};
 
 use crate::{builder::BiomeBuilder, table::BiomeTable, WorldBiomes};
 
@@ -23,8 +23,16 @@ enum PeaksValleysCategory {
 
 impl WorldBiomes {
   pub fn choose_biome(&self, pos: Pos) -> &BiomeBuilder {
-    // FIXME: Use 3D noise here.
-    if pos.y < 62 {
+    // FIXME: Stop copy pasting this all over.
+    let max_height = self.sample_height(pos);
+    let min_height = 64.0 - max_height / 128.0;
+    // Check for Y + 1 to avoid caves showing up on the surface.
+    let noise =
+      self.density_map.generate_3d(pos.x as f64, (pos.y + 1) as f64, pos.z as f64) * 0.5 + 0.5;
+    let limit = ((pos.y + 1) as f64 - min_height) / (max_height - min_height);
+    let underground = noise > limit;
+
+    if underground {
       self.choose_cave_biome(pos)
     } else {
       self.choose_surface_biome(pos)
