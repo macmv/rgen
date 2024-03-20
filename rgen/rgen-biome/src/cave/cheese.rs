@@ -27,14 +27,10 @@ impl CheeseCarver {
         let info = world.height_info(pos);
         let height = (info.max_height() + info.min_height()) / 2.0;
 
-        for y in 0..=255 {
+        for y in 0..=height as i32 {
           let pos = pos.with_y(y);
           let noise =
             self.cave_map.generate_3d(pos.x as f64, pos.y as f64 * 4.0, pos.z as f64) * 0.5 + 0.5;
-
-          if y > height as i32 {
-            break;
-          }
 
           let scale = if (y as f64) < height - 10.0 { 1.0 } else { (height - y as f64) / 10.0 };
 
