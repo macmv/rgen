@@ -122,10 +122,45 @@ impl Sakura {
     &self,
     world: &mut PartialWorld,
     start_pos: Pos,
-    end_pos: Pos,
-    rng: &mut Rng,
+    offset: i32,
+    distance: i32,
+    height: i32,
+    multiplyer: i32,
     x_axis: bool,
   ) {
+    let (x1, y1, x2, y2) = (0, 0, (distance + 1) * multiplyer, height - offset);
+    println!("{}", x1);
+
+    let dx = (x2 - x1).abs();
+    let dy = (y2 - y1).abs();
+    let sx = if x1 < x2 { 1 } else { -1 };
+    let sy = if y1 < y2 { 1 } else { -1 };
+    let mut err = dx - dy;
+
+    let mut x = x1;
+    let mut y = y1;
+
+    while x != x2 || y != y2 {
+      if x_axis {
+        if world.get(start_pos + Pos::new(x, y + offset, 0)) == BlockState::AIR {
+          world.set(start_pos + Pos::new(x, y + offset, 0), self.trunk);
+        }
+      } else {
+        if world.get(start_pos + Pos::new(0, y + offset, x)) == BlockState::AIR {
+          world.set(start_pos + Pos::new(0, y + offset, x), self.trunk);
+        }
+      }
+
+      let e2 = 2 * err;
+      if e2 > -dy {
+        err -= dy;
+        x += sx;
+      }
+      if e2 < dx {
+        err += dx;
+        y += sy;
+      }
+    }
   }
 
   fn tri_build(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
@@ -176,8 +211,8 @@ impl Sakura {
       world.set(b_pos, self.trunk);
     }
 
-    self.build_limb(world, a_start_pos, a_pos, rng, x_axis);
-    self.build_limb(world, b_start_pos, b_pos, rng, x_axis);
+    self.build_limb(world, pos, a_start, a, a_height, 1, x_axis);
+    self.build_limb(world, pos, b_start, b, b_height, -1, x_axis);
 
     self.build_cannopy(world, a_pos, rng);
     self.build_cannopy(world, b_pos, rng);
