@@ -1,10 +1,12 @@
+mod chunk;
 pub mod chunk_placer;
 pub mod grid;
 pub mod noise;
 pub mod placer;
 mod rng;
 
-use rgen_base::{Chunk, ChunkPos, Pos};
+pub use chunk::*;
+use rgen_base::{ChunkPos, Pos};
 use rgen_world::PartialWorld;
 pub use rng::{Random, Rng};
 
@@ -29,5 +31,5 @@ pub trait Placer: Send + Sync {
 /// flexible than a `Placer`, because it can only access a single chunk, but it
 /// ends up being faster, as it will be run in parallel.
 pub trait ChunkPlacer: Send + Sync {
-  fn place(&self, chunk: &mut Chunk, rng: &mut Rng, chunk_pos: ChunkPos);
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos);
 }

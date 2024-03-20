@@ -1,5 +1,5 @@
 use rgen_base::{Biome, BlockState, Blocks, Chunk, ChunkPos, Pos};
-use rgen_placer::{grid::PointGrid, ChunkPlacer, Placer, Random, Rng};
+use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 
 pub enum PlacerStage {
@@ -69,13 +69,7 @@ impl BiomeBuilder {
     self.chunk_placers.push(Box::new(placer));
   }
 
-  pub fn generate(
-    &self,
-    rng: &mut Rng,
-    chunk: &mut Chunk,
-    chunk_pos: ChunkPos,
-    _is_in_chunk: impl Fn(Pos) -> bool,
-  ) {
+  pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
     for placer in self.chunk_placers.iter() {
       placer.place(chunk, rng, chunk_pos);
     }

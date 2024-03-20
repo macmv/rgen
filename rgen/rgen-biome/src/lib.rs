@@ -3,7 +3,7 @@ use cave::CaveCarver;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise},
-  Rng,
+  BiomeCachedChunk, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, PartialWorld};
@@ -250,38 +250,48 @@ impl WorldBiomes {
   }
 
   fn generate_chunk_placers(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    let mut biome_names = [[""; 16]; 16];
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
     // decorated. This is an optimization to avoid allocating here.
     let mut biome_index = 0;
-    let mut biome_set = [Option::<&BiomeBuilder>::None; 16];
+    let mut biome_set = [Option::<(&BiomeBuilder, TemporaryBiome)>::None; 16];
+
+    let mut chunk = BiomeCachedChunk::new(chunk);
 
     for x in 0..16 {
       for z in 0..16 {
-        // Check at Y=0, to get all the cave biomes.
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
-        let biome = self.choose_biome(pos);
-        biome_names[x as usize][z as usize] = biome.name;
+        for y in 0..256 {
+          let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
+          let biome = self.choose_biome(pos);
 
-        // `biome_set` acts like a set, so we need to check if this is a new biome or
-        // not. Note that this means every biome name _must_ be unique.
-        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
-          && biome_index < biome_set.len()
-        {
-          biome_set[biome_index] = Some(biome);
-          biome_index += 1;
+          match biome_set[..biome_index]
+            .iter()
+            .find(|b| b.is_some_and(|(b, _)| b.name == biome.name))
+          {
+            Some(Some((_, id))) => {
+              chunk.set_biome(pos.chunk_rel(), *id);
+            }
+            Some(None) => unreachable!(),
+            None => {
+              if biome_index < 15 {
+                let id = TemporaryBiome(biome_index as u8);
+                chunk.set_biome(pos.chunk_rel(), id);
+                biome_set[biome_index] = Some((biome, id));
+                biome_index += 1;
+              } else {
+                // if there would be too many biomes, set it to the max ID, which won't be used.
+                chunk.set_biome(pos.chunk_rel(), TemporaryBiome(15));
+              }
+            }
+          }
         }
       }
     }
 
-    for biome in biome_set.into_iter().flatten() {
+    for (biome, id) in biome_set.into_iter().flatten() {
       let mut rng = Rng::new(self.seed);
-      biome.generate(&mut rng, chunk, chunk_pos, |pos| {
-        let rel_x = pos.x - chunk_pos.min_block_pos().x;
-        let rel_z = pos.z - chunk_pos.min_block_pos().z;
-        biome_names[rel_x as usize][rel_z as usize] == biome.name
-      });
+      chunk.set_active(id);
+      biome.generate(&mut rng, &mut chunk, chunk_pos);
     }
   }
 
