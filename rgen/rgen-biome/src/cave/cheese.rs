@@ -24,9 +24,8 @@ impl CheeseCarver {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
 
-        let max_height = world.sample_height(pos);
-        let min_height = 64.0 - max_height / 128.0;
-        let height = (max_height + min_height) / 2.0;
+        let info = world.height_info(pos);
+        let height = (info.max_height() + info.min_height()) / 2.0;
 
         for y in 0..=255 {
           let pos = pos.with_y(y);
