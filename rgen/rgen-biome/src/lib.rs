@@ -216,7 +216,7 @@ impl WorldBiomes {
         let mut info = self.height_info(pos);
 
         let mut depth = 0;
-        for y in (info.min_height as i32..=255).rev() {
+        for y in (info.min_height as i32..=info.max_height as i32).rev() {
           let pos = pos.with_y(y);
           let rel_pos = pos.chunk_rel();
 
