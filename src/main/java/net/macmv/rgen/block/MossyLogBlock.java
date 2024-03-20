@@ -57,39 +57,23 @@ public class MossyLogBlock extends BlockLog {
     IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta & 3));
 
     switch (meta & 12) {
-      case 0:
-        state = state.withProperty(LOG_AXIS, BlockLog.EnumAxis.Y);
-        break;
-      case 4:
-        state = state.withProperty(LOG_AXIS, BlockLog.EnumAxis.X);
-        break;
-      case 8:
-        state = state.withProperty(LOG_AXIS, BlockLog.EnumAxis.Z);
-        break;
-      default:
-        state = state.withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
+      case 0: return state.withProperty(LOG_AXIS, BlockLog.EnumAxis.Y);
+      case 4: return state.withProperty(LOG_AXIS, BlockLog.EnumAxis.X);
+      case 8: return state.withProperty(LOG_AXIS, BlockLog.EnumAxis.Z);
+      default: return state.withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
     }
-
-    return state;
   }
 
   @Override
   public int getMetaFromState(IBlockState state) {
-    int i = 0;
-    i = i | state.getValue(VARIANT).meta;
+    int i = state.getValue(VARIANT).meta;
 
     switch (state.getValue(LOG_AXIS)) {
-      case X:
-        i |= 4;
-        break;
-      case Z:
-        i |= 8;
-        break;
-      case NONE:
-        i |= 12;
+      case X: return i | 4;
+      case Z: return i | 8;
+      case NONE: return i | 12;
+      default: return i;
     }
-
-    return i;
   }
 
   public static enum LogType implements IStringSerializable {
@@ -116,14 +100,10 @@ public class MossyLogBlock extends BlockLog {
 
     public static MossyLogBlock.LogType fromMeta(int meta) {
       switch (meta) {
-        case 0:
-          return OAK;
-        // case 1:
-        //   return FIR;
-        // case 2:
-        //   return SAKURA;
-        default:
-          return BIRCH;
+        case 0: return OAK;
+        // case 1: return FIR;
+        // case 2: return SAKURA;
+        default: return BIRCH;
       }
     }
   }

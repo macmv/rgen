@@ -41,14 +41,10 @@ public class LooseRockBlock extends Block {
   @Override
   public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(SIZE)) {
-      case SMALL:
-        return SMALL_COLLISION_AABB;
-      case MEDIUM:
-        return MEDIUM_COLLISION_AABB;
-      case LARGE:
-        return LARGE_COLLISION_AABB;
-      default:
-        return NULL_AABB;
+      case SMALL: return SMALL_COLLISION_AABB;
+      case MEDIUM: return MEDIUM_COLLISION_AABB;
+      case LARGE: return LARGE_COLLISION_AABB;
+      default: return NULL_AABB;
     }
   }
 
@@ -56,32 +52,20 @@ public class LooseRockBlock extends Block {
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(SIZE)) {
-      case SMALL:
-        return SMALL_SELECTED_AABB;
-      case MEDIUM:
-        switch (state.getValue(BlockHorizontal.FACING)) {
-          case NORTH:
-            return MEDIUM_SELECTED_NORTH_AABB;
-          case SOUTH:
-            return MEDIUM_SELECTED_SOUTH_AABB;
-          case EAST:
-            return MEDIUM_SELECTED_EAST_AABB;
-          case WEST:
-            return MEDIUM_SELECTED_WEST_AABB;
-        }
-      case LARGE:
-        switch (state.getValue(BlockHorizontal.FACING)) {
-          case NORTH:
-            return LARGE_SELECTED_NORTH_AABB;
-          case SOUTH:
-            return LARGE_SELECTED_SOUTH_AABB;
-          case EAST:
-            return LARGE_SELECTED_EAST_AABB;
-          case WEST:
-            return LARGE_SELECTED_WEST_AABB;
-        }
-      default:
-        return NULL_AABB;
+      case SMALL: return SMALL_SELECTED_AABB;
+      case MEDIUM: switch (state.getValue(BlockHorizontal.FACING)) {
+        case NORTH: return MEDIUM_SELECTED_NORTH_AABB;
+        case SOUTH: return MEDIUM_SELECTED_SOUTH_AABB;
+        case EAST: return MEDIUM_SELECTED_EAST_AABB;
+        case WEST: return MEDIUM_SELECTED_WEST_AABB;
+      }
+      case LARGE: switch (state.getValue(BlockHorizontal.FACING)) {
+        case NORTH: return LARGE_SELECTED_NORTH_AABB;
+        case SOUTH: return LARGE_SELECTED_SOUTH_AABB;
+        case EAST: return LARGE_SELECTED_EAST_AABB;
+        case WEST: return LARGE_SELECTED_WEST_AABB;
+      }
+      default: return NULL_AABB;
     }
   }
 
@@ -120,14 +104,10 @@ public class LooseRockBlock extends Block {
     IBlockState state = this.getDefaultState().withProperty(SIZE, RockSize.fromMeta(meta & 3));
 
     switch (meta & 12) {
-      case 0:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
-      case 4:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
-      case 8:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
-      default:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
+      case 0: return state.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
+      case 4: return state.withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
+      case 8: return state.withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
+      default: return state.withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
     }
   }
 
@@ -135,14 +115,10 @@ public class LooseRockBlock extends Block {
     int meta = state.getValue(SIZE).meta;
 
     switch (state.getValue(BlockHorizontal.FACING)) {
-      case SOUTH:
-        return meta | 4;
-      case EAST:
-        return meta | 8;
-      case WEST:
-        return meta | 12;
-      default:
-        return meta;
+      case SOUTH: return meta | 4;
+      case EAST: return meta | 8;
+      case WEST: return meta | 12;
+      default: return meta;
     }
   }
 
@@ -166,12 +142,9 @@ public class LooseRockBlock extends Block {
 
     public static RockSize fromMeta(int meta) {
       switch (meta) {
-        case 0:
-          return SMALL;
-        case 1:
-          return MEDIUM;
-        default:
-          return LARGE;
+        case 0: return SMALL;
+        case 1: return MEDIUM;
+        default: return LARGE;
       }
     }
   }

@@ -43,14 +43,10 @@ public class Bamboo extends Block {
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(PLACEMENT)) {
-      case X:
-        return BAMBOO_X;
-      case Z:
-        return BAMBOO_Z;
-      case XZ:
-        return BAMBOO_XZ;
-      default:
-        return BAMBOO_STANDARD;
+      case X: return BAMBOO_X;
+      case Z: return BAMBOO_Z;
+      case XZ: return BAMBOO_XZ;
+      default: return BAMBOO_STANDARD;
     }
   }
 
@@ -116,29 +112,19 @@ public class Bamboo extends Block {
     @Override
     public String getName() {
       switch (this) {
-
-        case X:
-          return "x";
-        case Z:
-          return "z";
-        case XZ:
-          return "xz";
-        default:
-          return "standard";
+        case X: return "x";
+        case Z: return "z";
+        case XZ: return "xz";
+        default: return "standard";
       }
     }
 
     public static Bamboo.Placement fromMeta(int meta) {
       switch (meta) {
-
-        case 1:
-          return X;
-        case 2:
-          return Z;
-        case 3:
-          return XZ;
-        default:
-          return STANDARD;
+        case 1: return X;
+        case 2: return Z;
+        case 3: return XZ;
+        default: return STANDARD;
       }
     }
   }

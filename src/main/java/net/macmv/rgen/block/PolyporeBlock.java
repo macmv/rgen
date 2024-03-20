@@ -90,14 +90,10 @@ public class PolyporeBlock extends Block {
     IBlockState state = this.getDefaultState().withProperty(TYPE, PolyporeType.fromMeta(meta & 3));
 
     switch (meta & 12) {
-      case 0:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
-      case 4:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
-      case 8:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
-      default:
-        return state.withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
+      case 0: return state.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
+      case 4: return state.withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
+      case 8: return state.withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
+      default: return state.withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
     }
   }
 
@@ -105,14 +101,10 @@ public class PolyporeBlock extends Block {
     int meta = state.getValue(TYPE).meta;
 
     switch (state.getValue(BlockHorizontal.FACING)) {
-      case SOUTH:
-        return meta | 4;
-      case EAST:
-        return meta | 8;
-      case WEST:
-        return meta | 12;
-      default:
-        return meta;
+      case SOUTH: return meta | 4;
+      case EAST: return meta | 8;
+      case WEST: return meta | 12;
+      default: return meta;
     }
   }
 
@@ -134,12 +126,9 @@ public class PolyporeBlock extends Block {
 
     public static PolyporeType fromMeta(int meta) {
       switch (meta) {
-        case 0:
-          return ONE;
-        case 1:
-          return TWO;
-        default:
-          return THREE;
+        case 0: return ONE;
+        case 1: return TWO;
+        default: return THREE;
       }
     }
   }
