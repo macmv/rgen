@@ -51,12 +51,18 @@ impl Placer for Sakura {
       return;
     }
 
-    // Builds the trunk.
-    for y in 0..=height {
-      world.set(pos + Pos::new(0, y, 0), self.trunk);
+    if self.large_size {
+      // Huge trees dude like the big ones man
+      // Options are: tri, split_duo, duo, uno, uno_off
+      self.tri_build(world, pos, rng);
+    } else {
+      for y in 0..=height {
+        // Future options: split_duo_pint, duo, unod, uno_off_pint
+        // Builds the trunk.
+        world.set(pos + Pos::new(0, y, 0), self.trunk);
+      }
+      self.build_cannopy(world, pos + Pos::new(0, height, 0), rng);
     }
-
-    self.build_cannopy(world, pos + Pos::new(0, height, 0), rng);
   }
 }
 
@@ -112,4 +118,6 @@ impl Sakura {
     // this works. But it does.
     world.place_structure(pos + Pos::new(dx * 3 - dz.abs() * 2, -2, dz * 3 - dx.abs() * 2), &drape);
   }
+
+  fn tri_build(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {}
 }
