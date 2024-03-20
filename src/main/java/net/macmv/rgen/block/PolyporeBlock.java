@@ -17,7 +17,21 @@ import net.minecraft.world.World;
 
 public class PolyporeBlock extends Block {
   public static final PropertyEnum<PolyporeType> TYPE = PropertyEnum.create("type", PolyporeType.class);
-  protected static final AxisAlignedBB POLYPORE_AABB = MathUtil.aabb(0, 0, 0, 16, 16, 16);
+
+  protected static final AxisAlignedBB NORTH_1_AABB = MathUtil.aabb(5, 8, 12, 14, 9, 16);
+  protected static final AxisAlignedBB SOUTH_1_AABB = MathUtil.aabb(2, 8, 0, 11, 9, 4);
+  protected static final AxisAlignedBB EAST_1_AABB = MathUtil.aabb(0, 8, 5, 4, 9, 14);
+  protected static final AxisAlignedBB WEST_1_AABB = MathUtil.aabb(12, 8, 2, 16, 9, 11);
+
+  protected static final AxisAlignedBB NORTH_2_AABB = MathUtil.aabb(2, 6, 12, 14, 10, 16);
+  protected static final AxisAlignedBB SOUTH_2_AABB = MathUtil.aabb(2, 6, 0, 14, 10, 4);
+  protected static final AxisAlignedBB EAST_2_AABB = MathUtil.aabb(0, 6, 2, 4, 10, 14);
+  protected static final AxisAlignedBB WEST_2_AABB = MathUtil.aabb(12, 6, 2, 16, 10, 14);
+
+  protected static final AxisAlignedBB NORTH_3_AABB = MathUtil.aabb(2, 7, 12, 14, 11, 16);
+  protected static final AxisAlignedBB SOUTH_3_AABB = MathUtil.aabb(2, 7, 0, 14, 11, 4);
+  protected static final AxisAlignedBB EAST_3_AABB = MathUtil.aabb(0, 7, 2, 4, 11, 14);
+  protected static final AxisAlignedBB WEST_3_AABB = MathUtil.aabb(12, 7, 2, 16, 11, 14);
 
   public PolyporeBlock() {
     super(Material.PLANTS);
@@ -25,13 +39,33 @@ public class PolyporeBlock extends Block {
 
   @Override
   public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return null;
+    return NULL_AABB;
   }
-
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return POLYPORE_AABB;
+    switch (state.getValue(BlockHorizontal.FACING)) {
+      case NORTH: switch (state.getValue(TYPE)) {
+        case ONE: return NORTH_1_AABB;
+        case TWO: return NORTH_2_AABB;
+        default: return NORTH_3_AABB;
+      }
+      case SOUTH: switch (state.getValue(TYPE)) {
+        case ONE: return SOUTH_1_AABB;
+        case TWO: return SOUTH_2_AABB;
+        default: return SOUTH_3_AABB;
+      }
+      case EAST: switch (state.getValue(TYPE)) {
+        case ONE: return EAST_1_AABB;
+        case TWO: return EAST_2_AABB;
+        default: return EAST_3_AABB;
+      }
+      default: switch (state.getValue(TYPE)) {
+        case ONE: return WEST_1_AABB;
+        case TWO: return WEST_2_AABB;
+        default: return WEST_3_AABB;
+      }
+    }
   }
 
   @Override
@@ -83,9 +117,9 @@ public class PolyporeBlock extends Block {
   }
 
   public enum PolyporeType implements IStringSerializable {
-    ONE(1),
-    TWO(2),
-    THREE(3);
+    ONE(0),
+    TWO(1),
+    THREE(2);
 
     public final int meta;
 
@@ -95,7 +129,7 @@ public class PolyporeBlock extends Block {
 
     @Override
     public String getName() {
-      return Integer.toString(meta);
+      return Integer.toString(meta + 1);
     }
 
     public static PolyporeType fromMeta(int meta) {
