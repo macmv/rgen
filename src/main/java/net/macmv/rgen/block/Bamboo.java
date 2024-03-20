@@ -41,20 +41,6 @@ public class Bamboo extends Block {
   }
 
   @Override
-  public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float x, float y, float z, int meta, EntityLivingBase placer) {
-    //return super.getStateForPlacement(world, pos, facing, x, y, z, meta, placer);
-    System.out.println(pos.toString());
-    new BlockPos(0, -1, 0);
-    IBlockState belowBlock = world.getBlockState(pos.down());
-    if (belowBlock.getBlock() instanceof Bamboo) {
-      return this.getDefaultState().withProperty(PLACEMENT, belowBlock.getValue(PLACEMENT));
-    } else {
-      return this.getDefaultState();
-    }
-
-  }
-
-  @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(PLACEMENT)) {
       case X:
@@ -105,8 +91,13 @@ public class Bamboo extends Block {
 
   @Override
   public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
-    Placement placement = (hitX > 0.5 && hitZ > 0.5) ? Placement.XZ : (hitX > 0.5) ? Placement.X : (hitZ > 0.5) ? Placement.Z : Placement.STANDARD;
-    return this.getDefaultState().withProperty(PLACEMENT, placement);
+    IBlockState belowBlock = world.getBlockState(pos.down());
+    if (belowBlock.getBlock() instanceof Bamboo) {
+      return this.getDefaultState().withProperty(PLACEMENT, belowBlock.getValue(PLACEMENT));
+    } else {
+      Placement placement = (hitX > 0.5 && hitZ > 0.5) ? Placement.XZ : (hitX > 0.5) ? Placement.X : (hitZ > 0.5) ? Placement.Z : Placement.STANDARD;
+      return this.getDefaultState().withProperty(PLACEMENT, placement);
+    }
   }
 
   public static enum Placement implements IStringSerializable {
