@@ -29,7 +29,7 @@ fn bench_chunk(b: &mut Bencher) {
       chunk_pos.z += 1;
     }
 
-    world.generate(&context, generator.as_ref(), chunk_pos, |_| {});
+    world.generate(chunk_pos, |_| {});
   });
 }
 

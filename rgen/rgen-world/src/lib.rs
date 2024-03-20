@@ -123,13 +123,7 @@ impl CachedWorld {
     };
   }
 
-  pub fn generate<R>(
-    &self,
-    _ctx: &Context,
-    _generator: &(impl Generator + Send + Sync),
-    pos: ChunkPos,
-    f: impl FnOnce(&Chunk) -> R,
-  ) -> R {
+  pub fn generate<R>(&self, pos: ChunkPos, f: impl FnOnce(&Chunk) -> R) -> R {
     // The minimum radius required to generate a neighbor decorated chunk is `RADIUS
     // + 2`. However, this leads to very low parallelism when generating a region of
     // chunks next to each other. Increasing this by 1 leads to much better real

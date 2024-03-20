@@ -134,7 +134,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
     let chunk_ctx =
       ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
 
-    ctx.world.generate(&ctx.context, ctx.generator.as_ref(), chunk_ctx.chunk_pos, |chunk| {
+    ctx.world.generate(chunk_ctx.chunk_pos, |chunk| {
       env.set_char_array_region(data, 0, chunk.data()).unwrap();
     });
   });
