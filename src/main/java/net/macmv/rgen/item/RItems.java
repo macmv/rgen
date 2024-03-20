@@ -20,17 +20,17 @@ public class RItems {
 
   // public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
-  public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Item LOG2 = registerBlockItem(RBlocks.LOG2, new ItemMultiTexture(RBlocks.LOG2, RBlocks.LOG2, it -> RGenLogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> LogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LOG2 = registerBlockItem(RBlocks.LOG2, new ItemMultiTexture(RBlocks.LOG2, RBlocks.LOG2, it -> LogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   // public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP);
-  public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP, new ItemMultiTexture(RBlocks.MOSSY_STUMP, RBlocks.MOSSY_STUMP, ty -> RGenMossyLogBlock.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item MOSSY_STUMP = registerBlockItem(RBlocks.MOSSY_STUMP, new ItemMultiTexture(RBlocks.MOSSY_STUMP, RBlocks.MOSSY_STUMP, ty -> MossyLogBlock.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
-  public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> RGenLogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> LogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> LogBlockOne.LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
-  public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> RGenLogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogBlockOne.LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
@@ -42,10 +42,8 @@ public class RItems {
   public static final Item BAMBOO = registerBlockItem(RBlocks.BAMBOO);
 
 
-
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
-
 
 
   private static Item registerBlockItem(Block block) {
@@ -77,27 +75,27 @@ public class RItems {
   public static void registerModels() {
     for (Item i : items) {
       if (i.getRegistryName().toString().equals("rgen:log")) {
-        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_log");
-        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_log");
-        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_log");
-        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_log");
+        registerModel(i, LogBlockOne.LogType.FIR.meta, "rgen:fir_log");
+        registerModel(i, LogBlockOne.LogType.PALM.meta, "rgen:palm_log");
+        registerModel(i, LogBlockOne.LogType.SAKURA.meta, "rgen:sakura_log");
+        registerModel(i, LogBlockOne.LogType.CEDAR.meta, "rgen:cedar_log");
       } else if (i.getRegistryName().toString().equals("rgen:log2")) {
-        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_log");
-        registerModel(i, RGenLogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_log");
+        registerModel(i, LogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_log");
+        registerModel(i, LogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_log");
       } else if (i.getRegistryName().toString().equals("rgen:leaves")) {
-        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_leaves");
-        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_leaves");
-        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_leaves");
-        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_leaves");
+        registerModel(i, LogBlockOne.LogType.FIR.meta, "rgen:fir_leaves");
+        registerModel(i, LogBlockOne.LogType.PALM.meta, "rgen:palm_leaves");
+        registerModel(i, LogBlockOne.LogType.SAKURA.meta, "rgen:sakura_leaves");
+        registerModel(i, LogBlockOne.LogType.CEDAR.meta, "rgen:cedar_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
-        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
-        registerModel(i, RGenLogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_leaves");
+        registerModel(i, LogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
+        registerModel(i, LogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:planks")) {
-        registerModel(i, RGenLogBlockOne.LogType.FIR.meta, "rgen:fir_planks");
-        registerModel(i, RGenLogBlockOne.LogType.PALM.meta, "rgen:palm_planks");
-        registerModel(i, RGenLogBlockOne.LogType.SAKURA.meta, "rgen:sakura_planks");
-        registerModel(i, RGenLogBlockOne.LogType.CEDAR.meta, "rgen:cedar_planks");
-        registerModel(i, RGenLogBlockOne.LogType.MANGROVE.meta, "rgen:mangrove_planks");
+        registerModel(i, LogBlockOne.LogType.FIR.meta, "rgen:fir_planks");
+        registerModel(i, LogBlockOne.LogType.PALM.meta, "rgen:palm_planks");
+        registerModel(i, LogBlockOne.LogType.SAKURA.meta, "rgen:sakura_planks");
+        registerModel(i, LogBlockOne.LogType.CEDAR.meta, "rgen:cedar_planks");
+        registerModel(i, LogBlockOne.LogType.MANGROVE.meta, "rgen:mangrove_planks");
       } else if (i.getRegistryName().toString().equals("rgen:flower")) {
         registerModel(i, FlowerBlock.FlowerType.FORGET_ME_NOT.meta, "rgen:forget_me_not");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {

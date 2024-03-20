@@ -1,7 +1,7 @@
 package net.macmv.rgen.block;
 
 import net.macmv.rgen.tab.RCreativeTabs;
-import net.macmv.rgen.block.RGenLogBlockOne.LogType;
+import net.macmv.rgen.block.LogBlockOne.LogType;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -10,10 +10,10 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
-public class RGenLogBlockTwo extends BlockLog {
+public class LogBlockTwo extends BlockLog {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type == LogType.MANGROVE || type == LogType.DEAD);
 
-  public RGenLogBlockTwo() {
+  public LogBlockTwo() {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(LOG_AXIS, EnumAxis.Y));
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }

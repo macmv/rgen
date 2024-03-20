@@ -1,8 +1,5 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.tab.RCreativeTabs;
-import net.minecraft.block.BlockLeaves;
-import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -20,10 +17,10 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 
 public class LeavesBlockOne extends LeavesBlock {
-  public static final PropertyEnum<RGenLogBlockOne.LogType> VARIANT = PropertyEnum.create("variant", RGenLogBlockOne.LogType.class, ty -> ty.meta < 4);
+  public static final PropertyEnum<LogBlockOne.LogType> VARIANT = PropertyEnum.create("variant", LogBlockOne.LogType.class, ty -> ty.meta < 4);
 
   public LeavesBlockOne() {
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, RGenLogBlockOne.LogType.FIR).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogBlockOne.LogType.FIR).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 
   // TODO: Override
@@ -34,10 +31,10 @@ public class LeavesBlockOne extends LeavesBlock {
 
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, RGenLogBlockOne.LogType.FIR.meta));
-    items.add(new ItemStack(this, 1, RGenLogBlockOne.LogType.PALM.meta));
-    items.add(new ItemStack(this, 1, RGenLogBlockOne.LogType.SAKURA.meta));
-    items.add(new ItemStack(this, 1, RGenLogBlockOne.LogType.CEDAR.meta));
+    items.add(new ItemStack(this, 1, LogBlockOne.LogType.FIR.meta));
+    items.add(new ItemStack(this, 1, LogBlockOne.LogType.PALM.meta));
+    items.add(new ItemStack(this, 1, LogBlockOne.LogType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, LogBlockOne.LogType.CEDAR.meta));
   }
 
   @Override
@@ -47,7 +44,7 @@ public class LeavesBlockOne extends LeavesBlock {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    RGenLogBlockOne.LogType variant = RGenLogBlockOne.LogType.fromMeta(meta & 3);
+    LogBlockOne.LogType variant = LogBlockOne.LogType.fromMeta(meta & 3);
 
     return this.getDefaultState().withProperty(VARIANT, variant).withProperty(DECAYABLE, (meta & 4) == 0).withProperty(CHECK_DECAY, (meta & 8) > 0);
   }
@@ -69,7 +66,7 @@ public class LeavesBlockOne extends LeavesBlock {
   }
 
   @Override
-  public RGenLogBlockOne.LogType getLogType(IBlockState state) {
+  public LogBlockOne.LogType getLogType(IBlockState state) {
     return state.getValue(VARIANT);
   }
 

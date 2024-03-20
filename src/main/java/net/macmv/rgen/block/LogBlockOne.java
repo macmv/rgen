@@ -11,10 +11,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 
-public class RGenLogBlockOne extends BlockLog {
+public class LogBlockOne extends BlockLog {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type.meta <= LogType.CEDAR.meta);
 
-  public RGenLogBlockOne() {
+  public LogBlockOne() {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR).withProperty(LOG_AXIS, EnumAxis.Y));
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }

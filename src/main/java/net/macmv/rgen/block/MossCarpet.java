@@ -8,11 +8,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public class RGenMossCarpet extends Block {
+public class MossCarpet extends Block {
   //protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0.09999999403953552, 0.0, 0.09999999403953552, 0.8999999761581421, 0.800000011920929, 0.8999999761581421);
   protected static final AxisAlignedBB CARPET_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D);
 
-  public RGenMossCarpet() {
+  public MossCarpet() {
     super(Material.CARPET);
   }
 

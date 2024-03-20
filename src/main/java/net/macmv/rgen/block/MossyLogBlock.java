@@ -16,12 +16,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 
-public class RGenMossyLogBlock extends BlockLog {
-  public static final PropertyEnum<RGenMossyLogBlock.LogType> VARIANT = PropertyEnum.create("variant", RGenMossyLogBlock.LogType.class);
+public class MossyLogBlock extends BlockLog {
+  public static final PropertyEnum<MossyLogBlock.LogType> VARIANT = PropertyEnum.create("variant", MossyLogBlock.LogType.class);
 
-  public RGenMossyLogBlock() {
+  public MossyLogBlock() {
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, RGenMossyLogBlock.LogType.OAK).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, MossyLogBlock.LogType.OAK).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
   }
 
   @Override
@@ -114,7 +114,7 @@ public class RGenMossyLogBlock extends BlockLog {
       return name;
     }
 
-    public static RGenMossyLogBlock.LogType fromMeta(int meta) {
+    public static MossyLogBlock.LogType fromMeta(int meta) {
       switch (meta) {
         case 0:
           return OAK;

@@ -1,7 +1,6 @@
 package net.macmv.rgen.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockStone;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -12,9 +11,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 
-public class RGenPlantableStone extends Block {
+public class PlantableStone extends Block {
 
-  public RGenPlantableStone() {
+  public PlantableStone() {
     super(Material.ROCK);
     this.setCreativeTab(CreativeTabs.DECORATIONS);
   }

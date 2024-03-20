@@ -10,8 +10,8 @@ import net.minecraft.init.Blocks;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 
-public class RGenMossBlock extends Block {
-  public RGenMossBlock() {
+public class MossBlock extends Block {
+  public MossBlock() {
     super(Material.GROUND);
   }
 
