@@ -128,7 +128,7 @@ impl Sakura {
     multiplyer: i32,
     x_axis: bool,
   ) {
-    let (x1, y1, x2, y2) = (0, 0, (distance + 1) * multiplyer, height - offset);
+    let (x1, y1, x2, y2) = (0, -1, (distance + 1) * multiplyer, height - offset);
     println!("{}", x1);
 
     let dx = (x2 - x1).abs();
@@ -199,7 +199,9 @@ impl Sakura {
     let b_start_pos = pos + Pos::new(0, b_start, 0);
 
     for y in 0..=top {
-      if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR {
+      if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR
+        || world.get(pos + Pos::new(0, y, 0)) == self.leaves
+      {
         world.set(pos + Pos::new(0, y, 0), self.trunk);
       }
     }
