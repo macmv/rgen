@@ -296,6 +296,9 @@ impl WorldBiomes {
   }
 
   pub fn decorate(&self, blocks: &Blocks, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
+    // anything.
+
     let mut biome_names = [[""; 16]; 16];
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
