@@ -30,12 +30,9 @@ impl Chunk {
     }
   }
 
-  pub fn set(&mut self, pos: ChunkRelPos, block: Block) {
-    self.set_state(pos, BlockState { block, state: 0 });
-  }
-  pub fn set_state(&mut self, pos: ChunkRelPos, state: BlockState) {
+  pub fn set(&mut self, pos: ChunkRelPos, block: impl Into<BlockState>) {
     if pos_in_world(pos) {
-      self.data[pos_to_index(pos)] = state.raw_id();
+      self.data[pos_to_index(pos)] = block.into().raw_id();
     }
   }
 

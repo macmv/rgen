@@ -23,7 +23,7 @@ impl PartialWorld {
 
   pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
     if let Some(chunk) = self.chunk_mut(pos.chunk()) {
-      chunk.set_state(pos.chunk_rel(), block.into());
+      chunk.set(pos.chunk_rel(), block.into());
     } else {
       // TODO: Log a warning when writing outside the world.
     }

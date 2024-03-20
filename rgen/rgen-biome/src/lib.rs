@@ -232,9 +232,9 @@ impl WorldBiomes {
             if chunk.get(rel_pos) == blocks.stone.block {
               // Don't use depth, use y + 1, so that we account for caves.
               if chunk.get(rel_pos.with_y(y + 1)) == Block::AIR {
-                chunk.set_state(rel_pos, biome.top_block);
+                chunk.set(rel_pos, biome.top_block);
               } else {
-                chunk.set_state(rel_pos, biome.sub_layer);
+                chunk.set(rel_pos, biome.sub_layer);
               }
             }
           }
