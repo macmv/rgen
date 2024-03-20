@@ -2,10 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use parking_lot::Mutex;
 
-use crate::{
-  region::RegionPos, render::RenderBuffer, terrain::TerrainGenerator, view::WorldViewer,
-  world::World,
-};
+use crate::{region::RegionPos, render::RenderBuffer, view::WorldViewer, world::World};
 
 /// This struct stores the rendering state as of the last frame. This is updated
 /// quickly by the main thread at the end of each frame. During a frame, this
@@ -96,11 +93,7 @@ impl RenderQueue {
     RenderQueue { state: Mutex::new(state), rendering: Mutex::new(vec![]) }
   }
 
-  pub fn spawn_render_threads(
-    self: &Arc<Self>,
-    world: &Arc<World<TerrainGenerator>>,
-    view: &Arc<WorldViewer>,
-  ) {
+  pub fn spawn_render_threads(self: &Arc<Self>, world: &Arc<World>, view: &Arc<WorldViewer>) {
     for _ in 0..POOL_SIZE {
       let slf = self.clone();
       let world = world.clone();

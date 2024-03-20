@@ -160,7 +160,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
       for z in 0..16 {
         let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
 
-        biome_out[(z << 4 | x) as usize] = ctx.generator.biomes.choose_biome(pos).id.raw_id() as i8;
+        biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
       }
     }
   });
@@ -188,8 +188,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
       for z in 0..height {
         let pos = Pos::new((x + cell_x) * 4, 0, (z + cell_z) * 4);
 
-        biome_out[(z * width + x) as usize] =
-          ctx.generator.biomes.choose_biome(pos).id.raw_id() as i8;
+        biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
       }
     }
   });
@@ -208,10 +207,10 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   let pos = Pos::new(block_x, block_y, block_z);
 
   let lines = Context::run(|ctx| {
-    let biome = ctx.generator.biomes.choose_biome(pos);
-    let continentalness = ctx.generator.biomes.sample_continentalness(pos);
-    let erosion = ctx.generator.biomes.sample_erosion(pos);
-    let peaks_valleys = ctx.generator.biomes.sample_peaks_valleys(pos);
+    let biome = ctx.generator.choose_biome(pos);
+    let continentalness = ctx.generator.sample_continentalness(pos);
+    let erosion = ctx.generator.sample_erosion(pos);
+    let peaks_valleys = ctx.generator.sample_peaks_valleys(pos);
 
     [
       format!("biome: {}", biome.name),
@@ -240,7 +239,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
   let pos = Pos::new(block_x, 0, block_z);
 
   Context::run(|ctx| {
-    let biome = ctx.generator.biomes.choose_biome(pos);
+    let biome = ctx.generator.choose_biome(pos);
     biome.id.raw_id() as i8
   })
 }
@@ -256,7 +255,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1
   let pos = Pos::new(block_x, block_y, block_z);
 
   let biome = Context::run(|ctx| {
-    let biome = ctx.generator.biomes.choose_biome(pos);
+    let biome = ctx.generator.choose_biome(pos);
 
     biome.name.to_string()
   });

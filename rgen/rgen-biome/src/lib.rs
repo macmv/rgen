@@ -6,7 +6,7 @@ use rgen_placer::{
   BiomeCachedChunk, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
-use rgen_world::{Context, PartialWorld};
+use rgen_world::{Context, Generator, PartialWorld};
 use table::Tables;
 
 mod biome;
@@ -159,8 +159,10 @@ impl WorldBiomes {
       ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0
     }
   }
+}
 
-  pub fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+impl Generator for WorldBiomes {
+  fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -206,7 +208,50 @@ impl WorldBiomes {
     self.generate_chunk_placers(chunk, chunk_pos);
   }
 
-  pub fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
+    // anything.
+
+    let mut biome_names = [[""; 16]; 16];
+    // The length of this list is how many total biomes we support in a single
+    // chunk. If there are more biomes than this, the extra ones will not be
+    // decorated. This is an optimization to avoid allocating here.
+    let mut biome_index = 0;
+    let mut biome_set = [Option::<&BiomeBuilder>::None; 16];
+
+    for x in 0..16 {
+      for z in 0..16 {
+        // Check at Y=255, to get all the surface biomes.
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
+        let biome = self.choose_biome(pos);
+        biome_names[x as usize][z as usize] = biome.name;
+
+        // `biome_set` acts like a set, so we need to check if this is a new biome or
+        // not. Note that this means every biome name _must_ be unique.
+        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
+          && biome_index < biome_set.len()
+        {
+          biome_set[biome_index] = Some(biome);
+          biome_index += 1;
+        }
+      }
+    }
+
+    for biome in biome_set.into_iter().flatten() {
+      let mut rng = Rng::new(self.seed);
+      biome.decorate(&ctx.blocks, &mut rng, chunk_pos, world, |pos| {
+        let rel_x = pos.x - chunk_pos.min_block_pos().x;
+        let rel_z = pos.z - chunk_pos.min_block_pos().z;
+        biome_names[rel_x as usize][rel_z as usize] == biome.name
+      });
+    }
+
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
+  }
+}
+
+impl WorldBiomes {
+  fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     // FIXME: Remove this and use a chunk placer instead.
 
     // For each column in the chunk, fill in the top layers.
@@ -305,45 +350,6 @@ impl WorldBiomes {
       let mut rng = Rng::new(self.seed);
       chunk.set_active(id);
       biome.generate(&mut rng, &mut chunk, chunk_pos);
-    }
-  }
-
-  pub fn decorate(&self, blocks: &Blocks, world: &mut PartialWorld, chunk_pos: ChunkPos) {
-    // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
-    // anything.
-
-    let mut biome_names = [[""; 16]; 16];
-    // The length of this list is how many total biomes we support in a single
-    // chunk. If there are more biomes than this, the extra ones will not be
-    // decorated. This is an optimization to avoid allocating here.
-    let mut biome_index = 0;
-    let mut biome_set = [Option::<&BiomeBuilder>::None; 16];
-
-    for x in 0..16 {
-      for z in 0..16 {
-        // Check at Y=255, to get all the surface biomes.
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
-        let biome = self.choose_biome(pos);
-        biome_names[x as usize][z as usize] = biome.name;
-
-        // `biome_set` acts like a set, so we need to check if this is a new biome or
-        // not. Note that this means every biome name _must_ be unique.
-        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
-          && biome_index < biome_set.len()
-        {
-          biome_set[biome_index] = Some(biome);
-          biome_index += 1;
-        }
-      }
-    }
-
-    for biome in biome_set.into_iter().flatten() {
-      let mut rng = Rng::new(self.seed);
-      biome.decorate(blocks, &mut rng, chunk_pos, world, |pos| {
-        let rel_x = pos.x - chunk_pos.min_block_pos().x;
-        let rel_z = pos.z - chunk_pos.min_block_pos().z;
-        biome_names[rel_x as usize][rel_z as usize] == biome.name
-      });
     }
   }
 

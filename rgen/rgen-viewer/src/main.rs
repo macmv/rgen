@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
 use rgen_base::{ChunkPos, Pos};
+use rgen_biome::WorldBiomes;
 use rgen_world::Context;
 use sdl2::{
   event::Event,
@@ -14,11 +15,9 @@ mod color;
 mod queue;
 mod region;
 mod render;
-mod terrain;
 mod view;
 mod world;
 
-use terrain::TerrainGenerator;
 use world::World;
 
 use crate::{
@@ -61,7 +60,7 @@ pub fn main() -> Result<(), String> {
   let mut render = Render::new()?;
 
   let context = Context::new_test(seed);
-  let terrain = TerrainGenerator::new(&context.blocks, &context.biomes, context.seed);
+  let terrain = WorldBiomes::new(&context.blocks, &context.biomes, context.seed);
   let world = Arc::new(World::new(context, terrain));
   let world_view = Arc::new(WorldViewer::new());
 
@@ -242,12 +241,12 @@ pub fn main() -> Result<(), String> {
         f.render(0, 0, format!("X: {x:0.2} Z: {z:0.2}", x = hover_pos.x, z = hover_pos.z));
         f.render(0, 24, format!("Height: {meter_height:0.2}"));
 
-        let biome = world.generator.biomes.choose_biome(hover_pos);
+        let biome = world.generator.choose_biome(hover_pos);
         f.render(0, 48, format!("Biome: {}", biome.name));
 
-        let continentalness = world.generator.biomes.sample_continentalness(hover_pos);
-        let erosion = world.generator.biomes.sample_erosion(hover_pos);
-        let peaks_valleys = world.generator.biomes.sample_peaks_valleys(hover_pos);
+        let continentalness = world.generator.sample_continentalness(hover_pos);
+        let erosion = world.generator.sample_erosion(hover_pos);
+        let peaks_valleys = world.generator.sample_peaks_valleys(hover_pos);
 
         f.render(0, 72, format!("Continentalness: {:.5}", continentalness));
         f.render(0, 96, format!("Erosion: {:.5}", erosion));
@@ -314,8 +313,6 @@ pub fn main() -> Result<(), String> {
 
   Ok(())
 }
-
-impl World<TerrainGenerator> {}
 
 struct Settings {
   chunk_borders: bool,

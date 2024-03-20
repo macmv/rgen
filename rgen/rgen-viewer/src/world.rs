@@ -1,12 +1,12 @@
 use rgen_base::{Biome, Pos};
-use rgen_biome::BiomeBuilder;
+use rgen_biome::{BiomeBuilder, WorldBiomes};
 use rgen_world::Context;
 
-use crate::{color::Color, terrain::TerrainGenerator};
+use crate::color::Color;
 
-pub struct World<G> {
+pub struct World {
   pub context:   Context,
-  pub generator: G,
+  pub generator: WorldBiomes,
 }
 
 #[derive(Clone, Copy)]
@@ -65,19 +65,19 @@ impl Default for Column {
   fn default() -> Column { Column::EMPTY }
 }
 
-impl<G> World<G> {
-  pub fn new(context: Context, generator: G) -> World<G> { World { context, generator } }
+impl World {
+  pub fn new(context: Context, generator: WorldBiomes) -> World { World { context, generator } }
 }
 
-impl World<TerrainGenerator> {
+impl World {
   pub fn column_at(&self, pos: Pos) -> Column {
-    let biome = self.generator.biomes.choose_biome(pos);
+    let biome = self.generator.choose_biome(pos);
 
-    let height = self.generator.biomes.sample_height(pos);
+    let height = self.generator.sample_height(pos);
 
-    let continentalness = self.generator.biomes.sample_continentalness(pos);
-    let erosion = self.generator.biomes.sample_erosion(pos);
-    let peaks_valleys = self.generator.biomes.sample_peaks_valleys(pos);
+    let continentalness = self.generator.sample_continentalness(pos);
+    let erosion = self.generator.sample_erosion(pos);
+    let peaks_valleys = self.generator.sample_peaks_valleys(pos);
 
     Column {
       height,
@@ -85,7 +85,7 @@ impl World<TerrainGenerator> {
     }
   }
 
-  pub fn height_at(&self, pos: Pos) -> f64 { self.generator.biomes.sample_height(pos) }
+  pub fn height_at(&self, pos: Pos) -> f64 { self.generator.sample_height(pos) }
 }
 
 fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> Color {

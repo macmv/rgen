@@ -8,7 +8,6 @@ use crate::{
   color::Color,
   region::{RegionPos, REGION_SIZE},
   render::RenderBuffer,
-  terrain::TerrainGenerator,
   world::World,
   RenderMode,
 };
@@ -77,7 +76,7 @@ impl WorldViewer {
     self.chunks.read()
   }
 
-  pub fn render_chunk(&self, world: &World<TerrainGenerator>, region_pos: RegionPos) {
+  pub fn render_chunk(&self, world: &World, region_pos: RegionPos) {
     let mut chunk = RenderBuffer::new(REGION_SIZE as u32, REGION_SIZE as u32);
     let mode = *self.mode.lock();
 

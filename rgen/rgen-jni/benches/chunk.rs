@@ -4,8 +4,9 @@ extern crate test;
 
 use std::sync::Arc;
 
-use rgen_base::{Biomes, Blocks, Chunk, ChunkPos, Pos};
-use rgen_world::{CachedWorld, Context, Generator, PartialWorld};
+use rgen_base::{Biomes, Blocks, ChunkPos};
+use rgen_biome::WorldBiomes;
+use rgen_world::CachedWorld;
 use test::Bencher;
 
 #[bench]
@@ -16,8 +17,7 @@ fn bench_chunk(b: &mut Bencher) {
     blocks: Blocks::test_blocks(),
     biomes: Biomes::test_blocks(),
   });
-  let generator =
-    Arc::new(TerrainGenerator::new(&context.blocks, &context.biomes, context.seed as u64));
+  let generator = Arc::new(WorldBiomes::new(&context.blocks, &context.biomes, context.seed as u64));
   world.spawn_threads(&context, &generator);
 
   let mut chunk_pos = ChunkPos::new(0, 0);
@@ -31,26 +31,4 @@ fn bench_chunk(b: &mut Bencher) {
 
     world.generate(chunk_pos, |_| {});
   });
-}
-
-pub struct TerrainGenerator {
-  pub biomes: rgen_biome::WorldBiomes,
-}
-
-impl Generator for TerrainGenerator {
-  fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.biomes.generate_base(ctx, chunk, chunk_pos);
-  }
-
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
-    self.biomes.decorate(&ctx.blocks, world, chunk_pos);
-
-    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
-  }
-}
-
-impl TerrainGenerator {
-  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> TerrainGenerator {
-    TerrainGenerator { biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids, seed) }
-  }
 }
