@@ -5,6 +5,7 @@ use crate::builder::PlacerStage;
 use super::{BiomeBuilder, IdContext};
 
 pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  println!("hey neil, hey neil, how you doing?");
   gen.id = ctx.biomes.birch_forest;
   gen.top_block = ctx.blocks.grass.default_state;
 
