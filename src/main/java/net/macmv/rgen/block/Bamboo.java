@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -100,6 +101,12 @@ public class Bamboo extends Block {
 
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, PLACEMENT, HAS_LEAVES);
+  }
+
+  @Override
+  public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+    Placement placement = (hitX > 0.5 && hitZ > 0.5) ? Placement.XZ : (hitX > 0.5) ? Placement.X : (hitZ > 0.5) ? Placement.Z : Placement.STANDARD;
+    return this.getDefaultState().withProperty(PLACEMENT, placement);
   }
 
   public static enum Placement implements IStringSerializable {
