@@ -1,4 +1,5 @@
 use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
+use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
 use crate::biome::IdContext;
@@ -46,7 +47,8 @@ impl VillageGenerator {
 struct Village<'a> {
   generator: &'a VillageGenerator,
 
-  roads: Vec<Road>,
+  roads:     Vec<Road>,
+  buildings: Vec<Building>,
 
   origin: Pos,
 }
@@ -56,13 +58,20 @@ struct Road {
   end:   Pos,
 }
 
+struct Building {
+  pos: Pos,
+}
+
 impl<'a> Village<'a> {
   pub fn new(generator: &'a VillageGenerator, seed: u64, origin: Pos) -> Self {
     let mut roads = vec![];
     let mut rng = Rng::new(seed);
     recursive_road(&mut roads, &mut rng, origin, origin, 0);
 
-    Village { generator, roads, origin }
+    let mut buildings = vec![];
+    place_buildings(&mut buildings, &mut rng, &roads);
+
+    Village { generator, roads, buildings, origin }
   }
 
   pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
@@ -79,6 +88,20 @@ impl<'a> Village<'a> {
               }
 
               chunk.set(pos.chunk_rel(), self.generator.road_block);
+            }
+          }
+        }
+      }
+
+      for building in &self.buildings {
+        for dy in 0..=3 {
+          for dz in -1..=1 {
+            for dx in -1..=1 {
+              let pos = building.pos + Pos::new(dx, dy, dz);
+
+              if pos.in_chunk(chunk_pos) {
+                chunk.set_state(pos.chunk_rel(), self.generator.road_block);
+              }
             }
           }
         }
@@ -135,5 +158,32 @@ fn recursive_road(roads: &mut Vec<Road>, rng: &mut Rng, origin: Pos, pos: Pos, d
     roads.push(road);
 
     recursive_road(roads, rng, origin, new_pos, depth + 1);
+  }
+}
+
+fn place_buildings(buildings: &mut Vec<Building>, rng: &mut Rng, roads: &[Road]) {
+  fn place_buildings_along(buildings: &mut Vec<Building>, _rng: &mut Rng, road: &Road) {
+    let mut i = 0;
+
+    let off_axis = if road.start.x != road.end.x { (0, 1) } else { (1, 0) };
+
+    for x in road.start.x.min(road.end.x)..=road.start.x.max(road.end.x) {
+      for z in road.start.z.min(road.end.z)..=road.start.z.max(road.end.z) {
+        for side in [-1, 1] {
+          i += 1;
+          if i % 9 != 0 {
+            continue;
+          }
+
+          let pos = Pos::new(x + off_axis.0 * side * 4, 100, z + off_axis.1 * side * 4);
+
+          buildings.push(Building { pos })
+        }
+      }
+    }
+  }
+
+  for road in roads {
+    place_buildings_along(buildings, rng, road);
   }
 }
