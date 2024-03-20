@@ -129,7 +129,6 @@ impl Sakura {
     x_axis: bool,
   ) {
     let (x1, y1, x2, y2) = (0, -1, (distance + 1) * multiplyer, height - offset);
-    println!("{}", x1);
 
     let dx = (x2 - x1).abs();
     let dy = (y2 - y1).abs();
