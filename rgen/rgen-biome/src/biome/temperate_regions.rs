@@ -69,19 +69,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.top_block = ctx.blocks.grass.default_state;
-  gen.place(
-    "Cherry Tree",
-    PlacerStage::Sand,
-    placer::Sakura {
-      avg_in_chunk: 4.0,
-      place_above:  gen.top_block.into(),
-      trunk:        ctx.blocks.rgen_log.with_data(2),
-      leaves:       ctx.blocks.rgen_leaves.with_data(2),
-      large_size:   true,
-
-      drapes: vec![],
-    },
-  );
+  gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
 }
 
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
