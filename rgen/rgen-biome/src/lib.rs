@@ -202,6 +202,8 @@ impl WorldBiomes {
     self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
+
+    self.generate_chunk_placers(chunk, chunk_pos);
   }
 
   pub fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
@@ -245,6 +247,42 @@ impl WorldBiomes {
     let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64);
     let depth = (noise * 2.0 + 3.0).round() as i32;
     depth
+  }
+
+  fn generate_chunk_placers(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    let mut biome_names = [[""; 16]; 16];
+    // The length of this list is how many total biomes we support in a single
+    // chunk. If there are more biomes than this, the extra ones will not be
+    // decorated. This is an optimization to avoid allocating here.
+    let mut biome_index = 0;
+    let mut biome_set = [Option::<&BiomeBuilder>::None; 16];
+
+    for x in 0..16 {
+      for z in 0..16 {
+        // Check at Y=0, to get all the cave biomes.
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        let biome = self.choose_biome(pos);
+        biome_names[x as usize][z as usize] = biome.name;
+
+        // `biome_set` acts like a set, so we need to check if this is a new biome or
+        // not. Note that this means every biome name _must_ be unique.
+        if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
+          && biome_index < biome_set.len()
+        {
+          biome_set[biome_index] = Some(biome);
+          biome_index += 1;
+        }
+      }
+    }
+
+    for biome in biome_set.into_iter().flatten() {
+      let mut rng = Rng::new(self.seed);
+      biome.generate(&mut rng, chunk, chunk_pos, |pos| {
+        let rel_x = pos.x - chunk_pos.min_block_pos().x;
+        let rel_z = pos.z - chunk_pos.min_block_pos().z;
+        biome_names[rel_x as usize][rel_z as usize] == biome.name
+      });
+    }
   }
 
   pub fn decorate(&self, blocks: &Blocks, world: &mut PartialWorld, chunk_pos: ChunkPos) {

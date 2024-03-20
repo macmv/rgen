@@ -1,5 +1,5 @@
-use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
-use rgen_placer::{grid::PointGrid, Placer, Random, Rng};
+use rgen_base::{Biome, BlockState, Blocks, Chunk, ChunkPos, Pos};
+use rgen_placer::{grid::PointGrid, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 
 pub enum PlacerStage {
@@ -20,6 +20,10 @@ pub struct BiomeBuilder {
   pub min_height: u32,
   pub max_height: u32,
 
+  // First pass placers. These run on multiple threads, and can only access a single chunk.
+  chunk_placers: Vec<Box<dyn ChunkPlacer>>,
+
+  // Second pass placers. These all run on one thread, but can access the 8 surrounding chunks.
   placers: Vec<PlacerBuilder>,
 }
 
@@ -43,6 +47,7 @@ impl BiomeBuilder {
       min_height: 64,
       max_height: 128,
       placers: vec![],
+      chunk_placers: vec![],
     }
   }
 
@@ -58,6 +63,22 @@ impl BiomeBuilder {
   fn place0(&mut self, _stage: PlacerStage, placer: Box<dyn Placer>) {
     // TODO: Using the stage, insert this at the right spot.
     self.placers.push(PlacerBuilder::new(placer));
+  }
+
+  pub fn place_chunk(&mut self, placer: impl ChunkPlacer + 'static) {
+    self.chunk_placers.push(Box::new(placer));
+  }
+
+  pub fn generate(
+    &self,
+    rng: &mut Rng,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+    _is_in_chunk: impl Fn(Pos) -> bool,
+  ) {
+    for placer in self.chunk_placers.iter() {
+      placer.place(chunk, rng, chunk_pos);
+    }
   }
 
   /// Decorates the given chunk. The `rng` passed in should only be seeded with
