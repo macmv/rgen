@@ -207,6 +207,8 @@ impl WorldBiomes {
   }
 
   pub fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    // FIXME: Remove this and use a chunk placer instead.
+
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
@@ -260,9 +262,20 @@ impl WorldBiomes {
 
     for x in 0..16 {
       for z in 0..16 {
+        // This is kinda restrictive, but helps performance a _lot_. We also don't
+        // really want biomes to change on the Y axis, as that causes weirdness when
+        // building with grass and such. So we can limit ourselves to a single surface
+        // biome and a single cave biome per column.
+        let surface_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 255, z));
+        let cave_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+
+        let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+
         for y in 0..256 {
           let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
-          let biome = self.choose_biome(pos);
+          info.move_to(pos);
+
+          let biome = if info.underground() { cave_biome } else { surface_biome };
 
           match biome_set[..biome_index]
             .iter()
