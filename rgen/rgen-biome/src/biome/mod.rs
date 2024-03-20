@@ -1,6 +1,7 @@
 //! Stores all the actual biome implementations.
 
 mod blank;
+mod cave;
 mod coast_regions;
 mod cold_regions;
 mod cool_regions;
@@ -12,6 +13,7 @@ mod temperate_regions;
 mod tropical_regions;
 
 pub use blank::*;
+pub use cave::*;
 pub use coast_regions::*;
 pub use cold_regions::*;
 pub use cool_regions::*;

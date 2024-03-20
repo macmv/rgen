@@ -170,6 +170,7 @@ const TROPICAL: BiomeFnCategory = &[
   // b!(1.0, light_jungle),
   // b!(1.0, bamboo_jungle)
 ];
+const CAVE: BiomeFnCategory = &[b!(1.0, cave), b!(1.0, lush_cave)];
 
 // === Biome tables ===
 
@@ -211,6 +212,8 @@ const STANDARD_TABLE: BiomeFnTable = &[
   &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
 ];
 
+const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
+
 pub struct Tables {
   pub blank_table:    BiomeTable,
   pub sea_table:      BiomeTable,
@@ -218,6 +221,8 @@ pub struct Tables {
   pub standard_table: BiomeTable,
   pub valley_table:   BiomeTable,
   pub river_table:    BiomeTable,
+
+  pub cave_table: BiomeTable,
 }
 
 impl Tables {
@@ -229,6 +234,8 @@ impl Tables {
       standard_table: table(ctx, STANDARD_TABLE),
       valley_table:   table(ctx, VALLEY_TABLE),
       river_table:    table(ctx, RIVER_TABLE),
+
+      cave_table: table(ctx, CAVE_TABLE),
     }
   }
 }

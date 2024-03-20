@@ -1,6 +1,6 @@
 use biome::IdContext;
 use cave::CaveCarver;
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
   noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise},
   Rng,
@@ -167,19 +167,11 @@ impl WorldBiomes {
 
         // let height = self.height_at(pos) as i32;
         // let biome = self.choose_biome(seed, pos);
+        let mut info = self.height_info(pos);
 
-        // The "max height" here is the maximum Y level for a single block. We then
-        // linearly interpolate between min_height and max_height, and compare the
-        // interpolated value to a 3D noise map, to choose if there will be a block
-        // placed or not.
-        //
-        // So, the height isn't really "height," its more the hilliness of the terrain.
-        let max_height = self.sample_height(pos);
-        let min_height = 64.0 - max_height / 128.0;
-
-        if max_height < 64.0 {
+        if info.max_height() < 64.0 {
           for y in 0..=63 {
-            if y < max_height as i32 {
+            if y < info.max_height() as i32 {
               chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.stone.block);
             } else {
               chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.water.block);
@@ -189,12 +181,8 @@ impl WorldBiomes {
           for y in 0..=255 {
             let pos = pos.with_y(y);
 
-            let noise =
-              self.density_map.generate_3d(pos.x as f64, pos.y as f64, pos.z as f64) * 0.5 + 0.5;
-
-            let limit = (y as f64 - min_height) / (max_height - min_height);
-
-            if noise > limit {
+            info.move_to(pos);
+            if info.underground() {
               chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
             }
           }
@@ -211,7 +199,7 @@ impl WorldBiomes {
       }
     }
 
-    self.cave.carve(chunk, chunk_pos);
+    self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
   }
@@ -220,30 +208,33 @@ impl WorldBiomes {
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
-        let rel_pos = ChunkRelPos::new(x, 0, z);
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        let sub_layer_depth = self.sample_sub_layer_depth(pos);
 
-        let mut y = 255;
-        while y > 0 {
-          let block = chunk.get(rel_pos.with_y(y));
-          if block != Block::AIR && ![blocks.leaves.block].contains(&block) {
-            break;
+        let mut info = self.height_info(pos);
+
+        let mut depth = 0;
+        for y in (info.min_height as i32..=255).rev() {
+          let pos = pos.with_y(y);
+          let rel_pos = pos.chunk_rel();
+
+          info.move_to(pos);
+          if info.underground() {
+            depth += 1;
+          } else {
+            depth = 0;
           }
-          y -= 1;
-        }
-        let rel_pos = rel_pos.with_y(y);
-        let pos =
-          chunk_pos.min_block_pos() + Pos::new(rel_pos.x().into(), rel_pos.y(), rel_pos.z().into());
 
-        let biome = self.choose_biome(pos);
-
-        if chunk.get(rel_pos) == blocks.stone.block {
-          chunk.set_state(rel_pos, biome.top_block);
-        }
-
-        for depth in 1..self.sample_sub_layer_depth(pos) {
-          let rel_pos = rel_pos.with_y(rel_pos.y() - depth);
-          if chunk.get(rel_pos) == blocks.stone.block {
-            chunk.set_state(rel_pos, biome.sub_layer);
+          let biome = self.choose_biome(pos);
+          if depth <= sub_layer_depth {
+            if chunk.get(rel_pos) == blocks.stone.block {
+              // Don't use depth, use y + 1, so that we account for caves.
+              if chunk.get(rel_pos.with_y(y + 1)) == Block::AIR {
+                chunk.set_state(rel_pos, biome.top_block);
+              } else {
+                chunk.set_state(rel_pos, biome.sub_layer);
+              }
+            }
           }
         }
       }
@@ -266,7 +257,8 @@ impl WorldBiomes {
 
     for x in 0..16 {
       for z in 0..16 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        // Check at Y=255, to get all the surface biomes.
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
         let biome = self.choose_biome(pos);
         biome_names[x as usize][z as usize] = biome.name;
 
@@ -289,5 +281,61 @@ impl WorldBiomes {
         biome_names[rel_x as usize][rel_z as usize] == biome.name
       });
     }
+  }
+
+  pub fn height_info(&self, pos: Pos) -> HeightInfo {
+    let mut info =
+      HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, underground: None };
+    info.change_xz();
+    info
+  }
+}
+
+pub struct HeightInfo<'a> {
+  world: &'a WorldBiomes,
+  pos:   Pos,
+
+  // The "max height" here is the maximum Y level for a single block. We then
+  // linearly interpolate between min_height and max_height, and compare the
+  // interpolated value to a 3D noise map, to choose if there will be a block
+  // placed or not.
+  //
+  // So, the height isn't really "height," its more the hilliness of the terrain.
+  max_height:  f64,
+  min_height:  f64,
+  underground: Option<bool>,
+}
+
+impl HeightInfo<'_> {
+  fn change_xz(&mut self) {
+    self.max_height = self.world.sample_height(self.pos);
+    self.min_height = 64.0 - self.max_height / 128.0;
+  }
+  fn change_y(&mut self) { self.underground = None; }
+
+  pub fn move_to(&mut self, pos: Pos) {
+    let old_pos = self.pos;
+    self.pos = pos;
+
+    if self.pos.x != old_pos.x || self.pos.z != old_pos.z {
+      self.change_xz();
+    }
+    if self.pos.y != old_pos.y {
+      self.change_y();
+    }
+  }
+
+  pub fn max_height(&self) -> f64 { self.max_height }
+  pub fn min_height(&self) -> f64 { self.min_height }
+  pub fn underground(&mut self) -> bool {
+    *self.underground.get_or_insert_with(|| {
+      let noise =
+        self.world.density_map.generate_3d(self.pos.x as f64, self.pos.y as f64, self.pos.z as f64)
+          * 0.5
+          + 0.5;
+      let limit = (self.pos.y as f64 - self.min_height) / (self.max_height - self.min_height);
+
+      noise > limit
+    })
   }
 }
