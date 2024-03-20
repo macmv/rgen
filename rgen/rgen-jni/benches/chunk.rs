@@ -34,8 +34,6 @@ fn bench_chunk(b: &mut Bencher) {
 }
 
 pub struct TerrainGenerator {
-  pub seed: u64,
-
   pub biomes: rgen_biome::WorldBiomes,
 }
 
@@ -53,6 +51,6 @@ impl Generator for TerrainGenerator {
 
 impl TerrainGenerator {
   pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> TerrainGenerator {
-    TerrainGenerator { seed, biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids, seed) }
+    TerrainGenerator { biomes: rgen_biome::WorldBiomes::new(blocks, biome_ids, seed) }
   }
 }
