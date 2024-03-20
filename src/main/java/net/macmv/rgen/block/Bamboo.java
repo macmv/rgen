@@ -29,15 +29,10 @@ public class Bamboo extends Block {
   public static final PropertyEnum<Bamboo.Placement> PLACEMENT = PropertyEnum.create("placement", Bamboo.Placement.class);
   public static final PropertyBool HAS_LEAVES = PropertyBool.create("has_leaves");
 
-  protected static final AxisAlignedBB COLLIDE_BAMBOO_STANDARD = MathUtil.aabb(3, 0, 3, 5, 16, 5);
-  protected static final AxisAlignedBB COLLIDE_BAMBOO_X = MathUtil.aabb(11, 0, 3, 13, 16, 5);
-  protected static final AxisAlignedBB COLLIDE_BAMBOO_Z = MathUtil.aabb(3, 0, 11, 5, 16, 13);
-  protected static final AxisAlignedBB COLLIDE_BAMBOO_XZ = MathUtil.aabb(11, 0, 11, 13, 16, 13);
-
-  protected static final AxisAlignedBB BOUND_BAMBOO_STANDARD = MathUtil.aabb(2, 0, 2, 6, 16, 6);
-  protected static final AxisAlignedBB BOUND_BAMBOO_X = MathUtil.aabb(10, 0, 2, 14, 16, 6);
-  protected static final AxisAlignedBB BOUND_BAMBOO_Z = MathUtil.aabb(2, 0, 10, 6, 16, 14);
-  protected static final AxisAlignedBB BOUND_BAMBOO_XZ = MathUtil.aabb(10, 0, 10, 14, 16, 14);
+  protected static final AxisAlignedBB BAMBOO_STANDARD = MathUtil.aabb(2.5, 0, 2.5, 5.5, 16, 5.5);
+  protected static final AxisAlignedBB BAMBOO_X = MathUtil.aabb(10.5, 0, 2.5, 13.5, 16, 5.5);
+  protected static final AxisAlignedBB BAMBOO_Z = MathUtil.aabb(2.5, 0, 10.5, 5.5, 16, 13.5);
+  protected static final AxisAlignedBB BAMBOO_XZ = MathUtil.aabb(10.5, 0, 10.5, 13.5, 16, 13.5);
 
   public Bamboo() {
     super(Material.PLANTS);
@@ -48,41 +43,27 @@ public class Bamboo extends Block {
   public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float x, float y, float z, int meta, EntityLivingBase placer) {
     //return super.getStateForPlacement(world, pos, facing, x, y, z, meta, placer);
     System.out.println(pos.toString());
-    new BlockPos(0,-1,0);
+    new BlockPos(0, -1, 0);
     IBlockState belowBlock = world.getBlockState(pos.down());
     if (belowBlock.getBlock() instanceof Bamboo) {
       return this.getDefaultState().withProperty(PLACEMENT, belowBlock.getValue(PLACEMENT));
-    }else{
+    } else {
       return this.getDefaultState();
     }
 
   }
-  @Override
-  public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    switch (state.getValue(PLACEMENT)) {
-      case X:
-        return COLLIDE_BAMBOO_X;
-      case Z:
-        return COLLIDE_BAMBOO_Z;
-      case XZ:
-        return COLLIDE_BAMBOO_XZ;
-      default:
-        return COLLIDE_BAMBOO_STANDARD;
-    }
-  }
-
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(PLACEMENT)) {
       case X:
-        return BOUND_BAMBOO_X;
+        return BAMBOO_X;
       case Z:
-        return BOUND_BAMBOO_Z;
+        return BAMBOO_Z;
       case XZ:
-        return BOUND_BAMBOO_XZ;
+        return BAMBOO_XZ;
       default:
-        return BOUND_BAMBOO_STANDARD;
+        return BAMBOO_STANDARD;
     }
   }
 
@@ -97,15 +78,14 @@ public class Bamboo extends Block {
   }
 
   @SideOnly(Side.CLIENT)
-  public BlockRenderLayer getBlockLayer()
-  {
+  public BlockRenderLayer getBlockLayer() {
     return BlockRenderLayer.CUTOUT;
   }
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
     IBlockState state = this.getDefaultState().withProperty(PLACEMENT, Bamboo.Placement.fromMeta(meta & 3));
-    state = state.withProperty(HAS_LEAVES, (meta &4) != 0);
+    state = state.withProperty(HAS_LEAVES, (meta & 4) != 0);
     return state;
   }
 
@@ -154,9 +134,9 @@ public class Bamboo extends Block {
       switch (meta) {
 
         case 1:
-           return X;
+          return X;
         case 2:
-           return Z;
+          return Z;
         case 3:
           return XZ;
         default:

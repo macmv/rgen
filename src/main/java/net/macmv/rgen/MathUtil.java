@@ -3,7 +3,7 @@ package net.macmv.rgen;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class MathUtil {
-  public static AxisAlignedBB aabb(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+  public static AxisAlignedBB aabb(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
     if (minX < 0 || minX > 16 || minY < 0 || minY > 16 || minZ < 0 || minZ > 16 || maxX < 0 || maxX > 16 || maxY < 0 || maxY > 16 || maxZ < 0 || maxZ > 16) {
       throw new IllegalArgumentException("all arguments must be within 0..16");
     }
