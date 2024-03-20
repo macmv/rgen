@@ -8,7 +8,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.top_block = ctx.blocks.grass.default_state;
 
-  gen.place("Small Cherry Tree", PlacerStage::Sand, placer::Sakura::new(ctx.blocks));
+  gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
   gen.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
