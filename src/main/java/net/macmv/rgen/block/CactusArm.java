@@ -1,6 +1,7 @@
 package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -15,11 +16,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class CactusArm extends BlockStairs {
+public class CactusArm extends Block {
 
   protected static final AxisAlignedBB AABB_ARM = MathUtil.aabb(5, 1, 5, 11, 15, 11);
-  public CactusArm(Material material) {
-    super(Blocks.CACTUS.getDefaultState());
+  public CactusArm() {
+    super(Material.PLANTS);
   }
 
   @Override
