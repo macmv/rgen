@@ -21,6 +21,9 @@ tile.leaves2.mangrove.name=Mangrove Leaves
 tile.leaves2.lavender.name=Lavender Leaves
 tile.leaves2.seasonal.name=Seasonal Leaves
 
+tile.bamboo.name=Bamboo
+tile.glow_vine.name=Glow Vines
+
 tile.flower.forget_me_not.name=Forget-me-not
 
 tile.planks.fir.name=Fir Planks
