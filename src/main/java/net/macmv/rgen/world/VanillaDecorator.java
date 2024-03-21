@@ -1,7 +1,11 @@
 package net.macmv.rgen.world;
 
+import net.minecraft.init.Biomes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.MapGenCaves;
@@ -20,6 +24,7 @@ public class VanillaDecorator {
   private MapGenScatteredFeature scatteredFeatureGenerator = new MapGenScatteredFeature();
   private MapGenBase ravineGenerator = new MapGenRavine();
   private StructureOceanMonument oceanMonumentGenerator = new StructureOceanMonument();
+  private BiomeDecorator decorator = new BiomeDecorator();
 
   public VanillaDecorator() {
     caveGenerator = net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(caveGenerator, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.CAVE);
@@ -49,5 +54,8 @@ public class VanillaDecorator {
     this.strongholdGenerator.generateStructure(world, rand, chunk_pos);
     this.scatteredFeatureGenerator.generateStructure(world, rand, chunk_pos);
     this.oceanMonumentGenerator.generateStructure(world, rand, chunk_pos);
+
+    // Generate decorations for the void biome, which ends up just being ores and some stone patches.
+    decorator.decorate(world, rand, Biomes.VOID, new BlockPos(chunk_pos.x * 16, 0, chunk_pos.z * 16));
   }
 }
