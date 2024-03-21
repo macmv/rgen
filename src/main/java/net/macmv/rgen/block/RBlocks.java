@@ -32,6 +32,7 @@ public final class RBlocks {
 
   public static final Block LEAVES = register("leaves", new LeavesBlockOne());
   public static final Block LEAVES2 = register("leaves2", new LeavesBlockTwo());
+  public static final Block GLOW_VINE = register("glow_vine", new GlowVineBlock());
 
   public static final Block PLANKS = register("planks", new PlanksBlock());
 
