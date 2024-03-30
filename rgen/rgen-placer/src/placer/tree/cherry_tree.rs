@@ -194,8 +194,8 @@ impl Sakura {
     }
     let top_pos = pos + Pos::new(0, top, 0);
 
-    let a_start_pos = pos + Pos::new(0, a_start, 0);
-    let b_start_pos = pos + Pos::new(0, b_start, 0);
+    // let a_start_pos = pos + Pos::new(0, a_start, 0);
+    // let b_start_pos = pos + Pos::new(0, b_start, 0);
 
     for y in 0..=top {
       if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR
