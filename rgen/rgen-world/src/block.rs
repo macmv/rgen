@@ -29,6 +29,7 @@ impl PartialWorld {
     }
   }
 
+  // TODO: allow for an array of blocks to not be overridden
   pub fn place_structure(&mut self, pos: Pos, structure: &Structure) {
     for y in 0..structure.height() {
       for z in 0..structure.depth() {
