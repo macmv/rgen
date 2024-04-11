@@ -1,5 +1,5 @@
-mod bolder;
+mod boulder;
 mod monument;
 
-pub use bolder::*;
+pub use boulder::*;
 pub use monument::*;
