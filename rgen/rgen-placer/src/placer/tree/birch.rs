@@ -19,8 +19,7 @@ impl Placer for BasicBirch {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let height = rng.rand_inclusive(7, 8);
-    let min_y = rng.rand_inclusive(-2, -1);
+    let height = rng.rand_inclusive(8, 9);
 
     // Checks if outside world boundry
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
@@ -41,20 +40,32 @@ impl Placer for BasicBirch {
       return;
     }
 
-    // Builds tree
-    for y in min_y..=2_i32 {
+    // Builds the bottom of the canopy
+    for y in height - 3..=height - 2_i32 {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
           if rng.rand_inclusive(0, 4) == 1 && x.abs() == 2 && z.abs() == 2 {
             continue;
           }
-
-          // Make the top layer smaller.
-          if (y == 1 || y == 2) && (x.abs() == 2 || z.abs() == 2) {
+          //sets the leaves
+          world.set(pos + Pos::new(x, y, z), self.leaves);
+        }
+      }
+    }
+    // Builds the top of the canopy
+    for y in height..=height + 1_i32 {
+      for x in -1..=1_i32 {
+        for z in -1..=1_i32 {
+          // Remove the corners of the top to make the plus shape
+          if y == height + 1 && x.abs() == 1 && z.abs() == 1 {
             continue;
           }
-          world.set(pos + Pos::new(x, y + height, z), self.leaves);
+          // Sometimes removes the lower level of the leaves on the corner
+          if rng.rand_inclusive(0, 4) == 1 && x.abs() == 1 && z.abs() == 1 {
+            continue;
+          }
+          world.set(pos + Pos::new(x, y - 1, z), self.leaves);
         }
       }
     }

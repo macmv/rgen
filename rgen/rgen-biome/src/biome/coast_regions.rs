@@ -24,9 +24,10 @@ pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "sand_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.sand.default_state,
-      radius:  2..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.sand.default_state,
+      radius:        2..=4,
+      avg_per_chunk: 1.0,
     },
   );
 
@@ -48,27 +49,30 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.gravel.default_state,
-      radius:  2..=5,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        2..=5,
+      avg_per_chunk: 1.0,
     },
   );
   gen.place(
     "cobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.cobblestone.default_state,
-      radius:  2..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.cobblestone.default_state,
+      radius:        2..=4,
+      avg_per_chunk: 1.0,
     },
   );
   gen.place(
     "stone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.stone.default_state,
-      radius:  2..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.stone.default_state,
+      radius:        2..=4,
+      avg_per_chunk: 1.0,
     },
   );
 
@@ -117,7 +121,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Scatter {
       place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.mossy_cobblestone.default_state,
+      place:       ctx.blocks.rgen_mossy_cobblestone.default_state,
       attempts:    40,
     },
   );
@@ -125,9 +129,20 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "cobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.cobblestone.default_state,
-      radius:  2..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.cobblestone.default_state,
+      radius:        1..=2,
+      avg_per_chunk: 3.0,
+    },
+  );
+  gen.place(
+    "mossystone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.rgen_mossy_stone.default_state,
+      radius:        1..=4,
+      avg_per_chunk: 6.0,
     },
   );
   gen.place(
@@ -135,17 +150,86 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace: gen.top_block.into(),
-      place:   ctx.blocks.mossy_cobblestone.default_state,
-      radius:  3..=4,
+      place:   ctx.blocks.rgen_mossy_cobblestone.default_state,
+      radius:  1..=4,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    130,
+      place_above: [
+        ctx.blocks.grass.block,
+        ctx.blocks.rgen_mossy_stump.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      place:       ctx.blocks.tallgrass.with_data(2),
+    },
+  );
+
+  gen.place(
+    "ferns",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    230,
+      place_above: [
+        ctx.blocks.grass.block,
+        ctx.blocks.rgen_mossy_stump.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+
+  gen.place(
+    "mossy carpet",
+    PlacerStage::Sand2,
+    placer::Spread {
+      place:         ctx.blocks.rgen_mossy_carpet.default_state,
+      replace:       [
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      radius:        2..=4,
+      avg_per_chunk: 2.4,
     },
   );
   gen.place(
-    "grass_splatter",
+    "large mossy carpet",
+    PlacerStage::Sand2,
+    placer::Spread {
+      place:         ctx.blocks.rgen_mossy_carpet.default_state,
+      replace:       [
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      radius:        4..=5,
+      avg_per_chunk: 0.4,
+    },
+  );
+
+  gen.place(
+    "mossy_bush",
     PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block.into(),
-      place:    ctx.blocks.grass.default_state,
-      attempts: 40,
+    placer::Scatter {
+      place_above: [
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+        ctx.blocks.rgen_mossy_stump.block,
+      ]
+      .into(),
+      place:       ctx.blocks.rgen_plant.default_state,
+      attempts:    150,
     },
   );
   gen.place(

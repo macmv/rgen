@@ -205,6 +205,9 @@ big! { Blocks: BlockInfo
   rgen_flower => "rgen:flower",
   rgen_bamboo => "rgen:bamboo",
   rgen_glow_vine => "rgen:glow_vine",
+  rgen_mossy_cobblestone => "rgen:mossy_cobblestone_rgen",
+  rgen_mossy_stone => "rgen:mossy_stone",
+  rgen_plant => "rgen:plant",
 }
 
 big! { Biomes: Biome
