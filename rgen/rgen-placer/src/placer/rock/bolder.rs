@@ -4,6 +4,19 @@ use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
+macro_rules! bool {
+  (x) => {
+    true
+  };
+  (.) => {
+    false
+  };
+}
+macro_rules! bools {
+  ($($x:tt)*) => {
+    [$( bool!($x) ),*]
+  };
+}
 pub struct moss_bolder {
   pub place_above:      BlockFilter,
   pub phobic:           BlockFilter,
@@ -63,7 +76,7 @@ impl moss_bolder {
     let rel_pos = pos + Pos::new(x as i32, height, z as i32);
     if cell {
       if world.get(rel_pos) == BlockState::AIR {
-        world.set(rel_pos, self.leaves);
+        world.set(rel_pos, self.material);
       }
     }
   }

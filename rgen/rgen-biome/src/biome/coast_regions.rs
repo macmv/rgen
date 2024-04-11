@@ -149,9 +149,10 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.rgen_mossy_cobblestone.default_state,
-      radius:  1..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      radius:        1..=4,
+      avg_per_chunk: 1.0,
     },
   );
 
@@ -256,18 +257,20 @@ pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "sand_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.sand.default_state,
-      radius:  2..=4,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.sand.default_state,
+      radius:        2..=4,
+      avg_per_chunk: 1.0,
     },
   );
   gen.place(
     "stone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.stone.default_state,
-      radius:  3..=3,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.stone.default_state,
+      radius:        3..=3,
+      avg_per_chunk: 1.0,
     },
   );
   gen.place(
@@ -304,9 +307,10 @@ pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace: gen.top_block.into(),
-      place:   ctx.blocks.mossy_cobblestone.default_state,
-      radius:  2..=3,
+      replace:       gen.top_block.into(),
+      place:         ctx.blocks.mossy_cobblestone.default_state,
+      radius:        2..=3,
+      avg_per_chunk: 1.0,
     },
   );
 }
