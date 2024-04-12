@@ -1,4 +1,4 @@
-use rgen_base::{Biome, BlockState, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 

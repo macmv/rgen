@@ -108,7 +108,7 @@ impl Placer for Sequoia {
     let mut height = min_y;
     for (x, row) in LEVEL_II.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 2, height, z as i32 - 2)
+        self.place_leaf_slice(world, pos, *cell, x as i32 - 2, height, z as i32 - 2)
       }
       self.place_trunk_slice(world, pos, height);
     }
@@ -118,7 +118,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_A.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 4, height, z as i32 - 4)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 4, height, z as i32 - 4)
         }
       }
       self.place_wide_trunk_slice(world, pos, height);
@@ -126,7 +126,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_I.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 1, height, z as i32 - 1)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
         }
       }
       self.place_trunk_slice(world, pos, height);
@@ -137,7 +137,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_B.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 3, height, z as i32 - 3)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 3, height, z as i32 - 3)
         }
       }
       self.place_trunk_slice(world, pos, height);
@@ -145,7 +145,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_I.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 1, height, z as i32 - 1)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
         }
       }
       self.place_trunk_slice(world, pos, height);
@@ -156,7 +156,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_C.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 3, height, z as i32 - 3)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 3, height, z as i32 - 3)
         }
       }
       self.place_trunk_slice(world, pos, height);
@@ -164,7 +164,7 @@ impl Placer for Sequoia {
       height += 1;
       for (x, row) in LEVEL_I.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 1, height, z as i32 - 1)
+          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
         }
       }
       self.place_trunk_slice(world, pos, height);
@@ -174,7 +174,7 @@ impl Placer for Sequoia {
     height += 1;
     for (x, row) in LEVEL_II.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 2, height, z as i32 - 2)
+        self.place_leaf_slice(world, pos, *cell, x as i32 - 2, height, z as i32 - 2)
       }
     }
     self.place_trunk_slice(world, pos, height);
@@ -182,7 +182,7 @@ impl Placer for Sequoia {
     height += 1;
     for (x, row) in LEVEL_I.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, rng, pos, *cell, x as i32 - 1, height, z as i32 - 1)
+        self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
       }
     }
     self.place_trunk_slice(world, pos, height);
@@ -224,7 +224,6 @@ impl Sequoia {
   fn place_leaf_slice(
     &self,
     world: &mut PartialWorld,
-    rng: &mut Rng,
     pos: Pos,
     cell: bool,
     x: i32,

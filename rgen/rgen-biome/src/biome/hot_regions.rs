@@ -1,7 +1,3 @@
-use rgen_placer::placer;
-
-use crate::builder::PlacerStage;
-
 use super::{BiomeBuilder, IdContext};
 
 pub fn bad_lands(ctx: &IdContext, gen: &mut BiomeBuilder) {

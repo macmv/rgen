@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
 use rgen_biome::WorldBiomes;
-use rgen_world::{CachedWorld, Generator, PartialWorld};
+use rgen_world::{CachedWorld, Generator};
 use test::Bencher;
 
 #[bench]
