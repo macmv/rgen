@@ -1,14 +1,17 @@
 package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.registries.GameData;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
   private static native void init();
-  private static native void reload_generator(long seed);
+  private static native int reload_generator(long seed);
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
   private static native void build_biomes_region(byte[] data, int cellX, int cellZ, int width, int height);
@@ -36,6 +39,14 @@ public class RustGenerator {
     return Biome.getIdForBiome(biome);
   }
 
+  private static void print_warnings(String name) {
+    Minecraft.getMinecraft().player.sendMessage(new TextComponentString(name + "\n\n" + TextFormatting.YELLOW + "Reload successful."));
+  }
+
+  private static void print_errors(String name) {
+    Minecraft.getMinecraft().player.sendMessage(new TextComponentString(name + "\n\n" + TextFormatting.RED + "Failed to reload."));
+  }
+
   private static boolean active = false;
 
   public static void init(long seed) {
@@ -48,7 +59,11 @@ public class RustGenerator {
   }
 
   public static void reload(long seed) {
-    reload_generator(seed);
+    System.out.println(seed);
+    int res = reload_generator(seed);
+    if (res == 0) {
+      // TODO: Wipe out the world.
+    }
   }
 
   public static boolean isActive() {
