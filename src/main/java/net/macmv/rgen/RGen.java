@@ -16,12 +16,15 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
 
 @Mod(modid = RGen.MODID, version = RGen.VERSION)
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = RGen.MODID)
@@ -86,6 +89,15 @@ public class RGen {
       for (String line : lines) {
         event.getLeft().add(line);
       }
+    }
+  }
+
+  @SideOnly(Side.CLIENT)
+  @SubscribeEvent
+  public static void renderDebugText(InputEvent.KeyInputEvent event) {
+    if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState()) {
+      System.out.println("Reloading RGen");
+      RustGenerator.reload();
     }
   }
 }

@@ -7,6 +7,7 @@ import net.minecraftforge.registries.GameData;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
+  private static native void reload_generator();
   private static native void build_chunk(char[] data, int x, int z);
   private static native void build_biomes(byte[] data, int x, int z);
   private static native void build_biomes_region(byte[] data, int cellX, int cellZ, int width, int height);
@@ -42,6 +43,10 @@ public class RustGenerator {
     }
     active = true;
     init_generator(seed);
+  }
+
+  public static void reload() {
+    reload_generator();
   }
 
   public static boolean isActive() {
