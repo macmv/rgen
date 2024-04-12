@@ -140,9 +140,10 @@ impl Placer for MossBoulder {
           if world.get(pos + Pos::new(x, y, z)) == BlockState::AIR
             && world.get(pos + Pos::new(x, y - 1, z)) == self.material
           {
-            if rng.rand_inclusive(0, 5) != 0 {
+            let ran = rng.rand_inclusive(0, 5);
+            if ran == 0 {
               world.set(pos + Pos::new(x, y, z), self.plant_a);
-            } else {
+            } else if ran == 1 {
               world.set(pos + Pos::new(x, y, z), self.plant_b);
             }
           }

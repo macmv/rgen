@@ -208,6 +208,7 @@ big! { Blocks: BlockInfo
   rgen_mossy_cobblestone => "rgen:mossy_cobblestone_rgen",
   rgen_mossy_stone => "rgen:mossy_stone",
   rgen_plant => "rgen:plant",
+  rgen_moss => "rgen:mossy_block",
 }
 
 big! { Biomes: Biome

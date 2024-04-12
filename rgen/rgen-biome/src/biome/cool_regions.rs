@@ -9,6 +9,7 @@ pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.top_block = ctx.blocks.stone.default_state;
 
   gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new(ctx.blocks));
+  gen.place("Mossy Pool", PlacerStage::Tree, placer::Pool::new(ctx.blocks));
 }
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
