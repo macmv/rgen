@@ -262,3 +262,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1
 
   env.new_string(biome).unwrap().as_raw()
 }
+
+// This is for re-loading the generator.
+#[no_mangle]
+pub extern "system" fn rgen_get_seed() -> u64 { Context::run(|ctx| ctx.context.seed) }

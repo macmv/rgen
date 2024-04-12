@@ -21,6 +21,8 @@ macro_rules! functions {
     struct Symbols {
       handle: *mut c_void,
 
+      rgen_get_seed: fn() -> u64,
+
       $(
         $name: fn($($arg_ty),*) -> $ret,
       )*
@@ -39,6 +41,8 @@ macro_rules! functions {
       unsafe fn load(handle: *mut c_void) -> Self {
         Self {
           handle,
+
+          rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
 
           $(
             $name: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(concat!(stringify!($name), "\0").as_bytes()))),
@@ -122,7 +126,6 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv,
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
   mut env: JNIEnv,
   class: JClass,
-  seed: jlong,
 ) -> jint {
   match check() {
     Ok(m) => print_warnings(&mut env, &m),
@@ -134,6 +137,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
 
   let mut s = SYMBOLS.write();
   if let Some(s) = s.as_mut() {
+    let seed = (s.rgen_get_seed)();
+
     // We're holding onto the symbols lock, so nothing can access those symbols
     // while we're messing with the file. Still, best practice is to unload them
     // before messing with the file.
@@ -142,7 +147,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
     *s = load();
 
     // And re-initialize the new generator.
-    (s.Java_net_macmv_rgen_rust_RustGenerator_init_1generator)(env, class, seed);
+    (s.Java_net_macmv_rgen_rust_RustGenerator_init_1generator)(env, class, seed as i64);
   } else {
     panic!("Library not initialized");
   }
