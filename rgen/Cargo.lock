@@ -2310,6 +2310,15 @@ name = "rgen-jni"
 version = "0.1.0"
 dependencies = [
  "jni",
+ "libc",
+ "parking_lot",
+]
+
+[[package]]
+name = "rgen-jni-impl"
+version = "0.1.0"
+dependencies = [
+ "jni",
  "rgen-base",
  "rgen-biome",
  "rgen-placer",

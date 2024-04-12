@@ -95,9 +95,9 @@ public class RGen {
   @SideOnly(Side.CLIENT)
   @SubscribeEvent
   public static void renderDebugText(InputEvent.KeyInputEvent event) {
-    if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState()) {
+    if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState() && RustGenerator.isActive()) {
       System.out.println("Reloading RGen");
-      RustGenerator.reload();
+      RustGenerator.reload(Minecraft.getMinecraft().world.getSeed());
     }
   }
 }

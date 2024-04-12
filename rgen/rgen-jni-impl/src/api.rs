@@ -262,11 +262,3 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1
 
   env.new_string(biome).unwrap().as_raw()
 }
-
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
-  _env: JNIEnv,
-  _class: JClass,
-) {
-  println!("reloading!!");
-}
