@@ -106,85 +106,49 @@ impl Placer for Sequoia {
 
     // Create bottom rim.
     let mut height = min_y;
-    for (x, row) in LEVEL_II.iter().enumerate() {
-      for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, pos, *cell, x as i32 - 2, height, z as i32 - 2)
-      }
-      self.place_trunk_slice(world, pos, height);
-    }
+    self.place_leaf_slice(world, pos, LEVEL_II, height);
+    self.place_trunk_slice(world, pos, height);
 
     // Creates the grade 'A's
     for _ in 1..rng.rand_inclusive(2, 3) {
       height += 1;
-      for (x, row) in LEVEL_A.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 4, height, z as i32 - 4)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_A, height);
       self.place_wide_trunk_slice(world, pos, height);
 
       height += 1;
-      for (x, row) in LEVEL_I.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_I, height);
       self.place_trunk_slice(world, pos, height);
     }
 
     // Grade 'B's
     for _ in 1..rng.rand_inclusive(3, 4) {
       height += 1;
-      for (x, row) in LEVEL_B.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 3, height, z as i32 - 3)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_B, height);
       self.place_trunk_slice(world, pos, height);
 
       height += 1;
-      for (x, row) in LEVEL_I.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_I, height);
       self.place_trunk_slice(world, pos, height);
     }
 
     // Grade 'C's
     for _ in 1..rng.rand_inclusive(2, 3) {
       height += 1;
-      for (x, row) in LEVEL_C.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 3, height, z as i32 - 3)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_C, height);
       self.place_trunk_slice(world, pos, height);
 
       height += 1;
-      for (x, row) in LEVEL_I.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
-        }
-      }
+      self.place_leaf_slice(world, pos, LEVEL_I, height);
       self.place_trunk_slice(world, pos, height);
     }
 
     // Crown.
     height += 1;
-    for (x, row) in LEVEL_II.iter().enumerate() {
-      for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, pos, *cell, x as i32 - 2, height, z as i32 - 2)
-      }
-    }
+    self.place_leaf_slice(world, pos, LEVEL_II, height);
     self.place_trunk_slice(world, pos, height);
 
     height += 1;
-    for (x, row) in LEVEL_I.iter().enumerate() {
-      for (z, cell) in row.iter().enumerate() {
-        self.place_leaf_slice(world, pos, *cell, x as i32 - 1, height, z as i32 - 1)
-      }
-    }
+    self.place_leaf_slice(world, pos, LEVEL_I, height);
     self.place_trunk_slice(world, pos, height);
 
     // Pointy top.
@@ -221,19 +185,22 @@ impl Sequoia {
     }
   }
 
-  fn place_leaf_slice(
+  fn place_leaf_slice<const N: usize, const M: usize>(
     &self,
     world: &mut PartialWorld,
     pos: Pos,
-    cell: bool,
-    x: i32,
+    cells: [[bool; M]; N],
     height: i32,
-    z: i32,
   ) {
-    let rel_pos = pos + Pos::new(x as i32, height, z as i32);
-    if cell {
-      if world.get(rel_pos) == BlockState::AIR {
-        world.set(rel_pos, self.leaves);
+    for (x, row) in cells.iter().enumerate() {
+      for (z, cell) in row.iter().enumerate() {
+        let rel_pos =
+          pos + Pos::new(x as i32 - N as i32 / 2 + 1, height, z as i32 - M as i32 / 2 + 1);
+        if *cell {
+          if world.get(rel_pos) == BlockState::AIR {
+            world.set(rel_pos, self.leaves);
+          }
+        }
       }
     }
   }
