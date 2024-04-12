@@ -180,7 +180,7 @@ fn load() -> Symbols {
   }
 }
 
-fn sym(ptr: *mut c_void, name: &CStr) -> *mut c_void {
+unsafe fn sym(ptr: *mut c_void, name: &CStr) -> *mut c_void {
   unsafe {
     let sym = dlsym(ptr, name.as_ptr());
 
