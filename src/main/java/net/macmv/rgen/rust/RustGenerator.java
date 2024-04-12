@@ -52,8 +52,8 @@ public class RustGenerator {
   public static void init(long seed) {
     if (!active) {
       System.loadLibrary("rgen_jni");
+      init();
     }
-    init();
     active = true;
     init_generator(seed);
   }
