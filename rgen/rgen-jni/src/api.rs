@@ -174,8 +174,10 @@ fn load() -> Symbols {
   unsafe {
     let ptr = dlmopen(
       LM_ID_NEWLM, // make sure to give it a new namespace
-      c"/home/macmv/Desktop/programming/minecraft/mods/rgen-1.12/rgen/target/release/librgen_jni_impl.so"
-        .as_ptr(),
+      CStr::from_bytes_with_nul_unchecked(
+        concat!(env!("PWD"), "/target/release/librgen_jni_impl.so\0").as_bytes(),
+      )
+      .as_ptr(),
       RTLD_NOW | RTLD_LOCAL,
     );
 
@@ -210,7 +212,7 @@ fn check() -> Result<String, String> {
     .arg("check")
     .arg("-p")
     .arg("rgen-jni-impl")
-    .current_dir("/home/macmv/Desktop/programming/minecraft/mods/rgen-1.12/rgen")
+    .current_dir(env!("PWD"))
     .output()
     .unwrap();
 
@@ -229,7 +231,7 @@ fn recompile() {
     .arg("--release")
     .arg("-p")
     .arg("rgen-jni-impl")
-    .current_dir("/home/macmv/Desktop/programming/minecraft/mods/rgen-1.12/rgen")
+    .current_dir(env!("PWD"))
     .status()
     .unwrap();
 }
