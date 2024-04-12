@@ -22,7 +22,8 @@ pub struct MossBoulder {
   pub phobic:           BlockFilter,
   pub material:         BlockState,
   pub avg_in_chunk:     f64,
-  pub plants:           BlockFilter,
+  pub plant_a:          BlockState,
+  pub plant_b:          BlockState,
   pub use_large_plants: bool,
   pub large_plants:     BlockFilter,
 }
@@ -30,11 +31,12 @@ pub struct MossBoulder {
 impl MossBoulder {
   pub fn new(blocks: &Blocks) -> Self {
     MossBoulder {
-      place_above:      blocks.stone.default_state.into(),
+      place_above:      [blocks.stone.block, blocks.dirt.block].into(),
       phobic:           blocks.grass.default_state.into(),
-      material:         blocks.rgen_mossy_cobblestone.default_state.into(),
+      material:         /*blocks.wool.with_data(6), */ blocks.rgen_mossy_cobblestone.default_state.into(),
       avg_in_chunk:     2.0,
-      plants:           [blocks.tallgrass.with_data(1), blocks.tallgrass.with_data(2)].into(),
+      plant_a:          blocks.tallgrass.with_data(2).into(),
+      plant_b:          blocks.tallgrass.with_data(1).into(),
       use_large_plants: false,
       large_plants:     [blocks.double_plant.with_data(3), blocks.double_plant.with_data(2)].into(),
     }
@@ -65,11 +67,85 @@ impl Placer for MossBoulder {
     }
 
     //let min_y = rng.rand_inclusive(4, 6);
+
+    // Check to see if the boulder can be built
     for (y, col) in bolder_map.iter_mut().enumerate() {
       for (x, row) in col.iter_mut().enumerate() {
         for (z, cell) in row.iter_mut().enumerate() {
+          let rel_y = y as i32 - 1;
+          let rel_x = x as i32 - 1;
+          let rel_z = z as i32 - 1;
+
+          // Underground part of the bolder
+          if rel_y == -1 {
+            if rel_x == 0 || rel_z == 0 {
+              if !self.place_above.contains(world.get(pos + Pos::new(rel_x, rel_y - 1, rel_z))) {
+                // The block below the bottom block is not in the list of place above i.e. the
+                // boulder is floating and cannot be built thus the build is canceled
+
+                return;
+              }
+              if world.get(pos).block == Block::AIR {}
+
+              *cell = true;
+            } else if rng.rand_inclusive(0, 3) == 0 {
+              *cell = true;
+            }
+
+          // Middle of boulder
+          } else if rel_y == 0 {
+            if rel_x == 0 && rel_z == 0 {
+              *cell = true;
+            } else if rel_x == 0 || rel_z == 0 {
+              if rng.rand_inclusive(0, 15) != 0 {
+                *cell = true;
+              }
+            } else {
+              if rng.rand_inclusive(0, 6) != 0 {
+                *cell = true;
+              }
+            }
+
+          // Top of boulder
+          } else if rel_y == 1 {
+            if rel_x == 0 && rel_z == 0 {
+              *cell = true;
+            } else if rel_x == 0 || rel_z == 0 {
+              if rng.rand_inclusive(0, 6) != 0 {
+                *cell = true;
+              }
+            } else {
+              if rng.rand_inclusive(0, 3) == 0 {
+                *cell = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Now the bolder gets built
+    for (y, col) in bolder_map.iter().enumerate() {
+      for (x, row) in col.iter().enumerate() {
+        for (z, cell) in row.iter().enumerate() {
           self.build_bolder(world, pos, *cell, x as i32 - 1, y as i32 - 1, z as i32 - 1);
-          *cell = true;
+        }
+      }
+    }
+
+    //grass and fern placment
+    for y in 0..=2_i32 {
+      for x in -1..=1_i32 {
+        for z in -1..=1_i32 {
+          if world.get(pos + Pos::new(x, y, z)) == BlockState::AIR
+            && world.get(pos + Pos::new(x, y - 1, z)) == self.material
+          {
+            if rng.rand_inclusive(0, 5) != 0 {
+              world.set(pos + Pos::new(x, y, z), self.plant_a);
+            } else {
+              world.set(pos + Pos::new(x, y, z), self.plant_b);
+            }
+          }
         }
       }
     }
@@ -88,9 +164,7 @@ impl MossBoulder {
   ) {
     let rel_pos = pos + Pos::new(x as i32, height, z as i32);
     if cell {
-      if world.get(rel_pos) == BlockState::AIR {
-        world.set(rel_pos, self.material);
-      }
+      world.set(rel_pos, self.material);
     }
   }
 }
