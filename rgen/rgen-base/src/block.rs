@@ -170,6 +170,7 @@ big! { Blocks: BlockInfo
 
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
+  clay => "minecraft:clay",
   grass => "minecraft:grass",
   snow => "minecraft:snow",
   sand => "minecraft:sand",

@@ -1,3 +1,5 @@
+use std::any;
+
 use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
 use rgen_llama::Structure;
 use rgen_world::PartialWorld;
@@ -26,6 +28,9 @@ pub struct Pool {
   pub avg_in_chunk:                     f64,
   pub moss:                             BlockState,
   pub moss_carpet:                      BlockState,
+  pub temp_filer:                       BlockState,
+  pub stone:                            BlockState,
+  pub clay:                             BlockState,
 }
 
 impl Pool {
@@ -38,9 +43,12 @@ impl Pool {
       ]
       .into(),
       water_cause_there_is_no_constant: blocks.water.default_state,
-      avg_in_chunk:                     40.0,
+      avg_in_chunk:                     12.0,
       moss:                             blocks.rgen_moss.default_state,
       moss_carpet:                      blocks.rgen_mossy_carpet.default_state,
+      temp_filer:                       blocks.wool.with_data(12),
+      stone:                            blocks.stone.default_state,
+      clay:                             blocks.clay.default_state,
     }
   }
 }
@@ -68,32 +76,32 @@ impl Placer for Pool {
       return;
     }
 
-    //let min_y = rng.rand_inclusive(4, 6);
+    let level_pos = pos + Pos::new(0, -1, 0);
 
     // Check to see is on surface
-    let pool_options: i32 = rng.rand_exclusive(0, pool_types.len() as i32);
-
-    println!("pool selection: {}", pool_options);
-
-    let pool_map = pool_types[pool_options as usize];
-    //let pool_map = rng.choose(pool_types);
+    let pool_map = rng.choose(&pool_types);
     for (x, row) in pool_map.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
         //
         if *cell == 0 {
-          if world.get(pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR {
+          if world.get(level_pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR {
             return;
           }
-          if !self.border_types.contains(world.get(pos + Pos::new(x as i32, -1, z as i32))) {
+          if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, -1, z as i32))) {
             return;
           }
           //water
         } else if *cell == 1 {
           //land
-          if !self.border_types.contains(world.get(pos + Pos::new(x as i32, 0, z as i32))) {
+          if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, 0, z as i32))) {
             return;
           }
-          if !self.border_types.contains(world.get(pos + Pos::new(x as i32, -1, z as i32))) {
+          if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, -1, z as i32))) {
+            return;
+          }
+          if world.get(level_pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR
+            && rng.rand_inclusive(0, 8) == 0
+          {
             return;
           }
         }
@@ -101,15 +109,29 @@ impl Placer for Pool {
     }
 
     // Build pool
-    let pool_map = pool_types[0];
+    world.set(level_pos, self.temp_filer);
+
     for (x, row) in pool_map.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
         //
         if *cell == 0 {
-          world.set(pos + Pos::new(x as i32, 0, z as i32), self.water_cause_there_is_no_constant);
+          world.set(
+            level_pos + Pos::new(x as i32, 0, z as i32),
+            self.water_cause_there_is_no_constant,
+          );
           //water
         } else if *cell == 1 {
-          world.set(pos + Pos::new(x as i32, 0, z as i32), self.moss);
+          if rng.rand_inclusive(0, 5) == 0 {
+            world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.moss);
+            if rng.rand_inclusive(0, 2) == 0 {
+              world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);
+            }
+          } else {
+            world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.stone);
+          }
+          if rng.rand_inclusive(0, 8) == 0 {
+            world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);
+          }
           //border
         } else if *cell == 2 {
           //neither
