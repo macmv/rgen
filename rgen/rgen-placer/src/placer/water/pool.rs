@@ -109,7 +109,7 @@ impl Placer for Pool {
     }
 
     // Build pool
-    world.set(level_pos, self.temp_filer);
+    // world.set(level_pos, self.temp_filer);
 
     for (x, row) in pool_map.iter().enumerate() {
       for (z, cell) in row.iter().enumerate() {
@@ -119,17 +119,24 @@ impl Placer for Pool {
             level_pos + Pos::new(x as i32, 0, z as i32),
             self.water_cause_there_is_no_constant,
           );
+          if rng.rand_inclusive(0, 1) == 0 {
+            world.set(level_pos + Pos::new(x as i32, -1, z as i32), self.clay);
+          }
           //water
         } else if *cell == 1 {
           if rng.rand_inclusive(0, 5) == 0 {
             world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.moss);
-            if rng.rand_inclusive(0, 2) == 0 {
+            if rng.rand_inclusive(0, 2) == 0
+              && world.get(level_pos + Pos::new(x as i32, 1, z as i32)) == BlockState::AIR
+            {
               world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);
             }
           } else {
             world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.stone);
           }
-          if rng.rand_inclusive(0, 8) == 0 {
+          if rng.rand_inclusive(0, 8) == 0
+            && world.get(level_pos + Pos::new(x as i32, 1, z as i32)) == BlockState::AIR
+          {
             world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);
           }
           //border
