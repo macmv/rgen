@@ -2,11 +2,32 @@ package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiDownloadTerrain;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketRespawn;
+import net.minecraft.network.play.server.SPacketUnloadChunk;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.GameType;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.registries.GameData;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
@@ -62,6 +83,57 @@ public class RustGenerator {
     int res = reload_generator();
     if (res == 0) {
       // TODO: Wipe out the world.
+
+      int dimension = 0;
+
+      Minecraft minecraft = Minecraft.getMinecraft();
+
+      IntegratedServer server = minecraft.getIntegratedServer();
+      WorldServer serverWorld = server.getWorld(dimension);
+      ChunkProviderServer provider = serverWorld.getChunkProvider();
+
+      // This unloads the world on the server.
+      provider.queueUnloadAll();
+
+      minecraft.player.onKillCommand();
+
+      /*
+      // This reloads the world on the client.
+      WorldClient clientWorld = minecraft.world;
+      NetHandlerPlayClient handler = minecraft.getConnection();
+
+      // BlockPos pos = minecraft.player.getPosition();
+      // minecraft.setDimensionAndSpawnPlayer(0);
+      // minecraft.player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+
+      // Load the nether, then load the overworld. This makes sure to re-create the world correctly.
+      handler.handleRespawn(new SPacketRespawn(1, serverWorld.getDifficulty(), serverWorld.getWorldInfo().getTerrainType(), serverWorld.getWorldInfo().getGameType()));
+      handler.handleRespawn(new SPacketRespawn(dimension, serverWorld.getDifficulty(), serverWorld.getWorldInfo().getTerrainType(), serverWorld.getWorldInfo().getGameType()));
+      handler.handlePlayerPosLook(new SPacketPlayerPosLook(minecraft.player.posX, minecraft.player.posY, minecraft.player.posZ, minecraft.player.cameraYaw, minecraft.player.cameraPitch, new HashSet<>(), 0));
+       */
+
+      // EntityPlayerSP player = Minecraft.getMinecraft().player;
+      // IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+      // WorldServer serverWorld = server.getWorld(0);
+      // PlayerChunkMap chunkMap = serverWorld.getPlayerChunkMap();
+      // ChunkProviderServer provider = serverWorld.getChunkProvider();
+      //
+      // for (Chunk chunk : provider.id2ChunkMap.values()) {
+      //   // if (chunkMap.contains(chunk.x, chunk.z)) {
+      //   //   PlayerChunkMapEntry entry = chunkMap.getEntry(chunk.x, chunk.z);
+      //   //   chunkMap.removeEntry(entry);
+      //   // }
+      //   //
+      //   // clientWorld.getChunkProvider().unloadChunk(chunk.x, chunk.z);
+      //   // provider.queueUnload(chunk);
+      //   // clientWorld.send.connection.sendPacket(new SPacketUnloadChunk(chunk.x, chunk.z));
+      // }
+      //
+      // // Reload the world.
+      // for (EntityPlayer player1 : serverWorld.playerEntities) {
+      //   player1.changeDimension(1);
+      //   // player1.changeDimension(0);
+      // }
     }
   }
 
