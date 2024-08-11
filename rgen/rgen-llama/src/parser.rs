@@ -25,6 +25,10 @@ impl<'a> Parser<'a> {
       }
 
       if self.peek() == '\0' {
+        if !self.seen_orientation {
+          self.err("missing orientation declaration");
+        }
+
         break;
       }
 
