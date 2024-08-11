@@ -108,7 +108,13 @@ impl<'a> Parser<'a> {
     }
 
     let key = match name {
-      Some(name) => LayerKey::Name(name),
+      Some(name) => {
+        if ast.layers.contains_key(&LayerKey::Name(name.clone())) {
+          self.err(format!("duplicate layer '{name}'"));
+        }
+
+        LayerKey::Name(name)
+      }
       None => LayerKey::Ord(ast.ordered.len() as u64),
     };
     ast.layers.insert(key.clone(), Layer { width, height, blocks });
