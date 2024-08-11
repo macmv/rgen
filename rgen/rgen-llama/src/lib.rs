@@ -13,13 +13,26 @@ pub use structure::Structure;
 struct AST {
   names: HashMap<char, BlockName>,
 
-  layers:  HashMap<String, Layer>,
-  ordered: Vec<String>,
+  layers:      HashMap<LayerKey, Layer>,
+  ordered:     Vec<LayerKey>,
+  orientation: Orientation,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+enum LayerKey {
+  Name(String),
+  Ord(u64),
+}
+
+#[derive(Default, Debug, Clone, Copy)]
+enum Orientation {
+  #[default]
+  Horizontal,
+  Vertical,
 }
 
 #[derive(Debug)]
 struct Layer {
-  name:   String,
   width:  u32,
   height: u32,
 
@@ -65,7 +78,12 @@ pub fn parse(blocks: &Blocks, input: &str) -> Structure {
           None => block.default_state,
         };
 
-        structure.set(Pos::new(x as i32, y as i32, z as i32), state);
+        let pos = match ast.orientation {
+          Orientation::Horizontal => Pos::new(x as i32, y as i32, z as i32),
+          Orientation::Vertical => Pos::new(x as i32, z as i32, y as i32),
+        };
+
+        structure.set(pos, state);
       }
     }
   }

@@ -1,3 +1,5 @@
+orientation horizontal
+
 # _: minecraft:planks
 # D: minecraft:wooden_door
 # X: minecraft:cobblestone

@@ -1,12 +1,14 @@
-use crate::{BlockName, Layer, AST};
+use crate::{BlockName, Layer, LayerKey, Orientation, AST};
 
 pub struct Parser<'a> {
   input: &'a str,
   pos:   usize,
+
+  seen_orientation: bool,
 }
 
 impl<'a> Parser<'a> {
-  pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0 } }
+  pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0, seen_orientation: false } }
 
   pub fn parse(&mut self, ast: &mut AST) {
     loop {
@@ -23,6 +25,10 @@ impl<'a> Parser<'a> {
       }
 
       if self.peek() == '\0' {
+        if !self.seen_orientation {
+          self.err("missing orientation declaration");
+        }
+
         break;
       }
 
@@ -30,6 +36,7 @@ impl<'a> Parser<'a> {
       match word.as_str() {
         "layer" => self.parse_layer(ast),
         "repeat" => self.parse_repeat(ast),
+        "orientation" => self.parse_orientation(ast),
         _ => {
           if word.len() != 1 {
             self.err("expected single character");
@@ -51,7 +58,7 @@ impl<'a> Parser<'a> {
 
   fn parse_layer(&mut self, ast: &mut AST) {
     self.skip_whitespace();
-    let name = self.next_word();
+    let name = self.next_word_opt();
 
     let mut width = 0;
     let mut rows = vec![];
@@ -104,20 +111,49 @@ impl<'a> Parser<'a> {
       }
     }
 
-    ast.layers.insert(name.to_string(), Layer { name: name.to_string(), width, height, blocks });
-    ast.ordered.push(name.to_string());
+    let key = match name {
+      Some(name) => {
+        if ast.layers.contains_key(&LayerKey::Name(name.clone())) {
+          self.err(format!("duplicate layer '{name}'"));
+        }
+
+        LayerKey::Name(name)
+      }
+      None => LayerKey::Ord(ast.ordered.len() as u64),
+    };
+    ast.layers.insert(key.clone(), Layer { width, height, blocks });
+    ast.ordered.push(key);
   }
 
   fn parse_repeat(&mut self, ast: &mut AST) {
     self.skip_whitespace();
 
     let layer = self.next_word();
+    let key = LayerKey::Name(layer.clone());
 
-    if ast.layers.get(&layer).is_none() {
+    if ast.layers.get(&key).is_none() {
       self.err(format!("unknown layer '{layer}'"));
     }
 
-    ast.ordered.push(layer.to_string());
+    ast.ordered.push(key);
+  }
+
+  fn parse_orientation(&mut self, ast: &mut AST) {
+    self.skip_whitespace();
+
+    let orientation = self.next_word();
+
+    if self.seen_orientation {
+      self.err("duplicate orientation declaration");
+    }
+
+    match orientation.as_str() {
+      "vertical" => ast.orientation = Orientation::Vertical,
+      "horizontal" => ast.orientation = Orientation::Horizontal,
+      _ => self.err(format!("unknown orientation '{orientation}'")),
+    }
+
+    self.seen_orientation = true;
   }
 
   fn parse_name(&mut self, ast: &mut AST, name: char) {
@@ -152,17 +188,22 @@ impl<'a> Parser<'a> {
   }
 
   #[track_caller]
-  fn next_word(&mut self) -> String {
+  fn next_word_opt(&mut self) -> Option<String> {
     let start = self.pos;
     while matches!(self.peek(), 'a'..='z' | 'A'..='Z' | '_') {
       self.next();
     }
 
     if start == self.pos {
-      self.err("expected word");
+      None
+    } else {
+      Some(self.input[start..self.pos].into())
     }
+  }
 
-    self.input[start..self.pos].into()
+  #[track_caller]
+  fn next_word(&mut self) -> String {
+    self.next_word_opt().unwrap_or_else(|| self.err("expected word"))
   }
 
   fn next_number(&mut self) -> u32 {
@@ -176,7 +217,7 @@ impl<'a> Parser<'a> {
   fn peek(&self) -> char { self.input[self.pos..].chars().next().unwrap_or('\0') }
 
   fn skip_whitespace(&mut self) {
-    while self.peek().is_whitespace() {
+    while self.peek().is_whitespace() && self.peek() != '\n' {
       self.next();
     }
   }
