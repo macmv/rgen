@@ -1,4 +1,4 @@
-use crate::{BlockName, Layer, Orientation, AST};
+use crate::{BlockName, Layer, LayerKey, Orientation, AST};
 
 pub struct Parser<'a> {
   input: &'a str,
@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
 
   fn parse_layer(&mut self, ast: &mut AST) {
     self.skip_whitespace();
-    let name = self.next_word();
+    let name = self.next_word_opt();
 
     let mut width = 0;
     let mut rows = vec![];
@@ -107,20 +107,25 @@ impl<'a> Parser<'a> {
       }
     }
 
-    ast.layers.insert(name.to_string(), Layer { name: name.to_string(), width, height, blocks });
-    ast.ordered.push(name.to_string());
+    let key = match name {
+      Some(name) => LayerKey::Name(name),
+      None => LayerKey::Ord(ast.ordered.len() as u64),
+    };
+    ast.layers.insert(key.clone(), Layer { width, height, blocks });
+    ast.ordered.push(key);
   }
 
   fn parse_repeat(&mut self, ast: &mut AST) {
     self.skip_whitespace();
 
     let layer = self.next_word();
+    let key = LayerKey::Name(layer.clone());
 
-    if ast.layers.get(&layer).is_none() {
+    if ast.layers.get(&key).is_none() {
       self.err(format!("unknown layer '{layer}'"));
     }
 
-    ast.ordered.push(layer.to_string());
+    ast.ordered.push(key);
   }
 
   fn parse_orientation(&mut self, ast: &mut AST) {

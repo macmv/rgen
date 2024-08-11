@@ -25,7 +25,7 @@ X X X X X X
 
 repeat first
 
-layer _
+layer
 X X X X X X
 X         X
 X         X
@@ -33,7 +33,7 @@ X         X
 X X X X X X
 ==
 
-layer _
+layer
 
   X X X X
   X     X
@@ -42,7 +42,7 @@ layer _
 ==
 
 
-layer _
+layer
 
 
     X X

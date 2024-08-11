@@ -13,9 +13,15 @@ pub use structure::Structure;
 struct AST {
   names: HashMap<char, BlockName>,
 
-  layers:      HashMap<String, Layer>,
-  ordered:     Vec<String>,
+  layers:      HashMap<LayerKey, Layer>,
+  ordered:     Vec<LayerKey>,
   orientation: Orientation,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+enum LayerKey {
+  Name(String),
+  Ord(u64),
 }
 
 #[derive(Default, Debug, Clone, Copy)]
@@ -27,7 +33,6 @@ enum Orientation {
 
 #[derive(Debug)]
 struct Layer {
-  name:   String,
   width:  u32,
   height: u32,
 
