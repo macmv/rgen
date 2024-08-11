@@ -24,8 +24,8 @@ fn parse_house_vertical() {
   assert_eq!(house.get(Pos::new(0, 0, 1)), blocks.stone.default_state);
   assert_eq!(house.get(Pos::new(0, 1, 0)), blocks.cobblestone.default_state);
 
-  for x in 0..house.width() {
-    for y in 0..house.height() {
+  for y in 0..house.height() {
+    for x in 0..house.width() {
       for z in 0..house.depth() {
         let pos = Pos::new(x as i32, y as i32, z as i32);
         assert_eq!(house.get(pos), vertical.get(pos));

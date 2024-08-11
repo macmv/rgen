@@ -34,18 +34,18 @@ X X X X X X
 ==
 
 layer
-
   X X X X
   X     X
+  X     X
+  X     X
   X X X X
-
 ==
 
 
 layer
-
-
     X X
-
-
+    X X
+    X X
+    X X
+    X X
 ==
