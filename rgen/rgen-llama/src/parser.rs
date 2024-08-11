@@ -1,12 +1,14 @@
-use crate::{BlockName, Layer, AST};
+use crate::{BlockName, Layer, Orientation, AST};
 
 pub struct Parser<'a> {
   input: &'a str,
   pos:   usize,
+
+  seen_orientation: bool,
 }
 
 impl<'a> Parser<'a> {
-  pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0 } }
+  pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0, seen_orientation: false } }
 
   pub fn parse(&mut self, ast: &mut AST) {
     loop {
@@ -30,6 +32,7 @@ impl<'a> Parser<'a> {
       match word.as_str() {
         "layer" => self.parse_layer(ast),
         "repeat" => self.parse_repeat(ast),
+        "orientation" => self.parse_orientation(ast),
         _ => {
           if word.len() != 1 {
             self.err("expected single character");
@@ -118,6 +121,24 @@ impl<'a> Parser<'a> {
     }
 
     ast.ordered.push(layer.to_string());
+  }
+
+  fn parse_orientation(&mut self, ast: &mut AST) {
+    self.skip_whitespace();
+
+    let orientation = self.next_word();
+
+    if self.seen_orientation {
+      self.err("duplicate orientation declaration");
+    }
+
+    match orientation.as_str() {
+      "vertical" => ast.orientation = Orientation::Vertical,
+      "horizontal" => ast.orientation = Orientation::Horizontal,
+      _ => self.err(format!("unknown orientation '{orientation}'")),
+    }
+
+    self.seen_orientation = true;
   }
 
   fn parse_name(&mut self, ast: &mut AST, name: char) {

@@ -13,8 +13,16 @@ pub use structure::Structure;
 struct AST {
   names: HashMap<char, BlockName>,
 
-  layers:  HashMap<String, Layer>,
-  ordered: Vec<String>,
+  layers:      HashMap<String, Layer>,
+  ordered:     Vec<String>,
+  orientation: Orientation,
+}
+
+#[derive(Default, Debug, Clone, Copy)]
+enum Orientation {
+  #[default]
+  Horizontal,
+  Vertical,
 }
 
 #[derive(Debug)]
