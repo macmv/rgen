@@ -12,6 +12,10 @@ use jni::{
 use libc::{c_void, dlclose, dlerror, dlmopen, dlsym, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW};
 use parking_lot::RwLock;
 
+// FIXME: Specify this path in `build.gradle`, somehow.
+// const PWD: &str = env!("PWD");
+const PWD: &str = "/home/macmv/Desktop/programming/minecraft/mods/rgen-1.12/rgen";
+
 macro_rules! functions {
   (
     $(

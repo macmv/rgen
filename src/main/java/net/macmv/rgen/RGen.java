@@ -8,6 +8,7 @@ import net.macmv.rgen.world.RGenWorldType;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -97,7 +98,10 @@ public class RGen {
   public static void renderDebugText(InputEvent.KeyInputEvent event) {
     if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState() && RustGenerator.isActive()) {
       System.out.println("Reloading RGen");
-      RustGenerator.reload();
+
+      Minecraft minecraft = Minecraft.getMinecraft();
+      IntegratedServer server = minecraft.getIntegratedServer();
+      server.addScheduledTask(RustGenerator::reload);
     }
   }
 }

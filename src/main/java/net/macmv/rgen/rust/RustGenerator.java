@@ -2,32 +2,25 @@ package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiDownloadTerrain;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraft.network.play.server.SPacketRespawn;
-import net.minecraft.network.play.server.SPacketUnloadChunk;
-import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.SPacketPlayerAbilities;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.server.management.PlayerChunkMap;
-import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraft.world.chunk.storage.RegionFileCache;
+import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.registries.GameData;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.File;
+import java.lang.reflect.Field;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
@@ -87,53 +80,79 @@ public class RustGenerator {
       int dimension = 0;
 
       Minecraft minecraft = Minecraft.getMinecraft();
-
+      minecraft.player.sendMessage(new TextComponentString(TextFormatting.YELLOW + "Regenerating world..."));
       IntegratedServer server = minecraft.getIntegratedServer();
-      WorldServer serverWorld = server.getWorld(dimension);
-      ChunkProviderServer provider = serverWorld.getChunkProvider();
-
-      // This unloads the world on the server.
-      provider.queueUnloadAll();
-
-      minecraft.player.onKillCommand();
-
-      /*
-      // This reloads the world on the client.
-      WorldClient clientWorld = minecraft.world;
-      NetHandlerPlayClient handler = minecraft.getConnection();
-
-      // BlockPos pos = minecraft.player.getPosition();
-      // minecraft.setDimensionAndSpawnPlayer(0);
-      // minecraft.player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
 
       // Load the nether, then load the overworld. This makes sure to re-create the world correctly.
-      handler.handleRespawn(new SPacketRespawn(1, serverWorld.getDifficulty(), serverWorld.getWorldInfo().getTerrainType(), serverWorld.getWorldInfo().getGameType()));
-      handler.handleRespawn(new SPacketRespawn(dimension, serverWorld.getDifficulty(), serverWorld.getWorldInfo().getTerrainType(), serverWorld.getWorldInfo().getGameType()));
-      handler.handlePlayerPosLook(new SPacketPlayerPosLook(minecraft.player.posX, minecraft.player.posY, minecraft.player.posZ, minecraft.player.cameraYaw, minecraft.player.cameraPitch, new HashSet<>(), 0));
-       */
+      // System.out.println("[0]: Sending the player to the nether.");
+      // server.getEntityFromUuid(minecraft.player.getUniqueID()).changeDimension(-1);
 
-      // EntityPlayerSP player = Minecraft.getMinecraft().player;
-      // IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
-      // WorldServer serverWorld = server.getWorld(0);
-      // PlayerChunkMap chunkMap = serverWorld.getPlayerChunkMap();
-      // ChunkProviderServer provider = serverWorld.getChunkProvider();
-      //
-      // for (Chunk chunk : provider.id2ChunkMap.values()) {
-      //   // if (chunkMap.contains(chunk.x, chunk.z)) {
-      //   //   PlayerChunkMapEntry entry = chunkMap.getEntry(chunk.x, chunk.z);
-      //   //   chunkMap.removeEntry(entry);
-      //   // }
-      //   //
-      //   // clientWorld.getChunkProvider().unloadChunk(chunk.x, chunk.z);
-      //   // provider.queueUnload(chunk);
-      //   // clientWorld.send.connection.sendPacket(new SPacketUnloadChunk(chunk.x, chunk.z));
-      // }
-      //
-      // // Reload the world.
-      // for (EntityPlayer player1 : serverWorld.playerEntities) {
-      //   player1.changeDimension(1);
-      //   // player1.changeDimension(0);
-      // }
+      System.out.println("[1]: Unloading all chunks.");
+
+      // Step 1: Lookup the region files.
+      WorldServer prevworld = server.getWorld(dimension);
+      File save = prevworld.getChunkSaveLocation();
+      String saveName = save.getName();
+      File region = new File(save, "region");
+
+      // Step 2: Kill the world.
+      DimensionManager.setWorld(dimension, null, server);
+
+      // Step 3: Remove the actual region files.
+      System.out.println("Removing region files in " + region);
+      RegionFileCache.clearRegionFileReferences();
+      for (File f : region.listFiles()) {
+        System.out.println("deleting " + f);
+        f.delete();
+      }
+
+      // Step 4: Load the world again.
+      ISaveHandler saveHandler = server.getActiveAnvilConverter().getSaveLoader(saveName, true);
+      WorldInfo info = saveHandler.loadWorldInfo();
+      WorldServer overworld = (WorldServer) new WorldServer(server, saveHandler, info, 0, server.profiler).init();
+
+      WorldSettings settings = null;
+      try {
+        Field f = server.getClass().getDeclaredField("worldSettings");
+        f.setAccessible(true);
+        settings = (WorldSettings) f.get(server);
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
+
+      overworld.initialize(settings);
+
+      server.getPlayerList().setPlayerManager(new WorldServer[]{overworld});
+      server.initialWorldChunkLoad();
+
+      // System.out.println("[2]: Sending the player back to the overworld.");
+      // server.getEntityFromUuid(minecraft.player.getUniqueID()).changeDimension(dimension);
+
+      BlockPos pos = minecraft.player.getPosition();
+      NetHandlerPlayClient connection = minecraft.getConnection();
+      // Send the player to the nether, then back to the overworld to reload the client world.
+
+      // This updates all the references to use the new world.
+      EntityPlayerMP player = (EntityPlayerMP) prevworld.playerEntities.iterator().next();
+      prevworld.removeEntityDangerously(player);
+      player.isDead = false;
+      player.setWorld(overworld);
+
+      server.getPlayerList().preparePlayer(player, prevworld);
+      player.connection.setPlayerLocation(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
+      player.interactionManager.setWorld(overworld);
+      player.connection.sendPacket(new SPacketPlayerAbilities(player.capabilities));
+      server.getPlayerList().updateTimeAndWeatherForPlayer(player, overworld);
+      server.getPlayerList().syncPlayerInventory(player);
+
+      overworld.getPlayerChunkMap().addPlayer(player);
+      overworld.spawnEntity(player);
+
+      // Reload all the chunks.
+      minecraft.addScheduledTask(() -> {
+        minecraft.renderGlobal.loadRenderers();
+        minecraft.player.sendMessage(new TextComponentString(TextFormatting.YELLOW + "Regenerated world."));
+      });
     }
   }
 
