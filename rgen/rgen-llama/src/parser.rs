@@ -173,17 +173,22 @@ impl<'a> Parser<'a> {
   }
 
   #[track_caller]
-  fn next_word(&mut self) -> String {
+  fn next_word_opt(&mut self) -> Option<String> {
     let start = self.pos;
     while matches!(self.peek(), 'a'..='z' | 'A'..='Z' | '_') {
       self.next();
     }
 
     if start == self.pos {
-      self.err("expected word");
+      None
+    } else {
+      Some(self.input[start..self.pos].into())
     }
+  }
 
-    self.input[start..self.pos].into()
+  #[track_caller]
+  fn next_word(&mut self) -> String {
+    self.next_word_opt().unwrap_or_else(|| self.err("expected word"))
   }
 
   fn next_number(&mut self) -> u32 {
@@ -197,7 +202,7 @@ impl<'a> Parser<'a> {
   fn peek(&self) -> char { self.input[self.pos..].chars().next().unwrap_or('\0') }
 
   fn skip_whitespace(&mut self) {
-    while self.peek().is_whitespace() {
+    while self.peek().is_whitespace() && self.peek() != '\n' {
       self.next();
     }
   }
