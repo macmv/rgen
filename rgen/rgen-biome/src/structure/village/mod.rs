@@ -1,7 +1,10 @@
+use building::Building;
 use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
 use crate::biome::IdContext;
+
+mod building;
 
 pub struct VillageGenerator {
   seed: u64,
@@ -58,9 +61,32 @@ struct Road {
   end:   Pos,
 }
 
-#[derive(Clone)]
-struct Building {
-  pos: Pos,
+#[derive(Clone, Copy)]
+pub enum Direction {
+  North,
+  East,
+  South,
+  West,
+}
+
+impl Direction {
+  fn dir(&self) -> Pos {
+    match self {
+      Direction::North => Pos::new(0, 0, -1),
+      Direction::East => Pos::new(1, 0, 0),
+      Direction::South => Pos::new(0, 0, 1),
+      Direction::West => Pos::new(-1, 0, 0),
+    }
+  }
+
+  fn right(&self) -> Direction {
+    match self {
+      Direction::North => Direction::East,
+      Direction::East => Direction::South,
+      Direction::South => Direction::West,
+      Direction::West => Direction::North,
+    }
+  }
 }
 
 impl<'a> Village<'a> {
@@ -95,13 +121,20 @@ impl<'a> Village<'a> {
       }
 
       for building in &self.buildings {
-        for y in 0..3 {
-          let rel_pos = Pos::new(0, y as i32, 0);
-          let pos = building.pos + rel_pos;
+        for z in building.min().z..=building.max().z {
+          for x in building.min().x..=building.max().x {
+            let pos = Pos::new(x, building.pos.y, z);
 
-          if pos.in_chunk(chunk_pos) {
-            chunk.set(pos.chunk_rel(), self.generator.road_block);
+            if pos.in_chunk(chunk_pos) {
+              chunk.set(pos.chunk_rel(), self.generator.road_block);
+            }
           }
+        }
+
+        let pos = building.pos;
+        if pos.in_chunk(chunk_pos) {
+          chunk
+            .set(pos.chunk_rel(), BlockState { block: self.generator.road_block.block, state: 2 });
         }
       }
 
@@ -182,7 +215,7 @@ impl<'a> Village<'a> {
 
           let pos = Pos::new(x + off_axis.0 * side * 4, 100, z + off_axis.1 * side * 4);
 
-          self.try_place_building(Building { pos });
+          self.try_place_building(Building { pos, forward: Direction::North, width: 3, depth: 4 });
         }
       }
     }
@@ -201,10 +234,13 @@ impl<'a> Village<'a> {
       let min_z = road.start.z.min(road.end.z) - 1;
       let max_z = road.start.z.max(road.end.z) + 1;
 
-      if building.pos.x >= min_x
-        && building.pos.x <= max_x
-        && building.pos.z >= min_z
-        && building.pos.z <= max_z
+      let min = Pos::new(min_x, 0, min_z);
+      let max = Pos::new(max_x, 0, max_z);
+
+      if pos_in_rectangle(building.front_left(), min, max)
+        || pos_in_rectangle(building.front_right(), min, max)
+        || pos_in_rectangle(building.back_left(), min, max)
+        || pos_in_rectangle(building.back_right(), min, max)
       {
         return false;
       }
@@ -212,4 +248,8 @@ impl<'a> Village<'a> {
 
     true
   }
+}
+
+fn pos_in_rectangle(pos: Pos, min: Pos, max: Pos) -> bool {
+  pos.x >= min.x && pos.x <= max.x && pos.z >= min.z && pos.z <= max.z
 }
