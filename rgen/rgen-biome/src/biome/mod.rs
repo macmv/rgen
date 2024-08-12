@@ -40,3 +40,23 @@ impl BiomeBuilder {
     builder
   }
 }
+
+#[allow(dead_code)]
+pub mod color {
+  pub const WHITE: u8 = 0;
+  pub const ORANGE: u8 = 1;
+  pub const MAGENTA: u8 = 2;
+  pub const LIGHT_BLUE: u8 = 3;
+  pub const YELLOW: u8 = 4;
+  pub const LIME: u8 = 5;
+  pub const PINK: u8 = 6;
+  pub const GRAY: u8 = 7;
+  pub const SILVER: u8 = 8;
+  pub const CYAN: u8 = 9;
+  pub const PURPLE: u8 = 10;
+  pub const BLUE: u8 = 11;
+  pub const BROWN: u8 = 12;
+  pub const GREEN: u8 = 13;
+  pub const RED: u8 = 14;
+  pub const BLACK: u8 = 15;
+}

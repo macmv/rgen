@@ -2,9 +2,7 @@ use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
 
-use super::{BiomeBuilder, IdContext};
-
-const SILVER: u8 = 8;
+use super::{color, BiomeBuilder, IdContext};
 
 pub fn chaparral_flats(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
@@ -129,7 +127,7 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -144,7 +142,7 @@ pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -160,7 +158,7 @@ pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn thorn_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
 
   gen.place(
     "grass",

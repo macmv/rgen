@@ -2,17 +2,11 @@ use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
 
-use super::{BiomeBuilder, IdContext};
-
-const LIGHT_BLUE: u8 = 3;
-const SILVER: u8 = 8;
-const BLUE: u8 = 11;
-const BROWN: u8 = 12;
-const GREEN: u8 = 13;
+use super::{color, BiomeBuilder, IdContext};
 
 pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -48,17 +42,17 @@ pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(BROWN);
+  gen.top_block = ctx.blocks.wool.with_data(color::BROWN);
 }
 pub fn cold_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(BLUE);
+  gen.top_block = ctx.blocks.wool.with_data(color::BLUE);
 }
 pub fn fall_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(LIGHT_BLUE);
+  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
 }
 pub fn conifer_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(GREEN);
+  gen.top_block = ctx.blocks.wool.with_data(color::GREEN);
 }

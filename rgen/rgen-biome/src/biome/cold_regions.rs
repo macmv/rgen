@@ -3,16 +3,12 @@
 
 use rgen_placer::placer;
 
-use super::IdContext;
+use super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
-
-const LIGHT_BLUE: u8 = 3;
-const GRAY: u8 = 7;
-const SILVER: u8 = 8;
 
 pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(LIGHT_BLUE);
+  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -27,7 +23,7 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(LIGHT_BLUE);
+  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -42,7 +38,7 @@ pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(LIGHT_BLUE);
+  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -57,7 +53,7 @@ pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(GRAY);
+  gen.top_block = ctx.blocks.wool.with_data(color::GRAY);
 
   gen.place(
     "stone_patches",
@@ -72,7 +68,7 @@ pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rockies(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
-  gen.top_block = ctx.blocks.wool.with_data(GRAY);
+  gen.top_block = ctx.blocks.wool.with_data(color::GRAY);
 }
 
 pub fn frozen_meadow(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -150,7 +146,7 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn snowy_crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(SILVER);
+  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
 
   gen.place(
     "snow",
