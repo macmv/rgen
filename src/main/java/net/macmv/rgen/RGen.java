@@ -24,7 +24,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 
 @Mod(modid = RGen.MODID, version = RGen.VERSION)
@@ -95,7 +94,7 @@ public class RGen {
 
   @SideOnly(Side.CLIENT)
   @SubscribeEvent
-  public static void renderDebugText(InputEvent.KeyInputEvent event) {
+  public static void onKeyInput(InputEvent.KeyInputEvent event) {
     if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState() && RustGenerator.isActive()) {
       System.out.println("Reloading RGen");
 

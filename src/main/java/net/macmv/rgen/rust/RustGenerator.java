@@ -75,8 +75,6 @@ public class RustGenerator {
   public static void reload() {
     int res = reload_generator();
     if (res == 0) {
-      // TODO: Wipe out the world.
-
       int dimension = 0;
 
       Minecraft minecraft = Minecraft.getMinecraft();
