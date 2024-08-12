@@ -1,3 +1,5 @@
+use std::f64::consts::E;
+
 use super::{NoiseGenerator, NoiseGenerator3D, SeededNoise};
 
 #[derive(Debug, Copy, Clone)]
@@ -49,7 +51,6 @@ impl<Noise: NoiseGenerator, const O: usize> NoiseGenerator for OctavedNoise<Nois
       res += self.layers[octave].generate(x, y) * self.pers.powi(octave as i32);
     }
 
-    // Make sure the noise is in the range [-1.0, 1.0).
     res.clamp(-1.0, 1.0 - 1e-6)
   }
 }
@@ -59,20 +60,59 @@ impl<Noise: NoiseGenerator3D, const O: usize> NoiseGenerator3D for OctavedNoise<
     let mut x = x * self.freq;
     let mut y = y * self.freq;
     let mut z = z * self.freq;
-    let mut pers = 1.0f64;
 
-    (0..O)
-      .fold(0.0, |value, octave| {
-        let value = value + self.layers[octave].generate_3d(x, y, z) * pers;
+    let mut res = self.layers[0].generate_3d(x, y, z);
 
-        x *= self.lacu;
-        y *= self.lacu;
-        z *= self.lacu;
-        pers *= self.pers;
+    for octave in 1..O {
+      x *= self.lacu;
+      y *= self.lacu;
+      z *= self.lacu;
 
-        value
-      })
-      // FIXME: Don't clamp this here.
-      .clamp(-1.0, 1.0 - 1e-6)
+      res += self.layers[octave].generate_3d(x, y, z) * self.pers.powi(octave as i32);
+    }
+
+    smooth(res)
+  }
+}
+
+fn smooth(t: f64) -> f64 {
+  // Pass the result through a sigmoid function, to smooth out the values beyond
+  // [-1, 1].
+  let res = 2.0 / (1.0 + E.powf(-3.0 * t)) - 1.0;
+
+  // Clamp the result so that we _never_ return a value outside [-1, 1].
+  res.clamp(-1.0, 1.0)
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::noise::{OpenSimplexNoise, PerlinNoise};
+
+  use super::*;
+
+  #[test]
+  fn octaved_noise_works() {
+    let noise = OctavedNoise::<OpenSimplexNoise, 3>::new(0, 1.0);
+
+    for x in 0..100 {
+      for y in 0..100 {
+        let v = noise.generate(x as f64 / 100.0, y as f64 / 100.0);
+        assert!(v >= -1.0 && v < 1.0, "v = {}", v);
+      }
+    }
+  }
+
+  #[test]
+  fn octaved_noise_3d_works() {
+    let noise = OctavedNoise::<PerlinNoise, 3>::new(0, 1.0);
+
+    for x in 0..100 {
+      for y in 0..100 {
+        for z in 0..100 {
+          let v = noise.generate_3d(x as f64 / 100.0, y as f64 / 100.0, z as f64 / 100.0);
+          assert!(v >= -1.0 && v < 1.0, "v = {}", v);
+        }
+      }
+    }
   }
 }
