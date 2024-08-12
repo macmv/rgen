@@ -40,6 +40,7 @@ impl Direction {
     }
   }
 
+  #[allow(unused)]
   pub fn opposite(&self) -> Direction {
     match self {
       Direction::North => Direction::South,
@@ -49,6 +50,7 @@ impl Direction {
     }
   }
 
+  #[allow(unused)]
   pub fn axis(&self) -> Axis {
     match self {
       Direction::North | Direction::South => Axis::Z,

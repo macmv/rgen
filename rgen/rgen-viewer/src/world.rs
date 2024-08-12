@@ -20,7 +20,9 @@ pub struct Column {
 
 #[derive(Clone, Copy)]
 pub struct BiomeInfo {
+  #[allow(dead_code)]
   pub biome: Biome,
+  #[allow(dead_code)]
   pub name:  &'static str,
   pub color: Color,
 

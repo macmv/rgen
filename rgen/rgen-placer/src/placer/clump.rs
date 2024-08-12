@@ -25,8 +25,7 @@ pub struct GrassClumps {
 }
 
 pub struct PlantClumps {
-  pub place_above:  BlockFilter,
-  pub place_plants: BlockFilter,
+  pub place_above: BlockFilter,
 
   pub radius:   RangeInclusive<u8>,
   pub attempts: u32,

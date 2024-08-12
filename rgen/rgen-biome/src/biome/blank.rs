@@ -42,9 +42,3 @@ pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
 // const GREEN: u8 = 13;
 // const RED: u8 = 14;
 // const BLACK: u8 = 15;
-
-const LIGHT_BLUE: u8 = 3;
-const PURPLE: u8 = 10;
-const BLUE: u8 = 11;
-const BROWN: u8 = 12;
-const GREEN: u8 = 13;

@@ -90,9 +90,3 @@ pub fn parse(blocks: &Blocks, input: &str) -> Structure {
 
   structure
 }
-
-impl BlockName {
-  pub fn air() -> Self {
-    BlockName { category: "minecraft".to_string(), block: "air".to_string(), state: None }
-  }
-}

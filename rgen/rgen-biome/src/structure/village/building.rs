@@ -32,40 +32,6 @@ impl Building {
     self.pos - self.forward_dir() * (self.depth as i32) - self.right_dir() * (self.width as i32 / 2)
   }
 
-  pub fn min(&self) -> Pos {
-    let min_x = self
-      .front_left()
-      .x
-      .min(self.front_right().x)
-      .min(self.back_left().x)
-      .min(self.back_right().x);
-    let min_z = self
-      .front_left()
-      .z
-      .min(self.front_right().z)
-      .min(self.back_left().z)
-      .min(self.back_right().z);
-
-    Pos::new(min_x, self.pos.y, min_z)
-  }
-
-  pub fn max(&self) -> Pos {
-    let max_x = self
-      .front_left()
-      .x
-      .max(self.front_right().x)
-      .max(self.back_left().x)
-      .max(self.back_right().x);
-    let max_z = self
-      .front_left()
-      .z
-      .max(self.front_right().z)
-      .max(self.back_left().z)
-      .max(self.back_right().z);
-
-    Pos::new(max_x, self.pos.y, max_z)
-  }
-
   pub fn bounding_box(&self) -> Rectangle {
     // Add in some offsets around the edges.
     let front_left = self.front_left() - self.right_dir();
@@ -97,8 +63,5 @@ mod tests {
     assert_eq!(building.front_right(), pos + Pos::new(1, 0, 0));
     assert_eq!(building.back_left(), pos + Pos::new(-1, 0, 4));
     assert_eq!(building.back_right(), pos + Pos::new(1, 0, 4));
-
-    assert_eq!(building.min(), pos + Pos::new(-1, 0, 0));
-    assert_eq!(building.max(), pos + Pos::new(1, 0, 4));
   }
 }
