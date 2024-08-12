@@ -100,7 +100,7 @@ impl<'a> Village<'a> {
               let pos = building.pos + Pos::new(dx, dy, dz);
 
               if pos.in_chunk(chunk_pos) {
-                chunk.set_state(pos.chunk_rel(), self.generator.road_block);
+                chunk.set(pos.chunk_rel(), self.generator.road_block);
               }
             }
           }
@@ -108,13 +108,13 @@ impl<'a> Village<'a> {
       }
 
       if road.start.in_chunk(chunk_pos) {
-        chunk.set_state(
+        chunk.set(
           road.start.chunk_rel().with_y(100),
           BlockState { block: self.generator.road_block.block, state: 1 },
         );
       }
       if road.end.in_chunk(chunk_pos) {
-        chunk.set_state(
+        chunk.set(
           road.end.chunk_rel().with_y(100),
           BlockState { block: self.generator.road_block.block, state: 2 },
         );
@@ -122,7 +122,7 @@ impl<'a> Village<'a> {
     }
 
     if self.origin.in_chunk(chunk_pos) {
-      chunk.set_state(self.origin.chunk_rel().with_y(101), self.generator.road_block);
+      chunk.set(self.origin.chunk_rel().with_y(101), self.generator.road_block);
     }
   }
 }
