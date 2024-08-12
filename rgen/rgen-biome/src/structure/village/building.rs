@@ -91,7 +91,7 @@ mod tests {
   fn min_max() {
     // North is -Z
     let pos = Pos::new(3, 4, 5);
-    let building = Building { pos, forward: Direction::North, width: 3, depth: 4 };
+    let building = Building { pos, building_id: 0, forward: Direction::North, width: 3, depth: 4 };
 
     assert_eq!(building.front_left(), pos + Pos::new(-1, 0, 0));
     assert_eq!(building.front_right(), pos + Pos::new(1, 0, 0));

@@ -9,7 +9,7 @@ mod math;
 mod road;
 
 use building::Building;
-use math::{Axis, Direction};
+use math::Direction;
 use road::Road;
 
 pub struct VillageGenerator {
