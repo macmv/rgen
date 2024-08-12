@@ -108,31 +108,22 @@ impl<'a> Village<'a> {
 
         // This is the axis of rotation for the building.
         let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
-        for y in 0..structure.height() {
-          for z in 0..structure.depth() {
-            for x in 0..structure.width() {
-              let x = x as i32;
-              let y = y as i32;
-              let z = z as i32;
-              let rel_pos = Pos::new(x, y, z);
+        for rel_pos in structure.blocks() {
+          let block = structure.get(rel_pos);
+          if block != BlockState::AIR {
+            // Rotate `rel_pos` about the `front_center`.
+            let rotated_x = rel_pos.x - front_center.x;
+            let rotated_z = rel_pos.z - front_center.z;
+            let (rotated_x, rotated_z) = match building.forward {
+              Direction::North => (rotated_x, rotated_z),
+              Direction::East => (-rotated_z, rotated_x),
+              Direction::South => (-rotated_x, -rotated_z),
+              Direction::West => (rotated_z, -rotated_x),
+            };
+            let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
 
-              let block = structure.get(rel_pos);
-              if block != BlockState::AIR {
-                // Rotate `rel_pos` about the `front_center`.
-                let rotated_x = x - front_center.x;
-                let rotated_z = z - front_center.z;
-                let (rotated_x, rotated_z) = match building.forward {
-                  Direction::North => (rotated_x, rotated_z),
-                  Direction::East => (-rotated_z, rotated_x),
-                  Direction::South => (-rotated_x, -rotated_z),
-                  Direction::West => (rotated_z, -rotated_x),
-                };
-                let pos = building.pos + Pos::new(rotated_x, y, rotated_z);
-
-                if pos.in_chunk(chunk_pos) {
-                  chunk.set(pos.chunk_rel(), block);
-                }
-              }
+            if pos.in_chunk(chunk_pos) {
+              chunk.set(pos.chunk_rel(), block);
             }
           }
         }

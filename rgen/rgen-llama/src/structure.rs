@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Pos};
+use rgen_base::{BlockState, BlocksIter, Pos};
 
 #[derive(Clone)]
 pub struct Structure {
@@ -36,6 +36,14 @@ impl Structure {
   pub fn height(&self) -> u32 { self.height }
   /// Returns the depth of the structure, or the number of blocks on the Z-axis.
   pub fn depth(&self) -> u32 { self.depth }
+
+  /// Returns an iterator over all blocks in this structure.
+  pub fn blocks(&self) -> BlocksIter {
+    BlocksIter::new(
+      Pos::new(0, 0, 0),
+      Pos::new(self.width as i32, self.height as i32, self.depth as i32),
+    )
+  }
 
   /// Returns `true` if the structure contains the given position.
   pub fn contains(&self, pos: Pos) -> bool {
