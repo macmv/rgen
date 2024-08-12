@@ -6,7 +6,7 @@ use super::{color, BiomeBuilder, IdContext};
 
 pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -42,17 +42,17 @@ pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::BROWN);
+  gen.top_block = ctx.blocks.concrete.with_data(color::BROWN);
 }
 pub fn cold_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::BLUE);
+  gen.top_block = ctx.blocks.concrete.with_data(color::BLUE);
 }
 pub fn fall_bog(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
+  gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 }
 pub fn conifer_swamp(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::GREEN);
+  gen.top_block = ctx.blocks.concrete.with_data(color::GREEN);
 }

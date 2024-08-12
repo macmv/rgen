@@ -127,7 +127,7 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -142,7 +142,7 @@ pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(
     "grass",
@@ -158,7 +158,7 @@ pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn thorn_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(
     "grass",

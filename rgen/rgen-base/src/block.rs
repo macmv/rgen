@@ -177,7 +177,7 @@ big! { Blocks: BlockInfo
   log => "minecraft:log",
   leaves => "minecraft:leaves",
   water => "minecraft:water",
-  wool => "minecraft:wool",
+  concrete => "minecraft:concrete",
   cobblestone => "minecraft:cobblestone",
   mossy_cobblestone => "minecraft:mossy_cobblestone",
   ice => "minecraft:ice",

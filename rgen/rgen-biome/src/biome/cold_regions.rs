@@ -8,7 +8,7 @@ use crate::builder::{BiomeBuilder, PlacerStage};
 
 pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
+  gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -23,7 +23,7 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
+  gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -38,7 +38,7 @@ pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::LIGHT_BLUE);
+  gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
     "ice_patches",
@@ -53,7 +53,7 @@ pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::GRAY);
+  gen.top_block = ctx.blocks.concrete.with_data(color::GRAY);
 
   gen.place(
     "stone_patches",
@@ -68,17 +68,17 @@ pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rockies(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
-  gen.top_block = ctx.blocks.wool.with_data(color::GRAY);
+  gen.top_block = ctx.blocks.concrete.with_data(color::GRAY);
 }
 
 pub fn frozen_meadow(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.top_block = ctx.blocks.concrete.default_state;
 }
 
 pub fn frozen_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
-  gen.top_block = ctx.blocks.wool.default_state;
+  gen.top_block = ctx.blocks.concrete.default_state;
 }
 
 pub fn snowy_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -146,7 +146,7 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn snowy_crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.wool.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(
     "snow",
