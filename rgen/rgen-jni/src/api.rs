@@ -1,264 +1,270 @@
 //! Defines the JNI interface.
 
+#![allow(non_snake_case)]
+
+use std::{ffi::CStr, process::Command};
+
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
+use libc::{c_void, dlclose, dlerror, dlmopen, dlsym, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW};
+use parking_lot::RwLock;
 
-use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos, Pos};
+const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/..");
 
-// TODO: Do we need to worry about obfuscated names anymore?
-#[cfg(not(feature = "obf-names"))]
-fn lookup_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
-  let jname = env.new_string(name).unwrap();
+macro_rules! functions {
+  (
+    $(
+      fn $name:ident($($arg:ident: $arg_ty:ty),* $(,)?) -> $ret:ty;
+    )*
+  ) => {
+    struct Symbols {
+      handle: *mut c_void,
 
-  let block = env
-    .call_static_method(
-      "net/macmv/rgen/rust/RustGenerator",
-      "block_name_to_id",
-      "(Ljava/lang/String;)I",
-      &[JValue::Object(&jname.into())],
-    )
-    .unwrap()
-    .i()
-    .unwrap();
+      rgen_get_seed: fn() -> u64,
 
-  if block == 0 {
-    None
-  } else {
-    Some(block)
-  }
-}
+      $(
+        $name: fn($($arg_ty),*) -> $ret,
+      )*
+    }
 
-#[cfg(feature = "obf-names")]
-fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
-  let Ok(jname) = env.new_string(name) else { return Some(0) };
+    $(
+      #[no_mangle]
+      pub extern "system" fn $name($($arg: $arg_ty),*) -> $ret {
+        symbols(|s| {
+          (s.$name)($($arg),*)
+        })
+      }
+    )*
 
-  // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
+    impl Symbols {
+      unsafe fn load(handle: *mut c_void) -> Self {
+        Self {
+          handle,
 
-  let block = match env.call_static_method(
-    "net/minecraft/block/Block",
-    "func_149684_b", // getBlockFromName
-    "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
-    &[JValue::Object(&jname.into())],
-  ) {
-    Ok(block) => block.l().unwrap(),
-    Err(_) => return Some(0),
-  };
+          rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
 
-  if block.is_null() {
-    return None;
-  }
-
-  let state = match env.call_method(
-    &block,
-    "func_176223_P", // getDefaultState
-    "()Lnet/minecraft/block/state/IBlockState;",
-    &[],
-  ) {
-    Ok(state) => state.l().unwrap(),
-    Err(_) => return Some(0),
-  };
-
-  match env.call_method(
-    block_ids,
-    "func_148747_b", // get
-    "(Ljava/lang/Object;)I",
-    &[JValue::Object(&state)],
-  ) {
-    Ok(id) => Some(id.i().unwrap()),
-    Err(_) => return Some(0),
-  }
-}
-
-fn lookup_block(env: &mut JNIEnv, name: &str) -> BlockInfo {
-  match lookup_id_opt(env, name) {
-    Some(id) => BlockInfo::temp_new(name, id),
-    None => panic!("block not found: {}", name),
-  }
-}
-
-fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
-  let jname = env.new_string(name).unwrap();
-
-  let biome = env
-    .call_static_method(
-      "net/macmv/rgen/rust/RustGenerator",
-      "biome_name_to_id",
-      "(Ljava/lang/String;)I",
-      &[JValue::Object(&jname.into())],
-    )
-    .unwrap()
-    .i()
-    .unwrap();
-
-  if biome == 0 {
-    None
-  } else {
-    Some(biome)
-  }
-}
-
-fn lookup_biome(env: &mut JNIEnv, name: &str) -> Biome {
-  match lookup_biome_id_opt(env, name) {
-    Some(id) => Biome::from_raw_id(id),
-    None => panic!("biome not found: {}", name),
-  }
-}
-
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
-  mut env: JNIEnv,
-  _class: JClass,
-  seed: jlong,
-) {
-  let blocks = Blocks::init(|name| lookup_block(&mut env, name));
-  let biomes = Biomes::init(|name| lookup_biome(&mut env, name));
-  Context::init(blocks, biomes, seed);
-}
-
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
-  env: JNIEnv,
-  _class: JClass,
-  data: JCharArray,
-  chunk_x: jint,
-  chunk_z: jint,
-) {
-  let len = env.get_array_length(&data).unwrap();
-  assert_eq!(len, 65536, "data array must be 65536 elements long");
-
-  Context::run(|ctx| {
-    let chunk_ctx =
-      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
-
-    ctx.world.generate(chunk_ctx.chunk_pos, |chunk| {
-      env.set_char_array_region(data, 0, chunk.data()).unwrap();
-    });
-  });
-}
-
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
-  env: JNIEnv,
-  _class: JClass,
-  biomes: JByteArray,
-  chunk_x: jint,
-  chunk_z: jint,
-) {
-  let len = env.get_array_length(&biomes).unwrap();
-  assert_eq!(len, 256, "biomes array must be 256 elements long");
-
-  let mut biome_out = [0; 256];
-
-  Context::run(|ctx| {
-    let chunk_pos = ChunkPos::new(chunk_x, chunk_z);
-
-    for x in 0..16 {
-      for z in 0..16 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
-
-        biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
+          $(
+            $name: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(concat!(stringify!($name), "\0").as_bytes()))),
+          )*
+        }
       }
     }
-  });
+  };
+}
 
-  env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
+unsafe impl Send for Symbols {}
+unsafe impl Sync for Symbols {}
+
+functions! {
+  fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
+    env: JNIEnv,
+    class: JClass,
+    seed: jlong,
+  ) -> ();
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
+    env: JNIEnv,
+    class: JClass,
+    data: JCharArray,
+    chunk_x: jint,
+    chunk_z: jint,
+  ) -> ();
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
+    env: JNIEnv,
+    class: JClass,
+    biomes: JByteArray,
+    chunk_x: jint,
+    chunk_z: jint,
+  ) -> ();
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1region(
+    env: JNIEnv,
+    class: JClass,
+    biomes: JByteArray,
+    cell_x: jint,
+    cell_z: jint,
+    width: jint,
+    height: jint,
+  ) -> ();
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
+    env: JNIEnv,
+    class: JClass,
+    block_x: jint,
+    block_y: jint,
+    block_z: jint,
+  ) -> jobjectArray;
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
+    env: JNIEnv,
+    class: JClass,
+    block_x: jint,
+    block_z: jint,
+  ) -> jbyte;
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1at(
+    env: JNIEnv,
+    class: JClass,
+    block_x: jint,
+    block_y: jint,
+    block_z: jint,
+  ) -> jstring;
 }
 
 #[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1region(
-  env: JNIEnv,
-  _class: JClass,
-  biomes: JByteArray,
-  cell_x: jint,
-  cell_z: jint,
-  width: jint,
-  height: jint,
-) {
-  let len = env.get_array_length(&biomes).unwrap();
-  assert_eq!(len, width * height, "biomes array must be 256 elements long");
-
-  let mut biome_out = vec![0; (width * height) as usize];
-
-  Context::run(|ctx| {
-    for x in 0..width {
-      for z in 0..height {
-        let pos = Pos::new((x + cell_x) * 4, 0, (z + cell_z) * 4);
-
-        biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
-      }
-    }
-  });
-
-  env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
-}
-
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
-  mut env: JNIEnv,
-  _class: JClass,
-  block_x: jint,
-  block_y: jint,
-  block_z: jint,
-) -> jobjectArray {
-  let pos = Pos::new(block_x, block_y, block_z);
-
-  let lines = Context::run(|ctx| {
-    let biome = ctx.generator.choose_biome(pos);
-    let continentalness = ctx.generator.sample_continentalness(pos);
-    let erosion = ctx.generator.sample_erosion(pos);
-    let peaks_valleys = ctx.generator.sample_peaks_valleys(pos);
-
-    [
-      format!("biome: {}", biome.name),
-      format!("continentalness: {continentalness:.5}"),
-      format!("erosion: {erosion:.5}"),
-      format!("peaks valleys: {peaks_valleys:.5}"),
-    ]
-  });
-
-  let mut arr = env
-    .new_object_array(lines.len() as i32, "java/lang/String", env.new_string("").unwrap())
-    .unwrap();
-  for (i, line) in lines.iter().enumerate() {
-    env.set_object_array_element(&mut arr, i as i32, env.new_string(line).unwrap()).unwrap();
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv, _class: JClass) {
+  let mut s = SYMBOLS.write();
+  if s.is_some() {
+    panic!("Library already initialized");
   }
-  arr.as_raw()
+  *s = Some(load());
 }
 
 #[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
-  _env: JNIEnv,
-  _class: JClass,
-  block_x: jint,
-  block_z: jint,
-) -> jbyte {
-  let pos = Pos::new(block_x, 0, block_z);
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
+  mut env: JNIEnv,
+  class: JClass,
+) -> jint {
+  match check() {
+    Ok(m) => print_warnings(&mut env, &m),
+    Err(m) => {
+      print_errors(&mut env, &m);
+      return 1;
+    }
+  };
 
-  Context::run(|ctx| {
-    let biome = ctx.generator.choose_biome(pos);
-    biome.id.raw_id() as i8
-  })
+  let mut s = SYMBOLS.write();
+  if let Some(s) = s.as_mut() {
+    let seed = (s.rgen_get_seed)();
+
+    // We're holding onto the symbols lock, so nothing can access those symbols
+    // while we're messing with the file. Still, best practice is to unload them
+    // before messing with the file.
+    unload(s);
+    recompile();
+    *s = load();
+
+    // And re-initialize the new generator.
+    (s.Java_net_macmv_rgen_rust_RustGenerator_init_1generator)(env, class, seed as i64);
+  } else {
+    panic!("Library not initialized");
+  }
+
+  0
 }
 
-#[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1at(
-  env: JNIEnv,
-  _class: JClass,
-  block_x: jint,
-  block_y: jint,
-  block_z: jint,
-) -> jstring {
-  let pos = Pos::new(block_x, block_y, block_z);
+static SYMBOLS: RwLock<Option<Symbols>> = RwLock::new(None);
 
-  let biome = Context::run(|ctx| {
-    let biome = ctx.generator.choose_biome(pos);
+fn symbols<R>(f: impl FnOnce(&Symbols) -> R) -> R {
+  let s = SYMBOLS.read();
+  f(&s.as_ref().expect("Library not initialized"))
+}
 
-    biome.name.to_string()
-  });
+fn unload(s: &Symbols) {
+  unsafe {
+    let res = dlclose(s.handle);
 
-  env.new_string(biome).unwrap().as_raw()
+    if res < 0 {
+      let err = dlerror();
+      let err = CStr::from_ptr(err).to_str().unwrap();
+
+      panic!("Failed to load library: {err}");
+    }
+  }
+}
+
+fn load() -> Symbols {
+  unsafe {
+    let ptr = dlmopen(
+      LM_ID_NEWLM, // make sure to give it a new namespace
+      CStr::from_bytes_with_nul_unchecked(
+        format!("{}/target/release/librgen_jni_impl.so\0", PROJECT_ROOT).as_bytes(),
+      )
+      .as_ptr(),
+      RTLD_NOW | RTLD_LOCAL,
+    );
+
+    if ptr.is_null() {
+      let err = dlerror();
+      let err = CStr::from_ptr(err).to_str().unwrap();
+
+      panic!("Failed to load library: {err}");
+    }
+
+    Symbols::load(ptr)
+  }
+}
+
+unsafe fn sym(ptr: *mut c_void, name: &CStr) -> *mut c_void {
+  unsafe {
+    let sym = dlsym(ptr, name.as_ptr());
+
+    if sym.is_null() {
+      let err = dlerror();
+      let err = CStr::from_ptr(err).to_str().unwrap();
+
+      panic!("Failed to load symbol: {err}");
+    }
+
+    sym
+  }
+}
+
+fn check() -> Result<String, String> {
+  let res = Command::new("cargo")
+    .arg("check")
+    .arg("-p")
+    .arg("rgen-jni-impl")
+    .current_dir(PROJECT_ROOT)
+    .output()
+    .unwrap();
+
+  if res.status.success() {
+    let stderr = String::from_utf8_lossy(&res.stderr);
+    Ok(stderr.to_string())
+  } else {
+    let stderr = String::from_utf8_lossy(&res.stderr);
+    Err(stderr.to_string())
+  }
+}
+
+fn recompile() {
+  Command::new("cargo")
+    .arg("build")
+    .arg("--release")
+    .arg("-p")
+    .arg("rgen-jni-impl")
+    .current_dir(PROJECT_ROOT)
+    .status()
+    .unwrap();
+}
+
+fn print_warnings(env: &mut JNIEnv, m: &str) {
+  let message = env.new_string(m).unwrap();
+
+  env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "print_warnings",
+      "(Ljava/lang/String;)V",
+      &[JValue::Object(&message.into())],
+    )
+    .unwrap();
+}
+
+fn print_errors(env: &mut JNIEnv, m: &str) {
+  let message = env.new_string(m).unwrap();
+
+  env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "print_errors",
+      "(Ljava/lang/String;)V",
+      &[JValue::Object(&message.into())],
+    )
+    .unwrap();
 }

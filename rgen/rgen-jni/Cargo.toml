@@ -9,16 +9,6 @@ edition = "2021"
 crate_type = ["cdylib"]
 
 [dependencies]
-rgen-base.workspace = true
-rgen-placer.workspace = true
-rgen-biome.workspace = true
-rgen-world.workspace = true
-
 jni = "0.21.1"
-
-[features]
-# Links to obfuscated names. Used for release builds.
-obf-names = []
-
-[[bench]]
-name = "chunk"
+libc = "0.2.153"
+parking_lot = "0.12.1"

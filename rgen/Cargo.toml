@@ -8,6 +8,7 @@ members = [
   "rgen-biome",
   "rgen-world",
   "rgen-jni",
+  "rgen-jni-impl",
   "rgen-viewer",
 
   "spline-editor",
