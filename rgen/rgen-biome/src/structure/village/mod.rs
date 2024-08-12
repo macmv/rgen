@@ -58,7 +58,7 @@ struct Road {
   end:   Pos,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct Building {
   pos: Pos,
 }
@@ -182,9 +182,34 @@ impl<'a> Village<'a> {
 
           let pos = Pos::new(x + off_axis.0 * side * 4, 100, z + off_axis.1 * side * 4);
 
-          self.buildings.push(Building { pos })
+          self.try_place_building(Building { pos });
         }
       }
     }
+  }
+
+  fn try_place_building(&mut self, building: Building) {
+    if self.can_place_building(&building) {
+      self.buildings.push(building);
+    }
+  }
+
+  fn can_place_building(&self, building: &Building) -> bool {
+    for road in &self.roads {
+      let min_x = road.start.x.min(road.end.x) - 1;
+      let max_x = road.start.x.max(road.end.x) + 1;
+      let min_z = road.start.z.min(road.end.z) - 1;
+      let max_z = road.start.z.max(road.end.z) + 1;
+
+      if building.pos.x >= min_x
+        && building.pos.x <= max_x
+        && building.pos.z >= min_z
+        && building.pos.z <= max_z
+      {
+        return false;
+      }
+    }
+
+    true
   }
 }
