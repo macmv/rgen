@@ -5,7 +5,7 @@ use crate::{biome::IdContext, WorldBiomes};
 
 /// Cheese caves are the big caverns.
 pub struct CheeseCarver {
-  cave_map: OctavedNoise<PerlinNoise, 4>,
+  cave_map: OctavedNoise<PerlinNoise, 3>,
 
   water: Block,
 }
@@ -13,7 +13,7 @@ pub struct CheeseCarver {
 impl CheeseCarver {
   pub fn new(ctx: &IdContext, seed: u64) -> Self {
     CheeseCarver {
-      cave_map: OctavedNoise::new(seed, 1.0 / 128.0),
+      cave_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
       water: ctx.blocks.water.block,
     }
