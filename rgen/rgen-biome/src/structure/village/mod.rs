@@ -174,19 +174,21 @@ impl<'a> Village<'a> {
   fn place_buildings_along(&mut self, _rng: &mut Rng, road: &Road) {
     let mut i = 0;
 
-    let off_axis = if road.start.x != road.end.x { (0, 1) } else { (1, 0) };
+    let off_axis = road.axis().orthogonal();
 
     for x in road.start.x.min(road.end.x)..=road.start.x.max(road.end.x) {
       for z in road.start.z.min(road.end.z)..=road.start.z.max(road.end.z) {
-        for side in [-1, 1] {
+        for side in [true, false] {
           i += 1;
           if i % 9 != 0 {
             continue;
           }
 
-          let pos = Pos::new(x + off_axis.0 * side * 4, 100, z + off_axis.1 * side * 4);
+          let forward = if side { off_axis.positive_dir() } else { off_axis.negative_dir() };
 
-          self.try_place_building(Building { pos, forward: Direction::North, width: 3, depth: 4 });
+          let pos = Pos::new(x, 100, z) - forward.dir() * 2;
+
+          self.try_place_building(Building { pos, forward, width: 3, depth: 4 });
         }
       }
     }
