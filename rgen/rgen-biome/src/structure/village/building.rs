@@ -1,6 +1,6 @@
 use rgen_base::Pos;
 
-use super::math::Direction;
+use super::math::{Direction, Rectangle};
 
 #[derive(Clone)]
 pub struct Building {
@@ -62,6 +62,22 @@ impl Building {
       .max(self.back_right().z);
 
     Pos::new(max_x, self.pos.y, max_z)
+  }
+
+  pub fn bounding_box(&self) -> Rectangle {
+    // Add in some offsets around the edges.
+    let front_left = self.front_left() - self.right_dir();
+    let front_right = self.front_right() + self.right_dir();
+    let back_left = self.back_left() - self.right_dir() - self.forward_dir();
+    let back_right = self.back_right() + self.right_dir() - self.forward_dir();
+
+    let min_x = front_left.x.min(front_right.x).min(back_left.x).min(back_right.x);
+    let min_z = front_left.z.min(front_right.z).min(back_left.z).min(back_right.z);
+
+    let max_x = front_left.x.max(front_right.x).max(back_left.x).max(back_right.x);
+    let max_z = front_left.z.max(front_right.z).max(back_left.z).max(back_right.z);
+
+    Rectangle { min: Pos::new(min_x, self.pos.y, min_z), max: Pos::new(max_x, self.pos.y, max_z) }
   }
 }
 

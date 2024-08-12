@@ -176,8 +176,8 @@ impl<'a> Village<'a> {
 
     let off_axis = road.axis().orthogonal();
 
-    for x in road.start.x.min(road.end.x)..=road.start.x.max(road.end.x) {
-      for z in road.start.z.min(road.end.z)..=road.start.z.max(road.end.z) {
+    for x in road.min().x..=road.max().x {
+      for z in road.min().z..=road.max().z {
         for side in [true, false] {
           i += 1;
           if i % 9 != 0 {
@@ -202,27 +202,16 @@ impl<'a> Village<'a> {
 
   fn can_place_building(&self, building: &Building) -> bool {
     for road in &self.roads {
-      let min_x = road.start.x.min(road.end.x) - 1;
-      let max_x = road.start.x.max(road.end.x) + 1;
-      let min_z = road.start.z.min(road.end.z) - 1;
-      let max_z = road.start.z.max(road.end.z) + 1;
-
-      let min = Pos::new(min_x, 0, min_z);
-      let max = Pos::new(max_x, 0, max_z);
-
-      if pos_in_rectangle(building.front_left(), min, max)
-        || pos_in_rectangle(building.front_right(), min, max)
-        || pos_in_rectangle(building.back_left(), min, max)
-        || pos_in_rectangle(building.back_right(), min, max)
-      {
+      if building.bounding_box().intersects(&road.bounding_box()) {
+        return false;
+      }
+    }
+    for other in &self.buildings {
+      if building.bounding_box().intersects(&other.bounding_box()) {
         return false;
       }
     }
 
     true
   }
-}
-
-fn pos_in_rectangle(pos: Pos, min: Pos, max: Pos) -> bool {
-  pos.x >= min.x && pos.x <= max.x && pos.z >= min.z && pos.z <= max.z
 }

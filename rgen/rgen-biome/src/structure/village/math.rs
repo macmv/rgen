@@ -16,6 +16,11 @@ pub enum Axis {
   Z,
 }
 
+pub struct Rectangle {
+  pub min: Pos,
+  pub max: Pos,
+}
+
 impl Direction {
   pub fn dir(&self) -> Pos {
     match self {
@@ -72,5 +77,14 @@ impl Axis {
       Axis::X => Axis::Z,
       Axis::Z => Axis::X,
     }
+  }
+}
+
+impl Rectangle {
+  pub fn intersects(&self, other: &Rectangle) -> bool {
+    self.min.x <= other.max.x
+      && self.max.x >= other.min.x
+      && self.min.z <= other.max.z
+      && self.max.z >= other.min.z
   }
 }
