@@ -12,9 +12,7 @@ use jni::{
 use libc::{c_void, dlclose, dlerror, dlmopen, dlsym, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW};
 use parking_lot::RwLock;
 
-// FIXME: Specify this path in `build.gradle`, somehow.
-// const PWD: &str = env!("PWD");
-const PWD: &str = "/home/macmv/Desktop/programming/minecraft/mods/rgen-1.12/rgen";
+const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/..");
 
 macro_rules! functions {
   (
@@ -184,7 +182,7 @@ fn load() -> Symbols {
     let ptr = dlmopen(
       LM_ID_NEWLM, // make sure to give it a new namespace
       CStr::from_bytes_with_nul_unchecked(
-        concat!(env!("PWD"), "/target/release/librgen_jni_impl.so\0").as_bytes(),
+        format!("{}/target/release/librgen_jni_impl.so\0", PROJECT_ROOT).as_bytes(),
       )
       .as_ptr(),
       RTLD_NOW | RTLD_LOCAL,
@@ -221,7 +219,7 @@ fn check() -> Result<String, String> {
     .arg("check")
     .arg("-p")
     .arg("rgen-jni-impl")
-    .current_dir(env!("PWD"))
+    .current_dir(PROJECT_ROOT)
     .output()
     .unwrap();
 
@@ -240,7 +238,7 @@ fn recompile() {
     .arg("--release")
     .arg("-p")
     .arg("rgen-jni-impl")
-    .current_dir(env!("PWD"))
+    .current_dir(PROJECT_ROOT)
     .status()
     .unwrap();
 }
