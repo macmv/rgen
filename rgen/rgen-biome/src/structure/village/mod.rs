@@ -86,8 +86,8 @@ impl<'a> Village<'a> {
 
   pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for road in &self.roads {
-      for x in road.start.x.min(road.end.x)..=road.start.x.max(road.end.x) {
-        for z in road.start.z.min(road.end.z)..=road.start.z.max(road.end.z) {
+      for x in road.min().x..=road.max().x {
+        for z in road.min().z..=road.max().z {
           let pos = Pos::new(x, 100, z);
 
           for dx in -1..=1 {
