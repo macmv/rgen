@@ -1,6 +1,5 @@
 orientation horizontal
 
-_: minecraft:stone
 I: minecraft:glass_pane
 P: minecraft:planks
 V: minecraft:log[0]
@@ -12,7 +11,7 @@ layer front
 V P P P V
 V P   P V
 V P   P V
-_ _ _ _ _
+V P P P V
 ==
 
 layer middle
@@ -20,7 +19,7 @@ layer middle
 D P P P D
 P       P
 P       P
-_ _ _ _ _
+P P P P P
 ==
 
 layer window
@@ -28,7 +27,7 @@ layer window
 D P P P D
 I       I
 P       P
-_ _ _ _ _
+P P P P P
 ==
 
 repeat window
@@ -39,5 +38,5 @@ layer back
 V P P P V
 V P P P V
 V P P P V
-_ _ _ _ _
+V P P P V
 ==
