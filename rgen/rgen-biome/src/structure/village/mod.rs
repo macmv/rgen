@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
+use rgen_base::{BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
@@ -97,7 +97,10 @@ impl<'a> Village<'a> {
                 continue;
               }
 
-              chunk.set(pos.chunk_rel(), self.generator.road_block);
+              let rel = pos.chunk_rel();
+
+              let y = highest_block(chunk, rel).y();
+              chunk.set(rel.with_y(y), self.generator.road_block);
             }
           }
         }
@@ -249,4 +252,15 @@ impl<'a> Village<'a> {
 
     true
   }
+}
+
+fn highest_block(chunk: &Chunk, pos: ChunkRelPos) -> ChunkRelPos {
+  let mut y = 255;
+
+  // TODO: A better air check?
+  while chunk.get(pos.with_y(y)).raw_id() == 0 {
+    y -= 1;
+  }
+
+  ChunkRelPos::new(pos.x(), y, pos.z())
 }
