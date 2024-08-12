@@ -10,6 +10,8 @@ pub struct Building {
   // The direction the front door is facing. This is perpendicular to the road.
   pub forward: Direction,
 
+  pub building_id: u32,
+
   // Width, or the parallel distance to the road.
   pub width: u32,
 

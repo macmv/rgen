@@ -1,4 +1,5 @@
 use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
+use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
 use crate::biome::IdContext;
@@ -8,7 +9,7 @@ mod math;
 mod road;
 
 use building::Building;
-use math::Direction;
+use math::{Axis, Direction};
 use road::Road;
 
 pub struct VillageGenerator {
@@ -16,6 +17,8 @@ pub struct VillageGenerator {
   grid: PointGrid,
 
   road_block: BlockState,
+
+  buildings: Vec<Structure>,
 }
 
 const VILLAGE_RADIUS: i32 = 96;
@@ -23,7 +26,16 @@ const VILLAGE_RADIUS: i32 = 96;
 impl VillageGenerator {
   pub fn new(ctx: &IdContext, seed: u64) -> Self {
     let grid = PointGrid::new();
-    VillageGenerator { seed, grid, road_block: ctx.blocks.log.default_state }
+
+    VillageGenerator {
+      seed,
+      grid,
+      road_block: ctx.blocks.log.default_state,
+      buildings: vec![
+        rgen_llama::parse(ctx.blocks, include_str!("building/house_1.ll")),
+        rgen_llama::parse(ctx.blocks, include_str!("building/house_2.ll")),
+      ],
+    }
   }
 
   pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
@@ -92,12 +104,35 @@ impl<'a> Village<'a> {
       }
 
       for building in &self.buildings {
-        for z in building.min().z..=building.max().z {
-          for x in building.min().x..=building.max().x {
-            let pos = Pos::new(x, building.pos.y, z);
+        let structure = &self.generator.buildings[building.building_id as usize];
 
-            if pos.in_chunk(chunk_pos) {
-              chunk.set(pos.chunk_rel(), self.generator.road_block);
+        // This is the axis of rotation for the building.
+        let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
+        for y in 0..structure.height() {
+          for z in 0..structure.depth() {
+            for x in 0..structure.width() {
+              let x = x as i32;
+              let y = y as i32;
+              let z = z as i32;
+              let rel_pos = Pos::new(x, y, z);
+
+              let block = structure.get(rel_pos);
+              if block != BlockState::AIR {
+                // Rotate `rel_pos` about the `front_center`.
+                let rotated_x = x - front_center.x;
+                let rotated_z = z - front_center.z;
+                let (rotated_x, rotated_z) = match building.forward {
+                  Direction::North => (rotated_x, rotated_z),
+                  Direction::East => (-rotated_z, rotated_x),
+                  Direction::South => (-rotated_x, -rotated_z),
+                  Direction::West => (rotated_z, -rotated_x),
+                };
+                let pos = building.pos + Pos::new(rotated_x, y, rotated_z);
+
+                if pos.in_chunk(chunk_pos) {
+                  chunk.set(pos.chunk_rel(), block);
+                }
+              }
             }
           }
         }
@@ -171,7 +206,7 @@ impl<'a> Village<'a> {
     }
   }
 
-  fn place_buildings_along(&mut self, _rng: &mut Rng, road: &Road) {
+  fn place_buildings_along(&mut self, rng: &mut Rng, road: &Road) {
     let mut i = 0;
 
     let off_axis = road.axis().orthogonal();
@@ -184,11 +219,20 @@ impl<'a> Village<'a> {
             continue;
           }
 
+          let building_id = rng.rand_exclusive(0, self.generator.buildings.len() as i32) as u32;
+          let building = &self.generator.buildings[building_id as usize];
+
           let forward = if side { off_axis.positive_dir() } else { off_axis.negative_dir() };
 
           let pos = Pos::new(x, 100, z) - forward.dir() * 2;
 
-          self.try_place_building(Building { pos, forward, width: 3, depth: 4 });
+          self.try_place_building(Building {
+            pos,
+            forward,
+            building_id,
+            width: building.width(),
+            depth: building.depth(),
+          });
         }
       }
     }
