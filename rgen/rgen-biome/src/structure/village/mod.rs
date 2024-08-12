@@ -1,10 +1,15 @@
-use building::Building;
 use rgen_base::{BlockState, Chunk, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
 use crate::biome::IdContext;
 
 mod building;
+mod math;
+mod road;
+
+use building::Building;
+use math::Direction;
+use road::Road;
 
 pub struct VillageGenerator {
   seed: u64,
@@ -53,40 +58,6 @@ struct Village<'a> {
   buildings: Vec<Building>,
 
   origin: Pos,
-}
-
-#[derive(Clone, Copy)]
-struct Road {
-  start: Pos,
-  end:   Pos,
-}
-
-#[derive(Clone, Copy)]
-pub enum Direction {
-  North,
-  East,
-  South,
-  West,
-}
-
-impl Direction {
-  fn dir(&self) -> Pos {
-    match self {
-      Direction::North => Pos::new(0, 0, -1),
-      Direction::East => Pos::new(1, 0, 0),
-      Direction::South => Pos::new(0, 0, 1),
-      Direction::West => Pos::new(-1, 0, 0),
-    }
-  }
-
-  fn right(&self) -> Direction {
-    match self {
-      Direction::North => Direction::East,
-      Direction::East => Direction::South,
-      Direction::South => Direction::West,
-      Direction::West => Direction::North,
-    }
-  }
 }
 
 impl<'a> Village<'a> {

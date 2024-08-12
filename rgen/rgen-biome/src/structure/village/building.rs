@@ -1,6 +1,6 @@
 use rgen_base::Pos;
 
-use super::Direction;
+use super::math::Direction;
 
 #[derive(Clone)]
 pub struct Building {
