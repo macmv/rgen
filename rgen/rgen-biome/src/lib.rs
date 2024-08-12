@@ -151,6 +151,20 @@ impl WorldBiomes {
     (self.erosion_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
+  pub fn sample_river_distance(&self, pos: Pos) -> f64 {
+    // This will be between 0.0 and 0.02 when there is a river, and any value higher
+    // will be outside of a river.
+    let distance_to_river = (self.sample_peaks_valleys(pos) - 0.5).abs();
+
+    // So, return a value from 0.0 to 1.0 for the range 0.0 to 0.16, so that
+    // caves can smooth the transition over to rivers.
+    if distance_to_river > 0.16 {
+      1.0
+    } else {
+      distance_to_river / 0.16
+    }
+  }
+
   pub fn sample_height(&self, pos: Pos) -> f64 {
     let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(pos));
     let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(pos));

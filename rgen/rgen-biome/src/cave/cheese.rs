@@ -27,14 +27,33 @@ impl CheeseCarver {
         let info = world.height_info(pos);
         let height = (info.max_height() + info.min_height()) / 2.0;
 
+        // The closer to the river we are, the higher this number is.
+        let river_closeness = 1.0 - world.sample_river_distance(pos);
+
         for y in 0..=height as i32 {
           let pos = pos.with_y(y);
           let noise =
             self.cave_map.generate_3d(pos.x as f64, pos.y as f64 * 4.0, pos.z as f64) * 0.5 + 0.5;
 
-          let scale = if (y as f64) < height - 10.0 { 1.0 } else { (height - y as f64) / 10.0 };
+          // Scale down caves towards the surface, to make narrow entraces that widen into
+          // larger caves.
+          let surface_modifier =
+            if (y as f64) < height - 10.0 { 1.0 } else { (height - y as f64) / 10.0 };
 
-          if noise < 0.1 * scale {
+          // Scale down caves towards bedrock, because bedrock is ugly, and we'd like to
+          // hide it under normal stone.
+          let bedrock_modifier = if y < 10 { y as f64 / 10.0 } else { 1.0 };
+
+          // Rivers have more impact the higher the cave is.
+          let river_modifier = if y < 40 {
+            0.0
+          } else {
+            let height_modifier = (y as f64 - 40.0) / (height - 40.0);
+            river_closeness * height_modifier
+          };
+          let river_modifier = 1.0 - river_modifier;
+
+          if noise < 0.3 * surface_modifier * bedrock_modifier * river_modifier {
             let mut near_water = false;
             for offset in [
               Pos::new(0, 0, 0),
