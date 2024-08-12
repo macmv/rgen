@@ -94,15 +94,12 @@ impl<'a> Village<'a> {
       }
 
       for building in &self.buildings {
-        for dy in 0..=3 {
-          for dz in -1..=1 {
-            for dx in -1..=1 {
-              let pos = building.pos + Pos::new(dx, dy, dz);
+        for y in 0..3 {
+          let rel_pos = Pos::new(0, y as i32, 0);
+          let pos = building.pos + rel_pos;
 
-              if pos.in_chunk(chunk_pos) {
-                chunk.set(pos.chunk_rel(), self.generator.road_block);
-              }
-            }
+          if pos.in_chunk(chunk_pos) {
+            chunk.set(pos.chunk_rel(), self.generator.road_block);
           }
         }
       }
