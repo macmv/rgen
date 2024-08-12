@@ -192,6 +192,8 @@ big! { Blocks: BlockInfo
   gold_block => "minecraft:gold_block",
   hardened_clay => "minecraft:hardened_clay",
   stained_hardened_clay => "minecraft:stained_hardened_clay",
+  planks => "minecraft:planks",
+  glass_pane => "minecraft:glass_pane",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",

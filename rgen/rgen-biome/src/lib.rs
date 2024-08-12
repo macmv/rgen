@@ -7,12 +7,14 @@ use rgen_placer::{
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, Generator, PartialWorld};
+use structure::StructureGenerator;
 use table::Tables;
 
 mod biome;
 mod builder;
 mod cave;
 mod lookup;
+mod structure;
 mod table;
 
 pub use builder::BiomeBuilder;
@@ -23,7 +25,8 @@ pub struct WorldBiomes {
   tables:         Tables,
   biome_override: bool,
 
-  cave: CaveCarver,
+  cave:      CaveCarver,
+  structure: StructureGenerator,
 
   temperature_map: OctavedNoise<PerlinNoise, 8>,
   humidity_map:    OctavedNoise<PerlinNoise, 8>,
@@ -119,7 +122,8 @@ impl WorldBiomes {
       tables:         Tables::new(&ctx),
       biome_override: false,
 
-      cave: CaveCarver::new(&ctx, seed),
+      cave:      CaveCarver::new(&ctx, seed),
+      structure: StructureGenerator::new(&ctx, seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
       humidity_map:    OctavedNoise::new(seed, 1.0 / 4096.0),
@@ -206,6 +210,8 @@ impl Generator for WorldBiomes {
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
 
     self.generate_chunk_placers(chunk, chunk_pos);
+
+    self.structure.generate(chunk, chunk_pos);
   }
 
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {

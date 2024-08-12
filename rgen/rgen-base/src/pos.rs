@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Sub};
+use std::ops::{Add, Div, Mul, Sub};
 
 /// A position in a chunk.
 ///
@@ -143,6 +143,13 @@ impl Sub for Pos {
 
   #[track_caller]
   fn sub(self, other: Pos) -> Pos { Pos::new(self.x - other.x, self.y - other.y, self.z - other.z) }
+}
+
+impl Mul<i32> for Pos {
+  type Output = Pos;
+
+  #[track_caller]
+  fn mul(self, other: i32) -> Pos { Pos::new(self.x * other, self.y * other, self.z * other) }
 }
 
 impl Add for ChunkPos {
