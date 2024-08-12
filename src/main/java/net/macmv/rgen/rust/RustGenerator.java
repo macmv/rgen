@@ -104,25 +104,20 @@ public class RustGenerator {
         f.delete();
       }
 
-      // Step 4: Load the world again.
+      // Step 4: Load the server world again.
       ISaveHandler saveHandler = server.getActiveAnvilConverter().getSaveLoader(saveName, true);
       WorldInfo info = saveHandler.loadWorldInfo();
       server.loadAllWorlds(server.getFolderName(), server.getWorldName(), info.getSeed(), info.getTerrainType(), info.getGeneratorOptions());
       WorldServer overworld = server.getWorld(dimension);
 
-      // System.out.println("[2]: Sending the player back to the overworld.");
-      // server.getEntityFromUuid(minecraft.player.getUniqueID()).changeDimension(dimension);
-
-      BlockPos pos = minecraft.player.getPosition();
-      NetHandlerPlayClient connection = minecraft.getConnection();
-      // Send the player to the nether, then back to the overworld to reload the client world.
-
-      // This updates all the references to use the new world.
+      // This updates all the other things (players, the player list, the player chunk map, etc)
+      // to use the new world.
       EntityPlayerMP player = (EntityPlayerMP) prevworld.playerEntities.iterator().next();
       prevworld.removeEntityDangerously(player);
-      player.isDead = false;
+      player.isDead = false; // removeEntityDangerously sets `isDead` to true.
       player.setWorld(overworld);
 
+      // `preparePlayer` removes the player from the old chunk map, among other things.
       server.getPlayerList().preparePlayer(player, prevworld);
       player.connection.setPlayerLocation(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
       player.interactionManager.setWorld(overworld);
@@ -133,7 +128,7 @@ public class RustGenerator {
       overworld.getPlayerChunkMap().addPlayer(player);
       overworld.spawnEntity(player);
 
-      // Reload all the chunks.
+      // Step 5: Reload the chunks on the client.
       minecraft.addScheduledTask(() -> {
         minecraft.renderGlobal.loadRenderers();
         minecraft.player.sendMessage(new TextComponentString(TextFormatting.YELLOW + "Regenerated world."));
