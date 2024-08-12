@@ -107,21 +107,8 @@ public class RustGenerator {
       // Step 4: Load the world again.
       ISaveHandler saveHandler = server.getActiveAnvilConverter().getSaveLoader(saveName, true);
       WorldInfo info = saveHandler.loadWorldInfo();
-      WorldServer overworld = (WorldServer) new WorldServer(server, saveHandler, info, 0, server.profiler).init();
-
-      WorldSettings settings = null;
-      try {
-        Field f = server.getClass().getDeclaredField("worldSettings");
-        f.setAccessible(true);
-        settings = (WorldSettings) f.get(server);
-      } catch (NoSuchFieldException | IllegalAccessException e) {
-        e.printStackTrace();
-      }
-
-      overworld.initialize(settings);
-
-      server.getPlayerList().setPlayerManager(new WorldServer[]{overworld});
-      server.initialWorldChunkLoad();
+      server.loadAllWorlds(server.getFolderName(), server.getWorldName(), info.getSeed(), info.getTerrainType(), info.getGeneratorOptions());
+      WorldServer overworld = server.getWorld(dimension);
 
       // System.out.println("[2]: Sending the player back to the overworld.");
       // server.getEntityFromUuid(minecraft.player.getUniqueID()).changeDimension(dimension);
