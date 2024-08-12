@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, BlocksIter, Pos};
+use rgen_base::{BlockState, BlocksIterExclusive, Pos};
 
 #[derive(Clone)]
 pub struct Structure {
@@ -38,8 +38,8 @@ impl Structure {
   pub fn depth(&self) -> u32 { self.depth }
 
   /// Returns an iterator over all blocks in this structure.
-  pub fn blocks(&self) -> BlocksIter {
-    BlocksIter::new(
+  pub fn blocks(&self) -> BlocksIterExclusive {
+    BlocksIterExclusive::new(
       Pos::new(0, 0, 0),
       Pos::new(self.width as i32, self.height as i32, self.depth as i32),
     )
