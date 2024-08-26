@@ -22,14 +22,14 @@ pub use builder::BiomeBuilder;
 pub struct WorldBiomes {
   seed: u64,
 
-  tables:         Tables,
+  tables: Tables,
   biome_override: bool,
 
-  cave:      CaveCarver,
+  cave: CaveCarver,
   structure: StructureGenerator,
 
   temperature_map: OctavedNoise<PerlinNoise, 8>,
-  humidity_map:    OctavedNoise<PerlinNoise, 8>,
+  humidity_map: OctavedNoise<PerlinNoise, 8>,
 
   /// Defines how far inland or how far into the sea any given block is.
   ///
@@ -119,19 +119,19 @@ impl WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed: seed + 0,
 
-      tables:         Tables::new(&ctx),
+      tables: Tables::new(&ctx),
       biome_override: false,
 
-      cave:      CaveCarver::new(&ctx, seed),
+      cave: CaveCarver::new(&ctx, seed),
       structure: StructureGenerator::new(&ctx, seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
-      humidity_map:    OctavedNoise::new(seed, 1.0 / 4096.0),
+      humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
 
       continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
-      peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
-      erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
-      variance_map:        OctavedNoise::new(seed, 1.0 / 512.0),
+      peaks_valleys_map: OctavedNoise::new(seed, 1.0 / 256.0),
+      erosion_map: OctavedNoise::new(seed, 1.0 / 2048.0),
+      variance_map: OctavedNoise::new(seed, 1.0 / 512.0),
 
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
@@ -386,7 +386,7 @@ impl WorldBiomes {
 
 pub struct HeightInfo<'a> {
   world: &'a WorldBiomes,
-  pos:   Pos,
+  pos: Pos,
 
   // The "max height" here is the maximum Y level for a single block. We then
   // linearly interpolate between min_height and max_height, and compare the
@@ -394,8 +394,8 @@ pub struct HeightInfo<'a> {
   // placed or not.
   //
   // So, the height isn't really "height," its more the hilliness of the terrain.
-  max_height:  f64,
-  min_height:  f64,
+  max_height: f64,
+  min_height: f64,
   underground: Option<bool>,
 }
 
@@ -404,7 +404,9 @@ impl HeightInfo<'_> {
     self.max_height = self.world.sample_height(self.pos);
     self.min_height = 64.0 - self.max_height / 128.0;
   }
-  fn change_y(&mut self) { self.underground = None; }
+  fn change_y(&mut self) {
+    self.underground = None;
+  }
 
   pub fn move_to(&mut self, pos: Pos) {
     let old_pos = self.pos;
@@ -418,8 +420,12 @@ impl HeightInfo<'_> {
     }
   }
 
-  pub fn max_height(&self) -> f64 { self.max_height }
-  pub fn min_height(&self) -> f64 { self.min_height }
+  pub fn max_height(&self) -> f64 {
+    self.max_height
+  }
+  pub fn min_height(&self) -> f64 {
+    self.min_height
+  }
   pub fn underground(&mut self) -> bool {
     *self.underground.get_or_insert_with(|| {
       let noise =

@@ -1,5 +1,17 @@
 use super::{BiomeBuilder, IdContext};
 
+pub fn flat_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.desert;
+  gen.top_block = ctx.blocks.sand.default_state;
+  gen.sub_layer = ctx.blocks.sandstone.default_state;
+}
+
+pub fn lush_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.desert;
+  gen.top_block = ctx.blocks.sand.default_state;
+  gen.sub_layer = ctx.blocks.sandstone.default_state;
+}
+
 pub fn bad_lands(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.mesa;
   gen.top_block = ctx.blocks.hardened_clay.default_state;
@@ -7,5 +19,5 @@ pub fn bad_lands(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn dune_sea(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.desert;
-  gen.top_block = ctx.blocks.sand.default_state;
+  gen.top_block = ctx.blocks.hardened_clay.default_state;
 }
