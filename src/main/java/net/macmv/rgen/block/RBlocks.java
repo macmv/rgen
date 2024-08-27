@@ -38,7 +38,7 @@ public final class RBlocks {
 
   public static final Block FLOWER = register("flower", new FlowerBlock());
   public static final Block CACTUS_ARM = register("cactus_arm", new CactusArm());
-  public static final Block RgenCactus = register("rgen_cactus", new RgenCactus());
+  public static final Block RGEN_CACTUS = register("rgen_cactus", new RgenCactus());
 
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
