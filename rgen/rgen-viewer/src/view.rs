@@ -139,15 +139,16 @@ impl WorldViewer {
 
         let biome_color = if meter_height < 64.0 { Color::from_hex(0x009dc4) } else { biome_color };
 
-        let main_color = match mode {
-          RenderMode::Biomes => biome_color,
+        let alpha = 40.0 / 100.0;
+        let color = match mode {
+          RenderMode::Biomes => height_color.fade(biome_color, alpha),
           RenderMode::Continentalness => Color::from_gray(biome.continentalness as f32),
           RenderMode::Erosion => Color::from_gray(biome.erosion as f32),
           RenderMode::PeaksValleys => Color::from_gray(biome.peaks_valleys as f32),
+          RenderMode::Height => Color::from_gray(column.height as f32 / 256.0),
         };
 
-        let alpha = 40.0 / 100.0;
-        chunk.set(rel_x, rel_z, height_color.fade(main_color, alpha).to_sdl2());
+        chunk.set(rel_x, rel_z, color.to_sdl2());
       }
     }
 
