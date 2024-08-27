@@ -158,7 +158,10 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
 
     for x in 0..16 {
       for z in 0..16 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(x, 0, z);
+        // Neil's stupid ass caves are causing problems again the fix of 255 makes the
+        // vanilla biome set to the surface rgen biome rather than the underground
+        // bullshit.
+        let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
 
         biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
       }
@@ -186,7 +189,10 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
   Context::run(|ctx| {
     for x in 0..width {
       for z in 0..height {
-        let pos = Pos::new((x + cell_x) * 4, 0, (z + cell_z) * 4);
+        // Neil's stupid ass caves are causing problems again the fix of 255 makes the
+        // vanilla biome set to the surface rgen biome rather than the underground
+        // bullshit.
+        let pos = Pos::new((x + cell_x) * 4, 255, (z + cell_z) * 4);
 
         biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
       }
