@@ -25,7 +25,7 @@ impl CheeseCarver {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
 
         let info = world.height_info(pos);
-        let height = (info.max_height() + info.min_height()) / 2.0;
+        let height = info.min_height();
 
         // The closer to the river we are, the higher this number is.
         let river_closeness = 1.0 - world.sample_river_distance(pos);
@@ -37,8 +37,11 @@ impl CheeseCarver {
 
           // Scale down caves towards the surface, to make narrow entraces that widen into
           // larger caves.
-          let surface_modifier =
-            if (y as f64) < height - 10.0 { 1.0 } else { (height - y as f64) / 10.0 };
+          let surface_modifier = match y as f64 - height {
+            -8.0.. => 0.0,
+            v @ -16.0..=-8.0 => 1.0 - (v + 16.0) / 8.0,
+            _ => 1.0,
+          };
 
           // Scale down caves towards bedrock, because bedrock is ugly, and we'd like to
           // hide it under normal stone.
