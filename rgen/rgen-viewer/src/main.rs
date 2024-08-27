@@ -102,6 +102,8 @@ pub fn main() -> Result<(), String> {
   let mut settings = Settings { chunk_borders: false };
 
   'main: loop {
+    let mut redraw = false;
+
     for event in render.events.poll_iter() {
       match event {
         Event::Quit { .. } => break 'main,
@@ -110,23 +112,23 @@ pub fn main() -> Result<(), String> {
 
         Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
           world_view.set_mode(RenderMode::Biomes);
-          texture_cache.clear();
+          redraw = true;
         }
         Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
           world_view.set_mode(RenderMode::Continentalness);
-          texture_cache.clear();
+          redraw = true;
         }
         Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
           world_view.set_mode(RenderMode::Erosion);
-          texture_cache.clear();
+          redraw = true;
         }
         Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
           world_view.set_mode(RenderMode::PeaksValleys);
-          texture_cache.clear();
+          redraw = true;
         }
         Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
           world_view.set_mode(RenderMode::Height);
-          texture_cache.clear();
+          redraw = true;
         }
 
         Event::KeyDown { keycode: Some(Keycode::G), .. } => {
@@ -172,6 +174,10 @@ pub fn main() -> Result<(), String> {
       }
     }
 
+    if redraw {
+      texture_cache.clear();
+    }
+
     render.clear();
 
     let screen_width = render.canvas.output_size().unwrap().0;
@@ -198,6 +204,8 @@ pub fn main() -> Result<(), String> {
 
         let half_screen = state.center - min_chunk;
         state.radius = half_screen.x.max(half_screen.z);
+
+        redraw
       });
 
       for chunk_x in min_chunk.x..=max_chunk.x {

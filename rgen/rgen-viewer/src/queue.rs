@@ -23,16 +23,17 @@ pub struct RenderState {
 }
 
 impl RenderQueue {
+  /// Calls `updater`. If `updater` returns true, or mutates the given state,
+  /// the render queue is regenerated.
   pub fn update(
     &self,
     rendered_chunks: &HashMap<RegionPos, RenderBuffer>,
-    updater: impl FnOnce(&mut RenderState),
+    updater: impl FnOnce(&mut RenderState) -> bool,
   ) {
     let mut state = self.state.lock();
     let old_state = state.clone();
-    updater(&mut state);
 
-    if *state != old_state {
+    if updater(&mut state) || *state != old_state {
       self.regenerate_queue(&state, &rendered_chunks);
     }
   }
