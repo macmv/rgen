@@ -1,8 +1,8 @@
 package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketPlayerAbilities;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -10,8 +10,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.ISaveHandler;
@@ -20,7 +20,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
@@ -59,6 +58,21 @@ public class RustGenerator {
 
   private static void print_errors(String name) {
     Minecraft.getMinecraft().player.sendMessage(new TextComponentString(name + "\n\n" + TextFormatting.RED + "Failed to reload."));
+  }
+
+  private static short get_block(int dim, int x, int y, int z) {
+    BlockPos pos = new BlockPos(x, y, z);
+    World world = Minecraft.getMinecraft().getIntegratedServer().getWorld(dim);
+    IBlockState state = world.getBlockState(pos);
+    int meta = state.getBlock().getMetaFromState(state);
+    int id = Block.getIdFromBlock(state.getBlock());
+    return (short) ((id << 4) | meta);
+  }
+
+  private static void set_block(int dim, int x, int y, int z, short block) {
+    BlockPos pos = new BlockPos(x, y, z);
+    World world = Minecraft.getMinecraft().getIntegratedServer().getWorld(dim);
+    world.setBlockState(pos, Block.getBlockById(block >> 4).getStateFromMeta(block & 15));
   }
 
   private static boolean active = false;
