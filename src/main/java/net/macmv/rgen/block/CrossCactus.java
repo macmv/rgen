@@ -10,6 +10,6 @@ public class CrossCactus extends BlockBush {
     protected CrossCactus() {
         this.setCreativeTab(RCreativeTabs.DECORATIONS);
         this.setSoundType(SoundType.PLANT);}
-    protected boolean canSustainBush(IBlockState state) {return state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.SOUL_SAND;}
+    //protected boolean canSustainBush(IBlockState state) {return state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.SOUL_SAND;}
 
 }

@@ -46,6 +46,9 @@ public class RItems {
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
+  public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  // Other cactus fruits
+
 
   private static Item registerBlockItem(Block block) {
     return registerBlockItem(block, new ItemBlock(block));

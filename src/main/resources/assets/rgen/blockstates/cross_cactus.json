@@ -1,7 +1,5 @@
 {
   "variants": {
-      "normal": {
-          "model": "rgen:wood/cactus/orange_cactus"
-      }
+      "normal": { "model": "rgen:wood/cactus/orange_cactus" }
   }
 }

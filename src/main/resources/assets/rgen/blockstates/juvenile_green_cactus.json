@@ -1,0 +1,9 @@
+{
+  "variants": {
+      "stage=0": { "model": "rgen:wood/cactus/juvenile_green_cactus" },
+      "stage=1": { "model": "rgen:wood/cactus/juvenile_green_cactus" },
+      "stage=2": { "model": "rgen:wood/cactus/juvenile_green_cactus" },
+      "stage=3": { "model": "rgen:wood/cactus/juvenile_green_cactus" },
+      "stage=4": { "model": "rgen:wood/cactus/juvenile_green_cactus" }
+  }
+}
