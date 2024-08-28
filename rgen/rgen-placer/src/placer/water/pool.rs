@@ -43,7 +43,7 @@ impl Pool {
       avg_in_chunk:                     12.0,
       moss:                             blocks.rgen_moss.default_state,
       moss_carpet:                      blocks.rgen_mossy_carpet.default_state,
-      temp_filer:                       blocks.wool.with_data(12),
+      temp_filer:                       blocks.concrete.with_data(12),
       stone:                            blocks.stone.default_state,
       clay:                             blocks.clay.default_state,
     }
