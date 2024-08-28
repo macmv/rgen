@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
@@ -28,6 +29,9 @@ public class Cactus extends Block {
 
     protected static final AxisAlignedBB AABB_BLUE = MathUtil.aabb(4, 0, 4, 12, 8, 12);
     protected static final AxisAlignedBB AABB_GREEN = MathUtil.aabb(1, 0, 1, 15, 16, 15);
+    protected static final AxisAlignedBB AABB_ORANGE_SELECT = MathUtil.aabb(4, 0, 4, 12, 14, 12);
+    protected static final AxisAlignedBB AABB_ORANGE_COLIDE = NULL_AABB;
+
 
 
     public Cactus() {
@@ -114,16 +118,30 @@ public class Cactus extends Block {
         return drops;
     }
 
+    @Nullable
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+        switch (state.getValue(COLOR)) {
+            case GREEN: return AABB_GREEN;
+            case BLUE: return AABB_BLUE;
+            case YELLOW: return AABB_GREEN;
+            case ORANGE: return AABB_ORANGE_COLIDE;
+            default: return AABB_GREEN;
+        }
+    }
+
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         switch (state.getValue(COLOR)) {
             case GREEN: return AABB_GREEN;
             case BLUE: return AABB_BLUE;
             case YELLOW: return AABB_GREEN;
-            case ORANGE: return AABB_GREEN;
+            case ORANGE: return AABB_ORANGE_SELECT;
             default: return AABB_GREEN;
         }
     }
+
+
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
