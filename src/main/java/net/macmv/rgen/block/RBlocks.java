@@ -41,6 +41,7 @@ public final class RBlocks {
   public static final Block RGEN_CACTUS = register("rgen_cactus", new RgenCactus());
   public static final Block CROSS_CACTUS = register("cross_cactus", new CrossCactus());
   public static final Block JUVENILE_GREEN_CACTUS = register("juvenile_green_cactus", new JuvenileGreenCactus());
+  public static final Block BLUE_CACTUS = register("blue_cactus", new BlueCactus());
 
   private static Block register(String name, Block block) {
     if (block.getCreativeTabToDisplayOn() == null) {
