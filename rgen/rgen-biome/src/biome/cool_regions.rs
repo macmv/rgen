@@ -6,38 +6,10 @@ use super::{color, BiomeBuilder, IdContext};
 
 pub fn crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
+  gen.top_block = ctx.blocks.stone.default_state;
 
-  gen.place(
-    "grass",
-    PlacerStage::Sand,
-    placer::Splatter {
-      replace: ctx.blocks.stone.default_state,
-      place:   ctx.blocks.grass.default_state,
-
-      attempts: 50,
-    },
-  );
-  gen.place(
-    "gravel",
-    PlacerStage::Sand,
-    placer::Splatter {
-      replace: ctx.blocks.stone.default_state,
-      place:   ctx.blocks.gravel.default_state,
-
-      attempts: 100,
-    },
-  );
-  gen.place(
-    "cobble",
-    PlacerStage::Sand,
-    placer::Splatter {
-      replace: ctx.blocks.stone.default_state,
-      place:   ctx.blocks.mossy_cobblestone.default_state,
-
-      attempts: 100,
-    },
-  );
+  gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new(ctx.blocks));
+  gen.place("Mossy Pool", PlacerStage::Tree, placer::Pool::new(ctx.blocks));
 }
 
 pub fn bog(ctx: &IdContext, gen: &mut BiomeBuilder) {

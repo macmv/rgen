@@ -24,7 +24,7 @@ public class VanillaDecorator {
   private MapGenScatteredFeature scatteredFeatureGenerator = new MapGenScatteredFeature();
   private MapGenBase ravineGenerator = new MapGenRavine();
   private StructureOceanMonument oceanMonumentGenerator = new StructureOceanMonument();
-  private BiomeDecorator decorator = new BiomeDecorator();
+  //Wprivate BiomeDecorator decorator = new BiomeDecorator();
 
   public VanillaDecorator() {
     caveGenerator = net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(caveGenerator, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.CAVE);
@@ -56,6 +56,6 @@ public class VanillaDecorator {
     this.oceanMonumentGenerator.generateStructure(world, rand, chunk_pos);
 
     // Generate decorations for the void biome, which ends up just being ores and some stone patches.
-    decorator.decorate(world, rand, Biomes.VOID, new BlockPos(chunk_pos.x * 16, 0, chunk_pos.z * 16));
+    //decorator.decorate(world, rand, Biomes.VOID, new BlockPos(chunk_pos.x * 16, 0, chunk_pos.z * 16));
   }
 }

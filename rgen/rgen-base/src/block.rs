@@ -170,6 +170,7 @@ big! { Blocks: BlockInfo
 
   stone => "minecraft:stone",
   dirt => "minecraft:dirt",
+  clay => "minecraft:clay",
   grass => "minecraft:grass",
   snow => "minecraft:snow",
   sand => "minecraft:sand",
@@ -205,6 +206,10 @@ big! { Blocks: BlockInfo
   rgen_flower => "rgen:flower",
   rgen_bamboo => "rgen:bamboo",
   rgen_glow_vine => "rgen:glow_vine",
+  rgen_mossy_cobblestone => "rgen:mossy_cobblestone_rgen",
+  rgen_mossy_stone => "rgen:mossy_stone",
+  rgen_plant => "rgen:plant",
+  rgen_moss => "rgen:mossy_block",
 }
 
 big! { Biomes: Biome
