@@ -1,5 +1,5 @@
 {
-  "parent": "block", 
+  "parent": "minecraft:block/block",
   "textures": {
     "0": "rgen:blocks/wood/cactus/orange_cactus",
     "particle": "rgen:blocks/wood/cactus/orange_cactus"
