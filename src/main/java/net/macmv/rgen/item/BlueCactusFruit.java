@@ -1,5 +1,6 @@
 package net.macmv.rgen.item;
 
+import net.macmv.rgen.block.Cactus;
 import net.macmv.rgen.block.RBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -14,6 +15,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+
+import static net.macmv.rgen.block.Cactus.COLOR;
 
 public class BlueCactusFruit extends ItemFood {
 
@@ -35,7 +38,7 @@ public class BlueCactusFruit extends ItemFood {
         BlockPos blockpos = pos.offset(facing);
         IBlockState state = worldIn.getBlockState(blockpos.down());
         if ((state.getBlock() == Blocks.SAND) && facing == EnumFacing.UP) {
-            worldIn.setBlockState(blockpos, RBlocks.JUVENILE_GREEN_CACTUS.getDefaultState()); // Place the juvenile cactus
+            worldIn.setBlockState(blockpos, RBlocks.CACTUS.getDefaultState().withProperty(COLOR, Cactus.Color.GREEN)); // Place the juvenile cactus
             itemstack.shrink(1); // Use up one fruit
             return EnumActionResult.SUCCESS;
         }

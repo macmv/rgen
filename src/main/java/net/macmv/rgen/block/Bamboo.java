@@ -40,6 +40,8 @@ public class Bamboo extends Block {
     this.setDefaultState(this.blockState.getBaseState().withProperty(PLACEMENT, Placement.STANDARD).withProperty(HAS_LEAVES, false));
   }
 
+
+
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     switch (state.getValue(PLACEMENT)) {

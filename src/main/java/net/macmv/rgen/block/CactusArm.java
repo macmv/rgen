@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static net.macmv.rgen.block.Cactus.COLOR;
+
 public class CactusArm extends Block {
 
   public static final PropertyEnum<CactusArm.Face> FACE = PropertyEnum.create("face", CactusArm.Face.class);
@@ -120,7 +122,7 @@ public class CactusArm extends Block {
 
     // Check if the adjacent block is a cactus (or your custom RgenCactus block)
     IBlockState adjacentState = worldIn.getBlockState(adjacentPos);
-    if (!(adjacentState.getBlock() instanceof RgenCactus)) {
+    if (!((adjacentState.getBlock() instanceof Cactus) && adjacentState.getValue(COLOR) == Cactus.Color.GREEN)) {
       List<ItemStack> drops = getDrops(worldIn, pos, state, 0);
       for (ItemStack drop : drops) {
         spawnAsEntity(worldIn, pos, drop);  // Spawn the dropped items in the world
