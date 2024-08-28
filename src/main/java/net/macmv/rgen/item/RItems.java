@@ -94,7 +94,6 @@ public class RItems {
         registerModel(i, LogBlockOne.LogType.CEDAR.meta, "rgen:cedar_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
         registerModel(i, LogBlockOne.LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
-        registerModel(i, LogBlockOne.LogType.DEAD.meta - 4, "rgen:dead_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:planks")) {
         registerModel(i, LogBlockOne.LogType.FIR.meta, "rgen:fir_planks");
         registerModel(i, LogBlockOne.LogType.PALM.meta, "rgen:palm_planks");
