@@ -20,7 +20,5 @@
     "color=yellow,age=2": { "model": "rgen:wood/cactus/juvenile/yellow/yel_2" },
     "color=yellow,age=3": { "model": "rgen:wood/cactus/juvenile/yellow/yel_3" }
   }
-
-
 }
 
