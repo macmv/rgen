@@ -22,18 +22,18 @@ impl Placer for BasicDryBush {
     }
 
     // Checks if on ground.
-    if !self.place_above.contains(world.get(pos)) {
+    if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
       return;
     }
 
     // Creates the core.
-    world.set(pos + Pos::new(0, 1, 0), self.trunk);
+    world.set(pos, self.trunk);
 
-    for y in 1..=2_i32 {
+    for y in 0..=1_i32 {
       for x in -1..=1_i32 {
         for z in -1..=1_i32 {
           // Remove the corners.
-          if x.abs() == 1 && z.abs() == 1 && y == 2 {
+          if x.abs() == 1 && z.abs() == 1 && y == 1 {
             continue; // next loop
           }
 

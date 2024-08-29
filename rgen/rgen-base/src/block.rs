@@ -195,6 +195,7 @@ big! { Blocks: BlockInfo
   stained_hardened_clay => "minecraft:stained_hardened_clay",
   planks => "minecraft:planks",
   glass_pane => "minecraft:glass_pane",
+  wool => "minecraft:wool",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",
@@ -210,6 +211,10 @@ big! { Blocks: BlockInfo
   rgen_mossy_stone => "rgen:mossy_stone",
   rgen_plant => "rgen:plant",
   rgen_moss => "rgen:mossy_block",
+
+  rgen_juvenile_cactus => "rgen:juvenile_cactus",
+  rgen_cactus => "rgen:cactus",
+  rgen_cactus_arm => "rgen:cactus_arm",
 }
 
 big! { Biomes: Biome
