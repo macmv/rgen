@@ -35,7 +35,7 @@ public class JuvenileCactus extends Block {
     public JuvenileCactus() {
         super(Material.PLANTS);
         this.setHardness(0.4f);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN).withProperty(AGE, Age.ZERO));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN).withProperty(AGE, Age. ZERO));
 
     }
 
@@ -157,10 +157,7 @@ public class JuvenileCactus extends Block {
 
         Age(int meta) {
             this.meta = meta;
-
         }
-
-
 
         @Override
         public String getName() {
