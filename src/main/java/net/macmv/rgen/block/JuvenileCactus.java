@@ -36,6 +36,7 @@ public class JuvenileCactus extends Block {
         super(Material.PLANTS);
         this.setHardness(0.4f);
         this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN).withProperty(AGE, Age.ZERO));
+
     }
 
     @Override
@@ -99,13 +100,15 @@ public class JuvenileCactus extends Block {
     @Nullable
     @Override
     public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-        return state.getValue(AGE).getBoundingBox();
+        switch (state.getValue(COLOR)) {
+            case GREEN: return AABB_SMALL;
+            case BLUE: return AABB_SMALL;
+            case YELLOW: return AABB_SMALL;
+            case ORANGE: return AABB_SMALL;
+            default: return AABB_SMALL;
+        }
     }
 
-    @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return state.getValue(AGE).getBoundingBox();
-    }
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
@@ -123,7 +126,10 @@ public class JuvenileCactus extends Block {
     }
 
     public static enum Color implements IStringSerializable {
-        GREEN(0), BLUE(1), YELLOW(2), ORANGE(3);
+        GREEN(0),
+        BLUE(1),
+        YELLOW(2),
+        ORANGE(3);
 
         public final int meta;
 
@@ -142,26 +148,26 @@ public class JuvenileCactus extends Block {
     }
 
     public static enum Age implements IStringSerializable {
-        ZERO(0, AABB_SMALL), ONE(1, AABB_SMALL), TWO(2, AABB_MEDIUM), THREE(3, AABB_MEDIUM);
+        ZERO(0),
+        ONE(1),
+        TWO(2),
+        THREE(3);
 
         public final int meta;
-        private final AxisAlignedBB boundingBox;
 
-        Age(int meta, AxisAlignedBB boundingBox) {
+        Age(int meta) {
             this.meta = meta;
-            this.boundingBox = boundingBox;
+
         }
 
-        public AxisAlignedBB getBoundingBox() {
-            return boundingBox;
-        }
+
 
         @Override
         public String getName() {
             return Integer.toString(meta);
         }
 
-        public static Age fromMeta(int meta) {
+        public static JuvenileCactus.Age fromMeta(int meta) {
             return values()[meta % values().length];
         }
     }
