@@ -8,6 +8,7 @@ use crate::builder::{BiomeBuilder, PlacerStage};
 
 pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
@@ -23,6 +24,7 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
@@ -38,6 +40,7 @@ pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::LIGHT_BLUE);
 
   gen.place(
@@ -53,6 +56,7 @@ pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::GRAY);
 
   gen.place(
@@ -68,21 +72,25 @@ pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn rockies(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::GRAY);
 }
 
 pub fn frozen_meadow(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.default_state;
 }
 
 pub fn frozen_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.default_state;
 }
 
 pub fn snowy_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -98,6 +106,7 @@ pub fn snowy_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn snowy_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -114,6 +123,7 @@ pub fn snowy_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -130,6 +140,7 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -146,6 +157,7 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn snowy_crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.concrete.with_data(color::SILVER);
 
   gen.place(

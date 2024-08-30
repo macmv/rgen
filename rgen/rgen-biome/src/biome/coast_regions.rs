@@ -17,6 +17,7 @@ use super::IdContext;
 //          - add feature to to palm beach
 pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.gravel.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -36,12 +37,14 @@ pub fn snowy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn snowy_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.stone.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 }
 
 pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -113,6 +116,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.gravel.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -250,6 +254,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.gravel.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -286,11 +291,13 @@ pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn bare_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.stone.default_state;
 }
 
 pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.stone.default_state;
   gen.sub_layer = ctx.blocks.stone.default_state;
 
@@ -317,6 +324,7 @@ pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sand.default_state;
 
@@ -334,6 +342,7 @@ pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sand.default_state;
 
@@ -351,12 +360,14 @@ pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn red_sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.with_data(1);
   gen.sub_layer = ctx.blocks.sand.with_data(1);
 }
 
 pub fn red_monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.with_data(1);
   gen.sub_layer = ctx.blocks.sand.with_data(1);
 
@@ -374,12 +385,14 @@ pub fn red_monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn palm_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.beaches;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sand.default_state;
 }
 
 pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
   gen.sub_layer = ctx.blocks.dirt.default_state;
 
@@ -400,6 +413,7 @@ pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.jungle;
+  gen.color = "#ffffff";
   gen.top_block = ctx.blocks.grass.default_state;
   gen.sub_layer = ctx.blocks.dirt.default_state;
 
