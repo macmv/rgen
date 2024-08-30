@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "check_decay=true,decayable=true,variant=aspen": { "model": "rgen:wood/aspen/aspen_leaves" },
+    "check_decay=true,decayable=false,variant=aspen": { "model": "rgen:wood/aspen/aspen_leaves" },
+    "check_decay=false,decayable=true,variant=aspen": { "model": "rgen:wood/aspen/aspen_leaves" },
+    "check_decay=false,decayable=false,variant=aspen": { "model": "rgen:wood/aspen/aspen_leaves" }
+  }
+}

@@ -47,7 +47,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
 
       radius:   4..=10,
-      attempts: 60,
+      attempts: 100,
     },
   );
 
@@ -61,7 +61,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // double plant top
 
       radius:   4..=10,
-      attempts: 20,
+      attempts: 40,
     },
   );
 }
@@ -144,3 +144,5 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
+
+//Woodland, Lavendar grove, Field, AspenWood, Volcano growth

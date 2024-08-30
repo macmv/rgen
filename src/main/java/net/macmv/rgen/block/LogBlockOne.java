@@ -70,7 +70,8 @@ public class LogBlockOne extends BlockLog {
     MANGROVE(4, "mangrove", MapColor.RED),
     LAVENDER(5, "lavender", MapColor.PURPLE),
     SEASONAL(6, "seasonal", MapColor.ORANGE_STAINED_HARDENED_CLAY),
-    DEAD(7, "dead", MapColor.BROWN);
+    DEAD(7, "dead", MapColor.BROWN),
+    ASPEN(8, "aspen", MapColor.SAND);
 
     public final int meta;
     public final String name;
@@ -96,7 +97,8 @@ public class LogBlockOne extends BlockLog {
         case 4: return MANGROVE;
         case 5: return LAVENDER;
         case 6: return SEASONAL;
-        default: return DEAD;
+        case 7: return DEAD;
+        default: return ASPEN;
       }
     }
   }
