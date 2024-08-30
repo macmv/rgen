@@ -148,7 +148,7 @@ const WARM_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, seasonal_woodland),
   // b!(1.0, lavedar_grove),
   // b!(1.0, field),
-  // b!(1.0, aspenwood),
+  b!(3.0, aspen_wood),
   // b!(1.0, elder_birch_woodland),
   // b!(1.0, valcano_growth),
 ];
@@ -216,12 +216,12 @@ const STANDARD_TABLE: BiomeFnTable = &[
 const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
 
 pub struct Tables {
-  pub blank_table: BiomeTable,
-  pub sea_table: BiomeTable,
-  pub beach_table: BiomeTable,
+  pub blank_table:    BiomeTable,
+  pub sea_table:      BiomeTable,
+  pub beach_table:    BiomeTable,
   pub standard_table: BiomeTable,
-  pub valley_table: BiomeTable,
-  pub river_table: BiomeTable,
+  pub valley_table:   BiomeTable,
+  pub river_table:    BiomeTable,
 
   pub cave_table: BiomeTable,
 }
@@ -229,12 +229,12 @@ pub struct Tables {
 impl Tables {
   pub fn new(ctx: &IdContext) -> Tables {
     Tables {
-      blank_table: table(ctx, BLANK_TABLE),
-      sea_table: table(ctx, SEA_TABLE),
-      beach_table: table(ctx, BEACH_TABLE),
+      blank_table:    table(ctx, BLANK_TABLE),
+      sea_table:      table(ctx, SEA_TABLE),
+      beach_table:    table(ctx, BEACH_TABLE),
       standard_table: table(ctx, STANDARD_TABLE),
-      valley_table: table(ctx, VALLEY_TABLE),
-      river_table: table(ctx, RIVER_TABLE),
+      valley_table:   table(ctx, VALLEY_TABLE),
+      river_table:    table(ctx, RIVER_TABLE),
 
       cave_table: table(ctx, CAVE_TABLE),
     }
