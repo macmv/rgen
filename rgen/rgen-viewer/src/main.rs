@@ -64,7 +64,7 @@ pub fn main() -> Result<(), String> {
 
   let context = Context::new_test(seed);
   let terrain = WorldBiomes::new(&context.blocks, &context.biomes, context.seed);
-  let world = Arc::new(World::new(context, terrain));
+  let world = Arc::new(World::new(terrain));
   let world_view = Arc::new(WorldViewer::new());
 
   let queue = Arc::new(RenderQueue::new());
