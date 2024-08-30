@@ -14,7 +14,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "sprinkling of bamboo",
     PlacerStage::Sand,
     placer::BambooClump {
-      attempts:      30,
+      attempts:      10,
       avg_per_chunk: 3.0,
       place_above:   gen.top_block.into(),
       radius:        1..=4,

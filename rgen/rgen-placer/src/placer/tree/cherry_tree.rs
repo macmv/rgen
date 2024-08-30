@@ -4,6 +4,12 @@ use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
+#[derive(PartialEq, Debug, Clone, Copy)]
+enum SplitTree {
+  Tri,
+  Duo,
+  Uno,
+}
 pub struct Sakura {
   pub place_above:  BlockFilter,
   pub trunk:        BlockState,
@@ -52,7 +58,8 @@ impl Placer for Sakura {
     if self.large_size {
       // Huge trees dude like the big ones man
       // Options are: tri, split_duo, duo, uno, uno_off
-      self.tri_build(world, pos, rng);
+      let tree_choice = rng.choose(&[SplitTree::Tri, SplitTree::Duo, SplitTree::Uno]);
+      self.split_build(world, pos, rng, *tree_choice);
     } else {
       let height = rng.rand_inclusive(5, 8);
       for y in 0..=height {
@@ -141,12 +148,14 @@ impl Sakura {
 
     while x != x2 || y != y2 {
       if x_axis {
-        if world.get(start_pos + Pos::new(x, y + offset, 0)) == BlockState::AIR {
-          world.set(start_pos + Pos::new(x, y + offset, 0), self.trunk);
+        let block_loc = (start_pos + Pos::new(x, y + offset, 0));
+        if world.get(block_loc) == BlockState::AIR || world.get(block_loc) == self.leaves {
+          world.set(block_loc, self.trunk);
         }
       } else {
-        if world.get(start_pos + Pos::new(0, y + offset, x)) == BlockState::AIR {
-          world.set(start_pos + Pos::new(0, y + offset, x), self.trunk);
+        let block_loc = start_pos + Pos::new(0, y + offset, x);
+        if world.get(block_loc) == BlockState::AIR || world.get(block_loc) == self.leaves {
+          world.set(block_loc, self.trunk);
         }
       }
 
@@ -162,7 +171,8 @@ impl Sakura {
     }
   }
 
-  fn tri_build(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
+  fn split_build(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng, split_tree: SplitTree) {
+    println!("Tree: {:?}", split_tree);
     //let base_height = 3;
     let top = 8;
     let a_start: i32;
@@ -180,7 +190,7 @@ impl Sakura {
     let a_height = top - rng.rand_inclusive(0, 1);
     let b_height = top - rng.rand_inclusive(0, 1);
 
-    let x_axis = true;
+    let x_axis = (rng.rand_inclusive(0, 1) == 0);
 
     let a_pos: Pos;
     let b_pos: Pos;
@@ -194,29 +204,81 @@ impl Sakura {
     }
     let top_pos = pos + Pos::new(0, top, 0);
 
-    // let a_start_pos = pos + Pos::new(0, a_start, 0);
-    // let b_start_pos = pos + Pos::new(0, b_start, 0);
+    //This is where uno tree decideds where what arm its doing
+    let mut isA = false;
+    if SplitTree::Uno == split_tree {
+      isA = rng.rand_inclusive(0, 1) == 1;
+    }
 
-    for y in 0..=top {
+    // this decides how tall the trunk is
+    let mut trunk_top = 0;
+    if SplitTree::Tri == split_tree {
+      trunk_top = top;
+    } else if SplitTree::Uno == split_tree {
+      if isA {
+        trunk_top = a_start;
+      } else {
+        trunk_top = b_start;
+      }
+    } else {
+      if a_start > b_start {
+        trunk_top = a_start;
+      } else {
+        trunk_top = b_start;
+      }
+    }
+
+    // Trunk is built
+    for y in 0..=trunk_top {
       if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR
         || world.get(pos + Pos::new(0, y, 0)) == self.leaves
       {
         world.set(pos + Pos::new(0, y, 0), self.trunk);
       }
     }
-
-    if world.get(a_pos) == BlockState::AIR {
-      world.set(a_pos, self.trunk);
+    //places the canapoy cores
+    if split_tree == SplitTree::Uno {
+      if isA {
+        if world.get(a_pos) == BlockState::AIR {
+          world.set(a_pos, self.trunk);
+        }
+      } else {
+        if world.get(b_pos) == BlockState::AIR {
+          world.set(b_pos, self.trunk);
+        }
+      }
+    } else {
+      if world.get(a_pos) == BlockState::AIR {
+        world.set(a_pos, self.trunk);
+      }
+      if world.get(b_pos) == BlockState::AIR {
+        world.set(b_pos, self.trunk);
+      }
     }
-    if world.get(b_pos) == BlockState::AIR {
-      world.set(b_pos, self.trunk);
+
+    if split_tree == SplitTree::Uno {
+      if isA {
+        self.build_cannopy(world, a_pos, rng);
+      } else {
+        self.build_cannopy(world, b_pos, rng);
+      }
+    } else {
+      self.build_cannopy(world, a_pos, rng);
+      self.build_cannopy(world, b_pos, rng);
+      if SplitTree::Tri == split_tree {
+        self.build_cannopy(world, top_pos, rng);
+      }
     }
 
-    self.build_limb(world, pos, a_start, a, a_height, 1, x_axis);
-    self.build_limb(world, pos, b_start, b, b_height, -1, x_axis);
-
-    self.build_cannopy(world, a_pos, rng);
-    self.build_cannopy(world, b_pos, rng);
-    self.build_cannopy(world, top_pos, rng);
+    if split_tree == SplitTree::Uno {
+      if isA {
+        self.build_limb(world, pos, a_start, a, a_height, 1, x_axis);
+      } else {
+        self.build_limb(world, pos, b_start, b, b_height, -1, x_axis);
+      }
+    } else {
+      self.build_limb(world, pos, a_start, a, a_height, 1, x_axis);
+      self.build_limb(world, pos, b_start, b, b_height, -1, x_axis);
+    }
   }
 }
