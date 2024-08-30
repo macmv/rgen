@@ -82,7 +82,8 @@ impl WorldViewer {
 
     for rel_x in 0..REGION_SIZE {
       for rel_z in 0..REGION_SIZE {
-        let pos = region_pos.min_block_pos() + Pos::new(rel_x, 0, rel_z);
+        // Sample at the top of the world for surface biomes.
+        let pos = region_pos.min_block_pos() + Pos::new(rel_x, 255, rel_z);
         let column = world.column_at(pos);
 
         let biome = column.biome;

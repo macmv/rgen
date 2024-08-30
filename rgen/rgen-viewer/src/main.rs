@@ -155,7 +155,7 @@ pub fn main() -> Result<(), String> {
           mouse_pos = (x, y);
           hover_pos = Pos::new(
             (view_coords.0 + x as f64 / zoom) as i32,
-            0,
+            255, // Top of the world, to pick the surface biome.
             (view_coords.1 + y as f64 / zoom) as i32,
           );
 
