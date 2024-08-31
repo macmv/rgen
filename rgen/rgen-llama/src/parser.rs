@@ -190,7 +190,7 @@ impl<'a> Parser<'a> {
   #[track_caller]
   fn next_word_opt(&mut self) -> Option<String> {
     let start = self.pos;
-    while matches!(self.peek(), 'a'..='z' | 'A'..='Z' | '_') {
+    while matches!(self.peek(), 'a'..='z' | 'A'..='Z' | '_' | '0'..='9') {
       self.next();
     }
 
