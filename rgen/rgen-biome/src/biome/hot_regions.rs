@@ -6,7 +6,7 @@ use super::{BiomeBuilder, IdContext};
 
 pub fn flat_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.desert;
-  gen.color = "#ffffff";
+  gen.color = "#E0705F";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sandstone.default_state;
 
@@ -24,7 +24,7 @@ pub fn flat_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn lush_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.desert;
-  gen.color = "#ffffff";
+  gen.color = "#D14A3F";
   gen.top_block = ctx.blocks.sand.default_state;
   gen.sub_layer = ctx.blocks.sandstone.default_state;
 
@@ -73,12 +73,12 @@ pub fn lush_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn bad_lands(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.mesa;
-  gen.color = "#ffffff";
+  gen.color = "#C74538";
   gen.top_block = ctx.blocks.hardened_clay.default_state;
 }
 
 pub fn dune_sea(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.desert;
-  gen.color = "#ffffff";
+  gen.color = "#EA7468";
   gen.top_block = ctx.blocks.sand.default_state;
 }

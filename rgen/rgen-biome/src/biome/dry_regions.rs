@@ -6,12 +6,12 @@ use super::{color, BiomeBuilder, IdContext};
 
 pub fn chaparral_flats(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.color = "#ffffff";
+  gen.color = "#B89B6A";
   gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#D1B284";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place("Sequoia", PlacerStage::Tree, placer::Sequoia::new(ctx.blocks));
@@ -41,23 +41,23 @@ pub fn redwood_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 pub fn open_plain(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.color = "#ffffff";
+  gen.color = "#A7895D";
   gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn sunflower_plain(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.color = "#ffffff";
+  gen.color = "#C49D73";
   gen.top_block = ctx.blocks.grass.default_state;
 }
 pub fn chaparral_woods(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
-  gen.color = "#ffffff";
+  gen.color = "#AA885C";
   gen.top_block = ctx.blocks.grass.default_state;
 }
 
 pub fn dry_grassy_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#D2B187";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -86,7 +86,7 @@ pub fn dry_grassy_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#C2926A";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -134,7 +134,7 @@ pub fn dry_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#BA8F63";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -150,7 +150,7 @@ pub fn wooded_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#C2A27E";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
@@ -167,7 +167,7 @@ pub fn open_savanna(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn thorn_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.savanna;
-  gen.color = "#ffffff";
+  gen.color = "#B78E67";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(
