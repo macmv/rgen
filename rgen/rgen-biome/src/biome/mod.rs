@@ -37,7 +37,29 @@ impl BiomeBuilder {
   pub fn build(name: &'static str, ctx: &IdContext, rarity: f64, build: BiomeFn) -> Self {
     let mut builder = BiomeBuilder::new(name, ctx.blocks, rarity);
     build(ctx, &mut builder);
+    if builder.color.is_empty() {
+      panic!("biome {} has no color", name);
+    }
+    builder.color();
     builder
+  }
+
+  pub fn color(&self) -> u32 {
+    assert_eq!(self.color.len(), 7);
+    assert!(&self.color[0..1] == "#", "color must start with #");
+
+    let mut color = 0_u32;
+    for c in self.color[1..].bytes() {
+      color = (color << 4)
+        | match c {
+          b'0'..=b'9' => u32::from(c - b'0'),
+          b'a'..=b'f' => u32::from(c - b'a' + 10),
+          b'A'..=b'F' => u32::from(c - b'A' + 10),
+          _ => panic!("invalid color character"),
+        };
+    }
+
+    color
   }
 }
 

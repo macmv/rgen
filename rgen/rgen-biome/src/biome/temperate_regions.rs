@@ -7,6 +7,7 @@ use super::{BiomeBuilder, IdContext};
 pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   println!("hey neil, hey neil, how you doing?");
   gen.id = ctx.biomes.birch_forest;
+  gen.color = "#A3B5A0";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
@@ -68,12 +69,14 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
+  gen.color = "#7C8F6B";
   gen.top_block = ctx.blocks.grass.default_state;
   gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
 }
 
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
+  gen.color = "#768A6A";
   gen.top_block = ctx.blocks.grass.default_state;
 
   gen.place(

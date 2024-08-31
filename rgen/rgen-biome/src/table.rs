@@ -283,3 +283,16 @@ fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
     Err(_) => unreachable!(),
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use rgen_base::{Biomes, Blocks};
+
+  use super::*;
+
+  #[test]
+  fn biomes_can_build() {
+    let ctx = IdContext { biomes: &Biomes::test_blocks(), blocks: &Blocks::test_blocks() };
+    Tables::new(&ctx);
+  }
+}

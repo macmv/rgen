@@ -5,7 +5,6 @@ use rgen_world::Context;
 use crate::color::Color;
 
 pub struct World {
-  pub context:   Context,
   pub generator: WorldBiomes,
 }
 
@@ -46,7 +45,6 @@ impl BiomeInfo {
   };
 
   pub fn new(
-    ctx: &Context,
     biome: &BiomeBuilder,
     continentalness: f64,
     erosion: f64,
@@ -55,7 +53,7 @@ impl BiomeInfo {
     BiomeInfo {
       biome: biome.id,
       name: biome.name,
-      color: biome_color(ctx, biome),
+      color: Color::from_hex(biome.color()),
       continentalness,
       erosion,
       peaks_valleys,
@@ -68,7 +66,7 @@ impl Default for Column {
 }
 
 impl World {
-  pub fn new(context: Context, generator: WorldBiomes) -> World { World { context, generator } }
+  pub fn new(generator: WorldBiomes) -> World { World { generator } }
 }
 
 impl World {
@@ -81,29 +79,8 @@ impl World {
     let erosion = self.generator.sample_erosion(pos);
     let peaks_valleys = self.generator.sample_peaks_valleys(pos);
 
-    Column {
-      height,
-      biome: BiomeInfo::new(&self.context, biome, continentalness, erosion, peaks_valleys),
-    }
+    Column { height, biome: BiomeInfo::new(biome, continentalness, erosion, peaks_valleys) }
   }
 
   pub fn height_at(&self, pos: Pos) -> f64 { self.generator.sample_height(pos) }
-}
-
-fn biome_color(ctx: &Context, biome: &BiomeBuilder) -> Color {
-  Color::from_hex(match biome.id {
-    b if b == ctx.biomes.ice_plains => 0x518ded,
-    b if b == ctx.biomes.cold_taiga => 0x3265db,
-    b if b == ctx.biomes.extreme_hills => 0x4f6aab,
-    b if b == ctx.biomes.plains => 0x61b086,
-    b if b == ctx.biomes.savanna => 0xa19d55,
-    b if b == ctx.biomes.river => 0x3487ba,
-    b if b == ctx.biomes.stone_beach => 0x527185,
-    b if b == ctx.biomes.birch_forest => 0x3fba7b,
-    b if b == ctx.biomes.beaches => 0xd6bf6d,
-    b => {
-      println!("no color for biome {}", ctx.biomes.name_of(b));
-      0x000000
-    }
-  })
 }

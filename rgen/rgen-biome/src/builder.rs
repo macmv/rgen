@@ -13,6 +13,7 @@ pub struct BiomeBuilder {
   pub name:   &'static str,
   pub rarity: f64,
   pub id:     rgen_base::Biome,
+  pub color:  &'static str,
 
   pub top_block: BlockState,
   pub sub_layer: BlockState,
@@ -42,6 +43,7 @@ impl BiomeBuilder {
       name,
       rarity,
       id: Biome::VOID,
+      color: "",
       top_block: blocks.grass.default_state,
       sub_layer: blocks.dirt.default_state,
       min_height: 64,

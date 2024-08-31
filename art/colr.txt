@@ -1,0 +1,125 @@
+Frozen Region
+Main Color: Icy Blue (#A3D4E8)
+Sub Colors:
+Frost White (#E3F5FC)
+Glacier Blue (#82C5E1)
+Snowdrift (#C5E5F1)
+Iceberg (#6FAFCE)
+Arctic Mist (#D6EEF9)
+Polar Blue (#B2DBEF)
+Frostbite (#4E9BB7)
+Frozen Lake (#89C8E3)
+Winter Sky (#C2E2F3)
+Permafrost (#9BC7E0)
+
+2. Cold Region
+Main Color: Cool Grey (#A6B1C0)
+Sub Colors:
+Steel Blue (#748A99)
+Misty Morning (#B4BDC8)
+Silver Frost (#8F9BAB)
+Cold Slate (#6F7D8B)
+Overcast (#9DA8B7)
+Ice Grey (#BCC4D1)
+Cloudy Sky (#8997A7)
+Frosted Glass (#A3AEBB)
+Winter Fog (#C0C7D3)
+Dusk Blue (#7E8A9A)
+
+3. Cool Region
+Main Color: Teal Blue (#609CA7)
+Sub Colors:
+Aqua Mist (#8CB4B9)
+Seafoam Green (#7FAFB4)
+Cool Breeze (#5F9CA1)
+Ocean Wave (#4F8D96)
+Coastal Fog (#93C0C7)
+Pale Teal (#6EA5AE)
+Cool Mint (#79B2B9)
+Lagoon Blue (#4D9198)
+Freshwater (#659BA5)
+Harbor Grey (#789C9E)
+
+4. Temperate Region
+Main Color: Olive Green (#8B9E7E)
+Sub Colors:
+Forest Canopy (#A3B5A0)
+Meadow Green (#7C8F6B)
+Moss Green (#768A6A)
+Fern Leaf (#B0C2A5)
+Pine Needle (#6F8564)
+Cedar Green (#A8B89E)
+Willow Branch (#899B76)
+Sage Green (#A1B195)
+Green Meadow (#93A88A)
+Spring Moss (#BDC8AE)
+
+5. Warm Region (Pinkish Theme)
+Main Color: Blush Pink (#E5A4B1)
+Sub Colors:
+Rosy Sand (#E8B3BB)
+Desert Rose (#D98B99)
+Warm Pink (#E29DA7)
+Petal Pink (#F1C0C8)
+Dusky Rose (#C97D85)
+Coral Pink (#DF919D)
+Soft Mauve (#E7AFB8)
+Muted Pink (#C88792)
+Warm Coral (#D798A2)
+Pale Rose (#EAC2CA)
+
+6. Dry Region
+Main Color: Desert Tan (#C8A77B)
+Sub Colors:
+Dune Beige (#B89B6A)
+Sandy Dune (#D1B284)
+Arid Earth (#A7895D)
+Dusty Trail (#C49D73)
+Savannah Brown (#AA885C)
+Saffron Dust (#D2B187)
+Burnt Sand (#C2926A)
+Dry Canyon (#BA8F63)
+Desert Sage (#C2A27E)
+Parched Earth (#B78E67)
+
+7. Hot Region
+Main Color: Fiery Red (#E85A4F)
+Sub Colors:
+Ember Orange (#E0705F)
+Lava Red (#D14A3F)
+Scorched Earth (#C74538)
+Blazing Sun (#EA7468)
+Molten Copper (#D85142)
+Inferno Red (#BF4336)
+Flame Orange (#E16658)
+Heatwave (#E37B6D)
+Desert Fire (#CD4F41)
+Searing Red (#F06256)
+8. Coastal Region
+
+Main Color: Ocean Blue (#5A9AD6)
+Sub Colors:
+Sea Spray (#7AB5DE)
+Marine Blue (#4A85BE)
+Coastal Sky (#679FD3)
+Deep Sea (#3F78A6)
+Wave Crest (#609FCF)
+Tidepool Blue (#89BFE0)
+Azure Blue (#5397CA)
+Coral Reef (#68A8D7)
+Horizon Blue (#4B89BB)
+Caribbean Sea (#6FB1E0)
+
+9. River Region
+Main Color: River Green (#76B49C)
+Sub Colors:
+Stream Blue (#89C2AD)
+Freshwater Green (#6EA692)
+Rapids Blue (#5F8E7F)
+Mossy Bank (#8DC0B0)
+Algae Green (#618F7A)
+Waterway Blue (#7BB6A4)
+Wetland Green (#6EA28F)
+Brook Blue (#5F9382)
+Riverbed (#86B19F)
+Reed Green (#7FB09A)
