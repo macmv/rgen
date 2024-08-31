@@ -54,6 +54,7 @@ impl BiomeBuilder {
         | match c {
           b'0'..=b'9' => u32::from(c - b'0'),
           b'a'..=b'f' => u32::from(c - b'a' + 10),
+          b'A'..=b'F' => u32::from(c - b'A' + 10),
           _ => panic!("invalid color character"),
         };
     }
