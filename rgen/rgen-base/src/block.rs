@@ -201,6 +201,7 @@ big! { Blocks: BlockInfo
   rgen_log2 => "rgen:log2",
   rgen_leaves => "rgen:leaves",
   rgen_leaves2 => "rgen:leaves2",
+  rgen_leaves3 => "rgen:leaves3",
   rgen_mossy_stump => "rgen:mossy_stump",
   rgen_polypore => "rgen:polypore",
   rgen_mossy_carpet => "rgen:mossy_carpet",
