@@ -151,6 +151,7 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.top_block = ctx.blocks.grass.default_state;
+  gen.color = "#B0C2A5";
 }
 
 //Woodland, Lavendar grove, Field, AspenWood, Volcano growth
