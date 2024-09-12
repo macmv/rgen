@@ -215,4 +215,44 @@ pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-//Woodland, Lavendar grove, Field, AspenWood, Volcano growth
+pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.color = "#899781";
+  gen.top_block = ctx.blocks.grass.default_state;
+
+  gen.place(
+    "birch log",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log:            ctx.blocks.log.with_data(1),
+      moss_log:       ctx.blocks.rgen_mossy_stump.with_data(1),
+      ground:         ctx.blocks.grass.default_state,
+      plants:         ctx.blocks.stone.default_state.into(),
+      avg_per_chunk:  1.75,
+      chance_of_moss: 5,
+      is_shrooms:     true,
+      shroom:         ctx.blocks.rgen_polypore.default_state,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    160,
+      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
+      place:       ctx.blocks.tallgrass.with_data(2),
+    },
+  );
+
+  gen.place(
+    "ferns",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    160,
+      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+}
+//Lavendar grove, Field, AspenWood, Volcano growth
