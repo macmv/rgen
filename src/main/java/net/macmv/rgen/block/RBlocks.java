@@ -45,6 +45,7 @@ public final class RBlocks {
   public static final Block BLUE_CACTUS = register("blue_cactus", new BlueCactus());
   public static final Block CACTUS = register("cactus", new Cactus());
   public static final Block JUVENILE_CACTUS = register("juvenile_cactus", new JuvenileCactus());
+  public static final Block LAVENDER_PLANT = register("lavender_plant", new LavenderPlant());
 
 
   private static Block register(String name, Block block) {

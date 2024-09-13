@@ -15,6 +15,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -45,6 +46,11 @@ public class RGen {
     RGEN_WORLD_TYPE = new RGenWorldType();
 
     proxy.preInit();
+  }
+
+  @Mod.EventHandler
+  public void init(FMLInitializationEvent e) {
+    proxy.init();
   }
 
   @SubscribeEvent

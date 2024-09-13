@@ -25,6 +25,7 @@ tile.bamboo.name=Bamboo
 tile.glow_vine.name=Glow Vines
 
 tile.flower.forget_me_not.name=Forget-me-not
+tile.lavender_plant.name=Lavender Plant
 
 tile.planks.fir.name=Fir Planks
 tile.planks.palm.name=Palm Planks
@@ -46,3 +47,5 @@ tile.mossy_stone.name=Mossy Stone
 
 item.debug_stick.name=Debug Stick
 item.green_cactus_fruit.name=Green Cactus Fruit
+
+

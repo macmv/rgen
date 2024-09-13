@@ -1,0 +1,9 @@
+{
+
+  "variants": {
+    "variant=variant0": { "model": "rgen:flower/lavender/lavender_0" },
+    "variant=variant1": { "model": "rgen:flower/lavender/lavender_1" },
+    "variant=variant2": { "model": "rgen:flower/lavender/lavender_2" },
+    "variant=variant3": { "model": "rgen:flower/lavender/lavender_3" }
+  }
+}
