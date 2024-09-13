@@ -1,0 +1,49 @@
+generator.rgen=RGen
+
+itemGroup.rgen_building_blocks=RGen Buildin' Blocks
+itemGroup.rgen_decorations=RGen Dec'rations
+
+tile.derp_dog.name=Derp Doggo
+tile.thatch_roof.name=Thatched Roofin
+
+tile.log.fir.name=Fir Timber
+tile.log.palm.name=Palm Timber
+tile.log.sakura.name=Sakura Timber
+tile.log.cedar.name=Cedar Timber
+tile.log2.mangrove.name=Mangrove Timber
+tile.log2.dead.name=Deadman's Timber
+
+tile.leaves.fir.name=Fir Foliage
+tile.leaves.palm.name=Palm Foliage
+tile.leaves.sakura.name=Sakura Foliage
+tile.leaves.cedar.name=Cedar Foliage
+tile.leaves2.mangrove.name=Mangrove Foliage
+tile.leaves2.lavender.name=Lavender Foliage
+tile.leaves2.seasonal.name=Seasonal Foliage
+
+tile.bamboo.name=Bamboo Stick
+tile.glow_vine.name=Glowin' Vines
+
+tile.flower.forget_me_not.name=Forget-me-not Bloom
+tile.lavender_plant.name=Lavender Herb
+
+tile.planks.fir.name=Fir Planks
+tile.planks.palm.name=Palm Planks
+tile.planks.sakura.name=Sakura Planks
+tile.planks.cedar.name=Cedar Planks
+tile.planks.mangrove.name=Mangrove Planks
+
+tile.loose_rock.small.name=Tiny Pebble
+tile.loose_rock.medium.name=Mid-sized Pebble
+tile.loose_rock.large.name=Huge Pebble
+
+tile.plant.name=Mossy Bush
+tile.mossy_oak_stump.name=Mossy Oak Stump
+tile.mossy_birch_stump.name=Mossy Birch Stump
+tile.mossy_carpet.name=Mossy Rug
+tile.mossy_block.name=Mossy Block
+tile.mossy_cobblestone_rgen.name=Mossy Cobblestone
+tile.mossy_stone.name=Mossy Stone
+
+item.debug_stick.name=Debuggin' Stick
+item.green_cactus_fruit.name=Green Cactus Fruit o' Doom
