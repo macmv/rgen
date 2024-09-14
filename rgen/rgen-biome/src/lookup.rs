@@ -113,8 +113,8 @@ impl WorldBiomes {
 
     match continentalness {
       x if x < 0.02 => ContinentalnessCategory::MushroomIsland,
-      x if x < 0.35 => ContinentalnessCategory::Sea,
-      x if x < 0.40 => ContinentalnessCategory::Coast,
+      x if x < 0.32 => ContinentalnessCategory::Sea,
+      x if x < 0.37 => ContinentalnessCategory::Coast,
       x if x < 0.60 => ContinentalnessCategory::NearInland,
       x if x < 0.80 => ContinentalnessCategory::MidInland,
       _ => ContinentalnessCategory::FarInland,

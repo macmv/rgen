@@ -109,6 +109,14 @@ lazy_static::lazy_static! {
     (0.70, 128.0),
     (1.00, 256.0),
   ]);
+
+  pub static ref HEIGHT_IMPACT: Spline<&'static [(f64, f64)]> = Spline::new(&[
+    (0.00, 1.0),
+    (0.01, 0.0),
+    (0.45, 0.0),
+    (0.55, 1.0),
+    (1.00, 1.0),
+  ]);
 }
 
 impl WorldBiomes {
@@ -167,15 +175,15 @@ impl WorldBiomes {
 
   pub fn sample_height(&self, pos: Pos) -> f64 {
     let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(pos));
+    let impact = HEIGHT_IMPACT.sample::<Cosine>(c / 128.0);
     let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(pos));
     let e = EROSION.sample::<Cosine>(self.sample_erosion(pos));
 
-    // FIXME: Remove this, and figure out how to keep oceans
-    if c < 64.0 {
-      c
-    } else {
-      ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0
-    }
+    fn lerp(a: f64, b: f64, t: f64) -> f64 { a * (1.0 - t) + b * t }
+    let e = lerp(0.2, e, impact);
+    let p = lerp(8.0, p, impact);
+
+    ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0
   }
 }
 

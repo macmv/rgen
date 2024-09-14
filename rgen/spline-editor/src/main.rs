@@ -19,6 +19,7 @@ struct SplineEditor {
   // These two splines map noise values to multipliers away from sea level.
   erosion_spline:       Spline<Vec<(f64, f64)>>,
   peaks_valleys_spline: Spline<Vec<(f64, f64)>>,
+  height_impact_spline: Spline<Vec<(f64, f64)>>,
 
   erosion:         f64,
   continentalness: f64,
@@ -48,6 +49,13 @@ impl Default for SplineEditor {
         (0.91, 0.1),
         (1.00, 0.0),
       ]),
+      height_impact_spline:   Spline::new(vec![
+        (0.00, 1.0),
+        (0.01, 0.0),
+        (0.45, 0.0),
+        (0.55, 1.0),
+        (1.00, 1.0),
+      ]),
       peaks_valleys_spline:   Spline::new(vec![
         (0.00, 16.0),
         (0.40, 8.0),
@@ -76,6 +84,8 @@ impl eframe::App for SplineEditor {
         draw_editor(ui, &mut self.erosion_spline, 0.0..=1.0);
         ui.separator();
         draw_editor(ui, &mut self.peaks_valleys_spline, 0.0..=32.0);
+        ui.separator();
+        draw_editor(ui, &mut self.height_impact_spline, 0.0..=1.0);
       });
 
       ui.add(Slider::new(&mut self.continentalness, 0.0..=1.0).text("Continentalness"));
@@ -92,13 +102,19 @@ impl eframe::App for SplineEditor {
           plot_spline(plot_ui, &self.continentalness_spline, 1.0);
           plot_spline(plot_ui, &self.erosion_spline, 128.0);
           plot_spline(plot_ui, &self.peaks_valleys_spline, 4.0);
+          plot_spline(plot_ui, &self.height_impact_spline, 128.0);
 
           plot_sample(plot_ui, |x| {
             let c = self.continentalness_spline.sample::<Cosine>(x);
+            let impact = self.height_impact_spline.sample::<Cosine>(c / 128.0);
             let p = self.peaks_valleys_spline.sample::<Cosine>(self.peaks_valleys);
             let e = self.erosion_spline.sample::<Cosine>(self.erosion);
 
-            (c + p - 64.0) * e + 64.0
+            fn lerp(a: f64, b: f64, t: f64) -> f64 { a * (1.0 - t) + b * t }
+            let e = lerp(0.2, e, impact);
+            let p = lerp(8.0, p, impact);
+
+            ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0
           });
         });
     });
