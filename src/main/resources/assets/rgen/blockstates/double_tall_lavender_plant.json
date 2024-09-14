@@ -1,14 +1,15 @@
 
 {
   "variants": {
-    "half=lower,variant=variant1": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=upper,variant=variant1": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=lower,variant=variant2": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=upper,variant=variant2": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=lower,variant=variant3": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=upper,variant=variant3": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=lower,variant=variant4": { "model": "rgen:flower/lavender/lavender_0" },
-    "half=upper,variant=variant4": { "model": "rgen:flower/lavender/lavender_0" }
+    
+    "half=lower,variant=variant1": { "model": "rgen:flower/lavender/double/lav_0_low" },
+    "half=upper,variant=variant1": { "model": "rgen:flower/lavender/double/lav_0_hi" },
+    "half=lower,variant=variant2": { "model": "rgen:flower/lavender/double/lav_1_low" },
+    "half=upper,variant=variant2": { "model": "rgen:flower/lavender/double/lav_1_hi" },
+    "half=lower,variant=variant3": { "model": "rgen:flower/lavender/double/lav_2_low" },
+    "half=upper,variant=variant3": { "model": "rgen:flower/lavender/double/lav_2_hi" },
+    "half=lower,variant=variant4": { "model": "rgen:flower/lavender/double/lav_3_low" },
+    "half=upper,variant=variant4": { "model": "rgen:flower/lavender/double/lav_3_hi" }
   }
 }
 
