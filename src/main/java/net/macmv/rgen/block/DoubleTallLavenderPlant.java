@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -25,16 +26,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DoubleTallLavenderPlant extends BlockBush {
+    //this is the placement of the large plants
+    //8  9    10   11
+    //0  1    2    3
 
     // Define the properties: your custom variant and half
     public static final PropertyEnum<EnumVariant> VARIANT = PropertyEnum.create("variant", EnumVariant.class);
     public static final PropertyEnum<BlockDoublePlant.EnumBlockHalf> HALF = PropertyEnum.create("half", BlockDoublePlant.EnumBlockHalf.class);
+    //protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0.09999999403953552, 0.0, 0.09999999403953552, 0.8999999761581421, 1, 0.8999999761581421);
+    protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0, 0.0, 0, 1, 1, 1);
+
 
     public DoubleTallLavenderPlant() {
         super(Material.VINE);
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(VARIANT, EnumVariant.VARIANT_1)
                 .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.LOWER));
+    }
+
+    public AxisAlignedBB getBoundingBox(IBlockState p_185496_1_, IBlockAccess p_185496_2_, BlockPos p_185496_3_) {
+        return PLANT_AABB;
     }
 
     @Override
