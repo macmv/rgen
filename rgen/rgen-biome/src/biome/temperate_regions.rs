@@ -281,4 +281,5 @@ pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
-//Field, AspenWood, Volcano growth
+
+//Field, Volcano growth
