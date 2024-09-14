@@ -1,4 +1,5 @@
 mod clump;
+mod complexplants;
 mod log;
 mod rock;
 mod scatter;
@@ -9,6 +10,7 @@ mod tree;
 mod water;
 
 pub use clump::{BushClumps, Clumps, GrassClumps};
+pub use complexplants::*;
 pub use log::LogAndStump;
 pub use rock::*;
 pub use scatter::Scatter;

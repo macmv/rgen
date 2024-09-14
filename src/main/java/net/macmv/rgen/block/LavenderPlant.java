@@ -114,14 +114,14 @@ public class LavenderPlant extends BlockBush {
     }
 
 
-    /*
+
     @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
 
-     */
+
 
 
 

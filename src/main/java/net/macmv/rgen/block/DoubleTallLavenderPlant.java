@@ -176,58 +176,18 @@ public class DoubleTallLavenderPlant extends BlockBush {
             otherHalfPos = pos.up();
             IBlockState otherHalfState = worldIn.getBlockState(otherHalfPos);
             if (otherHalfState.getBlock() == this && otherHalfState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
-                worldIn.setBlockToAir(otherHalfPos);
-                spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
+                worldIn.setBlockState(pos.up(), Blocks.AIR.getDefaultState(), 2);
             }
         } else {
             // This is the upper half, remove the lower half without dropping anything
             otherHalfPos = pos.down();
             IBlockState otherHalfState = worldIn.getBlockState(otherHalfPos);
             if (otherHalfState.getBlock() == this && otherHalfState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
-                worldIn.setBlockToAir(otherHalfPos);
+                worldIn.destroyBlock(pos.down(), true);
             }
         }
-
-        // Remove this block
-        worldIn.setBlockToAir(pos);
         super.onBlockHarvested(worldIn, pos, state, player);
     }
-
-    @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
-            // Check the block below to make sure it's the correct bottom half of this plant
-            if (worldIn.getBlockState(pos.down()).getBlock() != this) {
-                worldIn.setBlockToAir(pos);
-
-            }
-
-        } else if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
-            IBlockState soil = worldIn.getBlockState(pos.down());
-            if (soil.getBlock() != Blocks.GRASS && soil.getBlock() != Blocks.DIRT && soil.getBlock() != Blocks.FARMLAND) {
-                // THE GROUND IS LOST
-                BlockPos topPos = pos.up();
-                IBlockState topState = worldIn.getBlockState(topPos);
-                //if (topState.getBlock() == this && topState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
-                //    worldIn.setBlockToAir(topPos);
-                //}
-                worldIn.setBlockToAir(pos);
-                spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
-            } else {
-                // Check the block above to ensure it's the upper half of this plant
-                IBlockState aboveState = worldIn.getBlockState(pos.up());
-                if (aboveState.getBlock() != this || aboveState.getValue(HALF) != BlockDoublePlant.EnumBlockHalf.UPPER) {
-                    worldIn.setBlockToAir(pos);
-                    //spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
-                }
-            }
-        }
-    }
-
-
-
-
-
 
 
     @Override
@@ -240,5 +200,10 @@ public class DoubleTallLavenderPlant extends BlockBush {
         return false;
     }
 
+    @SideOnly(Side.CLIENT)
+    @Override
+    public BlockRenderLayer getBlockLayer() {
+        return BlockRenderLayer.CUTOUT_MIPPED;
+    }
 
 }

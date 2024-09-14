@@ -146,9 +146,9 @@ const WARM_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, woodland),
   b!(1.0, birch_woodland),
   // b!(1.0, seasonal_woodland),
-  // b!(1.0, lavedar_grove),
+  b!(3.0, lavender_grove),
   // b!(1.0, field),
-  b!(3.0, aspen_wood),
+  b!(1.0, aspen_wood),
   // b!(1.0, elder_birch_woodland),
   // b!(1.0, valcano_growth),
 ];

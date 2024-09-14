@@ -212,7 +212,8 @@ big! { Blocks: BlockInfo
   rgen_mossy_stone => "rgen:mossy_stone",
   rgen_plant => "rgen:plant",
   rgen_moss => "rgen:mossy_block",
-
+  rgen_lavender => "rgen:lavender_plant",
+  rgen_tall_lavender => "rgen:double_tall_lavender_plant",
   rgen_juvenile_cactus => "rgen:juvenile_cactus",
   rgen_cactus => "rgen:cactus",
   rgen_cactus_arm => "rgen:cactus_arm",

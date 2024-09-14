@@ -255,4 +255,30 @@ pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
-//Lavendar grove, Field, AspenWood, Volcano growth
+pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.birch_forest;
+  gen.color = "#899781";
+  gen.top_block = ctx.blocks.grass.default_state;
+
+  gen.place(
+    "SmallLavenderScatter",
+    PlacerStage::Tree,
+    placer::LavenderScatter {
+      attempts:    900,
+      place_above: [ctx.blocks.grass.block].into(),
+      is_large:    false,
+      place:       ctx.blocks.rgen_lavender.default_state,
+    },
+  );
+  gen.place(
+    "LargeLavenderScatter",
+    PlacerStage::Tree,
+    placer::LavenderScatter {
+      attempts:    600,
+      place_above: [ctx.blocks.grass.block].into(),
+      is_large:    true,
+      place:       ctx.blocks.rgen_tall_lavender.default_state,
+    },
+  );
+}
+//Field, AspenWood, Volcano growth
