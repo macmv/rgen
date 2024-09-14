@@ -21,6 +21,9 @@ import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyEnum;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DoubleTallLavenderPlant extends BlockBush {
 
     // Define the properties: your custom variant and half
@@ -32,6 +35,11 @@ public class DoubleTallLavenderPlant extends BlockBush {
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(VARIANT, EnumVariant.VARIANT_1)
                 .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.LOWER));
+    }
+
+    @Override
+    public Block.EnumOffsetType getOffsetType() {
+        return Block.EnumOffsetType.XYZ;
     }
 
     // Meta --> State
@@ -61,29 +69,26 @@ public class DoubleTallLavenderPlant extends BlockBush {
     // Randomize the variant when placed
 
     // Place the plant with both top and bottom parts
+
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
-        int randomVariant = worldIn.rand.nextInt(4); // Randomly choose between 4 variants
+        int randomVariant = worldIn.rand.nextInt(4);
 
-        // Set bottom part
-        worldIn.setBlockState(pos, this.getDefaultState()
+        IBlockState lowerState = this.getDefaultState()
                 .withProperty(VARIANT, EnumVariant.byMetadata(randomVariant))
-                .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.LOWER), 2);
+                .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.LOWER);
 
-        // Set top part
-        worldIn.setBlockState(pos.up(), this.getDefaultState()
+        IBlockState upperState = this.getDefaultState()
                 .withProperty(VARIANT, EnumVariant.byMetadata(randomVariant))
-                .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.UPPER), 2);
+                .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.UPPER);
+
+        // Set both parts with the same offset
+        worldIn.setBlockState(pos, lowerState, 2);
+        worldIn.setBlockState(pos.up(), upperState, 2);
     }
 
-    /*
-    @SideOnly(Side.CLIENT)
-    @Override
-    public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.CUTOUT_MIPPED;
-    }
 
-     */
+
 
     // Custom EnumVariant for different lavender variants
     public static enum EnumVariant implements IStringSerializable {
@@ -136,32 +141,83 @@ public class DoubleTallLavenderPlant extends BlockBush {
         }
     }
 
-    // Handle block harvesting to break both top and bottom parts
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        List<ItemStack> drops = new ArrayList<>();
+
+        // Only drop the item if the block is the lower half
+        if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
+            EnumVariant variant = state.getValue(VARIANT);
+
+            // Add the appropriate ItemStack for the plant variant
+            drops.add(new ItemStack(this, 1, variant.getMetadata()));
+        }
+
+        return drops;
+    }
+
     @Override
     public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player) {
-        BlockPos otherHalfPos = state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER ? pos.up() : pos.down();
-        IBlockState otherHalfState = worldIn.getBlockState(otherHalfPos);
+        BlockPos otherHalfPos;
 
-        if (otherHalfState.getBlock() == this) {
-            worldIn.setBlockToAir(otherHalfPos);
+        if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
+            // This is the lower half, so remove the top half
+            otherHalfPos = pos.up();
+            IBlockState otherHalfState = worldIn.getBlockState(otherHalfPos);
+            if (otherHalfState.getBlock() == this && otherHalfState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
+                worldIn.setBlockToAir(otherHalfPos);
+                spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
+            }
+        } else {
+            // This is the upper half, remove the lower half without dropping anything
+            otherHalfPos = pos.down();
+            IBlockState otherHalfState = worldIn.getBlockState(otherHalfPos);
+            if (otherHalfState.getBlock() == this && otherHalfState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
+                worldIn.setBlockToAir(otherHalfPos);
+            }
         }
+
+        // Remove this block
+        worldIn.setBlockToAir(pos);
         super.onBlockHarvested(worldIn, pos, state, player);
     }
 
-    // Handle block updates when neighboring blocks change
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
         if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
+            // Check the block below to make sure it's the correct bottom half of this plant
             if (worldIn.getBlockState(pos.down()).getBlock() != this) {
                 worldIn.setBlockToAir(pos);
+
             }
-        } else {
-            IBlockState aboveState = worldIn.getBlockState(pos.up());
-            if (aboveState.getBlock() != this || aboveState.getValue(HALF) != BlockDoublePlant.EnumBlockHalf.UPPER) {
+
+        } else if (state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.LOWER) {
+            IBlockState soil = worldIn.getBlockState(pos.down());
+            if (soil.getBlock() != Blocks.GRASS && soil.getBlock() != Blocks.DIRT && soil.getBlock() != Blocks.FARMLAND) {
+                // THE GROUND IS LOST
+                BlockPos topPos = pos.up();
+                IBlockState topState = worldIn.getBlockState(topPos);
+                //if (topState.getBlock() == this && topState.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER) {
+                //    worldIn.setBlockToAir(topPos);
+                //}
                 worldIn.setBlockToAir(pos);
+                spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
+            } else {
+                // Check the block above to ensure it's the upper half of this plant
+                IBlockState aboveState = worldIn.getBlockState(pos.up());
+                if (aboveState.getBlock() != this || aboveState.getValue(HALF) != BlockDoublePlant.EnumBlockHalf.UPPER) {
+                    worldIn.setBlockToAir(pos);
+                    //spawnAsEntity(worldIn, pos, new ItemStack(this, 1, state.getValue(VARIANT).getMetadata()));
+                }
             }
         }
     }
+
+
+
+
+
+
 
     @Override
     public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
