@@ -13,6 +13,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -75,12 +76,14 @@ public class DoubleTallLavenderPlant extends BlockBush {
                 .withProperty(HALF, BlockDoublePlant.EnumBlockHalf.UPPER), 2);
     }
 
-
+    /*
     @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
+
+     */
 
     // Custom EnumVariant for different lavender variants
     public static enum EnumVariant implements IStringSerializable {
@@ -159,5 +162,16 @@ public class DoubleTallLavenderPlant extends BlockBush {
             }
         }
     }
+
+    @Override
+    public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return 0; // Makes the block fully transparent to light
+    }
+
+    @Override
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return false;
+    }
+
 
 }

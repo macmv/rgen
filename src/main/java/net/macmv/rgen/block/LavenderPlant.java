@@ -31,6 +31,15 @@ public class LavenderPlant extends BlockBush {
         this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, EnumVariant.VARIANT_1)); // Set a default varian
     }
 
+    public boolean isFullCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public Block setLightOpacity(int opacity) {
+        return super.setLightOpacity(15);
+    }
 
     // Meta --> State
     @Override
@@ -89,6 +98,13 @@ public class LavenderPlant extends BlockBush {
         return PLANT_AABB;
     }
 
+    @Override
+    public Block.EnumOffsetType getOffsetType()
+    {
+        return Block.EnumOffsetType.XYZ;
+    }
+
+
     // Randomizes the variant when placed
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
@@ -97,11 +113,17 @@ public class LavenderPlant extends BlockBush {
         worldIn.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, EnumVariant.byMetadata(randomVariant)), 2);
     }
 
+
+    /*
     @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
+
+     */
+
+
 
 
 

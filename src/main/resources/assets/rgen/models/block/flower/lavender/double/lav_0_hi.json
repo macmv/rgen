@@ -1,6 +1,6 @@
 {
   "ambientocclusion": false,
-  "parent": "block/block",
+  "parent": "block/cube",
   "textures": {
     "1": "rgen:blocks/plants/lavender/double/lav_fill",
     "0": "rgen:blocks/plants/lavender/double/lav_flower_0_hi",
