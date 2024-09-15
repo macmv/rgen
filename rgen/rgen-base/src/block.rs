@@ -196,6 +196,7 @@ big! { Blocks: BlockInfo
   planks => "minecraft:planks",
   glass_pane => "minecraft:glass_pane",
   wool => "minecraft:wool",
+  lava => "minecraft:lava",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",
@@ -217,6 +218,7 @@ big! { Blocks: BlockInfo
   rgen_juvenile_cactus => "rgen:juvenile_cactus",
   rgen_cactus => "rgen:cactus",
   rgen_cactus_arm => "rgen:cactus_arm",
+  rgen_basalt => "rgen:basalt",
 }
 
 big! { Biomes: Biome

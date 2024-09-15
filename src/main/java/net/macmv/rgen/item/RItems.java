@@ -43,6 +43,7 @@ public class RItems {
   public static final Item GLOW_VINE = registerBlockItem(RBlocks.GLOW_VINE);
   public static final Item LAVENDER_PLANT = registerBlockItem(RBlocks.LAVENDER_PLANT, new ItemBlock(RBlocks.LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item DOUBLE_TALL_LAVENDER_PLANT = registerBlockItem(RBlocks.DOUBLE_TALL_LAVENDER_PLANT, new ItemBlock(RBlocks.DOUBLE_TALL_LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item BASALT = registerBlockItem(RBlocks.BASALT);
 
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
