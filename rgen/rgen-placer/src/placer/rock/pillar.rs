@@ -5,19 +5,22 @@ use rgen_world::PartialWorld;
 use crate::{Placer, Random, Rng};
 
 pub struct Pillar {
-  pub ground:       BlockFilter,
-  pub material:     BlockState,
-  pub avg_in_chunk: f64,
-  pub fluid:        BlockState,
+  pub ground:                  BlockFilter,
+  pub material:                BlockState,
+  pub avg_in_chunk:            f64,
+  pub fluid:                   BlockState,
+  chance_of_secondary_pillars: i32,
 }
 
 impl Pillar {
   pub fn new(blocks: &Blocks) -> Self {
     Pillar {
-      ground:       [blocks.stone.block, blocks.dirt.block, blocks.grass.block].into(),
-      material:     blocks.rgen_basalt.with_data(0),
-      avg_in_chunk: 0.1,
-      fluid:        blocks.lava.default_state.into(),
+      ground:                      [blocks.stone.block, blocks.dirt.block, blocks.grass.block]
+        .into(),
+      material:                    blocks.rgen_basalt.with_data(0),
+      avg_in_chunk:                0.8,
+      fluid:                       blocks.lava.default_state.into(),
+      chance_of_secondary_pillars: 20,
     }
   }
 }
@@ -34,7 +37,7 @@ impl Placer for Pillar {
     self.build_base(rng, pos + Pos::new(0, 0, 0), world);
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        if rng.rand_inclusive(0, 60) == 0 {
+        if rng.rand_inclusive(0, self.chance_of_secondary_pillars) == 0 {
           self.build_base(rng, pos + Pos::new(rel_x, 0, rel_z), world);
         }
       }

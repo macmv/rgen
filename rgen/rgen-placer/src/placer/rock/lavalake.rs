@@ -57,7 +57,8 @@ impl LavaLake {
         if distance_from_center <= poolsize[2].pow(2) as f64
           && distance_from_center >= poolsize[1].pow(2) as f64
         {
-          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material)
+          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material);
+          self.feature_add(rng, pos, world, rel_x, rel_z);
         }
 
         noise_x += rng.rand_inclusive(-1, 1) as f64;
@@ -69,23 +70,49 @@ impl LavaLake {
           && distance_from_center >= poolsize[0].pow(2) as f64
         {
           world.set(pos + Pos::new(rel_x, 0, rel_z), self.material);
-          if rng.rand_inclusive(0, 25) == 0 {
-            world.set(pos + Pos::new(rel_x, 1, rel_z), self.material);
-            if rng.rand_inclusive(0, 4) == 0 {
-              world.set(pos + Pos::new(rel_x, 2, rel_z), self.material);
-            }
-          }
+          self.feature_add(rng, pos, world, rel_x, rel_z);
         }
 
         if distance_from_center <= poolsize[2].pow(2) as f64 {
           let pos_below = pos + Pos::new(rel_x, -1, rel_z);
           let pos_rel = pos + Pos::new(rel_x, 0, rel_z);
 
-          if self.ground.contains(world.get(pos_rel)) || world.get(pos_rel).block == Block::AIR {
+          if self.ground.contains(world.get(pos_rel))
+            || (world.get(pos_rel).block == Block::AIR || world.get(pos_rel).block == Block::WATER)
+          {
             world.set(pos_rel, self.fluid);
             world.set(pos_below, self.material)
           }
         }
+      }
+    }
+  }
+  fn flat_plate(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+    for rel_x in -1..=1_i32 {
+      for rel_z in -1..=1_i32 {
+        for rel_y in 0..-2_i32 {
+          let rel_pos = pos + Pos::new(rel_x, rel_y, rel_z);
+          if world.get(rel_pos).block == Block::AIR || world.get(rel_pos).block == Block::WATER {
+            world.set(rel_pos, self.material);
+          }
+        }
+      }
+    }
+  }
+
+  fn feature_add(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld, rel_x: i32, rel_z: i32) {
+    //adds the flatplates if there is ground missing below
+    //world.set(pos + Pos::new(rel_x, -1, rel_z), self.fluid);
+    if world.get(pos + Pos::new(rel_x, -1, rel_z)).block == Block::AIR
+      || world.get(pos + Pos::new(rel_x, -1, rel_z)).block == Block::WATER
+    {
+      self.flat_plate(rng, pos + Pos::new(0, -1, 0), world);
+    }
+    //adds little spike pillars
+    if rng.rand_inclusive(0, 25) == 0 {
+      world.set(pos + Pos::new(rel_x, 1, rel_z), self.material);
+      if rng.rand_inclusive(0, 4) == 0 {
+        world.set(pos + Pos::new(rel_x, 2, rel_z), self.material);
       }
     }
   }

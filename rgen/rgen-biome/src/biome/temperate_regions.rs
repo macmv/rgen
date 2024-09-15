@@ -288,5 +288,15 @@ pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
   gen.place("Lava Lake", PlacerStage::Tree, placer::LavaLake::new(ctx.blocks));
   gen.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new(ctx.blocks));
+  gen.place(
+    "basalt_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.rgen_basalt.with_data(0),
+      radius:        2..=4,
+      avg_per_chunk: 1.0,
+    },
+  );
 }
 //Field, Volcano growth
