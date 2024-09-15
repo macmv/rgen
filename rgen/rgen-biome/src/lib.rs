@@ -294,6 +294,9 @@ impl WorldBiomes {
         let mut info = self.height_info(pos);
 
         let mut depth = 0;
+
+        let mut layer = 0;
+
         for y in (info.min_height as i32..=info.max_height as i32).rev() {
           let pos = pos.with_y(y);
           let rel_pos = pos.chunk_rel();
@@ -308,14 +311,30 @@ impl WorldBiomes {
           // The addition of 255 prevents the underground biome from interfering with the
           // sublayer selection.
           let biome = self.choose_biome(pos.with_y(255));
-          if depth <= sub_layer_depth {
-            if chunk.get(rel_pos) == blocks.stone.block {
-              // Don't use depth, use y + 1, so that we account for caves.
-              if chunk.get(rel_pos.with_y(y + 1)) == Block::AIR {
-                chunk.set(rel_pos, biome.top_block);
-              } else {
-                chunk.set(rel_pos, biome.sub_layer);
-              }
+
+          let mut current_layer = &biome.layers[layer];
+          let current_layer_depth = current_layer.sample_depth(sub_layer_depth);
+
+          if depth > current_layer_depth {
+            layer += 1;
+            depth = 0;
+
+            if layer >= biome.layers.len() {
+              break;
+            }
+
+            current_layer = &biome.layers[layer];
+          }
+
+          if chunk.get(rel_pos) == blocks.stone.block {
+            // Special case: if the top layer is grass, always place grass if there is air
+            // above (this makes cave entrances look nice.)
+            if biome.top_block().block == blocks.grass.block
+              && chunk.get(rel_pos.with_y(y + 1)) == Block::AIR
+            {
+              chunk.set(rel_pos, blocks.grass.default_state);
+            } else {
+              chunk.set(rel_pos, current_layer.state);
             }
           }
         }
@@ -323,10 +342,8 @@ impl WorldBiomes {
     }
   }
 
-  fn sample_sub_layer_depth(&self, pos: Pos) -> i32 {
-    let noise = self.sub_layer_map.generate(pos.x as f64, pos.z as f64);
-    let depth = (noise * 2.0 + 3.0).round() as i32;
-    depth
+  fn sample_sub_layer_depth(&self, pos: Pos) -> f64 {
+    self.sub_layer_map.generate(pos.x as f64, pos.z as f64)
   }
 
   fn generate_chunk_placers(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {

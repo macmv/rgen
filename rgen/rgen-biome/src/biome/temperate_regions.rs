@@ -8,7 +8,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   println!("hey neil, hey neil, how you doing?");
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#A3B5A0";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
 
   gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
   gen.place(
@@ -17,10 +17,10 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::BambooClump {
       attempts:      10,
       avg_per_chunk: 3.0,
-      place_above:   gen.top_block.into(),
+      place_above:   gen.top_block().into(),
       radius:        1..=4,
       bamboo:        placer::Bamboo {
-        place_above:  gen.top_block.into(),
+        place_above:  gen.top_block().into(),
         stalk:        ctx.blocks.rgen_bamboo.default_state,
         pint_size:    true,
         avg_in_chunk: 0.0,
@@ -42,7 +42,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block.into(),
+      place_above:      gen.top_block().into(),
       place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
@@ -56,7 +56,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "Lilac",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block.into(),
+      place_above:      gen.top_block().into(),
       place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
       place_tall_lower: ctx.blocks.double_plant.with_data(1), // lilac bottom
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // double plant top
@@ -70,14 +70,14 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#7C8F6B";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
   gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
 }
 
 pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#768A6A";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
 
   gen.place(
     "birch log",
@@ -150,7 +150,7 @@ pub fn birch_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
   gen.color = "#B0C2A5";
 
   gen.place("Aspen Tree", PlacerStage::Tree, placer::AspenTree::new(ctx.blocks));
@@ -194,7 +194,7 @@ pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block.into(),
+      place_above:      gen.top_block().into(),
       place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
@@ -218,7 +218,7 @@ pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#899781";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
 
   gen.place(
     "birch log",
@@ -258,7 +258,7 @@ pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#899781";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
 
   gen.place(
     "SmallLavenderScatter",

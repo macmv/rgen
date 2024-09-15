@@ -41,6 +41,7 @@ impl BiomeBuilder {
       panic!("biome {} has no color", name);
     }
     builder.color();
+    builder.finish(ctx.blocks);
     builder
   }
 

@@ -4,13 +4,13 @@ use rgen_placer::placer;
 pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#ffffff";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
 
   gen.place(
     "poppy",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block.into(),
+      place_above: gen.top_block().into(),
       place:       ctx.blocks.red_flower.default_state,
 
       radius:        3..=6,
@@ -23,7 +23,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "dandelion",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block.into(),
+      place_above: gen.top_block().into(),
       place:       ctx.blocks.yellow_flower.default_state,
 
       radius:        2..=3,
@@ -36,7 +36,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "oxeye_daisy",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block.into(),
+      place_above: gen.top_block().into(),
       place:       ctx.blocks.red_flower.with_data(8),
 
       radius:        2..=4,
@@ -49,7 +49,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block.into(),
+      place_above:      gen.top_block().into(),
       place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
@@ -63,7 +63,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "bushes",
     PlacerStage::Tree,
     placer::BushClumps {
-      place_above: gen.top_block.into(),
+      place_above: gen.top_block().into(),
       log:         ctx.blocks.log.default_state,
       leaves:      ctx.blocks.leaves.default_state,
 

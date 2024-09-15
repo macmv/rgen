@@ -1,6 +1,7 @@
 use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
+use smallvec::{smallvec, SmallVec};
 
 pub enum PlacerStage {
   Sand,
@@ -15,8 +16,7 @@ pub struct BiomeBuilder {
   pub id:     rgen_base::Biome,
   pub color:  &'static str,
 
-  pub top_block: BlockState,
-  pub sub_layer: BlockState,
+  pub layers: SmallVec<[Layer; 2]>,
 
   pub min_height: u32,
   pub max_height: u32,
@@ -26,6 +26,12 @@ pub struct BiomeBuilder {
 
   // Second pass placers. These all run on one thread, but can access the 8 surrounding chunks.
   placers: Vec<PlacerBuilder>,
+}
+
+pub struct Layer {
+  pub state:     BlockState,
+  pub min_depth: u32,
+  pub max_depth: u32,
 }
 
 struct PlacerBuilder {
@@ -44,14 +50,30 @@ impl BiomeBuilder {
       rarity,
       id: Biome::VOID,
       color: "",
-      top_block: blocks.grass.default_state,
-      sub_layer: blocks.dirt.default_state,
+      layers: smallvec![Layer {
+        state:     blocks.grass.default_state,
+        min_depth: 1,
+        max_depth: 1,
+      }],
       min_height: 64,
       max_height: 128,
       placers: vec![],
       chunk_placers: vec![],
     }
   }
+
+  pub fn finish(&mut self, blocks: &Blocks) {
+    if self.layers.len() == 1 && self.top_block().block == blocks.grass.block {
+      self.add_layer(blocks.dirt.default_state, 3, 5);
+    }
+  }
+
+  pub fn set_top_block(&mut self, state: BlockState) { self.layers[0].state = state; }
+  pub fn add_layer(&mut self, state: BlockState, min_depth: u32, max_depth: u32) {
+    self.layers.push(Layer { state, min_depth, max_depth });
+  }
+
+  pub fn top_block(&self) -> BlockState { self.layers[0].state }
 
   pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
     // TODO: Do we even need name? Its a pain to add them later, so I'm keeping them
@@ -112,6 +134,16 @@ impl BiomeBuilder {
           placer.placer.place(world, &mut Rng::new(seed), pos);
         }
       }
+    }
+  }
+}
+
+impl Layer {
+  pub fn sample_depth(&self, t: f64) -> u32 {
+    if self.min_depth == self.max_depth {
+      self.min_depth
+    } else {
+      ((self.max_depth - self.min_depth) as f64 * t) as u32 + self.min_depth
     }
   }
 }
