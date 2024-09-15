@@ -68,7 +68,13 @@ impl LavaLake {
         if distance_from_center <= poolsize[3].pow(2) as f64
           && distance_from_center >= poolsize[0].pow(2) as f64
         {
-          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material)
+          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material);
+          if rng.rand_inclusive(0, 25) == 0 {
+            world.set(pos + Pos::new(rel_x, 1, rel_z), self.material);
+            if rng.rand_inclusive(0, 4) == 0 {
+              world.set(pos + Pos::new(rel_x, 2, rel_z), self.material);
+            }
+          }
         }
 
         if distance_from_center <= poolsize[2].pow(2) as f64 {

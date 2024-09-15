@@ -282,9 +282,11 @@ pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.birch_forest;
+  gen.id = ctx.biomes.plains;
   gen.color = "#899781";
-  gen.top_block = ctx.blocks.grass.default_state;
+  gen.set_top_block(ctx.blocks.grass.default_state);
+
   gen.place("Lava Lake", PlacerStage::Tree, placer::LavaLake::new(ctx.blocks));
+  gen.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new(ctx.blocks));
 }
 //Field, Volcano growth
