@@ -319,18 +319,33 @@ pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    600,
+      attempts:    800,
       place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place:       ctx.blocks.tallgrass.with_data(1),
     },
   );
+
+  gen.place(
+    "tall grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block().into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:   4..=10,
+      attempts: 200,
+    },
+  );
+
   gen.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    300,
+      attempts:    100,
       place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place:       ctx.blocks.tallgrass.with_data(2),
     },
   );
 }
