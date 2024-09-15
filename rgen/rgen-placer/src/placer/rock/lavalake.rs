@@ -7,7 +7,7 @@ const GRID_SIZE: usize = 40;
 const BLOB_SIZE: usize = 20;
 
 pub struct LavaLake {
-  pub place_above:  BlockFilter,
+  pub ground:       BlockFilter,
   pub material:     BlockState,
   pub avg_in_chunk: f64,
   pub fluid:        BlockState,
@@ -16,9 +16,9 @@ pub struct LavaLake {
 impl LavaLake {
   pub fn new(blocks: &Blocks) -> Self {
     LavaLake {
-      place_above:  [blocks.stone.block, blocks.dirt.block].into(),
-      material:     blocks.gold_block.default_state.into(),
-      avg_in_chunk: 50.0,
+      ground:       [blocks.stone.block, blocks.dirt.block, blocks.grass.block].into(),
+      material:     blocks.rgen_basalt.with_data(0),
+      avg_in_chunk: 0.1,
       fluid:        blocks.lava.default_state.into(),
     }
   }
@@ -34,76 +34,53 @@ impl Placer for LavaLake {
       return;
     }
 
-    // Checks if tree will be built on air
-    let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
-    }
-    let grid = self.build_base(rng);
-    for (row_index, row) in grid.iter().enumerate() {
-      for (col_index, &cell) in row.iter().enumerate() {
-        world.set(
-          pos + Pos::new(5, 0, 5) + Pos::new(row_index as i32, 0, col_index as i32),
-          self.material,
-        )
-      }
-    }
-    world.set(pos, self.fluid);
-    world.set(pos + Pos::new(5, 0, 5), self.fluid)
+    self.build_base(rng, pos + Pos::new(0, -1, 0), world);
   }
 }
 
 impl LavaLake {
-  fn build_bolder(
-    &self,
-    world: &mut PartialWorld,
-    pos: Pos,
-    cell: bool,
-    x: i32,
-    height: i32,
-    z: i32,
-  ) {
-    let rel_pos = pos + Pos::new(x as i32, height, z as i32);
-    if cell {
-      world.set(rel_pos, self.material);
-    }
-  }
-  fn build_base(&self, rng: &mut Rng) -> [[i32; 20]; 20] {
-    let mut grid = [[0; GRID_SIZE]; GRID_SIZE];
-    let mut blob_cells = vec![(GRID_SIZE / 2, GRID_SIZE / 2)];
-    grid[GRID_SIZE / 2][GRID_SIZE / 2] = 1;
+  fn build_base(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+    let poolsize: [i32; 4] = [4, 5, 6, 7];
+    let x_shift = rng.rand_inclusive(8, 12) as f64 / 10.0;
+    let z_shift = rng.rand_inclusive(8, 12) as f64 / 10.0;
 
-    let directions = [(0, 1), (0, -1), (1, 0), (-1, 0)];
+    for rel_x in -8..=8_i32 {
+      for rel_z in -8..=8_i32 {
+        let mut noise_x = rel_x as f64;
+        let mut noise_z = rel_z as f64;
 
-    // Grow the blob until it reaches the desired size
-    let mut i = 0;
-    while blob_cells.len() < BLOB_SIZE || i > 100 {
-      i += 1;
-      // Randomly pick an active cell from the blob
-      let (current_row, current_col) =
-        blob_cells[rng.rand_inclusive(0, blob_cells.len() as i32) as usize];
+        noise_x *= x_shift;
+        noise_z *= z_shift;
 
-      // Randomly select a direction to grow
-      let (row_offset, col_offset) = directions[rng.rand_inclusive(0, 4) as usize];
-      let new_row = current_row as isize + row_offset;
-      let new_col = current_col as isize + col_offset;
+        let distance_from_center = noise_x.powi(2) + noise_z.powi(2);
 
-      // Check if the new cell is within bounds and not already part of the blob
-      if new_row >= 0
-        && new_row < GRID_SIZE as isize
-        && new_col >= 0
-        && new_col < GRID_SIZE as isize
-      {
-        let new_row = new_row as usize;
-        let new_col = new_col as usize;
+        if distance_from_center <= poolsize[2].pow(2) as f64
+          && distance_from_center >= poolsize[1].pow(2) as f64
+        {
+          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material)
+        }
 
-        if grid[new_row][new_col] == 0 {
-          // Mark the new cell as part of the blob
-          grid[new_row][new_col] = 1;
-          blob_cells.push((new_row, new_col));
+        noise_x += rng.rand_inclusive(-1, 1) as f64;
+        noise_z += rng.rand_inclusive(-1, 1) as f64;
+
+        let distance_from_center = noise_x.powi(2) + noise_z.powi(2);
+
+        if distance_from_center <= poolsize[3].pow(2) as f64
+          && distance_from_center >= poolsize[0].pow(2) as f64
+        {
+          world.set(pos + Pos::new(rel_x, 0, rel_z), self.material)
+        }
+
+        if distance_from_center <= poolsize[2].pow(2) as f64 {
+          let pos_below = pos + Pos::new(rel_x, -1, rel_z);
+          let pos_rel = pos + Pos::new(rel_x, 0, rel_z);
+
+          if self.ground.contains(world.get(pos_rel)) || world.get(pos_rel).block == Block::AIR {
+            world.set(pos_rel, self.fluid);
+            world.set(pos_below, self.material)
+          }
         }
       }
     }
-    return grid;
   }
 }
