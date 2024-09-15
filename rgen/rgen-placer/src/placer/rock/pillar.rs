@@ -20,7 +20,7 @@ impl Pillar {
       material:                    blocks.rgen_basalt.with_data(0),
       avg_in_chunk:                0.8,
       fluid:                       blocks.lava.default_state.into(),
-      chance_of_secondary_pillars: 20,
+      chance_of_secondary_pillars: 11,
     }
   }
 }
