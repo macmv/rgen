@@ -22,7 +22,7 @@ pub use builder::BiomeBuilder;
 pub struct WorldBiomes {
   seed: u64,
 
-  table:          BiomeTable,
+  old_table:      BiomeTable,
   biome_override: bool,
 
   cave:      CaveCarver,
@@ -127,7 +127,7 @@ impl WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed: seed + 0,
 
-      table:          table::build(&ctx),
+      old_table:      table::build(&ctx),
       biome_override: false,
 
       cave:      CaveCarver::new(&ctx, seed),

@@ -36,8 +36,8 @@ impl WorldBiomes {
     let humidity = self.humidity(pos);
 
     // FIXME: This needs rewriting.
-    let biomes = &self.table[(temperature * self.table.len() as f64) as usize]
-      [(humidity * self.table[0].len() as f64) as usize];
+    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]
+      [(humidity * self.old_table[0].len() as f64) as usize];
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
@@ -52,14 +52,14 @@ impl WorldBiomes {
 
   fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
     if self.biome_override {
-      return &self.table[0][0][0];
+      return &self.old_table[0][0][0];
     }
 
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
-    let biomes = &self.table[(temperature * self.table.len() as f64) as usize]
-      [(humidity * self.table[0].len() as f64) as usize];
+    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]
+      [(humidity * self.old_table[0].len() as f64) as usize];
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;

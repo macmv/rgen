@@ -5,6 +5,7 @@ pub type BiomeTable = [[BiomeList; 8]; 12];
 
 type BiomeFnCategory = &'static [(f64, &'static str, BiomeFn)];
 type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
+type ClimateTable = &'static [&'static [ClimateType]];
 
 // TODO: Need all of these biomes.
 /*
@@ -197,25 +198,42 @@ const BEACH_TABLE: BiomeFnTable = &[
   &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
 ];
 
+pub enum ClimateType {
+  IceCap,
+  Tundra,
+  SubArctic,
+  CoolTemperate,
+  DryTemperate,
+  WarmTemperate,
+  WetTemperate,
+  Mediterranean,
+  Monsoon,
+  Savanna,
+  HotDesert,
+  BadLands,
+  Tropical,
+}
+
+use ClimateType::*;
 #[rustfmt::skip]
-const CLIMATE_TABLE: BiomeFnTable = &[
-  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, BAD_LANDS, BAD_LANDS],
-  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT, BAD_LANDS],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, SAVANNA, HOT_DESERT],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN, SAVANNA],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
+pub const CLIMATE_TABLE: ClimateTable = &[
+  &[IceCap, Tundra, Tundra, DryTemperate, Savanna, HotDesert, BadLands, BadLands],
+  &[IceCap, Tundra, Tundra, DryTemperate, Savanna, HotDesert, HotDesert, BadLands],
+  &[IceCap, Tundra, SubArctic, DryTemperate, DryTemperate, Savanna, HotDesert, HotDesert],
+  &[IceCap, Tundra, SubArctic, DryTemperate, WarmTemperate, Mediterranean, Savanna, HotDesert],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, Mediterranean, Mediterranean, Savanna],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, Mediterranean, Mediterranean],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, WarmTemperate, Mediterranean],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, WetTemperate, WetTemperate],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WetTemperate, WetTemperate, Monsoon],
+  &[Tundra, SubArctic, CoolTemperate, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical],
+  &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
+  &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
 ];
 
 const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
 
-pub fn build(ctx: &IdContext) -> BiomeTable { table(ctx, CLIMATE_TABLE) }
+pub fn build(ctx: &IdContext) -> BiomeTable { todo!() }
 
 fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
   let table = match table.len() {
