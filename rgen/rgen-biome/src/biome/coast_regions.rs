@@ -328,16 +328,7 @@ pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.sand.default_state);
   gen.add_layer(ctx.blocks.sand.default_state, 1, 3);
 
-  gen.place(
-    "palm_tree",
-    PlacerStage::Tree,
-    placer::BasicTree {
-      avg_in_chunk: 16.0,
-      place_above:  gen.top_block().into(),
-      trunk:        ctx.blocks.rgen_log.with_data(1),
-      leaves:       ctx.blocks.rgen_leaves.with_data(1),
-    },
-  )
+  gen.place("palm_tree", PlacerStage::Tree, placer::PalmTree::new(ctx.blocks));
 }
 
 pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
