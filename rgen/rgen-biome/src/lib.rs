@@ -8,7 +8,7 @@ use rgen_placer::{
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, Generator, PartialWorld};
 use structure::StructureGenerator;
-use table::{BiomeTable, Tables};
+use table::BiomeTable;
 
 mod biome;
 mod builder;

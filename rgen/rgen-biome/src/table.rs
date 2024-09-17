@@ -198,7 +198,7 @@ const BEACH_TABLE: BiomeFnTable = &[
 ];
 
 #[rustfmt::skip]
-const STANDARD_TABLE: BiomeFnTable = &[
+const CLIMATE_TABLE: BiomeFnTable = &[
   &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, BAD_LANDS, BAD_LANDS],
   &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT, BAD_LANDS],
   &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT],
@@ -215,7 +215,7 @@ const STANDARD_TABLE: BiomeFnTable = &[
 
 const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
 
-pub fn build(ctx: &IdContext) -> BiomeTable { table(ctx, STANDARD_TABLE) }
+pub fn build(ctx: &IdContext) -> BiomeTable { table(ctx, CLIMATE_TABLE) }
 
 fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
   let table = match table.len() {

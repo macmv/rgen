@@ -35,10 +35,9 @@ impl WorldBiomes {
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
-    let table = &self.tables.cave_table;
-
-    let biomes = &table[(temperature * table.len() as f64) as usize]
-      [(humidity * table[0].len() as f64) as usize];
+    // FIXME: This needs rewriting.
+    let biomes = &self.table[(temperature * self.table.len() as f64) as usize]
+      [(humidity * self.table[0].len() as f64) as usize];
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
@@ -53,49 +52,14 @@ impl WorldBiomes {
 
   fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
     if self.biome_override {
-      return &self.tables.blank_table[0][0][0];
+      return &self.table[0][0][0];
     }
-
-    let continentalness = self.continentalness_category(pos);
-
-    let table: &BiomeTable = match continentalness {
-      ContinentalnessCategory::MushroomIsland => &self.tables.blank_table,
-      ContinentalnessCategory::Sea => &self.tables.sea_table,
-      ContinentalnessCategory::Coast => &self.tables.beach_table,
-
-      // Inland cases
-      _ => {
-        let peaks_valleys = self.peaks_valleys_category(pos);
-
-        match peaks_valleys {
-          PeaksValleysCategory::Valley => {
-            let erosion = self.erosion_category(pos);
-
-            if erosion <= 4 {
-              // river table
-              &self.tables.blank_table
-            } else {
-              &self.tables.valley_table
-            }
-          }
-
-          PeaksValleysCategory::River => &self.tables.river_table,
-
-          PeaksValleysCategory::LowSlice => &self.tables.standard_table,
-          PeaksValleysCategory::MidSlice => &self.tables.standard_table,
-          PeaksValleysCategory::HighSlice => &self.tables.standard_table,
-          PeaksValleysCategory::Peak => &self.tables.blank_table,
-        }
-      }
-    };
-
-    // let table = &self.tables.beach_table;
 
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
-    let biomes = &table[(temperature * table.len() as f64) as usize]
-      [(humidity * table[0].len() as f64) as usize];
+    let biomes = &self.table[(temperature * self.table.len() as f64) as usize]
+      [(humidity * self.table[0].len() as f64) as usize];
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
