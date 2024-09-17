@@ -40,7 +40,9 @@ macro_rules! biome_categories {
       pub fn new(ctx: &IdContext) -> CompositionLookup {
         let mut lookup = HashMap::new();
         $(
-          lookup.insert((GeographicType::$geographic, ClimateType::$climate), composition(ctx, &[$($biome),*]));
+          if lookup.insert((GeographicType::$geographic, ClimateType::$climate), composition(ctx, &[$($biome),*])).is_some() {
+            panic!("Duplicate biome for {:?}, {:?}", GeographicType::$geographic, ClimateType::$climate);
+          }
         )*
         CompositionLookup { blank: composition(ctx, &[b!(1.0, blank)]), lookup }
       }
@@ -83,9 +85,6 @@ biome_categories!(
       &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
     let (GeographicType::Hills, ClimateType::Tundra) =
       &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
-
-    let (GeographicType::Standard, ClimateType::CoolTemperate) = &[b!(1.0, plains)];
-    let (GeographicType::Standard, ClimateType::WarmTemperate) = &[b!(1.0, plains)];
 
     let (GeographicType::Beach, ClimateType::SubArctic) =
       &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
