@@ -8,7 +8,7 @@ use rgen_placer::{
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, Generator, PartialWorld};
 use structure::StructureGenerator;
-use table::BiomeTable;
+use table::{BiomeTable, CompositionLookup};
 
 mod biome;
 mod builder;
@@ -22,8 +22,9 @@ pub use builder::BiomeBuilder;
 pub struct WorldBiomes {
   seed: u64,
 
-  old_table:      BiomeTable,
-  biome_override: bool,
+  old_table:          BiomeTable,
+  composition_lookup: CompositionLookup,
+  biome_override:     bool,
 
   cave:      CaveCarver,
   structure: StructureGenerator,
@@ -127,8 +128,9 @@ impl WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed: seed + 0,
 
-      old_table:      table::build(&ctx),
-      biome_override: false,
+      old_table:          table::build(&ctx),
+      composition_lookup: CompositionLookup::new(&ctx),
+      biome_override:     false,
 
       cave:      CaveCarver::new(&ctx, seed),
       structure: StructureGenerator::new(&ctx, seed),

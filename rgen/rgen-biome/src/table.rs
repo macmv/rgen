@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{biome::*, builder::BiomeBuilder};
 
 pub type BiomeList = Vec<BiomeBuilder>;
@@ -5,6 +7,8 @@ pub type BiomeTable = [[BiomeList; 8]; 12];
 
 type BiomeFnCategory = &'static [(f64, &'static str, BiomeFn)];
 type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
+
+pub type BiomeComposition = Vec<BiomeBuilder>;
 type ClimateTable = &'static [&'static [ClimateType]];
 
 // TODO: Need all of these biomes.
@@ -19,7 +23,54 @@ macro_rules! b {
   };
 }
 
+pub struct CompositionLookup {
+  blank:  BiomeComposition,
+  lookup: HashMap<(GeographicType, ClimateType), BiomeComposition>,
+}
+
+macro_rules! biome_categories {
+  (
+    $(
+      let (GeographicType::$geographic:ident, ClimateType::$climate:ident) = &[$($biome:expr),* $(,)?];
+    )*
+  ) => {
+    impl CompositionLookup {
+      pub fn new(ctx: &IdContext) -> CompositionLookup {
+        let mut lookup = HashMap::new();
+        $(
+          lookup.insert((GeographicType::$geographic, ClimateType::$climate), composition(ctx, &[$($biome),*]));
+        )*
+        CompositionLookup { blank: composition(ctx, &[b!(1.0, blank)]), lookup }
+      }
+    }
+  };
+}
+
+impl CompositionLookup {
+  pub fn choose(&self, geographic: GeographicType, climate: ClimateType) -> &BiomeComposition {
+    self.lookup.get(&(geographic, climate)).unwrap_or(&self.blank)
+  }
+}
+
 // === Biome categories ===
+
+biome_categories! {
+  let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+    // b!(1.0, elder_woodland),
+    // b!(1.0, weeping_birchwood),
+    // b!(1.0, lush_desert),
+    b!(1.0, cherry_blossom_wood),
+    b!(1.0, cherry_blossom_grove),
+    // b!(1.0, woodland),
+    b!(1.0, birch_woodland),
+    // b!(1.0, seasonal_woodland),
+    b!(1.0, lavender_grove),
+    // b!(1.0, field),
+    b!(1.0, aspen_wood),
+    // b!(1.0, elder_birch_woodland),
+    b!(80.0, volcano_growth),
+  ];
+}
 
 const BLANK: BiomeFnCategory = &[b!(1.0, blank)];
 const SEA: BiomeFnCategory = &[b!(1.0, blank)];
@@ -198,6 +249,7 @@ const BEACH_TABLE: BiomeFnTable = &[
   &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
 ];
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum GeographicType {
   MushroomIsland,
   Ocean,
@@ -209,6 +261,7 @@ pub enum GeographicType {
   Mountains,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ClimateType {
   IceCap,
   Tundra,
@@ -245,6 +298,10 @@ pub const CLIMATE_TABLE: ClimateTable = &[
 const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
 
 pub fn build(ctx: &IdContext) -> BiomeTable { todo!() }
+
+fn composition(ctx: &IdContext, biome: BiomeFnCategory) -> BiomeComposition {
+  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f)).collect()
+}
 
 fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
   let table = match table.len() {

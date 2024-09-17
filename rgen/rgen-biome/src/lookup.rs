@@ -91,14 +91,14 @@ impl WorldBiomes {
         }
       }
     };
+
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
-    let climate_type = &CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
+    let climate_type = CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
       [(humidity * CLIMATE_TABLE[0].len() as f64) as usize];
 
-    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]
-      [(humidity * self.old_table[0].len() as f64) as usize];
+    let biomes = self.composition_lookup.choose(geographic_type, climate_type);
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
