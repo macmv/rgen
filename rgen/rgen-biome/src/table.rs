@@ -143,14 +143,14 @@ const WARM_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, lush_desert),
   b!(1.0, cherry_blossom_wood),
   b!(1.0, cherry_blossom_grove),
-  // b!(1.0, woodland),
+  b!(80.0, woodland),
   b!(1.0, birch_woodland),
   // b!(1.0, seasonal_woodland),
   b!(1.0, lavender_grove),
   // b!(1.0, field),
   b!(1.0, aspen_wood),
   // b!(1.0, elder_birch_woodland),
-  b!(80.0, volcano_growth),
+  b!(1.0, volcano_growth),
 ];
 const MEDITERANEAN: BiomeFnCategory = &[
   //b!(1.0, blank),

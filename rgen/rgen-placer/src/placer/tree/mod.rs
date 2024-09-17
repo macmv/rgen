@@ -6,6 +6,7 @@ mod cactus;
 mod cherry_tree;
 mod dead_tree;
 mod dry_bushes;
+mod oak_tree;
 mod sequoia;
 
 pub use aspen_tree::*;
@@ -16,4 +17,5 @@ pub use cactus::*;
 pub use cherry_tree::*;
 pub use dead_tree::*;
 pub use dry_bushes::*;
+pub use oak_tree::*;
 pub use sequoia::*;
