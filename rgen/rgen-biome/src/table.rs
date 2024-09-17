@@ -215,31 +215,7 @@ const STANDARD_TABLE: BiomeFnTable = &[
 
 const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
 
-pub struct Tables {
-  pub blank_table:    BiomeTable,
-  pub sea_table:      BiomeTable,
-  pub beach_table:    BiomeTable,
-  pub standard_table: BiomeTable,
-  pub valley_table:   BiomeTable,
-  pub river_table:    BiomeTable,
-
-  pub cave_table: BiomeTable,
-}
-
-impl Tables {
-  pub fn new(ctx: &IdContext) -> Tables {
-    Tables {
-      blank_table:    table(ctx, BLANK_TABLE),
-      sea_table:      table(ctx, SEA_TABLE),
-      beach_table:    table(ctx, BEACH_TABLE),
-      standard_table: table(ctx, STANDARD_TABLE),
-      valley_table:   table(ctx, VALLEY_TABLE),
-      river_table:    table(ctx, RIVER_TABLE),
-
-      cave_table: table(ctx, CAVE_TABLE),
-    }
-  }
-}
+pub fn build(ctx: &IdContext) -> BiomeTable { table(ctx, STANDARD_TABLE) }
 
 fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
   let table = match table.len() {
