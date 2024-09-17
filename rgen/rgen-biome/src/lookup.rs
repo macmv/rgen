@@ -7,7 +7,8 @@ use crate::{
   WorldBiomes,
 };
 
-enum ContinentalnessCategory {
+#[derive(Debug)]
+pub enum ContinentalnessCategory {
   MushroomIsland,
   Sea,
   Coast,
@@ -16,7 +17,8 @@ enum ContinentalnessCategory {
   FarInland,
 }
 
-enum PeaksValleysCategory {
+#[derive(Debug)]
+pub enum PeaksValleysCategory {
   Valley,
   LowSlice,
   River,
@@ -115,7 +117,7 @@ impl WorldBiomes {
     &biomes[0]
   }
 
-  fn continentalness_category(&self, pos: Pos) -> ContinentalnessCategory {
+  pub fn continentalness_category(&self, pos: Pos) -> ContinentalnessCategory {
     let continentalness = self.sample_continentalness(pos);
 
     match continentalness {
@@ -128,7 +130,7 @@ impl WorldBiomes {
     }
   }
 
-  fn peaks_valleys_category(&self, pos: Pos) -> PeaksValleysCategory {
+  pub fn peaks_valleys_category(&self, pos: Pos) -> PeaksValleysCategory {
     let peaks_valleys = self.sample_peaks_valleys(pos);
 
     match peaks_valleys {
@@ -141,7 +143,7 @@ impl WorldBiomes {
     }
   }
 
-  fn erosion_category(&self, pos: Pos) -> u8 {
+  pub fn erosion_category(&self, pos: Pos) -> u8 {
     let erosion = self.sample_erosion(pos);
 
     // FIXME: This is dumb
