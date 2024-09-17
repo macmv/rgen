@@ -60,31 +60,53 @@ impl WorldBiomes {
     let peaks_valleys = self.peaks_valleys_category(pos);
     let erosion = self.erosion_category(pos);
 
-    match continentalness {
-      ContinentalnessCategory::MushroomIsland => GeographicType::MushroomIsland,
-      ContinentalnessCategory::Sea => GeographicType::Ocean,
-      ContinentalnessCategory::Coast => GeographicType::Beach,
+    use ContinentalnessCategory::*;
+    use PeaksValleysCategory::*;
 
-      // Inland cases
-      _ => {
-        match peaks_valleys {
-          PeaksValleysCategory::Valley => {
-            if erosion <= 4 {
-              // river table
-              GeographicType::River
-            } else {
-              GeographicType::Valley
-            }
-          }
+    match (continentalness, peaks_valleys, erosion) {
+      (_, _, 7..) => unreachable!(), // Erosion is 0..=6
 
-          PeaksValleysCategory::River => GeographicType::River,
+      (MushroomIsland, _, _) => GeographicType::Ocean,
+      (Sea, _, _) => GeographicType::Ocean,
+      (Coast, _, _) => GeographicType::Beach,
+      (_, River, _) => GeographicType::River,
 
-          PeaksValleysCategory::LowSlice => GeographicType::Standard,
-          PeaksValleysCategory::MidSlice => GeographicType::Standard,
-          PeaksValleysCategory::HighSlice => GeographicType::Hills,
-          PeaksValleysCategory::Peak => GeographicType::Mountains,
-        }
-      }
+      (NearInland, Valley, _) => GeographicType::Valley,
+      (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
+      (NearInland, LowSlice, 6) => GeographicType::Valley,
+      (NearInland, MidSlice, 0..=1) => GeographicType::Hills,
+      (NearInland, MidSlice, 2..=5) => GeographicType::Standard,
+      (NearInland, MidSlice, 6) => GeographicType::Valley,
+      (NearInland, HighSlice, 0..=1) => GeographicType::Hills,
+      (NearInland, HighSlice, 2..=6) => GeographicType::Standard,
+      (NearInland, Peak, 0..=1) => GeographicType::Mountains,
+      (NearInland, Peak, 2..=5) => GeographicType::Hills,
+      (NearInland, Peak, 6) => GeographicType::Standard,
+
+      (MidInland, Valley, 0..=3) => GeographicType::Standard,
+      (MidInland, Valley, 4..=6) => GeographicType::Valley,
+      (MidInland, LowSlice | MidSlice, 0..=1) => GeographicType::Hills,
+      (MidInland, LowSlice | MidSlice, 2..=5) => GeographicType::Standard,
+      (MidInland, LowSlice | MidSlice, 6) => GeographicType::Valley,
+      (MidInland, HighSlice, 0..=1) => GeographicType::Hills,
+      (MidInland, HighSlice, 2..=6) => GeographicType::Standard,
+      (MidInland, Peak, 0..=1) => GeographicType::Mountains,
+      (MidInland, Peak, 2) => GeographicType::Hills,
+      (MidInland, Peak, 3..=6) => GeographicType::Standard,
+
+      (FarInland, Valley, 0..=3) => GeographicType::Standard,
+      (FarInland, Valley, 4..=6) => GeographicType::Valley,
+      (FarInland, LowSlice, 0..=1) => GeographicType::Hills,
+      (FarInland, LowSlice, 2..=5) => GeographicType::Standard,
+      (FarInland, LowSlice, 6) => GeographicType::Valley,
+      (FarInland, MidSlice, 0..=2) => GeographicType::Hills,
+      (FarInland, MidSlice, 3..=6) => GeographicType::Standard,
+      (FarInland, HighSlice, 0..=1) => GeographicType::Mountains,
+      (FarInland, HighSlice, 2..=3) => GeographicType::Hills,
+      (FarInland, HighSlice, 4..=6) => GeographicType::Standard,
+      (FarInland, Peak, 0..=2) => GeographicType::Mountains,
+      (FarInland, Peak, 3..=4) => GeographicType::Hills,
+      (FarInland, Peak, 5..=6) => GeographicType::Standard,
     }
   }
 
