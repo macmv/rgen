@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{biome::*, builder::BiomeBuilder};
 
 pub type BiomeList = Vec<BiomeBuilder>;
@@ -5,6 +7,9 @@ pub type BiomeTable = [[BiomeList; 8]; 12];
 
 type BiomeFnCategory = &'static [(f64, &'static str, BiomeFn)];
 type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
+
+pub type BiomeComposition = Vec<BiomeBuilder>;
+type ClimateTable = &'static [&'static [ClimateType]];
 
 // TODO: Need all of these biomes.
 /*
@@ -18,74 +23,122 @@ macro_rules! b {
   };
 }
 
+pub struct CompositionLookup {
+  pub blank:  BiomeComposition,
+  pub lookup: HashMap<(GeographicType, ClimateType), BiomeComposition>,
+}
+
+macro_rules! biome_categories {
+  (
+    fn build() {
+      $(
+        let ($geographic:expr, $climate:expr) = &[$($biome:expr),* $(,)?];
+      )*
+    }
+  ) => {
+    impl CompositionLookup {
+      pub fn new(ctx: &IdContext) -> CompositionLookup {
+        let mut lookup = HashMap::new();
+        $(
+          if lookup.insert(($geographic, $climate), composition(ctx, &[$($biome),*])).is_some() {
+            panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
+          }
+        )*
+        CompositionLookup { blank: composition(ctx, &[b!(1.0, blank)]), lookup }
+      }
+    }
+  };
+}
+
+impl CompositionLookup {
+  pub fn choose(&self, geographic: GeographicType, climate: ClimateType) -> &BiomeComposition {
+    self.lookup.get(&(geographic, climate)).unwrap_or(&self.blank)
+  }
+}
+
 // === Biome categories ===
 
-const BLANK: BiomeFnCategory = &[b!(1.0, blank)];
-const SEA: BiomeFnCategory = &[b!(1.0, blank)];
-const RIVER: BiomeFnCategory = &[b!(1.0, river)];
+biome_categories!(
+  fn build() {
+    let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
+      b!(4.0, woodland),
+      b!(1.0, birch_woodland),
+      b!(2.0, aspen_wood),
+      b!(4.0, birch_woodland),
+      b!(2.0, lavender_grove),
+      b!(4.0, cherry_blossom_grove),
+      b!(2.0, volcano_growth),
+    ];
 
-const FROZEN_VALLEY: BiomeFnCategory =
-  &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
-const BOG: BiomeFnCategory =
-  &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
-const ROCKY_VALLEY: BiomeFnCategory =
-  &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
-const COOL_VALLEY: BiomeFnCategory =
-  &[b!(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
-const SWAMP: BiomeFnCategory =
-  &[b!(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
-const DRY_RIVER: BiomeFnCategory = &[b!(1.0, plains) /* swamp, mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[b!(1.0, plains)];
-const HOT_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
-const TROPIC_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
+    let (GeographicType::River, ClimateType::WarmTemperate) = &[
+      b!(4.0, woodland_river),
+      b!(1.0, birch_river),
+      b!(2.0, birch_river),
+      b!(4.0, birch_river),
+      b!(2.0, lavender_river),
+      b!(4.0, cherry_blossom_river),
+      b!(2.0, volcano_river),
+    ];
+    let (GeographicType::Standard, ClimateType::CoolTemperate) =
+      &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
+    let (GeographicType::Standard, ClimateType::IceCap) =
+      &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
+    let (GeographicType::Standard, ClimateType::Tundra) =
+      &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
+    let (GeographicType::Hills, ClimateType::Tundra) =
+      &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
 
-const COLD_BEACH: BiomeFnCategory = &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
-const COOL_BEACH: BiomeFnCategory = &[
-  b!(1.0, ancient_shores),
-  b!(1.0, mossy_shores),
-  b!(1.0, dry_shores),
-  b!(1.0, bare_rock),
-  b!(1.0, wet_rock),
-];
-const BEACH: BiomeFnCategory =
-  &[b!(65.0, sand_beach), b!(5.0, monument_beach), b!(31.0, palm_beach)];
-const DRY_BEACH: BiomeFnCategory = &[
-  b!(1.0, sand_beach),
-  b!(1.0, monument_beach),
-  b!(1.0, red_sand_beach),
-  b!(1.0, red_monument_beach),
-  b!(1.0, dry_shores),
-  b!(1.0, chaparral_beach),
-];
-const TROPIC_BEACH: BiomeFnCategory = &[
-  b!(1.0, sand_beach),
-  b!(1.0, chaparral_beach),
-  b!(1.0, jungle_beach),
-  b!(1.0, palm_beach),
-  //bladjlaf
-];
+    let (GeographicType::Beach, ClimateType::SubArctic) =
+      &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
+    let (GeographicType::Beach, ClimateType::CoolTemperate) = &[
+      b!(1.0, ancient_shores),
+      b!(1.0, mossy_shores),
+      b!(1.0, dry_shores),
+      b!(1.0, bare_rock),
+      b!(1.0, wet_rock),
+    ];
+    let (GeographicType::Beach, ClimateType::WarmTemperate) =
+      &[b!(65.0, sand_beach), b!(5.0, monument_beach), b!(31.0, palm_beach)];
+    let (GeographicType::Beach, ClimateType::DryTemperate) = &[
+      b!(1.0, sand_beach),
+      b!(1.0, monument_beach),
+      b!(1.0, red_sand_beach),
+      b!(1.0, red_monument_beach),
+      b!(1.0, dry_shores),
+      b!(1.0, chaparral_beach),
+    ];
+    let (GeographicType::Beach, ClimateType::Tropical) = &[
+      b!(1.0, sand_beach),
+      b!(1.0, chaparral_beach),
+      b!(1.0, jungle_beach),
+      b!(1.0, palm_beach),
+      //bladjlaf
+    ];
 
-const ICE_CAP: BiomeFnCategory = &[
-  b!(1.0, ice_spikes),
-  b!(1.0, broken_glacier),
-  b!(1.0, glacier),
-  b!(1.0, snowy_plains),
-  b!(1.0, rocky_plains),
-];
-const TUNDRA: BiomeFnCategory = &[
-  b!(1.0, snowy_plains),
-  b!(1.0, rocky_plains),
-  b!(1.0, frozen_meadow),
-  b!(1.0, frozen_desert),
-  // b!(1.0, snowy_fir_wood),
-  // b!(1.0, snowy_spruce_wood),
-  b!(1.0, snowy_woodland),
-];
-const SUB_ARCTIC: BiomeFnCategory = &[
-  b!(1.0, fir_grove),
-  b!(1.0, spruce_grove),
-  //b!(1.0, seasonal_woodland)
-];
+    let (GeographicType::Mountains, ClimateType::IceCap) = &[
+      b!(1.0, ice_spikes),
+      b!(1.0, broken_glacier),
+      b!(1.0, glacier),
+      b!(1.0, snowy_plains),
+      b!(1.0, rocky_plains),
+    ];
+    let (GeographicType::Mountains, ClimateType::Tundra) = &[
+      b!(1.0, snowy_plains),
+      b!(1.0, rocky_plains),
+      b!(1.0, frozen_meadow),
+      b!(1.0, frozen_desert),
+      // b!(1.0, snowy_fir_wood),
+      // b!(1.0, snowy_spruce_wood),
+      b!(1.0, snowy_woodland),
+    ];
+    let (GeographicType::Mountains, ClimateType::SubArctic) = &[
+      b!(1.0, fir_grove),
+      b!(1.0, spruce_grove),
+      //b!(1.0, seasonal_woodland)
+    ];
+  }
+);
+
 const COOL_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, boreal_forest),
   // b!(1.0, ceader_wood),
@@ -173,115 +226,54 @@ const TROPICAL: BiomeFnCategory = &[
 ];
 const CAVE: BiomeFnCategory = &[b!(1.0, cave), b!(1.0, lush_cave)];
 
-// === Biome tables ===
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum GeographicType {
+  MushroomIsland,
+  Ocean,
+  Beach,
+  Valley,
+  River,
+  Standard,
+  Hills,
+  Mountains,
+}
 
-const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
-const SEA_TABLE: BiomeFnTable = &[&[SEA]];
-const RIVER_TABLE: BiomeFnTable = &[&[RIVER]];
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum ClimateType {
+  IceCap,
+  Tundra,
+  SubArctic,
+  CoolTemperate,
+  DryTemperate,
+  WarmTemperate,
+  WetTemperate,
+  Mediterranean,
+  Monsoon,
+  Savanna,
+  HotDesert,
+  BadLands,
+  Tropical,
+}
 
-const VALLEY_TABLE: BiomeFnTable = &[
-  &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
-  &[FROZEN_VALLEY, ROCKY_VALLEY, COOL_VALLEY, COOL_VALLEY, WARM_VALLEY, SWAMP, SWAMP, DRY_RIVER],
-  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP],
-  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP, HOT_SWAMP],
-  &[FROZEN_VALLEY, BOG, BOG, COOL_VALLEY, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP],
-  &[BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP, TROPIC_SWAMP],
-];
-
-const BEACH_TABLE: BiomeFnTable = &[
-  &[COLD_BEACH, COLD_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH, DRY_BEACH],
-  &[COLD_BEACH, COLD_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH],
-  &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
-];
-
+use ClimateType::*;
 #[rustfmt::skip]
-const STANDARD_TABLE: BiomeFnTable = &[
-  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, BAD_LANDS, BAD_LANDS],
-  &[ICE_CAP, TUNDRA, TUNDRA, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT, BAD_LANDS],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, DRY_TEMPERATE, SAVANNA, HOT_DESERT, HOT_DESERT],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, DRY_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, SAVANNA, HOT_DESERT],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN, SAVANNA],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN, MEDITERANEAN],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, MEDITERANEAN],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE],
-  &[ICE_CAP, TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WARM_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
-  &[TUNDRA, SUB_ARCTIC, COOL_TEMPERATE, WET_TEMPERATE, WET_TEMPERATE, MONSOON, TROPICAL, TROPICAL],
+pub const CLIMATE_TABLE: ClimateTable = &[
+  &[IceCap, Tundra, Tundra, DryTemperate, Savanna, HotDesert, BadLands, BadLands],
+  &[IceCap, Tundra, Tundra, DryTemperate, Savanna, HotDesert, HotDesert, BadLands],
+  &[IceCap, Tundra, SubArctic, DryTemperate, DryTemperate, Savanna, HotDesert, HotDesert],
+  &[IceCap, Tundra, SubArctic, DryTemperate, WarmTemperate, Mediterranean, Savanna, HotDesert],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, Mediterranean, Mediterranean, Savanna],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, Mediterranean, Mediterranean],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, WarmTemperate, Mediterranean],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WarmTemperate, WetTemperate, WetTemperate],
+  &[IceCap, Tundra, SubArctic, CoolTemperate, WarmTemperate, WetTemperate, WetTemperate, Monsoon],
+  &[Tundra, SubArctic, CoolTemperate, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical],
+  &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
+  &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
 ];
 
-const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
-
-pub struct Tables {
-  pub blank_table:    BiomeTable,
-  pub sea_table:      BiomeTable,
-  pub beach_table:    BiomeTable,
-  pub standard_table: BiomeTable,
-  pub valley_table:   BiomeTable,
-  pub river_table:    BiomeTable,
-
-  pub cave_table: BiomeTable,
-}
-
-impl Tables {
-  pub fn new(ctx: &IdContext) -> Tables {
-    Tables {
-      blank_table:    table(ctx, BLANK_TABLE),
-      sea_table:      table(ctx, SEA_TABLE),
-      beach_table:    table(ctx, BEACH_TABLE),
-      standard_table: table(ctx, STANDARD_TABLE),
-      valley_table:   table(ctx, VALLEY_TABLE),
-      river_table:    table(ctx, RIVER_TABLE),
-
-      cave_table: table(ctx, CAVE_TABLE),
-    }
-  }
-}
-
-fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
-  let table = match table.len() {
-    1 => vec![&table[0]; 12],
-    6 => table.iter().flat_map(|row| [row, row]).collect::<Vec<_>>(),
-    12 => table.iter().collect::<Vec<_>>(),
-    _ => panic!("table must be 1, 6 or 12 rows"),
-  };
-
-  let table = table
-    .iter()
-    .map(|row| {
-      let row = match row.len() {
-        1 => vec![&row[0]; 8],
-        8 => row.iter().collect::<Vec<_>>(),
-        _ => panic!("row must be 1 or 8 items"),
-      };
-
-      let items = row
-        .iter()
-        .map(|&biomes| {
-          if biomes.is_empty() {
-            panic!("biome category cannot be empty");
-          } else {
-            biomes
-              .iter()
-              .map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f))
-              .collect::<BiomeList>()
-          }
-        })
-        .collect::<Vec<_>>();
-      match items.try_into() {
-        Ok(v) => v,
-        Err(_) => unreachable!(),
-      }
-    })
-    .collect::<Vec<_>>();
-
-  match table.try_into() {
-    Ok(v) => v,
-    Err(_) => unreachable!(),
-  }
+fn composition(ctx: &IdContext, biome: BiomeFnCategory) -> BiomeComposition {
+  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f)).collect()
 }
 
 #[cfg(test)]
@@ -291,8 +283,8 @@ mod tests {
   use super::*;
 
   #[test]
-  fn biomes_can_build() {
+  fn composition() {
     let ctx = IdContext { biomes: &Biomes::test_blocks(), blocks: &Blocks::test_blocks() };
-    Tables::new(&ctx);
+    CompositionLookup::new(&ctx);
   }
 }

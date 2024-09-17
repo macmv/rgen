@@ -328,6 +328,8 @@ pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.sand.default_state);
   gen.add_layer(ctx.blocks.sand.default_state, 1, 3);
 
+  gen.set_underwater_block(ctx.blocks.sand.default_state);
+
   gen.place("palm_tree", PlacerStage::Tree, placer::PalmTree::new(ctx.blocks));
 }
 

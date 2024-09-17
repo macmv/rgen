@@ -1,7 +1,11 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::{builder::BiomeBuilder, table::BiomeTable, WorldBiomes};
+use crate::{
+  builder::BiomeBuilder,
+  table::{ClimateType, GeographicType, CLIMATE_TABLE},
+  WorldBiomes,
+};
 
 enum ContinentalnessCategory {
   MushroomIsland,
@@ -32,13 +36,11 @@ impl WorldBiomes {
   }
 
   fn choose_cave_biome(&self, pos: Pos) -> &BiomeBuilder {
-    let temperature = self.temperature(pos);
-    let humidity = self.humidity(pos);
-
-    let table = &self.tables.cave_table;
-
-    let biomes = &table[(temperature * table.len() as f64) as usize]
-      [(humidity * table[0].len() as f64) as usize];
+    // FIXME: This needs rewriting.
+    /*
+    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]   [(humidity * self.old_table[0].len() as f64) as usize];
+    */
+    let biomes = &self.composition_lookup.blank;
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
@@ -51,17 +53,13 @@ impl WorldBiomes {
     &biomes[0]
   }
 
-  fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
-    if self.biome_override {
-      return &self.tables.blank_table[0][0][0];
-    }
-
+  pub fn geographic_type(&self, pos: Pos) -> GeographicType {
     let continentalness = self.continentalness_category(pos);
 
-    let table: &BiomeTable = match continentalness {
-      ContinentalnessCategory::MushroomIsland => &self.tables.blank_table,
-      ContinentalnessCategory::Sea => &self.tables.sea_table,
-      ContinentalnessCategory::Coast => &self.tables.beach_table,
+    match continentalness {
+      ContinentalnessCategory::MushroomIsland => GeographicType::MushroomIsland,
+      ContinentalnessCategory::Sea => GeographicType::Ocean,
+      ContinentalnessCategory::Coast => GeographicType::Beach,
 
       // Inland cases
       _ => {
@@ -73,29 +71,40 @@ impl WorldBiomes {
 
             if erosion <= 4 {
               // river table
-              &self.tables.blank_table
+              GeographicType::River
             } else {
-              &self.tables.valley_table
+              GeographicType::Valley
             }
           }
 
-          PeaksValleysCategory::River => &self.tables.river_table,
+          PeaksValleysCategory::River => GeographicType::River,
 
-          PeaksValleysCategory::LowSlice => &self.tables.standard_table,
-          PeaksValleysCategory::MidSlice => &self.tables.standard_table,
-          PeaksValleysCategory::HighSlice => &self.tables.standard_table,
-          PeaksValleysCategory::Peak => &self.tables.blank_table,
+          PeaksValleysCategory::LowSlice => GeographicType::Standard,
+          PeaksValleysCategory::MidSlice => GeographicType::Standard,
+          PeaksValleysCategory::HighSlice => GeographicType::Hills,
+          PeaksValleysCategory::Peak => GeographicType::Mountains,
         }
       }
-    };
+    }
+  }
 
-    // let table = &self.tables.beach_table;
-
+  pub fn climate_type(&self, pos: Pos) -> ClimateType {
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
-    let biomes = &table[(temperature * table.len() as f64) as usize]
-      [(humidity * table[0].len() as f64) as usize];
+    CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
+      [(humidity * CLIMATE_TABLE[0].len() as f64) as usize]
+  }
+
+  fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
+    if self.biome_override {
+      return &self.composition_lookup.blank[0];
+    }
+
+    let geographic_type = self.geographic_type(pos);
+    let _climate_type = self.climate_type(pos);
+
+    let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
