@@ -1,7 +1,11 @@
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
-use crate::{builder::BiomeBuilder, table::BiomeTable, WorldBiomes};
+use crate::{
+  builder::BiomeBuilder,
+  table::{BiomeTable, GeographicType},
+  WorldBiomes,
+};
 
 enum ContinentalnessCategory {
   MushroomIsland,
@@ -54,6 +58,39 @@ impl WorldBiomes {
     if self.biome_override {
       return &self.old_table[0][0][0];
     }
+
+    let continentalness = self.continentalness_category(pos);
+
+    let geographic_type: GeographicType = match continentalness {
+      ContinentalnessCategory::MushroomIsland => GeographicType::MushroomIsland,
+      ContinentalnessCategory::Sea => GeographicType::Ocean,
+      ContinentalnessCategory::Coast => GeographicType::Beach,
+
+      // Inland cases
+      _ => {
+        let peaks_valleys = self.peaks_valleys_category(pos);
+
+        match peaks_valleys {
+          PeaksValleysCategory::Valley => {
+            let erosion = self.erosion_category(pos);
+
+            if erosion <= 4 {
+              // river table
+              GeographicType::River
+            } else {
+              GeographicType::Valley
+            }
+          }
+
+          PeaksValleysCategory::River => GeographicType::River,
+
+          PeaksValleysCategory::LowSlice => GeographicType::Standard,
+          PeaksValleysCategory::MidSlice => GeographicType::Standard,
+          PeaksValleysCategory::HighSlice => GeographicType::Hills,
+          PeaksValleysCategory::Peak => GeographicType::Mountains,
+        }
+      }
+    };
 
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);

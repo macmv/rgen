@@ -198,6 +198,17 @@ const BEACH_TABLE: BiomeFnTable = &[
   &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
 ];
 
+pub enum GeographicType {
+  MushroomIsland,
+  Ocean,
+  Beach,
+  Valley,
+  River,
+  Standard,
+  Hills,
+  Mountains,
+}
+
 pub enum ClimateType {
   IceCap,
   Tundra,
