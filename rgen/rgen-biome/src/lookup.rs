@@ -3,7 +3,7 @@ use rgen_placer::noise::NoiseGenerator;
 
 use crate::{
   builder::BiomeBuilder,
-  table::{BiomeTable, GeographicType, CLIMATE_TABLE},
+  table::{ClimateType, GeographicType, CLIMATE_TABLE},
   WorldBiomes,
 };
 
@@ -36,12 +36,11 @@ impl WorldBiomes {
   }
 
   fn choose_cave_biome(&self, pos: Pos) -> &BiomeBuilder {
-    let temperature = self.temperature(pos);
-    let humidity = self.humidity(pos);
-
     // FIXME: This needs rewriting.
-    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]
-      [(humidity * self.old_table[0].len() as f64) as usize];
+    /*
+    let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]   [(humidity * self.old_table[0].len() as f64) as usize];
+    */
+    let biomes = &self.composition_lookup.blank;
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;
@@ -56,7 +55,7 @@ impl WorldBiomes {
 
   fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
     if self.biome_override {
-      return &self.old_table[0][0][0];
+      return &self.composition_lookup.blank[0];
     }
 
     let continentalness = self.continentalness_category(pos);

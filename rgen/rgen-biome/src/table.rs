@@ -24,8 +24,8 @@ macro_rules! b {
 }
 
 pub struct CompositionLookup {
-  blank:  BiomeComposition,
-  lookup: HashMap<(GeographicType, ClimateType), BiomeComposition>,
+  pub blank:  BiomeComposition,
+  pub lookup: HashMap<(GeographicType, ClimateType), BiomeComposition>,
 }
 
 macro_rules! biome_categories {
@@ -55,7 +55,7 @@ impl CompositionLookup {
 // === Biome categories ===
 
 biome_categories! {
-  let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+  let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
     // b!(1.0, elder_woodland),
     // b!(1.0, weeping_birchwood),
     // b!(1.0, lush_desert),

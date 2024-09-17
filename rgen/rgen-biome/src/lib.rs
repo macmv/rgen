@@ -22,7 +22,6 @@ pub use builder::BiomeBuilder;
 pub struct WorldBiomes {
   seed: u64,
 
-  old_table:          BiomeTable,
   composition_lookup: CompositionLookup,
   biome_override:     bool,
 
@@ -128,7 +127,6 @@ impl WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed: seed + 0,
 
-      old_table:          table::build(&ctx),
       composition_lookup: CompositionLookup::new(&ctx),
       biome_override:     false,
 
