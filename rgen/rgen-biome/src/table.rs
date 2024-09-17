@@ -60,25 +60,43 @@ impl CompositionLookup {
 
 biome_categories!(
   fn build() {
+    //// CLIMATE: WARMTEMPERATE
     let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
-      b!(4.0, woodland),
+      b!(6.0, woodland),
       b!(1.0, birch_woodland),
       b!(2.0, aspen_wood),
-      b!(4.0, birch_woodland),
-      b!(2.0, lavender_grove),
+      b!(5.0, birch_woodland),
       b!(4.0, cherry_blossom_grove),
       b!(2.0, volcano_growth),
     ];
 
     let (GeographicType::River, ClimateType::WarmTemperate) = &[
-      b!(4.0, woodland_river),
+      b!(6.0, woodland_river),
       b!(1.0, birch_river),
       b!(2.0, birch_river),
-      b!(4.0, birch_river),
-      b!(2.0, lavender_river),
+      b!(5.0, birch_river),
       b!(4.0, cherry_blossom_river),
       b!(2.0, volcano_river),
     ];
+
+    let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+      b!(6.0, woodland),
+      b!(1.0, birch_woodland),
+      b!(2.0, aspen_wood),
+      b!(5.0, birch_woodland),
+      b!(4.0, cherry_blossom_grove),
+      b!(2.0, volcano_growth),
+    ];
+
+    let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+      //b!(6.0, woodland_hills),
+      //b!(1.0, birch_woodland_hills),
+      b!(2.0, aspen_wood),
+      //b!(5.0, birch_woodland_hills),
+      b!(4.0, cherry_blossom_wood),
+      //b!(2.0, warm_volcano),
+    ];
+
     let (GeographicType::Standard, ClimateType::CoolTemperate) =
       &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
     let (GeographicType::Standard, ClimateType::IceCap) =

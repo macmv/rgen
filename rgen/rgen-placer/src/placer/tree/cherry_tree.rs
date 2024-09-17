@@ -172,7 +172,7 @@ impl Sakura {
   }
 
   fn split_build(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng, split_tree: SplitTree) {
-    println!("Tree: {:?}", split_tree);
+    //println!("Tree: {:?}", split_tree);
     //let base_height = 3;
     let top = 8;
     let a_start: i32;

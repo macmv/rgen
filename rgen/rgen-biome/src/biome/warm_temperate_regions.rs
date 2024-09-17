@@ -5,7 +5,6 @@ use crate::builder::PlacerStage;
 use super::{BiomeBuilder, IdContext};
 
 pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  println!("hey neil, hey neil, how you doing?");
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#A3B5A0";
   gen.set_top_block(ctx.blocks.grass.default_state);
@@ -27,7 +26,6 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       },
     },
   );
-
   gen.place(
     "grass",
     PlacerStage::Tree,
@@ -351,4 +349,3 @@ pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
-//Field, Volcano growth
