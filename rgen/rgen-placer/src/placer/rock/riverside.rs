@@ -23,7 +23,7 @@ impl RiverSide {
         blocks.rgen_mossy_cobblestone.default_state,
         blocks.cobblestone.default_state,
       ],
-      avg_in_chunk: 0.1,
+      avg_in_chunk: 3.0,
       fluid:        blocks.lava.default_state.into(),
     }
   }
@@ -34,7 +34,8 @@ impl Placer for RiverSide {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) {
+    pos = pos + Pos::new(0, -1, 0);
     if pos.y + 20 >= 255 || pos.y <= 1 {
       return;
     }

@@ -42,7 +42,7 @@ impl Default for BlockInfo {
 
 impl Block {
   pub const AIR: Block = Block(0);
-  pub const WATER: Block = Block(9);
+  pub const WATER: Block = Block(9); // Block ID 9
 }
 
 impl BlockInfo {
