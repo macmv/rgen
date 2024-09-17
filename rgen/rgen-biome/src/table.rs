@@ -61,22 +61,24 @@ impl CompositionLookup {
 biome_categories!(
   fn build() {
     let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
-      // b!(1.0, elder_woodland),
-      // b!(1.0, weeping_birchwood),
-      // b!(1.0, lush_desert),
-      b!(1.0, cherry_blossom_wood),
-      b!(1.0, cherry_blossom_grove),
-      // b!(1.0, woodland),
+      b!(4.0, woodland),
       b!(1.0, birch_woodland),
-      // b!(1.0, seasonal_woodland),
-      b!(1.0, lavender_grove),
-      // b!(1.0, field),
-      b!(1.0, aspen_wood),
-      // b!(1.0, elder_birch_woodland),
-      b!(80.0, volcano_growth),
+      b!(2.0, aspen_wood),
+      b!(4.0, birch_woodland),
+      b!(2.0, lavender_grove),
+      b!(4.0, cherry_blossom_grove),
+      b!(2.0, volcano_growth),
     ];
 
-    let (GeographicType::River, ClimateType::WarmTemperate) = &[b!(1.0, river)];
+    let (GeographicType::River, ClimateType::WarmTemperate) = &[
+      b!(4.0, woodland_river),
+      b!(1.0, birch_river),
+      b!(2.0, birch_river),
+      b!(4.0, birch_river),
+      b!(2.0, lavender_river),
+      b!(4.0, cherry_blossom_river),
+      b!(2.0, volcano_river),
+    ];
     let (GeographicType::Standard, ClimateType::CoolTemperate) =
       &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
     let (GeographicType::Standard, ClimateType::IceCap) =

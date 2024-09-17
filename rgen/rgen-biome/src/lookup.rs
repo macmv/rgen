@@ -97,7 +97,7 @@ impl WorldBiomes {
     let climate_type = CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
       [(humidity * CLIMATE_TABLE[0].len() as f64) as usize];
 
-    let biomes = self.composition_lookup.choose(geographic_type, climate_type);
+    let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type
 
     let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
     let mut variance = self.variance(pos) * total;

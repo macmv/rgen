@@ -173,7 +173,7 @@ pub fn woodland_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
-pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn lavender_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#899781";
   gen.set_top_block(ctx.blocks.grass.default_state);

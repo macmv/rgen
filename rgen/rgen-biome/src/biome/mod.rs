@@ -9,6 +9,7 @@ mod dry_regions;
 mod hot_regions;
 mod river;
 mod temperate_regions;
+mod temperate_river;
 mod tropical_regions;
 
 pub use blank::*;
@@ -20,6 +21,7 @@ pub use dry_regions::*;
 pub use hot_regions::*;
 pub use river::*;
 pub use temperate_regions::*;
+pub use temperate_river::*;
 pub use tropical_regions::*;
 
 pub struct IdContext<'a> {
