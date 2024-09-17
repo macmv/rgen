@@ -217,12 +217,15 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
     let continentalness = ctx.generator.sample_continentalness(pos);
     let erosion = ctx.generator.sample_erosion(pos);
     let peaks_valleys = ctx.generator.sample_peaks_valleys(pos);
+    let geographic_type = ctx.generator.geographic_type(pos);
+    let climate_type = ctx.generator.climate_type(pos);
 
     [
       format!("biome: {}", biome.name),
       format!("continentalness: {continentalness:.5}"),
       format!("erosion: {erosion:.5}"),
       format!("peaks valleys: {peaks_valleys:.5}"),
+      format!("geo: {geographic_type:?}, clim: {climate_type:?}"),
     ]
   });
 
