@@ -55,6 +55,8 @@ impl WorldBiomes {
 
   pub fn geographic_type(&self, pos: Pos) -> GeographicType {
     let continentalness = self.continentalness_category(pos);
+    let peaks_valleys = self.peaks_valleys_category(pos);
+    let erosion = self.erosion_category(pos);
 
     match continentalness {
       ContinentalnessCategory::MushroomIsland => GeographicType::MushroomIsland,
@@ -63,12 +65,8 @@ impl WorldBiomes {
 
       // Inland cases
       _ => {
-        let peaks_valleys = self.peaks_valleys_category(pos);
-
         match peaks_valleys {
           PeaksValleysCategory::Valley => {
-            let erosion = self.erosion_category(pos);
-
             if erosion <= 4 {
               // river table
               GeographicType::River
