@@ -3,7 +3,7 @@ use rgen_placer::noise::NoiseGenerator;
 
 use crate::{
   builder::BiomeBuilder,
-  table::{BiomeTable, GeographicType},
+  table::{BiomeTable, GeographicType, CLIMATE_TABLE},
   WorldBiomes,
 };
 
@@ -91,9 +91,11 @@ impl WorldBiomes {
         }
       }
     };
-
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
+
+    let climate_type = &CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
+      [(humidity * CLIMATE_TABLE[0].len() as f64) as usize];
 
     let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]
       [(humidity * self.old_table[0].len() as f64) as usize];
