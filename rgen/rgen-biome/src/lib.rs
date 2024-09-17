@@ -8,7 +8,7 @@ use rgen_placer::{
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{Context, Generator, PartialWorld};
 use structure::StructureGenerator;
-use table::{BiomeTable, CompositionLookup};
+use table::CompositionLookup;
 
 mod biome;
 mod builder;
@@ -199,10 +199,13 @@ impl Generator for WorldBiomes {
 
         if info.max_height() < 64.0 {
           for y in 0..=63 {
-            if y < info.max_height() as i32 {
-              chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.stone.block);
+            let pos = pos.with_y(y);
+
+            info.move_to(pos);
+            if info.underground() {
+              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
             } else {
-              chunk.set(pos.with_y(y).chunk_rel(), ctx.blocks.water.block);
+              chunk.set(pos.chunk_rel(), ctx.blocks.water.block);
             }
           }
         } else {
@@ -285,6 +288,8 @@ impl WorldBiomes {
   fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     // FIXME: Remove this and use a chunk placer instead.
 
+    const SEA_LEVEL: i32 = 64;
+
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
@@ -294,10 +299,12 @@ impl WorldBiomes {
         let mut info = self.height_info(pos);
 
         let mut depth = 0;
-
         let mut layer = 0;
 
-        for y in (info.min_height as i32..=info.max_height as i32).rev() {
+        let mut underwater = false;
+
+        let min_height = (info.min_height as i32).min(40);
+        for y in (min_height..=info.max_height as i32).rev() {
           let pos = pos.with_y(y);
           let rel_pos = pos.chunk_rel();
 
@@ -312,18 +319,23 @@ impl WorldBiomes {
           // sublayer selection.
           let biome = self.choose_biome(pos.with_y(255));
 
-          let mut current_layer = &biome.layers[layer];
+          if y < SEA_LEVEL && layer == 0 && depth == 0 {
+            underwater = true;
+          }
+
+          let layers = if underwater { &biome.underwater_layers } else { &biome.layers };
+          let mut current_layer = &layers[layer];
           let current_layer_depth = current_layer.sample_depth(sub_layer_depth);
 
           if depth > current_layer_depth {
             layer += 1;
             depth = 0;
 
-            if layer >= biome.layers.len() {
+            if layer >= layers.len() {
               break;
             }
 
-            current_layer = &biome.layers[layer];
+            current_layer = &layers[layer];
           }
 
           if chunk.get(rel_pos) == blocks.stone.block {
@@ -331,6 +343,7 @@ impl WorldBiomes {
             // above (this makes cave entrances look nice.)
             if biome.top_block().block == blocks.grass.block
               && chunk.get(rel_pos.with_y(y + 1)) == Block::AIR
+              && !underwater
             {
               chunk.set(rel_pos, blocks.grass.default_state);
             } else {
@@ -449,13 +462,19 @@ impl HeightInfo<'_> {
   pub fn min_height(&self) -> f64 { self.min_height }
   pub fn underground(&mut self) -> bool {
     *self.underground.get_or_insert_with(|| {
-      let noise =
-        self.world.density_map.generate_3d(self.pos.x as f64, self.pos.y as f64, self.pos.z as f64)
-          * 0.5
+      if self.min_height > self.max_height {
+        self.pos.y < self.max_height as i32
+      } else {
+        let noise = self.world.density_map.generate_3d(
+          self.pos.x as f64,
+          self.pos.y as f64,
+          self.pos.z as f64,
+        ) * 0.5
           + 0.5;
-      let limit = (self.pos.y as f64 - self.min_height) / (self.max_height - self.min_height);
+        let limit = (self.pos.y as f64 - self.min_height) / (self.max_height - self.min_height);
 
-      noise > limit
+        noise > limit
+      }
     })
   }
 }

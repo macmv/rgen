@@ -16,7 +16,8 @@ pub struct BiomeBuilder {
   pub id:     rgen_base::Biome,
   pub color:  &'static str,
 
-  pub layers: SmallVec<[Layer; 2]>,
+  pub layers:            SmallVec<[Layer; 2]>,
+  pub underwater_layers: SmallVec<[Layer; 2]>,
 
   pub min_height: u32,
   pub max_height: u32,
@@ -55,6 +56,11 @@ impl BiomeBuilder {
         min_depth: 1,
         max_depth: 1,
       }],
+      underwater_layers: smallvec![Layer {
+        state:     blocks.gravel.default_state,
+        min_depth: 1,
+        max_depth: 1,
+      }],
       min_height: 64,
       max_height: 128,
       placers: vec![],
@@ -66,11 +72,23 @@ impl BiomeBuilder {
     if self.layers.len() == 1 && self.top_block().block == blocks.grass.block {
       self.add_layer(blocks.dirt.default_state, 3, 5);
     }
+
+    // Default underwater layers to being a bit thicker.
+    if self.underwater_layers.len() == 1 {
+      self.add_underwater_layer(self.underwater_layers[0].state, 1, 3);
+    }
   }
 
   pub fn set_top_block(&mut self, state: BlockState) { self.layers[0].state = state; }
   pub fn add_layer(&mut self, state: BlockState, min_depth: u32, max_depth: u32) {
     self.layers.push(Layer { state, min_depth, max_depth });
+  }
+
+  pub fn set_underwater_block(&mut self, state: BlockState) {
+    self.underwater_layers[0].state = state;
+  }
+  pub fn add_underwater_layer(&mut self, state: BlockState, min_depth: u32, max_depth: u32) {
+    self.underwater_layers.push(Layer { state, min_depth, max_depth });
   }
 
   pub fn top_block(&self) -> BlockState { self.layers[0].state }
