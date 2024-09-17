@@ -229,7 +229,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
     [
       format!("biome: {}", biome.name),
       format!("continentalness: {continentalness_cat:?} ({continentalness:.3})"),
-      format!("peaks valleys: {peaks_valleys_cat:?} ({peaks_valleys:.3}]"),
+      format!("peaks valleys: {peaks_valleys_cat:?} ({peaks_valleys:.3})"),
       format!("erosion: {erosion_cat} ({erosion:.3})"),
       format!("geo: {geographic_type:?}, clim: {climate_type:?}"),
     ]
