@@ -72,6 +72,9 @@ pub fn birch_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.color = "#768A6A";
   gen.set_top_block(ctx.blocks.grass.default_state);
 
+  //gen.place("Basalt Pillar", PlacerStage::Tree,
+  // placer::Pillar::new(ctx.blocks));
+
   gen.place(
     "birch log",
     PlacerStage::Tree,
