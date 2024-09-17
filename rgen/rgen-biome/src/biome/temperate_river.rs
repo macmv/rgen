@@ -120,17 +120,6 @@ pub fn birch_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place:       ctx.blocks.tallgrass.with_data(1),
     },
   );
-
-  gen.place(
-    "forget me not",
-    PlacerStage::Sand2,
-    placer::Spread {
-      place:         ctx.blocks.rgen_flower.with_data(0),
-      replace:       ctx.blocks.grass.default_state.into(),
-      radius:        1..=3,
-      avg_per_chunk: 0.3,
-    },
-  );
 }
 
 pub fn woodland_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -206,6 +195,7 @@ pub fn volcano_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.color = "#899781";
   gen.set_top_block(ctx.blocks.grass.default_state);
   gen.add_layer(ctx.blocks.rgen_basalt.default_state, 5, 8);
+  gen.add_underwater_layer(ctx.blocks.rgen_basalt.default_state, 3, 4);
 
   gen.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new(ctx.blocks));
   gen.place(
