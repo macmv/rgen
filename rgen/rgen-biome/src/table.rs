@@ -73,78 +73,71 @@ biome_categories!(
       // b!(1.0, elder_birch_woodland),
       b!(80.0, volcano_growth),
     ];
+
+    let (GeographicType::River, ClimateType::WarmTemperate) = &[b!(1.0, river)];
+    let (GeographicType::Standard, ClimateType::CoolTemperate) =
+      &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
+    let (GeographicType::Standard, ClimateType::IceCap) =
+      &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
+    let (GeographicType::Standard, ClimateType::Tundra) =
+      &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
+    let (GeographicType::Hills, ClimateType::Tundra) =
+      &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
+
+    let (GeographicType::Standard, ClimateType::CoolTemperate) = &[b!(1.0, plains)];
+    let (GeographicType::Standard, ClimateType::WarmTemperate) = &[b!(1.0, plains)];
+
+    let (GeographicType::Beach, ClimateType::SubArctic) =
+      &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
+    let (GeographicType::Beach, ClimateType::CoolTemperate) = &[
+      b!(1.0, ancient_shores),
+      b!(1.0, mossy_shores),
+      b!(1.0, dry_shores),
+      b!(1.0, bare_rock),
+      b!(1.0, wet_rock),
+    ];
+    let (GeographicType::Beach, ClimateType::WarmTemperate) =
+      &[b!(65.0, sand_beach), b!(5.0, monument_beach), b!(31.0, palm_beach)];
+    let (GeographicType::Beach, ClimateType::DryTemperate) = &[
+      b!(1.0, sand_beach),
+      b!(1.0, monument_beach),
+      b!(1.0, red_sand_beach),
+      b!(1.0, red_monument_beach),
+      b!(1.0, dry_shores),
+      b!(1.0, chaparral_beach),
+    ];
+    let (GeographicType::Beach, ClimateType::Tropical) = &[
+      b!(1.0, sand_beach),
+      b!(1.0, chaparral_beach),
+      b!(1.0, jungle_beach),
+      b!(1.0, palm_beach),
+      //bladjlaf
+    ];
+
+    let (GeographicType::Mountains, ClimateType::IceCap) = &[
+      b!(1.0, ice_spikes),
+      b!(1.0, broken_glacier),
+      b!(1.0, glacier),
+      b!(1.0, snowy_plains),
+      b!(1.0, rocky_plains),
+    ];
+    let (GeographicType::Mountains, ClimateType::Tundra) = &[
+      b!(1.0, snowy_plains),
+      b!(1.0, rocky_plains),
+      b!(1.0, frozen_meadow),
+      b!(1.0, frozen_desert),
+      // b!(1.0, snowy_fir_wood),
+      // b!(1.0, snowy_spruce_wood),
+      b!(1.0, snowy_woodland),
+    ];
+    let (GeographicType::Mountains, ClimateType::SubArctic) = &[
+      b!(1.0, fir_grove),
+      b!(1.0, spruce_grove),
+      //b!(1.0, seasonal_woodland)
+    ];
   }
 );
 
-// let (GeographicType::River, ClimateType::WarmTemperate) = &[
-//   b!(1.0, river),
-// ];
-//
-// let (GeographicType::River, ClimateType::WarmTemperate) = &[
-//   b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
-
-const FROZEN_VALLEY: BiomeFnCategory =
-  &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
-const BOG: BiomeFnCategory =
-  &[b!(1.0, bog), b!(1.0, cold_bog), b!(1.0, fall_bog), b!(1.0, conifer_swamp)];
-const ROCKY_VALLEY: BiomeFnCategory =
-  &[b!(1.0, crag), b!(1.0, snowy_crag) /* , rocky_cedar */];
-const COOL_VALLEY: BiomeFnCategory =
-  &[b!(1.0, crag) /* , fir_wood, boreal_forest, cedar_wood, rocky_spruce */];
-const SWAMP: BiomeFnCategory =
-  &[b!(1.0, plains) /* cherry_blossom_grove, woodland, lavendar_grove, woodland, aspenwood */];
-const DRY_RIVER: BiomeFnCategory = &[b!(1.0, plains) /* swamp, mangrove_woods */];
-const WARM_VALLEY: BiomeFnCategory = &[b!(1.0, plains)];
-const HOT_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
-const TROPIC_SWAMP: BiomeFnCategory = &[b!(1.0, plains)];
-
-const COLD_BEACH: BiomeFnCategory = &[b!(1.0, snowy_shores), b!(1.0, snowy_rock)];
-const COOL_BEACH: BiomeFnCategory = &[
-  b!(1.0, ancient_shores),
-  b!(1.0, mossy_shores),
-  b!(1.0, dry_shores),
-  b!(1.0, bare_rock),
-  b!(1.0, wet_rock),
-];
-const BEACH: BiomeFnCategory =
-  &[b!(65.0, sand_beach), b!(5.0, monument_beach), b!(31.0, palm_beach)];
-const DRY_BEACH: BiomeFnCategory = &[
-  b!(1.0, sand_beach),
-  b!(1.0, monument_beach),
-  b!(1.0, red_sand_beach),
-  b!(1.0, red_monument_beach),
-  b!(1.0, dry_shores),
-  b!(1.0, chaparral_beach),
-];
-const TROPIC_BEACH: BiomeFnCategory = &[
-  b!(1.0, sand_beach),
-  b!(1.0, chaparral_beach),
-  b!(1.0, jungle_beach),
-  b!(1.0, palm_beach),
-  //bladjlaf
-];
-
-const ICE_CAP: BiomeFnCategory = &[
-  b!(1.0, ice_spikes),
-  b!(1.0, broken_glacier),
-  b!(1.0, glacier),
-  b!(1.0, snowy_plains),
-  b!(1.0, rocky_plains),
-];
-const TUNDRA: BiomeFnCategory = &[
-  b!(1.0, snowy_plains),
-  b!(1.0, rocky_plains),
-  b!(1.0, frozen_meadow),
-  b!(1.0, frozen_desert),
-  // b!(1.0, snowy_fir_wood),
-  // b!(1.0, snowy_spruce_wood),
-  b!(1.0, snowy_woodland),
-];
-const SUB_ARCTIC: BiomeFnCategory = &[
-  b!(1.0, fir_grove),
-  b!(1.0, spruce_grove),
-  //b!(1.0, seasonal_woodland)
-];
 const COOL_TEMPERATE: BiomeFnCategory = &[
   // b!(1.0, boreal_forest),
   // b!(1.0, ceader_wood),
@@ -232,26 +225,6 @@ const TROPICAL: BiomeFnCategory = &[
 ];
 const CAVE: BiomeFnCategory = &[b!(1.0, cave), b!(1.0, lush_cave)];
 
-// === Biome tables ===
-
-const VALLEY_TABLE: BiomeFnTable = &[
-  &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
-  &[FROZEN_VALLEY, ROCKY_VALLEY, COOL_VALLEY, COOL_VALLEY, WARM_VALLEY, SWAMP, SWAMP, DRY_RIVER],
-  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP],
-  &[FROZEN_VALLEY, BOG, COOL_VALLEY, WARM_VALLEY, WARM_VALLEY, SWAMP, SWAMP, HOT_SWAMP],
-  &[FROZEN_VALLEY, BOG, BOG, COOL_VALLEY, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP],
-  &[BOG, BOG, BOG, SWAMP, SWAMP, HOT_SWAMP, HOT_SWAMP, TROPIC_SWAMP],
-];
-
-const BEACH_TABLE: BiomeFnTable = &[
-  &[COLD_BEACH, COLD_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH, DRY_BEACH],
-  &[COLD_BEACH, COLD_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, DRY_BEACH, DRY_BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH],
-  &[COLD_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH],
-  &[COOL_BEACH, COOL_BEACH, COOL_BEACH, BEACH, BEACH, BEACH, TROPIC_BEACH, TROPIC_BEACH],
-];
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum GeographicType {
   MushroomIsland,
@@ -298,55 +271,8 @@ pub const CLIMATE_TABLE: ClimateTable = &[
   &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
 ];
 
-const CAVE_TABLE: BiomeFnTable = &[&[CAVE]];
-
-pub fn build(ctx: &IdContext) -> BiomeTable { todo!() }
-
 fn composition(ctx: &IdContext, biome: BiomeFnCategory) -> BiomeComposition {
   biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f)).collect()
-}
-
-fn table(ctx: &IdContext, table: BiomeFnTable) -> BiomeTable {
-  let table = match table.len() {
-    1 => vec![&table[0]; 12],
-    6 => table.iter().flat_map(|row| [row, row]).collect::<Vec<_>>(),
-    12 => table.iter().collect::<Vec<_>>(),
-    _ => panic!("table must be 1, 6 or 12 rows"),
-  };
-
-  let table = table
-    .iter()
-    .map(|row| {
-      let row = match row.len() {
-        1 => vec![&row[0]; 8],
-        8 => row.iter().collect::<Vec<_>>(),
-        _ => panic!("row must be 1 or 8 items"),
-      };
-
-      let items = row
-        .iter()
-        .map(|&biomes| {
-          if biomes.is_empty() {
-            panic!("biome category cannot be empty");
-          } else {
-            biomes
-              .iter()
-              .map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f))
-              .collect::<BiomeList>()
-          }
-        })
-        .collect::<Vec<_>>();
-      match items.try_into() {
-        Ok(v) => v,
-        Err(_) => unreachable!(),
-      }
-    })
-    .collect::<Vec<_>>();
-
-  match table.try_into() {
-    Ok(v) => v,
-    Err(_) => unreachable!(),
-  }
 }
 
 #[cfg(test)]
@@ -356,8 +282,8 @@ mod tests {
   use super::*;
 
   #[test]
-  fn biomes_can_build() {
+  fn composition() {
     let ctx = IdContext { biomes: &Biomes::test_blocks(), blocks: &Blocks::test_blocks() };
-    Tables::new(&ctx);
+    CompositionLookup::new(&ctx);
   }
 }
