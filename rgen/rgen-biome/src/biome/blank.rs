@@ -1,24 +1,13 @@
-use rgen_placer::placer;
+use rgen_placer::chunk_placer;
 
-use crate::builder::PlacerStage;
-
-use super::{BiomeBuilder, IdContext};
+use super::{color, BiomeBuilder, IdContext};
 
 pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#000000";
 
-  gen.place(
-    "grass clumps",
-    PlacerStage::Sand,
-    placer::Clumps {
-      place_above: ctx.blocks.grass.default_state.into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
-
-      attempts:      20,
-      avg_per_chunk: 3.0,
-
-      radius: 3..=8,
-    },
-  );
+  gen.place_chunk(chunk_placer::CheckerboardSurface {
+    a: ctx.blocks.concrete.with_data(color::MAGENTA),
+    b: ctx.blocks.concrete.with_data(color::BLACK),
+  });
 }

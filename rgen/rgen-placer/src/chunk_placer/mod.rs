@@ -1,5 +1,7 @@
+mod checkerboard;
 mod lush_cave;
 
+pub use checkerboard::CheckerboardSurface;
 pub use lush_cave::LushCaveMoss;
 
 use rgen_base::{Block, BlockState, Blocks, ChunkRelPos, Pos};
