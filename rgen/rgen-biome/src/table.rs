@@ -30,9 +30,11 @@ pub struct CompositionLookup {
 
 macro_rules! biome_categories {
   (
-    $(
-      let (GeographicType::$geographic:ident, ClimateType::$climate:ident) = &[$($biome:expr),* $(,)?];
-    )*
+    fn build() {
+      $(
+        let (GeographicType::$geographic:ident, ClimateType::$climate:ident) = &[$($biome:expr),* $(,)?];
+      )*
+    }
   ) => {
     impl CompositionLookup {
       pub fn new(ctx: &IdContext) -> CompositionLookup {
@@ -54,27 +56,32 @@ impl CompositionLookup {
 
 // === Biome categories ===
 
-biome_categories! {
-  let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
-    // b!(1.0, elder_woodland),
-    // b!(1.0, weeping_birchwood),
-    // b!(1.0, lush_desert),
-    b!(1.0, cherry_blossom_wood),
-    b!(1.0, cherry_blossom_grove),
-    // b!(1.0, woodland),
-    b!(1.0, birch_woodland),
-    // b!(1.0, seasonal_woodland),
-    b!(1.0, lavender_grove),
-    // b!(1.0, field),
-    b!(1.0, aspen_wood),
-    // b!(1.0, elder_birch_woodland),
-    b!(80.0, volcano_growth),
-  ];
-}
+biome_categories!(
+  fn build() {
+    let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
+      // b!(1.0, elder_woodland),
+      // b!(1.0, weeping_birchwood),
+      // b!(1.0, lush_desert),
+      b!(1.0, cherry_blossom_wood),
+      b!(1.0, cherry_blossom_grove),
+      // b!(1.0, woodland),
+      b!(1.0, birch_woodland),
+      // b!(1.0, seasonal_woodland),
+      b!(1.0, lavender_grove),
+      // b!(1.0, field),
+      b!(1.0, aspen_wood),
+      // b!(1.0, elder_birch_woodland),
+      b!(80.0, volcano_growth),
+    ];
+  }
+);
 
-const BLANK: BiomeFnCategory = &[b!(1.0, blank)];
-const SEA: BiomeFnCategory = &[b!(1.0, blank)];
-const RIVER: BiomeFnCategory = &[b!(1.0, river)];
+// let (GeographicType::River, ClimateType::WarmTemperate) = &[
+//   b!(1.0, river),
+// ];
+//
+// let (GeographicType::River, ClimateType::WarmTemperate) = &[
+//   b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
 
 const FROZEN_VALLEY: BiomeFnCategory =
   &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
@@ -226,10 +233,6 @@ const TROPICAL: BiomeFnCategory = &[
 const CAVE: BiomeFnCategory = &[b!(1.0, cave), b!(1.0, lush_cave)];
 
 // === Biome tables ===
-
-const BLANK_TABLE: BiomeFnTable = &[&[BLANK]];
-const SEA_TABLE: BiomeFnTable = &[&[SEA]];
-const RIVER_TABLE: BiomeFnTable = &[&[RIVER]];
 
 const VALLEY_TABLE: BiomeFnTable = &[
   &[ROCKY_VALLEY, ROCKY_VALLEY, ROCKY_VALLEY, COOL_VALLEY, SWAMP, SWAMP, DRY_RIVER, DRY_RIVER],
