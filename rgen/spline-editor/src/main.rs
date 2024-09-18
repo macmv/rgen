@@ -47,13 +47,13 @@ impl eframe::App for SplineEditor {
       ui.heading("Spline Editor");
 
       ui.horizontal(|ui| {
-        draw_editor(ui, &mut self.continentalness_spline, 0.0..=128.0);
+        draw_editor("Continentalness", ui, &mut self.continentalness_spline, 0.0..=128.0);
         ui.separator();
-        draw_editor(ui, &mut self.erosion_spline, 0.0..=1.0);
+        draw_editor("Erosion", ui, &mut self.erosion_spline, 0.0..=1.0);
         ui.separator();
-        draw_editor(ui, &mut self.peaks_valleys_spline, 0.0..=256.0);
+        draw_editor("Peaks and Valleys", ui, &mut self.peaks_valleys_spline, 0.0..=256.0);
         ui.separator();
-        draw_editor(ui, &mut self.height_impact_spline, 0.0..=1.0);
+        draw_editor("Height impact", ui, &mut self.height_impact_spline, 0.0..=1.0);
       });
 
       ui.add(Slider::new(&mut self.continentalness, 0.0..=1.0).text("Continentalness"));
@@ -90,11 +90,14 @@ impl eframe::App for SplineEditor {
 }
 
 fn draw_editor(
+  name: &str,
   ui: &mut egui::Ui,
   spline: &mut Spline<Vec<(f64, f64)>>,
   range: RangeInclusive<f64>,
 ) {
   ui.vertical(|ui| {
+    ui.label(name);
+
     for i in 0..spline.storage.len() {
       let range = range.clone();
       ui.horizontal(|ui| {
