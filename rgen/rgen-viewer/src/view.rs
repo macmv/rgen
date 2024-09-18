@@ -3,6 +3,7 @@ use std::{collections::HashMap, mem, time::Duration};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::Pos;
+use rgen_placer::noise::VoronoiNoise;
 
 use crate::{
   color::Color,
@@ -20,6 +21,8 @@ pub struct WorldViewer {
 
   pub completed_tx: Sender<(RegionPos, RenderMode, RenderBuffer)>,
   pub completed_rx: Receiver<(RegionPos, RenderMode, RenderBuffer)>,
+
+  voronoi_noise: VoronoiNoise,
 }
 
 impl WorldViewer {
@@ -33,6 +36,8 @@ impl WorldViewer {
 
       completed_tx: ctx,
       completed_rx: crx,
+
+      voronoi_noise: VoronoiNoise::new(0),
     }
   }
 
@@ -85,6 +90,8 @@ impl WorldViewer {
         // Sample at the top of the world for surface biomes.
         let pos = region_pos.min_block_pos() + Pos::new(rel_x, 255, rel_z);
         let column = world.column_at(pos);
+
+        let voronoi = (self.voronoi_noise.get(pos) % 10) as f64 / 10.0;
 
         let biome = column.biome;
         let meter_height = column.height as f64;
@@ -147,6 +154,18 @@ impl WorldViewer {
           RenderMode::Erosion => Color::from_gray(biome.erosion as f32),
           RenderMode::PeaksValleys => Color::from_gray(biome.peaks_valleys as f32),
           RenderMode::Height => Color::from_gray(column.height as f32 / 256.0),
+          RenderMode::Voronoi => match voronoi {
+            x if x < 0.1 => Color::from_hex(0x000000),
+            x if x < 0.2 => Color::from_hex(0xff0000),
+            x if x < 0.3 => Color::from_hex(0x00ff00),
+            x if x < 0.4 => Color::from_hex(0x0000ff),
+            x if x < 0.5 => Color::from_hex(0xffff00),
+            x if x < 0.6 => Color::from_hex(0xff00ff),
+            x if x < 0.7 => Color::from_hex(0xffffff),
+            x if x < 0.8 => Color::from_hex(0xffaa00),
+            x if x < 0.9 => Color::from_hex(0xff00aa),
+            _ => Color::from_hex(0xffaaaa),
+          },
         };
 
         chunk.set(rel_x, rel_z, color.to_sdl2());
