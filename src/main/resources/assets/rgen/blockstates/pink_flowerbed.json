@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north,count=1": { "model": "rgen:flower/cherry/cherry_a" },
+    "facing=south,count=1": { "model": "rgen:flower/cherry/cherry_a", "y": 180 },
+    "facing=east,count=1": { "model": "rgen:flower/cherry/cherry_a", "y": 90 },
+    "facing=west,count=1": { "model": "rgen:flower/cherry/cherry_a", "y": 270 },
+    "facing=north,count=2": { "model": "rgen:flower/cherry/cherry_b" },
+    "facing=south,count=2": { "model": "rgen:flower/cherry/cherry_b", "y": 180 },
+    "facing=east,count=2": { "model": "rgen:flower/cherry/cherry_b", "y": 90 },
+    "facing=west,count=2": { "model": "rgen:flower/cherry/cherry_b", "y": 270 },
+    "facing=north,count=3": { "model": "rgen:flower/cherry/cherry_c" },
+    "facing=south,count=3": { "model": "rgen:flower/cherry/cherry_c", "y": 180 },
+    "facing=east,count=3": { "model": "rgen:flower/cherry/cherry_c", "y": 90 },
+    "facing=west,count=3": { "model": "rgen:flower/cherry/cherry_c", "y": 270 },
+    "facing=north,count=4": { "model": "rgen:flower/cherry/cherry_d" },
+    "facing=south,count=4": { "model": "rgen:flower/cherry/cherry_d", "y": 180 },
+    "facing=east,count=4": { "model": "rgen:flower/cherry/cherry_d", "y": 90 },
+    "facing=west,count=4": { "model": "rgen:flower/cherry/cherry_d", "y": 270 }
+  }
+}
