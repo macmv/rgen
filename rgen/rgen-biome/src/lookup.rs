@@ -21,7 +21,6 @@ pub enum ContinentalnessCategory {
 pub enum PeaksValleysCategory {
   Valley,
   LowSlice,
-  River,
   MidSlice,
   HighSlice,
   Peak,
@@ -69,7 +68,6 @@ impl WorldBiomes {
       (MushroomIsland, _, _) => GeographicType::Ocean,
       (Sea, _, _) => GeographicType::Ocean,
       (Coast, _, _) => GeographicType::Beach,
-      (_, River, _) => GeographicType::River,
 
       (NearInland, Valley, _) => GeographicType::Valley,
       (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
@@ -155,13 +153,14 @@ impl WorldBiomes {
   pub fn peaks_valleys_category(&self, pos: Pos) -> PeaksValleysCategory {
     let peaks_valleys = self.sample_peaks_valleys(pos);
 
-    match peaks_valleys {
-      x if x < 0.075 => PeaksValleysCategory::Valley,
+    let v = if peaks_valleys > 0.5 { 1.0 - peaks_valleys } else { peaks_valleys };
+
+    match v {
+      x if x < 0.2 => PeaksValleysCategory::Peak,
+      x if x < 0.3 => PeaksValleysCategory::HighSlice,
+      x if x < 0.4 => PeaksValleysCategory::MidSlice,
       x if x < 0.48 => PeaksValleysCategory::LowSlice,
-      x if x < 0.52 => PeaksValleysCategory::River,
-      x if x < 0.6 => PeaksValleysCategory::MidSlice,
-      x if x < 0.85 => PeaksValleysCategory::HighSlice,
-      _ => PeaksValleysCategory::Peak,
+      _ => PeaksValleysCategory::Valley,
     }
   }
 
