@@ -28,6 +28,22 @@ public class FlowerBlock extends BlockBush {
   }
 
   @Override
+  public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+    return NULL_AABB;
+  }
+
+  @Override
+  public boolean isOpaqueCube(IBlockState state) {
+    return false;
+  }
+
+  @Override
+  public boolean isFullCube(IBlockState state) {
+    return false;
+  }
+
+
+  @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
     return super.getBoundingBox(state, source, pos).offset(state.getOffset(source, pos));
   }

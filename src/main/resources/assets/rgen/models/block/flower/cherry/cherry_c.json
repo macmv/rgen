@@ -1,6 +1,5 @@
 {
-	"credit": "Made with Blockbench",
-	"parent": "block/block",
+  "parent": "minecraft:block/block",
 	"textures": {
 		"0": "rgen:blocks/plants/pink_blossom/blossom",
 		"1": "rgen:blocks/plants/pink_blossom/stem",

@@ -104,7 +104,6 @@ public class LavenderPlant extends BlockBush {
         return Block.EnumOffsetType.XYZ;
     }
 
-
     // Randomizes the variant when placed
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
@@ -113,18 +112,9 @@ public class LavenderPlant extends BlockBush {
         worldIn.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, EnumVariant.byMetadata(randomVariant)), 2);
     }
 
-
-
     @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
-
-
-
-
-
-
-
 }
