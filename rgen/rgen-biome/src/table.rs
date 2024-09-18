@@ -57,7 +57,6 @@ impl CompositionLookup {
 }
 
 // === Biome categories ===
-
 biome_categories!(
   fn build() {
     //// CLIMATE: WARMTEMPERATE
