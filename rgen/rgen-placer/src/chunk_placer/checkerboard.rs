@@ -1,8 +1,10 @@
-use rgen_base::{Block, BlockState, ChunkRelPos, Pos};
+use rgen_base::{BlockFilter, BlockState, ChunkRelPos};
 
 use crate::{BiomeCachedChunk, ChunkPlacer};
 
 pub struct CheckerboardSurface {
+  pub replace: BlockFilter,
+
   pub a: BlockState,
   pub b: BlockState,
 }
@@ -22,17 +24,11 @@ impl ChunkPlacer for CheckerboardSurface {
         }
         let selected = if (x / 2 + z / 2) % 2 == 0 { self.a } else { self.b };
 
-        let mut depth = 0;
         for y in (0..256).rev() {
           let pos = pos.with_y(y);
 
-          let block = chunk.chunk.get(pos);
-          if block == Block::AIR {
-            depth = 0;
-          } else {
-            depth += 1;
-          }
-          if depth > 0 {
+          let block = chunk.chunk.get_state(pos);
+          if self.replace.contains(block) {
             chunk.chunk.set(pos, selected);
           }
         }
