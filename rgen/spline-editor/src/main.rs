@@ -57,13 +57,15 @@ impl Default for SplineEditor {
         (1.00, 1.0),
       ]),
       peaks_valleys_spline:   Spline::new(vec![
-        (0.00, 16.0),
-        (0.40, 8.0),
-        (0.47, 2.0),
-        (0.50, 0.0),
-        (0.53, 2.0),
-        (0.60, 8.0),
-        (1.00, 16.0),
+        (0.00, 256.0),
+        (0.30, 128.0),
+        (0.40, 0.0),
+        (0.47, 0.0),
+        (0.50, -16.0),
+        (0.53, 0.0),
+        (0.60, 0.0),
+        (0.70, 128.0),
+        (1.00, 256.0),
       ]),
 
       continentalness: 0.0,
@@ -83,7 +85,7 @@ impl eframe::App for SplineEditor {
         ui.separator();
         draw_editor(ui, &mut self.erosion_spline, 0.0..=1.0);
         ui.separator();
-        draw_editor(ui, &mut self.peaks_valleys_spline, 0.0..=32.0);
+        draw_editor(ui, &mut self.peaks_valleys_spline, 0.0..=256.0);
         ui.separator();
         draw_editor(ui, &mut self.height_impact_spline, 0.0..=1.0);
       });
@@ -101,7 +103,7 @@ impl eframe::App for SplineEditor {
         .show(ui, |plot_ui| {
           plot_spline(plot_ui, &self.continentalness_spline, 1.0);
           plot_spline(plot_ui, &self.erosion_spline, 128.0);
-          plot_spline(plot_ui, &self.peaks_valleys_spline, 4.0);
+          plot_spline(plot_ui, &self.peaks_valleys_spline, 1.0);
           plot_spline(plot_ui, &self.height_impact_spline, 128.0);
 
           plot_sample(plot_ui, |x| {
