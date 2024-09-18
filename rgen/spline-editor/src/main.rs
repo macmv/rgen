@@ -29,44 +29,10 @@ struct SplineEditor {
 impl Default for SplineEditor {
   fn default() -> Self {
     Self {
-      continentalness_spline: Spline::new(vec![
-        (0.00, 88.0),
-        (0.01, 35.0),
-        (0.15, 38.0),
-        (0.26, 52.0),
-        (0.40, 65.0),
-        (0.81, 85.0),
-        (0.91, 103.0),
-        (1.00, 128.0),
-      ]),
-      erosion_spline:         Spline::new(vec![
-        (0.00, 1.00),
-        (0.10, 0.90),
-        (0.20, 0.70),
-        (0.30, 0.60),
-        (0.40, 0.20),
-        (0.81, 0.10),
-        (0.91, 0.05),
-        (1.00, 0.00),
-      ]),
-      height_impact_spline:   Spline::new(vec![
-        (0.00, 1.0),
-        (0.01, 0.0),
-        (0.45, 0.0),
-        (0.55, 1.0),
-        (1.00, 1.0),
-      ]),
-      peaks_valleys_spline:   Spline::new(vec![
-        (0.00, 256.0),
-        (0.30, 128.0),
-        (0.40, 0.0),
-        (0.47, 0.0),
-        (0.50, -16.0),
-        (0.53, 0.0),
-        (0.60, 0.0),
-        (0.70, 128.0),
-        (1.00, 256.0),
-      ]),
+      continentalness_spline: Spline::new(rgen_biome::CONTINENTALNESS.storage.to_vec()),
+      erosion_spline:         Spline::new(rgen_biome::EROSION.storage.to_vec()),
+      height_impact_spline:   Spline::new(rgen_biome::HEIGHT_IMPACT.storage.to_vec()),
+      peaks_valleys_spline:   Spline::new(rgen_biome::PEAKS_VALLEYS.storage.to_vec()),
 
       continentalness: 0.0,
       erosion:         0.0,
