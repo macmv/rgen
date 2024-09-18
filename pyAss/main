@@ -1,0 +1,22 @@
+import gspread
+import os
+
+from oauth2client.service_account import ServiceAccountCredentials
+
+# Define the scope for the API
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
+         "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+
+# Use the service account credentials
+creds = ServiceAccountCredentials.from_json_keyfile_name(os.path.join(os.path.dirname(__file__), '..', '.keys', 'key_1.json'), scope)
+client = gspread.authorize(creds)
+
+# Open the Google Sheet by its name
+sheet = client.open('[rgen] Biomes sheet').worksheet('CompositionTables')
+
+#  Get all values from the sheet
+all_values = sheet.get_all_values()
+
+# Print the content of the sheet
+for row in all_values:
+    print(row)
