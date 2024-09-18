@@ -87,14 +87,14 @@ biome_categories!(
       b!(2.0, volcano_growth),
     ];
 
-    let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
-      //b!(6.0, woodland_hills),
-      //b!(1.0, birch_woodland_hills),
-      b!(2.0, aspen_wood),
-      //b!(5.0, birch_woodland_hills),
-      b!(4.0, cherry_blossom_wood),
-      //b!(2.0, warm_volcano),
-    ];
+    // let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+    //   //b!(6.0, woodland_hills),
+    //   //b!(1.0, birch_woodland_hills),
+    //   b!(2.0, aspen_wood),
+    //   //b!(5.0, birch_woodland_hills),
+    //   b!(4.0, cherry_blossom_wood),
+    //   //b!(2.0, warm_volcano),
+    // ];
 
     let (GeographicType::Standard, ClimateType::CoolTemperate) =
       &[b!(1.0, glacier), b!(1.0, rockies), b!(1.0, broken_glacier)];
