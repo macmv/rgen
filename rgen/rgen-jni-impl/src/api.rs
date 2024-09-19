@@ -8,6 +8,7 @@ use jni::{
 
 use crate::{ctx::Context, ChunkContext};
 use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos, Pos};
+use rgen_spline::Cosine;
 
 // TODO: Do we need to worry about obfuscated names anymore?
 #[cfg(not(feature = "obf-names"))]
@@ -226,12 +227,18 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
     let geographic_type = ctx.generator.geographic_type(pos);
     let climate_type = ctx.generator.climate_type(pos);
 
+    let c = rgen_biome::CONTINENTALNESS.sample::<Cosine>(continentalness);
+    let i = rgen_biome::HEIGHT_IMPACT.sample::<Cosine>(c / 128.0);
+    let p = rgen_biome::PEAKS_VALLEYS.sample::<Cosine>(peaks_valleys);
+    let e = rgen_biome::EROSION.sample::<Cosine>(erosion);
+
     [
       format!("biome: {}", biome.name),
       format!("continentalness: {continentalness_cat:?} ({continentalness:.3})"),
       format!("peaks valleys: {peaks_valleys_cat:?} ({peaks_valleys:.3})"),
       format!("erosion: {erosion_cat} ({erosion:.3})"),
       format!("geo: {geographic_type:?}, clim: {climate_type:?}"),
+      format!("c: {c:.3} p: {p:.3} e: {e:.3} i: {i:.3}"),
     ]
   });
 

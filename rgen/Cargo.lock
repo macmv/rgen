@@ -2323,6 +2323,7 @@ dependencies = [
  "rgen-base",
  "rgen-biome",
  "rgen-placer",
+ "rgen-spline",
  "rgen-world",
 ]
 

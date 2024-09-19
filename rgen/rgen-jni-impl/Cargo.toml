@@ -13,6 +13,7 @@ rgen-base.workspace = true
 rgen-placer.workspace = true
 rgen-biome.workspace = true
 rgen-world.workspace = true
+rgen-spline.workspace = true
 
 jni = "0.21.1"
 
