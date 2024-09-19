@@ -117,7 +117,7 @@ impl WorldBiomes {
     let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type
 
     let total = biomes.iter().map(|b| b.rarity).sum::<u32>();
-    let mut variance = self.variance(pos) as u32 * total;
+    let mut variance = self.variance(pos) % total;
     for biome in biomes {
       variance = match variance.checked_sub(biome.rarity) {
         Some(v) => v,
@@ -169,7 +169,7 @@ impl WorldBiomes {
     self.humidity_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 
-  fn variance(&self, pos: Pos) -> f64 {
-    self.variance_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
+  fn variance(&self, pos: Pos) -> u32 {
+    self.variance_map.generate(pos.x as f64 / 64.0, pos.z as f64 / 64.0)
   }
 }
