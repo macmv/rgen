@@ -13,7 +13,9 @@ pub trait SeededNoise {
 }
 
 pub trait NoiseGenerator {
-  fn generate(&self, x: f64, y: f64) -> f64;
+  type Output;
+
+  fn generate(&self, x: f64, y: f64) -> Self::Output;
 }
 
 pub trait NoiseGenerator3D {

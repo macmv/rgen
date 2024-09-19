@@ -37,7 +37,11 @@ impl<N: SeededNoise, const O: usize> OctavedNoise<N, O> {
   }
 }
 
-impl<Noise: NoiseGenerator, const O: usize> NoiseGenerator for OctavedNoise<Noise, O> {
+impl<Noise: NoiseGenerator<Output = f64>, const O: usize> NoiseGenerator
+  for OctavedNoise<Noise, O>
+{
+  type Output = f64;
+
   fn generate(&self, x: f64, y: f64) -> f64 {
     let mut x = x * self.freq;
     let mut y = y * self.freq;

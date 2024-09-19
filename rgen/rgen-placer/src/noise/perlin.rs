@@ -10,6 +10,8 @@ impl SeededNoise for PerlinNoise {
 }
 
 impl NoiseGenerator for PerlinNoise {
+  type Output = f64;
+
   fn generate(&self, x: f64, y: f64) -> f64 {
     let x0 = if x > 0.0 { x as i32 } else { (x - 1.0) as i32 };
     let x1 = x0 + 1;
