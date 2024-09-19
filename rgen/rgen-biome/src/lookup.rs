@@ -79,8 +79,8 @@ impl WorldBiomes {
       (MidInland, HighSlice, 0..=3) => GeographicType::Hills,
       (MidInland, HighSlice, 4..=6) => GeographicType::Standard,
       (MidInland, Peak, 0..=1) => GeographicType::Mountains,
-      (MidInland, Peak, 2) => GeographicType::Hills,
-      (MidInland, Peak, 3..=6) => GeographicType::Standard,
+      (MidInland, Peak, 2..=3) => GeographicType::Hills,
+      (MidInland, Peak, 4..=6) => GeographicType::Standard,
 
       (FarInland, Valley, 0..=3) => GeographicType::Standard,
       (FarInland, Valley, 4..=6) => GeographicType::Valley,
