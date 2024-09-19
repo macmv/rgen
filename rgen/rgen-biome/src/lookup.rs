@@ -170,6 +170,6 @@ impl WorldBiomes {
   }
 
   fn variance(&self, pos: Pos) -> u32 {
-    self.variance_map.generate(pos.x as f64 / 64.0, pos.z as f64 / 64.0)
+    self.variance_map.generate(pos.x as f64 / 128.0, pos.z as f64 / 128.0)
   }
 }
