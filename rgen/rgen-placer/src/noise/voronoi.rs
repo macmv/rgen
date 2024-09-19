@@ -1,30 +1,24 @@
 use std::ops::Add;
 
-use rgen_base::Pos;
-
 use crate::{Random, Rng};
-
-use super::{NoiseGenerator, OpenSimplexNoise, SeededNoise};
 
 /// This is an infinitely expanding voronoi map. It returns a unique id for
 /// every region that is retrieved. It should be used to choose which biome to
 /// generate at each block.
 pub struct VoronoiNoise {
-  offset: OpenSimplexNoise,
-
-  grid: PointGrid,
+  scale: u32,
+  grid:  PointGrid,
 }
 
 impl VoronoiNoise {
-  pub fn new(seed: u64) -> Self {
-    VoronoiNoise { offset: OpenSimplexNoise::new(seed), grid: PointGrid::new(seed, 32, 128) }
+  pub fn new(seed: u64, scale: u32) -> Self {
+    VoronoiNoise { scale, grid: PointGrid::new(seed, 256, scale) }
   }
+}
 
-  pub fn get(&self, p: Pos) -> u32 {
-    let noise_x = self.offset.generate(p.x as f64 / 64.0, p.z as f64 / 64.0);
-    let noise_z = self.offset.generate(p.z as f64 / 64.0, p.x as f64 / 64.0);
-    let point =
-      Point::new((p.x as f64 + noise_x * 256.0) as i32, (p.z as f64 + noise_z * 256.0) as i32);
+impl VoronoiNoise {
+  pub fn generate(&self, x: f64, y: f64) -> u32 {
+    let point = Point::new(x as i32 * self.scale as i32, y as i32 * self.scale as i32);
 
     let p = self.grid.closest_point(point);
     (p.x as u32) ^ ((p.y as u32) << 16)
