@@ -3,7 +3,9 @@ use std::{collections::HashMap, mem, time::Duration};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::Pos;
-use rgen_placer::noise::{NoiseGenerator, OpenSimplexNoise, SeededNoise, VoronoiNoise};
+use rgen_placer::noise::{
+  NoiseGenerator, OpenSimplexNoise, SeededNoise, ShiftedNoise, VoronoiNoise,
+};
 
 use crate::{
   color::Color,
@@ -22,8 +24,7 @@ pub struct WorldViewer {
   pub completed_tx: Sender<(RegionPos, RenderMode, RenderBuffer)>,
   pub completed_rx: Receiver<(RegionPos, RenderMode, RenderBuffer)>,
 
-  shift_noise:   OpenSimplexNoise,
-  voronoi_noise: VoronoiNoise,
+  voronoi_noise: ShiftedNoise<VoronoiNoise, OpenSimplexNoise>,
 }
 
 impl WorldViewer {
@@ -38,8 +39,12 @@ impl WorldViewer {
       completed_tx: ctx,
       completed_rx: crx,
 
-      shift_noise:   OpenSimplexNoise::new(0),
-      voronoi_noise: VoronoiNoise::new(0, 128),
+      voronoi_noise: ShiftedNoise::new(
+        VoronoiNoise::new(0, 128),
+        OpenSimplexNoise::new(0),
+        1.0,
+        1.0,
+      ),
     }
   }
 
@@ -93,11 +98,7 @@ impl WorldViewer {
         let pos = region_pos.min_block_pos() + Pos::new(rel_x, 255, rel_z);
         let column = world.column_at(pos);
 
-        let shift_x = self.shift_noise.generate(pos.x as f64 / 64.0, pos.z as f64 / 64.0);
-        let shift_z = self.shift_noise.generate(pos.z as f64 / 64.0, pos.x as f64 / 64.0);
-
-        let voronoi =
-          self.voronoi_noise.generate(pos.x as f64 / 64.0 + shift_x, pos.z as f64 / 64.0 + shift_z);
+        let voronoi = self.voronoi_noise.generate(pos.x as f64 / 64.0, pos.z as f64 / 64.0);
         let voronoi = (voronoi % 10) as f64 / 10.0;
 
         let biome = column.biome;

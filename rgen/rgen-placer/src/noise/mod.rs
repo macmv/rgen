@@ -1,11 +1,13 @@
 mod octaved;
 mod open_simplex;
 mod perlin;
+mod shifted;
 mod voronoi;
 
 pub use octaved::OctavedNoise;
 pub use open_simplex::OpenSimplexNoise;
 pub use perlin::PerlinNoise;
+pub use shifted::ShiftedNoise;
 pub use voronoi::VoronoiNoise;
 
 pub trait SeededNoise {
