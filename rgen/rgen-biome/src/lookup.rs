@@ -36,22 +36,12 @@ impl WorldBiomes {
     }
   }
 
-  fn choose_cave_biome(&self, pos: Pos) -> &BiomeBuilder {
+  fn choose_cave_biome(&self, _pos: Pos) -> &BiomeBuilder {
     // FIXME: This needs rewriting.
     /*
     let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]   [(humidity * self.old_table[0].len() as f64) as usize];
     */
-    let biomes = &self.composition_lookup.blank;
-
-    let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
-    let mut variance = self.variance(pos) * total;
-    for biome in biomes {
-      variance -= biome.rarity;
-      if variance <= 0.0 {
-        return biome;
-      }
-    }
-    &biomes[0]
+    &self.composition_lookup.blank[0]
   }
 
   pub fn geographic_type(&self, pos: Pos) -> GeographicType {
@@ -126,13 +116,13 @@ impl WorldBiomes {
 
     let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type
 
-    let total = biomes.iter().map(|b| b.rarity).sum::<f64>();
-    let mut variance = self.variance(pos) * total;
+    let total = biomes.iter().map(|b| b.rarity).sum::<u32>();
+    let mut variance = self.variance(pos) % total;
     for biome in biomes {
-      variance -= biome.rarity;
-      if variance <= 0.0 {
-        return biome;
-      }
+      variance = match variance.checked_sub(biome.rarity) {
+        Some(v) => v,
+        None => return biome,
+      };
     }
     &biomes[0]
   }
@@ -179,7 +169,7 @@ impl WorldBiomes {
     self.humidity_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 
-  fn variance(&self, pos: Pos) -> f64 {
-    self.variance_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
+  fn variance(&self, pos: Pos) -> u32 {
+    self.variance_map.generate(pos.x as f64 / 128.0, pos.z as f64 / 128.0)
   }
 }

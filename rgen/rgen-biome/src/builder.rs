@@ -12,7 +12,7 @@ pub enum PlacerStage {
 
 pub struct BiomeBuilder {
   pub name:   &'static str,
-  pub rarity: f64,
+  pub rarity: u32,
   pub id:     rgen_base::Biome,
   pub color:  &'static str,
 
@@ -45,7 +45,7 @@ impl PlacerBuilder {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, blocks: &Blocks, rarity: f64) -> Self {
+  pub fn new(name: &'static str, blocks: &Blocks, rarity: u32) -> Self {
     Self {
       name,
       rarity,

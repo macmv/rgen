@@ -1,17 +1,23 @@
 mod octaved;
 mod open_simplex;
 mod perlin;
+mod shifted;
+mod voronoi;
 
 pub use octaved::OctavedNoise;
 pub use open_simplex::OpenSimplexNoise;
 pub use perlin::PerlinNoise;
+pub use shifted::ShiftedNoise;
+pub use voronoi::VoronoiNoise;
 
 pub trait SeededNoise {
   fn new(seed: u64) -> Self;
 }
 
 pub trait NoiseGenerator {
-  fn generate(&self, x: f64, y: f64) -> f64;
+  type Output;
+
+  fn generate(&self, x: f64, y: f64) -> Self::Output;
 }
 
 pub trait NoiseGenerator3D {

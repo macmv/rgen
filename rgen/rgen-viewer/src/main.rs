@@ -39,6 +39,9 @@ enum RenderMode {
 
   /// Renders the result of `sample_height`.
   Height,
+
+  /// Funny thing for testing.
+  Voronoi,
 }
 
 const MIN_ZOOM: f64 = 0.5;
@@ -128,6 +131,10 @@ pub fn main() -> Result<(), String> {
         }
         Event::KeyDown { keycode: Some(Keycode::Num5), .. } => {
           world_view.set_mode(RenderMode::Height);
+          redraw = true;
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num6), .. } => {
+          world_view.set_mode(RenderMode::Voronoi);
           redraw = true;
         }
 

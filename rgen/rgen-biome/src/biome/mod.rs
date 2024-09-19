@@ -38,7 +38,7 @@ use crate::builder::{BiomeBuilder, PlacerStage};
 pub type BiomeFn = fn(&IdContext, &mut BiomeBuilder);
 
 impl BiomeBuilder {
-  pub fn build(name: &'static str, ctx: &IdContext, rarity: f64, build: BiomeFn) -> Self {
+  pub fn build(name: &'static str, ctx: &IdContext, rarity: u32, build: BiomeFn) -> Self {
     let mut builder = BiomeBuilder::new(name, ctx.blocks, rarity);
     build(ctx, &mut builder);
     if builder.color.is_empty() {

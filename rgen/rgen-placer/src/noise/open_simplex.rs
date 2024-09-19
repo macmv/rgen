@@ -11,6 +11,8 @@ impl SeededNoise for OpenSimplexNoise {
 }
 
 impl NoiseGenerator for OpenSimplexNoise {
+  type Output = f64;
+
   fn generate(&self, x: f64, y: f64) -> f64 { noise_2(Vector2::new(x, y), &self.perm) }
 }
 

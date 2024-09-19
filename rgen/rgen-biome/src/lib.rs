@@ -2,7 +2,10 @@ use biome::IdContext;
 use cave::CaveCarver;
 use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
 use rgen_placer::{
-  noise::{NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise},
+  noise::{
+    NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
+    ShiftedNoise, VoronoiNoise,
+  },
   BiomeCachedChunk, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
@@ -67,7 +70,7 @@ pub struct WorldBiomes {
 
   /// Variance determines which biome to pick out of a list. Its basically
   /// random.
-  variance_map: OctavedNoise<OpenSimplexNoise, 8>,
+  variance_map: ShiftedNoise<VoronoiNoise, OpenSimplexNoise>,
 
   density_map: OctavedNoise<PerlinNoise, 5>,
 
@@ -139,7 +142,12 @@ impl WorldBiomes {
       continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
       peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
       erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
-      variance_map:        OctavedNoise::new(seed, 1.0 / 512.0),
+      variance_map:        ShiftedNoise::new(
+        VoronoiNoise::new(seed, 128),
+        OpenSimplexNoise::new(seed),
+        1.0,
+        1.0,
+      ),
 
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
