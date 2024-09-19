@@ -2,6 +2,8 @@ use std::ops::Add;
 
 use crate::{Random, Rng};
 
+use super::NoiseGenerator;
+
 /// This is an infinitely expanding voronoi map. It returns a unique id for
 /// every region that is retrieved. It should be used to choose which biome to
 /// generate at each block.
@@ -16,8 +18,10 @@ impl VoronoiNoise {
   }
 }
 
-impl VoronoiNoise {
-  pub fn generate(&self, x: f64, y: f64) -> u32 {
+impl NoiseGenerator for VoronoiNoise {
+  type Output = u32;
+
+  fn generate(&self, x: f64, y: f64) -> u32 {
     let point = Point::new(x as i32 * self.scale as i32, y as i32 * self.scale as i32);
 
     let p = self.grid.closest_point(point);
