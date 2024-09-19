@@ -59,13 +59,16 @@ impl WorldBiomes {
       (Sea, _, _) => GeographicType::Ocean,
       (Coast, _, _) => GeographicType::Beach,
 
-      (NearInland, Valley, _) => GeographicType::Valley,
+      (NearInland, Valley, 0..=2) => GeographicType::Standard,
+      (NearInland, Valley, 3..=6) => GeographicType::Valley,
       (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
       (NearInland, LowSlice, 6) => GeographicType::Valley,
-      (NearInland, MidSlice, 0..=1) => GeographicType::Hills,
-      (NearInland, MidSlice, 2..=5) => GeographicType::Standard,
+      (NearInland, MidSlice, 0) => GeographicType::Mountains,
+      (NearInland, MidSlice, 1..=3) => GeographicType::Hills,
+      (NearInland, MidSlice, 4..=5) => GeographicType::Standard,
       (NearInland, MidSlice, 6) => GeographicType::Valley,
-      (NearInland, HighSlice, 0..=3) => GeographicType::Hills,
+      (NearInland, HighSlice, 0..=1) => GeographicType::Mountains,
+      (NearInland, HighSlice, 2..=3) => GeographicType::Hills,
       (NearInland, HighSlice, 4..=6) => GeographicType::Standard,
       (NearInland, Peak, 0..=1) => GeographicType::Mountains,
       (NearInland, Peak, 2..=5) => GeographicType::Hills,
@@ -73,10 +76,15 @@ impl WorldBiomes {
 
       (MidInland, Valley, 0..=3) => GeographicType::Standard,
       (MidInland, Valley, 4..=6) => GeographicType::Valley,
-      (MidInland, LowSlice | MidSlice, 0..=3) => GeographicType::Hills,
-      (MidInland, LowSlice | MidSlice, 4..=5) => GeographicType::Standard,
-      (MidInland, LowSlice | MidSlice, 6) => GeographicType::Valley,
-      (MidInland, HighSlice, 0..=3) => GeographicType::Hills,
+      (MidInland, LowSlice, 0..=3) => GeographicType::Hills,
+      (MidInland, LowSlice, 4..=5) => GeographicType::Standard,
+      (MidInland, LowSlice, 6) => GeographicType::Valley,
+      (MidInland, MidSlice, 0..=1) => GeographicType::Mountains,
+      (MidInland, MidSlice, 2..=3) => GeographicType::Hills,
+      (MidInland, MidSlice, 4..=5) => GeographicType::Standard,
+      (MidInland, MidSlice, 6) => GeographicType::Valley,
+      (MidInland, HighSlice, 0..=1) => GeographicType::Mountains,
+      (MidInland, HighSlice, 2..=3) => GeographicType::Hills,
       (MidInland, HighSlice, 4..=6) => GeographicType::Standard,
       (MidInland, Peak, 0..=1) => GeographicType::Mountains,
       (MidInland, Peak, 2..=3) => GeographicType::Hills,
@@ -157,8 +165,15 @@ impl WorldBiomes {
   pub fn erosion_category(&self, pos: Pos) -> u8 {
     let erosion = self.sample_erosion(pos);
 
-    // FIXME: This is dumb
-    (erosion * 6.9999) as u8
+    match erosion {
+      x if x < 0.20 => 0,
+      x if x < 0.33 => 1,
+      x if x < 0.40 => 2,
+      x if x < 0.50 => 3,
+      x if x < 0.60 => 4,
+      x if x < 0.80 => 5,
+      _ => 6,
+    }
   }
 
   fn temperature(&self, pos: Pos) -> f64 {
