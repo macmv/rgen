@@ -12,7 +12,7 @@ pub struct Crevasse {
 
   pub height: i32,
 
-  pub noise: OctavedNoise<OpenSimplexNoise, 4>,
+  pub noise: OctavedNoise<OpenSimplexNoise, 3>,
 }
 
 impl Crevasse {
@@ -21,13 +21,13 @@ impl Crevasse {
       replace:    blocks.packed_ice.block.into(),
       height:     10,
       packed_ice: blocks.packed_ice.default_state,
-      noise:      OctavedNoise::new(0, 1.0 / 32.0),
+      noise:      OctavedNoise::new(0, 1.0 / 16.0),
     }
   }
 }
 
 pub static DEPTH: Spline<&'static [(f64, f64)]> =
-  Spline::new(&[(0.00, 1.0), (0.48, 1.0), (0.50, 0.0), (0.52, 1.0), (1.00, 1.0)]);
+  Spline::new(&[(0.00, 1.0), (0.45, 1.0), (0.50, 0.0), (0.55, 1.0), (1.00, 1.0)]);
 
 impl ChunkPlacer for Crevasse {
   fn place(
