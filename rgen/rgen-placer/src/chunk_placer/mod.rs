@@ -6,6 +6,7 @@ mod snow_stone;
 pub use checkerboard::CheckerboardSurface;
 pub use crevasse::*;
 pub use lush_cave::LushCaveMoss;
+pub use snow_stone::SnowOnStoneSurface;
 
 use rgen_base::{Block, BlockState, Blocks, ChunkRelPos, Pos};
 
