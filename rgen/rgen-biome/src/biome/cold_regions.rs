@@ -22,7 +22,7 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#82C5E1";
   gen.set_top_block(ctx.blocks.concrete.with_data(color::LIGHT_BLUE));
@@ -38,7 +38,7 @@ pub fn broken_glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#6FAFCE";
   gen.set_top_block(ctx.blocks.concrete.with_data(color::LIGHT_BLUE));
@@ -54,7 +54,7 @@ pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn hard_frozen_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#B2DBEF";
   gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
@@ -70,7 +70,13 @@ pub fn rocky_plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn rockies(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn alps(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.cold_taiga;
+  gen.color = "#4E9BB7";
+  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
+}
+
+pub fn frozen_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
   gen.color = "#4E9BB7";
   gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));

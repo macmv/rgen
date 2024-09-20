@@ -87,6 +87,17 @@ biome_categories!(
       b!(2, volcano_growth),
     ];
 
+    let (GeographicType::Standard, ClimateType::IceCap) =
+      &[b!(10, ice_spikes), b!(10, boulder_field)];
+
+    let (GeographicType::River, ClimateType::IceCap) = &[b!(20, hard_frozen_river)];
+
+    let (GeographicType::Valley, ClimateType::IceCap) = &[b!(20, glacier)];
+
+    let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, frozen_peak)];
+
+    let (GeographicType::Mountains, ClimateType::IceCap) = &[b!(10, alps), b!(10, frozen_peak)];
+
     // let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
     //   //b!(6, woodland_hills),
     //   //b!(1, birch_woodland_hills),
@@ -96,10 +107,8 @@ biome_categories!(
     //   //b!(2, warm_volcano),
     // ];
 
-    let (GeographicType::Standard, ClimateType::CoolTemperate) =
-      &[b!(1, glacier), b!(1, rockies), b!(1, broken_glacier)];
-    let (GeographicType::Standard, ClimateType::IceCap) =
-      &[b!(1, glacier), b!(1, rockies), b!(1, broken_glacier)];
+    let (GeographicType::Standard, ClimateType::CoolTemperate) = &[b!(1, glacier)];
+    let (GeographicType::Standard, ClimateType::IceCap) = &[b!(1, glacier)];
     let (GeographicType::Standard, ClimateType::Tundra) =
       &[b!(1, bog), b!(1, cold_bog), b!(1, fall_bog), b!(1, conifer_swamp)];
     let (GeographicType::Hills, ClimateType::Tundra) =
@@ -131,16 +140,10 @@ biome_categories!(
       //bladjlaf
     ];
 
-    let (GeographicType::Mountains, ClimateType::IceCap) = &[
-      b!(1, ice_spikes),
-      b!(1, broken_glacier),
-      b!(1, glacier),
-      b!(1, snowy_plains),
-      b!(1, rocky_plains),
-    ];
+    let (GeographicType::Mountains, ClimateType::IceCap) =
+      &[b!(1, ice_spikes), b!(1, glacier), b!(1, snowy_plains)];
     let (GeographicType::Mountains, ClimateType::Tundra) = &[
       b!(1, snowy_plains),
-      b!(1, rocky_plains),
       b!(1, frozen_meadow),
       b!(1, frozen_desert),
       // b!(1, snowy_fir_wood),
