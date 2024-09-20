@@ -1,4 +1,4 @@
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
 use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
@@ -14,17 +14,10 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#82C5E1";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::LIGHT_BLUE));
+  gen.set_top_block(ctx.blocks.packed_ice.default_state);
+  gen.add_layer(ctx.blocks.packed_ice.default_state, 20, 25);
 
-  gen.place(
-    "ice_patches",
-    PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block(),
-      place:    ctx.blocks.ice.default_state,
-      attempts: 100,
-    },
-  );
+  gen.place_chunk(chunk_placer::Crevasse::new(ctx.blocks));
 }
 
 pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
