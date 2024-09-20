@@ -3,6 +3,7 @@
 mod blank;
 mod cave;
 mod coast_regions;
+mod cold_region;
 mod cold_regions;
 mod cool_regions;
 mod dry_regions;
@@ -16,6 +17,7 @@ mod warm_temperate_regions;
 pub use blank::*;
 pub use cave::*;
 pub use coast_regions::*;
+pub use cold_region::*;
 pub use cold_regions::*;
 pub use cool_regions::*;
 pub use dry_regions::*;
