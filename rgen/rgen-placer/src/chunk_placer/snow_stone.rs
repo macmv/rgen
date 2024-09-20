@@ -1,15 +1,28 @@
 use rgen_base::{BlockFilter, BlockState, ChunkRelPos};
 
-use crate::{BiomeCachedChunk, ChunkPlacer};
+use crate::{
+  noise::{self, OpenSimplexNoise},
+  BiomeCachedChunk, ChunkPlacer,
+};
 
-pub struct CheckerboardSurface {
+pub struct SnowOnStoneSurface {
   pub replace: BlockFilter,
 
   pub a: BlockState,
   pub b: BlockState,
-}
 
-impl ChunkPlacer for CheckerboardSurface {
+  noise: OpenSimplexNoise,
+}
+/*
+impl SnowOnStoneSurface {
+  pub fn new() -> Self {
+    let noise = OpenSimplexNoise::new(0);
+    noise.generate(pos.x as f64, pos.z as f64);
+  }
+}
+  */
+
+impl ChunkPlacer for SnowOnStoneSurface {
   fn place(
     &self,
     chunk: &mut BiomeCachedChunk,
