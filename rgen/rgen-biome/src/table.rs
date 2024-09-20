@@ -108,7 +108,6 @@ biome_categories!(
     // ];
 
     let (GeographicType::Standard, ClimateType::CoolTemperate) = &[b!(1, glacier)];
-    let (GeographicType::Standard, ClimateType::IceCap) = &[b!(1, glacier)];
     let (GeographicType::Standard, ClimateType::Tundra) =
       &[b!(1, bog), b!(1, cold_bog), b!(1, fall_bog), b!(1, conifer_swamp)];
     let (GeographicType::Hills, ClimateType::Tundra) =
@@ -140,8 +139,6 @@ biome_categories!(
       //bladjlaf
     ];
 
-    let (GeographicType::Mountains, ClimateType::IceCap) =
-      &[b!(1, ice_spikes), b!(1, glacier), b!(1, snowy_plains)];
     let (GeographicType::Mountains, ClimateType::Tundra) = &[
       b!(1, snowy_plains),
       b!(1, frozen_meadow),
