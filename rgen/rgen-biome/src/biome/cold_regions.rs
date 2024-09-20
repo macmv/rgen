@@ -6,18 +6,6 @@ use rgen_placer::placer;
 use super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
 
-pub fn alps(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.cold_taiga;
-  gen.color = "#4E9BB7";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
-}
-
-pub fn frozen_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.cold_taiga;
-  gen.color = "#4E9BB7";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
-}
-
 pub fn frozen_meadow(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
   gen.color = "#748A99";
