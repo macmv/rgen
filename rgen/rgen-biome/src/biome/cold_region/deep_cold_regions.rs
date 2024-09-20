@@ -6,17 +6,9 @@ use crate::builder::{BiomeBuilder, PlacerStage};
 pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#E3F5FC";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::LIGHT_BLUE));
+  gen.set_top_block(ctx.blocks.stone.default_state);
 
-  gen.place(
-    "ice_patches",
-    PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block(),
-      place:    ctx.blocks.ice.default_state,
-      attempts: 100,
-    },
-  );
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
 }
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {

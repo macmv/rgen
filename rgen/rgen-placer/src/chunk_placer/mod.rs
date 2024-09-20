@@ -1,5 +1,6 @@
 mod checkerboard;
 mod lush_cave;
+mod snow_stone;
 
 pub use checkerboard::CheckerboardSurface;
 pub use lush_cave::LushCaveMoss;
