@@ -12,7 +12,7 @@ pub struct Spline<T: ?Sized> {
 }
 
 impl<T> Spline<T> {
-  pub fn new(storage: T) -> Self { Spline { storage } }
+  pub const fn new(storage: T) -> Self { Spline { storage } }
 }
 
 impl Spline<Vec<(f64, f64)>> {

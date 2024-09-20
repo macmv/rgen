@@ -2340,6 +2340,7 @@ version = "0.1.0"
 dependencies = [
  "rgen-base",
  "rgen-llama",
+ "rgen-spline",
  "rgen-world",
 ]
 

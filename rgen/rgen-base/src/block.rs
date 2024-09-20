@@ -183,6 +183,7 @@ big! { Blocks: BlockInfo
   cobblestone => "minecraft:cobblestone",
   mossy_cobblestone => "minecraft:mossy_cobblestone",
   ice => "minecraft:ice",
+  packed_ice => "minecraft:packed_ice",
   tallgrass => "minecraft:tallgrass",
   double_plant => "minecraft:double_plant",
   red_flower => "minecraft:red_flower",
@@ -198,7 +199,6 @@ big! { Blocks: BlockInfo
   glass_pane => "minecraft:glass_pane",
   wool => "minecraft:wool",
   lava => "minecraft:lava",
-  packed_ice => "minecraft:packed_ice",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",

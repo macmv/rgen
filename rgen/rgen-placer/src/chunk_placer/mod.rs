@@ -1,8 +1,10 @@
 mod checkerboard;
+mod crevasse;
 mod lush_cave;
 mod snow_stone;
 
 pub use checkerboard::CheckerboardSurface;
+pub use crevasse::*;
 pub use lush_cave::LushCaveMoss;
 
 use rgen_base::{Block, BlockState, Blocks, ChunkRelPos, Pos};
