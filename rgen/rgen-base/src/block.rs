@@ -198,6 +198,7 @@ big! { Blocks: BlockInfo
   glass_pane => "minecraft:glass_pane",
   wool => "minecraft:wool",
   lava => "minecraft:lava",
+  packed_ice => "minecraft:packed_ice",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",
