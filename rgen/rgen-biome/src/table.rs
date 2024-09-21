@@ -95,7 +95,7 @@ biome_categories!(
 
     let (GeographicType::River, ClimateType::IceCap) = &[b!(20, hard_frozen_river)];
 
-    let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, frozen_peak)];
+    let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, alps)];
 
     let (GeographicType::Mountains, ClimateType::IceCap) = &[b!(10, alps), b!(10, frozen_peak)];
 

@@ -59,11 +59,21 @@ pub fn hard_frozen_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn alps(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
   gen.color = "#4E9BB7";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
+
+  gen.set_top_block(ctx.blocks.snow_layer.with_data(7));
+  gen.add_layer(ctx.blocks.snow.default_state, 1, 2);
+  gen.add_layer(ctx.blocks.stone.default_state, 4, 5);
+
+  gen.place_chunk(chunk_placer::SnowOnSnowSurface::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
 }
 
 pub fn frozen_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.cold_taiga;
   gen.color = "#4E9BB7";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
+
+  gen.set_top_block(ctx.blocks.stone.default_state);
+
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
 }
