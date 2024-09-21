@@ -78,7 +78,7 @@ biome_categories!(
       b!(2, volcano_river),
     ];
 
-    let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
+    let (GeographicType::Canyon, ClimateType::WarmTemperate) = &[
       b!(6, woodland),
       b!(1, birch_woodland),
       b!(2, aspen_wood),
@@ -248,7 +248,7 @@ pub enum GeographicType {
   MushroomIsland,
   Ocean,
   Beach,
-  Valley,
+  Canyon,
   River,
   Standard,
   Hills,
