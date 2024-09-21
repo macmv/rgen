@@ -103,6 +103,14 @@ impl BlockState {
     assert!(self.state < 16);
     self.block.raw_id() | (self.state as u16)
   }
+
+  /// Creates a block state with the given data value, from 0 to 15 inclusive.
+  /// Prefer `with_property` when possible, as that will use the named
+  /// properties, which are almost always clearer.
+  pub fn with_data(&self, data: u8) -> BlockState {
+    assert!(data < 16);
+    BlockState { block: self.block, state: data }
+  }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -174,6 +182,7 @@ big! { Blocks: BlockInfo
   clay => "minecraft:clay",
   grass => "minecraft:grass",
   snow => "minecraft:snow",
+  snow_layer => "minecraft:snow_layer",
   sand => "minecraft:sand",
   gravel => "minecraft:gravel",
   log => "minecraft:log",

@@ -88,11 +88,12 @@ biome_categories!(
     ];
 
     let (GeographicType::Standard, ClimateType::IceCap) =
-      &[b!(10, ice_spikes), b!(10, boulder_field)];
+      &[b!(7, ice_spikes), b!(5, boulder_field), b!(8, glacier)];
+
+    // The river biome is now the valley  let (GeographicType::River,
+    // ClimateType::IceCap) = &[b!(20, glacier)];
 
     let (GeographicType::River, ClimateType::IceCap) = &[b!(20, hard_frozen_river)];
-
-    let (GeographicType::Valley, ClimateType::IceCap) = &[b!(20, glacier)];
 
     let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, frozen_peak)];
 
