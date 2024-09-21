@@ -25,8 +25,10 @@ pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
 pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#6FAFCE";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::LIGHT_BLUE));
+  gen.set_top_block(ctx.blocks.stone.default_state);
 
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
   gen.place(
     "ice_patches",
     PlacerStage::Sand,

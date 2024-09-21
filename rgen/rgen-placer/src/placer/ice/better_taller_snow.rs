@@ -43,7 +43,7 @@ impl Placer for BetterTallerSnow {
                   let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
                   if !self.block.contains(block_check) && block_check.block != Block::AIR {
                     let mut height = world.get(pos).state;
-                    height += 3; //rng.rand_inclusive(3, 5) as u8;
+                    height += 5; //rng.rand_inclusive(3, 5) as u8;
                     println!("height: {}", height);
                     let mut level = 0;
                     while height > 7 {
