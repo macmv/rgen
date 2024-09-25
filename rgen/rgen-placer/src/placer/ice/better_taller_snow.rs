@@ -7,6 +7,7 @@ use crate::{chunk, Placer, Random, Rng};
 pub struct BetterTallerSnow {
   pub block:        BlockFilter,
   pub snow:         BlockState,
+  pub ice:          BlockState,
   pub debug:        BlockState,
   pub avg_in_chunk: f64,
 }
@@ -16,6 +17,7 @@ impl BetterTallerSnow {
     BetterTallerSnow {
       block:        [blocks.snow_layer.block].into(),
       snow:         blocks.snow_layer.default_state,
+      ice:          blocks.packed_ice.default_state,
       debug:        blocks.concrete.with_data(5),
       avg_in_chunk: 1.0,
     }
@@ -41,7 +43,10 @@ impl Placer for BetterTallerSnow {
               for rel_z in -1..=1_i32 {
                 if !(rel_x == 0 && rel_z == 0) || !(rel_x.abs() == 1 && rel_z.abs() == 1) {
                   let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
-                  if !self.block.contains(block_check) && block_check.block != Block::AIR {
+                  if !self.block.contains(block_check)
+                    && block_check.block != Block::AIR
+                    && block_check != self.ice
+                  {
                     let mut height = world.get(pos).state;
                     height += 5; //rng.rand_inclusive(3, 5) as u8;
                     println!("height: {}", height);
