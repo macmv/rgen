@@ -39,34 +39,52 @@ impl Placer for BetterTallerSnow {
         for y in (0..256).rev() {
           let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
           if self.block.contains(world.get(pos)) {
-            'outer: for rel_x in -1..=1_i32 {
-              for rel_z in -1..=1_i32 {
-                if !(rel_x == 0 && rel_z == 0) || !(rel_x.abs() == 1 && rel_z.abs() == 1) {
-                  let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
-                  if !self.block.contains(block_check)
-                    && block_check.block != Block::AIR
-                    && block_check != self.ice
-                  {
-                    let mut height = world.get(pos).state;
-                    height += 5; //rng.rand_inclusive(3, 5) as u8;
-                    println!("height: {}", height);
-                    let mut level = 0;
-                    while height > 7 {
-                      height -= 7;
-                      world.set(pos + Pos::new(0, level, 0), self.snow.with_data(7));
-                      level += 1;
-                    }
-                    world.set(pos + Pos::new(0, level, 0), self.snow.with_data(height));
-                    //rld.set(pos + Pos::new(0, 15, 0), self.debug);
-                    break 'outer;
-                  }
-                }
-              }
+            if self.base_search(rng, pos, world) {
+              self.base_build(rng, pos, world);
             }
             break;
           }
         }
       }
     }
+  }
+}
+
+impl BetterTallerSnow {
+  fn base_search(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) -> bool {
+    'outer: for rel_x in -1..=1_i32 {
+      for rel_z in -1..=1_i32 {
+        if !(rel_x == 0 && rel_z == 0)
+        /* || !(rel_x.abs() == 1 && rel_z.abs() == 1) // REMOVED TO ALLOW FOR CONNER SEARCH */
+        {
+          let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
+          if !self.block.contains(block_check)
+            && block_check.block != Block::AIR
+            && block_check != self.ice
+          {
+            return (true);
+            //break 'outer;
+          }
+        }
+      }
+    }
+    return (false);
+  }
+
+  fn base_build(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+    let mut height = world.get(pos).state;
+    height += 5; //rng.rand_inclusive(3, 5) as u8;]
+    self.snow_builder(pos, world, &mut height);
+  }
+
+  fn snow_builder(&self, pos: Pos, world: &mut PartialWorld, height: &mut u8) {
+    let mut level = 0;
+    while *height > 7 {
+      *height -= 7;
+      world.set(pos + Pos::new(0, level, 0), self.snow.with_data(7));
+      level += 1;
+    }
+    world.set(pos + Pos::new(0, level, 0), self.snow.with_data(*height));
+    //rld.set(pos + Pos::new(0, 15, 0), self.debug);
   }
 }

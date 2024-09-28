@@ -9,9 +9,9 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.stone.default_state);
 
   gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
+
   gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
-  //gen.place("Snow", PlacerStage::Tree,
-  // placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
 }
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -29,8 +29,8 @@ pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.stone.default_state);
 
   gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
-  //gen.place("Snow", PlacerStage::Tree,
-  // placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+
   gen.place(
     "ice_patches",
     PlacerStage::Sand,
