@@ -10,14 +10,12 @@ pub struct SnowOnStoneSurface {
   pub place_above: BlockFilter,
   pub min_snow:    i32,
   pub add_snow:    f64,
-
-  noise: OpenSimplexNoise,
+  pub noise:       OpenSimplexNoise,
 }
 
 impl SnowOnStoneSurface {
   pub fn new(blocks: &Blocks) -> Self {
     let noise = OpenSimplexNoise::new(0);
-    //noise.generate(pos.x as f64, pos.z as f64);
     SnowOnStoneSurface {
       noise:       noise,
       a:           blocks.snow_layer.default_state,

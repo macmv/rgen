@@ -9,6 +9,7 @@ pub struct IceSpikes {
   pub material:                BlockState,
   pub avg_in_chunk:            f64,
   pub fluid:                   BlockState,
+  pub replacables:             BlockFilter,
   chance_of_secondary_pillars: i32,
 }
 
@@ -21,6 +22,15 @@ impl IceSpikes {
       avg_in_chunk:                0.8,
       fluid:                       blocks.lava.default_state.into(),
       chance_of_secondary_pillars: 3,
+      replacables:                 [
+        Block::AIR,
+        blocks.snow_layer.block,
+        blocks.snow.block,
+        blocks.ice.block,
+        blocks.packed_ice.block,
+        blocks.water.block,
+      ]
+      .into(),
     }
   }
 }
@@ -67,7 +77,16 @@ impl IceSpikes {
         for pillar_height in -1..rng.rand_inclusive(min, max) {
           world.set(pos + Pos::new(rel_x, pillar_height, rel_z), self.material);
         }
+        self.ground_placement(rng, pos + Pos::new(rel_x, 0, rel_z), world);
       }
+    }
+  }
+  fn ground_placement(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+    for neg_y in -1..-8 {
+      if self.replacables.contains(world.get(pos + Pos::new(0, neg_y, 0))) {
+        world.set(pos + Pos::new(0, neg_y, 0), self.material)
+      }
+      world.set(pos + Pos::new(0, neg_y, 0), self.material)
     }
   }
 }

@@ -19,7 +19,7 @@ impl BetterTallerSnow {
       snow:         blocks.snow_layer.default_state,
       ice:          blocks.packed_ice.default_state,
       debug:        blocks.concrete.with_data(5),
-      avg_in_chunk: 1.0,
+      avg_in_chunk: 2.0,
     }
   }
 }
@@ -72,19 +72,36 @@ impl BetterTallerSnow {
   }
 
   fn base_build(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
-    let mut height = world.get(pos).state;
-    height += 5; //rng.rand_inclusive(3, 5) as u8;]
-    self.snow_builder(pos, world, &mut height);
+    self.snow_builder(pos, world, 7);
+    for rel_x in -1..=1_i32 {
+      for rel_z in -1..=1_i32 {
+        // Check if this is boundry of the base rather than the core
+        if !(rel_x == 0 && rel_z == 0) {
+          // Check if the block is a snow layer
+          let local_pos = pos + Pos::new(rel_x, 0, rel_z);
+          if self.block.contains(world.get(local_pos)) {
+            let height = world.get(local_pos).state;
+            // Check if the snow is low enough if it is it needs to be made taller
+            if height < 4 {
+              //world.set()
+              self.snow_builder(local_pos, world, height + 3);
+            }
+          }
+
+          //break 'outer;
+        }
+      }
+    }
   }
 
-  fn snow_builder(&self, pos: Pos, world: &mut PartialWorld, height: &mut u8) {
+  fn snow_builder(&self, pos: Pos, world: &mut PartialWorld, mut height: u8) {
     let mut level = 0;
-    while *height > 7 {
-      *height -= 7;
+    while height > 7 {
+      height -= 7;
       world.set(pos + Pos::new(0, level, 0), self.snow.with_data(7));
       level += 1;
     }
-    world.set(pos + Pos::new(0, level, 0), self.snow.with_data(*height));
+    world.set(pos + Pos::new(0, level, 0), self.snow.with_data(height));
     //rld.set(pos + Pos::new(0, 15, 0), self.debug);
   }
 }

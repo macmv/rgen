@@ -1,4 +1,8 @@
-use rgen_placer::{chunk_placer, placer};
+use rgen_placer::{
+  chunk_placer,
+  noise::{OpenSimplexNoise, SeededNoise},
+  placer,
+};
 
 use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
@@ -9,9 +13,80 @@ pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.stone.default_state);
 
   gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
-
   gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
+
   gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+}
+
+pub fn deep_snow_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.ice_plains;
+  gen.color = "#E3F5FC";
+  gen.set_top_block(ctx.blocks.stone.default_state);
+
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
+
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface {
+    noise:       OpenSimplexNoise::new(0),
+    a:           ctx.blocks.snow_layer.default_state,
+    add_snow:    2.25,
+    min_snow:    0,
+    place_above: [ctx.blocks.stone.block].into(),
+  });
+
+  gen.place(
+    "gravel_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        2..=5,
+      avg_per_chunk: 1.0,
+    },
+  );
+  gen.place(
+    "loose_cobblestone",
+    PlacerStage::Sand,
+    placer::Scatter {
+      place_above: ctx.blocks.stone.default_state.into(),
+      place:       ctx.blocks.stone.default_state,
+      attempts:    30,
+    },
+  );
+}
+
+pub fn ice_spike_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.id = ctx.biomes.ice_plains;
+  gen.color = "#E3F5FC";
+  gen.set_top_block(ctx.blocks.stone.default_state);
+
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface {
+    noise:       OpenSimplexNoise::new(0),
+    a:           ctx.blocks.snow_layer.default_state,
+    add_snow:    0.75,
+    min_snow:    1,
+    place_above: [ctx.blocks.stone.block].into(),
+  });
+
+  gen.place(
+    "gravel_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        2..=5,
+      avg_per_chunk: 1.0,
+    },
+  );
+  gen.place(
+    "loose_cobblestone",
+    PlacerStage::Sand,
+    placer::Scatter {
+      place_above: ctx.blocks.stone.default_state.into(),
+      place:       ctx.blocks.stone.default_state,
+      attempts:    30,
+    },
+  );
 }
 
 pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {

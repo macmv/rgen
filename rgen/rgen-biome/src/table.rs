@@ -98,6 +98,9 @@ biome_categories!(
     let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, alps)];
 
     let (GeographicType::Mountains, ClimateType::IceCap) = &[b!(10, alps), b!(10, frozen_peak)];
+    //deep_snow_beach
+    let (GeographicType::Beach, ClimateType::IceCap) =
+      &[b!(7, ice_spike_beach), b!(5, deep_snow_beach), b!(8, deep_snow_beach)];
 
     // let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
     //   //b!(6, woodland_hills),
