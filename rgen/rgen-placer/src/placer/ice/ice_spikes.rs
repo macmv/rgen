@@ -82,11 +82,10 @@ impl IceSpikes {
     }
   }
   fn ground_placement(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
-    for neg_y in -1..-8 {
-      if self.replacables.contains(world.get(pos + Pos::new(0, neg_y, 0))) {
-        world.set(pos + Pos::new(0, neg_y, 0), self.material)
+    for neg_y in 1..8 {
+      if self.replacables.contains(world.get(pos + Pos::new(0, neg_y * -1, 0))) {
+        world.set(pos + Pos::new(0, neg_y * -1, 0), self.material)
       }
-      world.set(pos + Pos::new(0, neg_y, 0), self.material)
     }
   }
 }

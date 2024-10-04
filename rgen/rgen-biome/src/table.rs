@@ -93,7 +93,8 @@ biome_categories!(
     // The river biome is now the valley  let (GeographicType::River,
     // ClimateType::IceCap) = &[b!(20, glacier)];
 
-    let (GeographicType::River, ClimateType::IceCap) = &[b!(20, hard_frozen_river)];
+    let (GeographicType::River, ClimateType::IceCap) = &[b!(20, deep_snow_beach)]; //&[b!(20, hard_frozen_river)];
+    let (GeographicType::Canyon, ClimateType::IceCap) = &[b!(20, deep_snow_beach)]; //&[b!(20, hard_frozen_river)];
 
     let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, alps)];
 
