@@ -23,4 +23,19 @@ pub fn deep_jungle(ctx: &IdContext, gen: &mut BiomeBuilder) {
       radius:        3..=5,
     },
   );
+
+  gen.place(
+    "Grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      gen.top_block().into(),
+      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
+      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
+      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+
+      radius:        4..=10,
+      attempts:      50,
+      avg_per_chunk: 8.0,
+    },
+  );
 }
