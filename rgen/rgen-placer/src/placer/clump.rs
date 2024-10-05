@@ -91,16 +91,16 @@ impl Placer for GrassClumps {
         pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
       }
 
-      let above_pos = pos + Pos::new(0, 1, 0);
+      let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
         let height = *rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
 
         if height == 1 {
-          world.set(above_pos, self.place_short);
+          world.set(pos, self.place_short);
         } else {
-          world.set(above_pos, self.place_tall_lower);
-          world.set(above_pos + Pos::new(0, 1, 0), self.place_tall_upper);
+          world.set(pos, self.place_tall_lower);
+          world.set(pos + Pos::new(0, 1, 0), self.place_tall_upper);
         }
       }
     }
