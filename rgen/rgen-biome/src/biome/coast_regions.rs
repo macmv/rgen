@@ -415,8 +415,9 @@ pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
 
-      radius:   4..=10,
-      attempts: 20,
+      radius:        4..=10,
+      attempts:      20,
+      avg_per_chunk: 3.0,
     },
   );
 

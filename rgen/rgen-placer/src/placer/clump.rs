@@ -20,8 +20,9 @@ pub struct GrassClumps {
   pub place_tall_lower: BlockState,
   pub place_tall_upper: BlockState,
 
-  pub radius:   RangeInclusive<u8>,
-  pub attempts: u32,
+  pub radius:        RangeInclusive<u8>,
+  pub attempts:      u32,
+  pub avg_per_chunk: f64,
 }
 
 pub struct PlantClumps {
@@ -70,15 +71,16 @@ impl GrassClumps {
       place_tall_lower: blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: blocks.double_plant.with_data(10), // Tall grass upper
 
-      radius:   4..=10,
-      attempts: 60,
+      radius:        4..=10,
+      attempts:      60,
+      avg_per_chunk: 3.0,
     }
   }
 }
 
 impl Placer for GrassClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { 3.0 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);

@@ -45,8 +45,9 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
 
-      radius:   4..=10,
-      attempts: 100,
+      radius:        4..=10,
+      attempts:      100,
+      avg_per_chunk: 3.0,
     },
   );
 
@@ -59,8 +60,9 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_lower: ctx.blocks.double_plant.with_data(1), // lilac bottom
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // double plant top
 
-      radius:   4..=10,
-      attempts: 40,
+      radius:        4..=10,
+      attempts:      40,
+      avg_per_chunk: 3.0,
     },
   );
 }
@@ -151,8 +153,9 @@ pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
       place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
 
-      radius:   4..=10,
-      attempts: 200,
+      radius:        4..=10,
+      attempts:      200,
+      avg_per_chunk: 3.0,
     },
   );
 
