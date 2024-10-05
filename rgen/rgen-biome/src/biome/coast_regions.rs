@@ -246,7 +246,6 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       leaves:      ctx.blocks.leaves.with_data(4),
 
       radius:        10..=20,
-      attempts:      10,
       avg_per_chunk: 1.0,
     },
   );
@@ -397,7 +396,6 @@ pub fn chaparral_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       leaves:      ctx.blocks.leaves.default_state,
 
       radius:        10..=20,
-      attempts:      10,
       avg_per_chunk: 1.0,
     },
   );
@@ -431,7 +429,6 @@ pub fn jungle_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       leaves:      ctx.blocks.leaves.with_data(3), //jungle leaves
 
       radius:        10..=20,
-      attempts:      10,
       avg_per_chunk: 4.0,
     },
   );
