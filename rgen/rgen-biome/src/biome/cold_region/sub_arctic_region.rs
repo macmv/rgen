@@ -20,6 +20,8 @@ pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     a:       ctx.blocks.concrete.with_data(color::MAGENTA),
     b:       ctx.blocks.concrete.with_data(color::BLACK),
   });
+
+  spruce_rainbow_mix(ctx, gen);
 }
 
 pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -48,6 +50,26 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   });
 }
 
+fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 9.0 + 3.0 + 4.0,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Standard,
+    },
+  )
+}
+
 // FIR CAT
 
 pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -61,6 +83,11 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     a:       ctx.blocks.concrete.with_data(color::MAGENTA),
     b:       ctx.blocks.concrete.with_data(color::BLACK),
   });
+
+  // Red
+  // Bue
+  // Green
+  // Rainbow
 }
 
 pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
