@@ -243,7 +243,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::BushClumps {
       place_above: gen.top_block().into(),
       log:         ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.default_state,
+      leaves:      ctx.blocks.leaves.with_data(4),
 
       radius:        10..=20,
       attempts:      10,

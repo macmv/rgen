@@ -102,6 +102,33 @@ biome_categories!(
     //deep_snow_beach
     let (GeographicType::Beach, ClimateType::IceCap) =
       &[b!(7, ice_spike_beach), b!(5, deep_snow_beach), b!(8, deep_snow_beach)];
+    //
+
+    // SUB ARCTIC
+    let (GeographicType::River, ClimateType::SubArctic) =
+      &[b!(10, fir_river), b!(10, spruce_river)]; //&[b!(20, hard_frozen_river)];
+    let (GeographicType::Canyon, ClimateType::SubArctic) =
+      &[b!(10, fir_grove), b!(10, spruce_grove)];
+
+    let (GeographicType::Standard, ClimateType::SubArctic) =
+      &[b!(10, fir_grove), b!(10, spruce_grove)];
+
+    let (GeographicType::Hills, ClimateType::SubArctic) = &[
+      b!(7, windswept_fir_grove),
+      b!(4, windswept_hill),
+      b!(2, crag),
+      b!(7, windswept_spruce_grove),
+    ];
+
+    let (GeographicType::Mountains, ClimateType::SubArctic) = &[b!(20, snowy_peak)];
+
+    let (GeographicType::Beach, ClimateType::SubArctic) = &[
+      b!(3, fir_grove), // maybe a fir beach in the future
+      b!(4, mossy_shores),
+      b!(8, tiaga_beach),
+      b!(2, wet_rock),
+      b!(3, spruce_grove), // maybe a spruce beach in the future
+    ];
 
     // let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
     //   //b!(6, woodland_hills),
@@ -118,7 +145,6 @@ biome_categories!(
     let (GeographicType::Hills, ClimateType::Tundra) =
       &[b!(1, crag), b!(1, snowy_crag) /* , rocky_cedar */];
 
-    let (GeographicType::Beach, ClimateType::SubArctic) = &[b!(1, snowy_shores), b!(1, snowy_rock)];
     let (GeographicType::Beach, ClimateType::CoolTemperate) = &[
       b!(1, ancient_shores),
       b!(1, mossy_shores),
@@ -151,11 +177,6 @@ biome_categories!(
       // b!(1, snowy_fir_wood),
       // b!(1, snowy_spruce_wood),
       b!(1, snowy_woodland),
-    ];
-    let (GeographicType::Mountains, ClimateType::SubArctic) = &[
-      b!(1, fir_grove),
-      b!(1, spruce_grove),
-      //b!(1, seasonal_woodland)
     ];
   }
 );

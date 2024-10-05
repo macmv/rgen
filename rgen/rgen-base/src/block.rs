@@ -236,6 +236,7 @@ big! { Biomes: Biome
   VOID => "minecraft:void" = 127,
 
   cold_taiga => "minecraft:taiga_cold",
+  taiga => "minecraft:taiga",
   extreme_hills => "minecraft:extreme_hills",
   ice_plains => "minecraft:ice_flats",
   plains => "minecraft:plains",

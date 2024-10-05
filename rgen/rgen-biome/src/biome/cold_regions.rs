@@ -51,40 +51,6 @@ pub fn snowy_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.color = "#9DA8B7";
-  gen.set_top_block(ctx.blocks.grass.default_state);
-
-  gen.place(
-    "fir_tree",
-    PlacerStage::Sand,
-    placer::BasicTree {
-      avg_in_chunk: 16.0,
-      place_above:  gen.top_block().into(),
-      trunk:        ctx.blocks.log.default_state,
-      leaves:       ctx.blocks.leaves.default_state,
-    },
-  );
-}
-
-pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
-  gen.color = "#BCC4D1";
-  gen.set_top_block(ctx.blocks.grass.default_state);
-
-  gen.place(
-    "spruce_tree",
-    PlacerStage::Sand,
-    placer::BasicTree {
-      avg_in_chunk: 16.0,
-      place_above:  gen.top_block().into(),
-      trunk:        ctx.blocks.log.default_state,
-      leaves:       ctx.blocks.leaves.default_state,
-    },
-  );
-}
-
 pub fn snowy_crag(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#8997A7";
