@@ -120,6 +120,8 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.gravel.default_state);
   gen.add_layer(ctx.blocks.stone.default_state, 1, 3);
 
+  gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new(ctx.blocks));
+
   gen.place(
     "loose_moss",
     PlacerStage::Sand,
@@ -246,7 +248,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       leaves:      ctx.blocks.leaves.with_data(4),
 
       radius:        10..=20,
-      avg_per_chunk: 1.0,
+      avg_per_chunk: 2.3,
     },
   );
 }

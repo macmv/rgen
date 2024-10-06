@@ -48,21 +48,60 @@ impl Placer for EverGreen {
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
       return;
     }
+
+    for x in -1..=1 {
+      for z in -1..=1 {
+        if world.get(pos + Pos::new(x, 0, z)) == self.trunk {
+          return;
+        }
+      }
+    }
     //self.build_disk(world, &mut pos.clone(), rng, 4);
 
     if self.is_spruce {
       match self.size {
-        EvergreenSize::Standard => self.build_standard_spruce(world, pos, rng),
-        EvergreenSize::Fat => self.build_standard_spruce(world, pos, rng),
-        EvergreenSize::Tall => self.build_standard_spruce(world, pos, rng),
+        EvergreenSize::Standard => self.build_standard_spruce(world, pos, rng, false),
+        EvergreenSize::Fat => self.build_fat_spruce(world, pos, rng),
+        EvergreenSize::Tall => self.build_standard_spruce(world, pos, rng, true),
       }
     }
   }
 }
 
 impl EverGreen {
-  fn build_standard_spruce(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
-    for y in 0..rng.rand_inclusive(1, 2) {
+  fn build_standard_spruce(
+    &self,
+    world: &mut PartialWorld,
+    mut pos: Pos,
+    rng: &mut Rng,
+    is_tall: bool,
+  ) {
+    for y in 0..=1 {
+      world.set(pos, self.trunk);
+      pos = pos + Pos::new(0, 1, 0);
+    }
+
+    // Adds a small bottom ring to the bottom of the standard spruce
+    if rng.rand_inclusive(1, 5) == 1 {
+      pos = pos + Pos::new(0, -1, 0);
+      self.build_disk(world, &mut pos, rng, 1);
+    }
+    // Builds the main standrd rings
+    let height = 2;
+
+    if is_tall {
+      let height = 3;
+    }
+
+    for ring in 1..=height {
+      self.build_disk(world, &mut pos, rng, 2);
+      self.build_disk(world, &mut pos, rng, 1);
+    }
+    self.build_crown(world, pos, rng);
+  }
+
+  fn build_fat_spruce(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
+    for y in 0..=rng.rand_inclusive(0, 1) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -72,10 +111,12 @@ impl EverGreen {
       self.build_disk(world, &mut pos, rng, 1);
     }
     // Builds the main standrd rings
-    for ring in 1..=2 {
-      self.build_disk(world, &mut pos, rng, 2);
-      self.build_disk(world, &mut pos, rng, 1);
-    }
+    self.build_disk(world, &mut pos, rng, 3);
+    self.build_disk(world, &mut pos, rng, 2);
+    self.build_disk(world, &mut pos, rng, 1);
+    self.build_disk(world, &mut pos, rng, 2);
+    self.build_disk(world, &mut pos, rng, 1);
+
     self.build_crown(world, pos, rng);
   }
 
@@ -105,7 +146,7 @@ impl EverGreen {
       }
       CrownType::Crown => {
         world.set(pos, self.trunk);
-        pos = pos + Pos::new(0, -1, 0);
+        pos = pos + Pos::new(0, 1, 0);
 
         self.build_disk(world, &mut pos, rng, 1);
         world.set(pos + Pos::new(0, -1, 0), self.leaves);
@@ -113,7 +154,7 @@ impl EverGreen {
       }
       CrownType::CrownInset => {
         world.set(pos, self.trunk);
-        pos = pos + Pos::new(0, -1, 0);
+        pos = pos + Pos::new(0, 1, 0);
 
         self.build_disk(world, &mut pos, rng, 1);
         world.set(pos, self.leaves);

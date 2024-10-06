@@ -126,7 +126,7 @@ biome_categories!(
       b!(3, fir_grove), // maybe a fir beach in the future
       b!(4, mossy_shores),
       b!(8, tiaga_beach),
-      b!(2, wet_rock),
+      b!(2, mossy_shores), // used to be wet rock
       b!(3, spruce_grove), // maybe a spruce beach in the future
     ];
 
