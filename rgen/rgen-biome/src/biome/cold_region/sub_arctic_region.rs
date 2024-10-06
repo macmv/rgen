@@ -333,7 +333,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
   gen.color = "#ffffff";
   gen.set_top_block(ctx.blocks.gravel.default_state);
-  gen.add_layer(ctx.blocks.stone.default_state, 1, 3);
+  gen.add_layer(ctx.blocks.gravel.default_state, 2, 4);
 
   gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new(ctx.blocks));
 
@@ -356,6 +356,18 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_per_chunk: 3.0,
     },
   );
+
+  gen.place(
+    "clay",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.clay.default_state,
+      radius:        2..=2,
+      avg_per_chunk: 0.3,
+    },
+  );
+
   gen.place(
     "mossystone_patches",
     PlacerStage::Sand,
