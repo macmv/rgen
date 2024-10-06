@@ -114,7 +114,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
+pub fn old_mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.stone_beach;
   gen.color = "#ffffff";
   gen.set_top_block(ctx.blocks.gravel.default_state);

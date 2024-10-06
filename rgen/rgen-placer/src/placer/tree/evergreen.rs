@@ -64,6 +64,12 @@ impl Placer for EverGreen {
         EvergreenSize::Fat => self.build_fat_spruce(world, pos, rng),
         EvergreenSize::Tall => self.build_standard_spruce(world, pos, rng, true),
       }
+    } else {
+      match self.size {
+        EvergreenSize::Standard => self.build_standard_fir(world, pos, rng, false),
+        EvergreenSize::Fat => self.build_standard_fir(world, pos, rng, false),
+        EvergreenSize::Tall => self.build_standard_fir(world, pos, rng, true),
+      }
     }
   }
 }
@@ -119,8 +125,73 @@ impl EverGreen {
 
     self.build_crown(world, pos, rng);
   }
+  fn build_standard_fir(
+    &self,
+    world: &mut PartialWorld,
+    mut pos: Pos,
+    rng: &mut Rng,
+    is_tall: bool,
+  ) {
+    for y in 0..=rng.rand_inclusive(1, 2) {
+      world.set(pos, self.trunk);
+      pos = pos + Pos::new(0, 1, 0);
+    }
+
+    // Builds the main standrd rings
+    let height = 2;
+
+    if is_tall {
+      let height = 3;
+    }
+
+    for ring in 1..=height {
+      self.build_disk(world, &mut pos, rng, 2);
+      self.build_fir_spacer(world, &mut pos, rng);
+    }
+    self.build_fir_top_disk(world, &mut pos, rng);
+    pos = pos + Pos::new(0, 0, 0);
+    self.build_fir_crown(world, pos, rng);
+  }
 
   //BUILD CROWN
+  fn build_fir_crown(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
+    for x in -1i32..=1 {
+      for z in -1i32..=1 {
+        if !(x.abs() == 1 && (z.abs() == 1)) {
+          if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
+            world.set(pos + Pos::new(x, 0, z), self.leaves);
+          }
+        } else {
+          if rng.rand_inclusive(0, 7) == 0 {
+            if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
+              world.set(pos + Pos::new(x, 0, z), self.leaves);
+            }
+          }
+        }
+      }
+    }
+    pos = pos + Pos::new(0, 1, 0);
+
+    for x in -1i32..=1 {
+      for z in -1i32..=1 {
+        if !(x.abs() == 1 && (z.abs() == 1)) {
+          if rng.rand_inclusive(0, 1) == 0 {
+            if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
+              world.set(pos + Pos::new(x, 0, z), self.leaves);
+            }
+          }
+        }
+      }
+    }
+    if world.get(pos).block == Block::AIR {
+      world.set(pos, self.leaves);
+    }
+    pos = pos + Pos::new(0, 1, 0);
+    if world.get(pos).block == Block::AIR {
+      world.set(pos, self.leaves);
+    }
+  }
+
   fn build_crown(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
     enum CrownType {
       FlatHat,
@@ -185,7 +256,35 @@ impl EverGreen {
     for x in (size * -1)..=size {
       for z in (size * -1)..=size {
         if (x.abs() + z.abs()) <= (size + (size / 2)) {
-          world.set(*pos + Pos::new(x, 0, z), self.leaves);
+          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
+            world.set(*pos + Pos::new(x, 0, z), self.leaves);
+          }
+        }
+      }
+    }
+    world.set(*pos, self.trunk);
+    *pos = *pos + Pos::new(0, 1, 0);
+  }
+  fn build_fir_top_disk(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
+    for x in -2i32..=2 {
+      for z in -2i32..=2 {
+        if !(x.abs() + z.abs() > 2) {
+          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
+            world.set(*pos + Pos::new(x, 0, z), self.leaves);
+          }
+        }
+      }
+    }
+    world.set(*pos, self.trunk);
+    *pos = *pos + Pos::new(0, 1, 0);
+  }
+  fn build_fir_spacer(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
+    for x in -1..=1 {
+      for z in -1..=1 {
+        if rng.rand_inclusive(0, 1) == 0 {
+          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
+            world.set(*pos + Pos::new(x, 0, z), self.leaves);
+          }
         }
       }
     }

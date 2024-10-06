@@ -123,11 +123,11 @@ biome_categories!(
     let (GeographicType::Mountains, ClimateType::SubArctic) = &[b!(20, snowy_peak)];
 
     let (GeographicType::Beach, ClimateType::SubArctic) = &[
-      b!(3, fir_grove), // maybe a fir beach in the future
-      b!(4, mossy_shores),
-      b!(8, tiaga_beach),
-      b!(2, mossy_shores), // used to be wet rock
-      b!(3, spruce_grove), // maybe a spruce beach in the future
+      b!(2, fir_grove), // maybe a fir beach in the future
+      b!(3, mossy_shores),
+      b!(10, tiaga_beach),
+      b!(3, mossy_shores), // used to be wet rock
+      b!(2, spruce_grove), // maybe a spruce beach in the future
     ];
 
     // let (GeographicType::Valley, ClimateType::WarmTemperate) = &[
