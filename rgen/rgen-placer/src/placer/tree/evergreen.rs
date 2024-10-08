@@ -67,8 +67,8 @@ impl Placer for EverGreen {
     } else {
       match self.size {
         EvergreenSize::Standard => self.build_standard_fir(world, pos, rng, false),
-        EvergreenSize::Fat => self.build_standard_fir(world, pos, rng, false),
-        EvergreenSize::Tall => self.build_standard_fir(world, pos, rng, true),
+        EvergreenSize::Fat => self.build_fat_fir(world, pos, rng, false),
+        EvergreenSize::Tall => self.build_tall_fir(world, pos, rng, true),
       }
     }
   }
@@ -125,6 +125,7 @@ impl EverGreen {
 
     self.build_crown(world, pos, rng);
   }
+
   fn build_standard_fir(
     &self,
     world: &mut PartialWorld,
@@ -148,6 +149,38 @@ impl EverGreen {
       self.build_disk(world, &mut pos, rng, 2);
       self.build_fir_spacer(world, &mut pos, rng);
     }
+    self.build_fir_top_disk(world, &mut pos, rng);
+    pos = pos + Pos::new(0, 0, 0);
+    self.build_fir_crown(world, pos, rng);
+  }
+
+  fn build_tall_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng, is_tall: bool) {
+    for y in 0..=rng.rand_inclusive(1, 2) {
+      world.set(pos, self.trunk);
+      pos = pos + Pos::new(0, 1, 0);
+    }
+
+    for ring in 1..=3 {
+      self.build_fir_top_disk(world, &mut pos, rng);
+      self.build_fir_spacer(world, &mut pos, rng);
+    }
+    self.build_fir_top_disk(world, &mut pos, rng);
+    pos = pos + Pos::new(0, 0, 0);
+    self.build_fir_crown(world, pos, rng);
+  }
+
+  fn build_fat_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng, is_tall: bool) {
+    for y in 0..=rng.rand_inclusive(1, 2) {
+      world.set(pos, self.trunk);
+      pos = pos + Pos::new(0, 1, 0);
+    }
+
+    self.build_disk(world, &mut pos, rng, 3);
+    self.build_fir_spacer(world, &mut pos, rng);
+
+    self.build_disk(world, &mut pos, rng, 2);
+    self.build_fir_spacer(world, &mut pos, rng);
+
     self.build_fir_top_disk(world, &mut pos, rng);
     pos = pos + Pos::new(0, 0, 0);
     self.build_fir_crown(world, pos, rng);

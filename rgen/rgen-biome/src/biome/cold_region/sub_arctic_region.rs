@@ -126,6 +126,24 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_per_chunk: 0.4,
     },
   );
+
+  gen.place(
+    "fir log",
+    PlacerStage::Tree,
+    placer::LongLog {
+      avg_per_chunk: 2.0,
+      ground:        [
+        ctx.blocks.dirt.block,
+        ctx.blocks.grass.block,
+        ctx.blocks.gravel.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.cobblestone.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+      ]
+      .into(),
+      log:           ctx.blocks.log.with_data(1),
+    },
+  );
 }
 
 fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -188,15 +206,42 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
-  });
-
+  ground(ctx, gen);
   fir_rainbow_mix(ctx, gen);
+  evergreen_grass(ctx, gen);
+
+  gen.place(
+    "mossycobblestone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      radius:        2..=2,
+      avg_per_chunk: 0.7,
+    },
+  );
+
+  gen.place(
+    "gravel_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        2..=2,
+      avg_per_chunk: 1.2,
+    },
+  );
+
+  gen.place(
+    "cobble_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.cobblestone.default_state,
+      radius:        1..=2,
+      avg_per_chunk: 0.9,
+    },
+  );
   // Red
   // Bue
   // Green
@@ -220,13 +265,100 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
-  });
+  ground(ctx, gen);
+  windswept_evergreen_grass(ctx, gen);
+
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.2,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Standard,
+    },
+  );
+  gen.place(
+    "tall",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.2,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Tall,
+    },
+  );
+  gen.place(
+    "fat",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.3,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Fat,
+    },
+  );
+
+  gen.place(
+    "gravel big",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        3..=4,
+      avg_per_chunk: 0.1,
+    },
+  );
+
+  gen.place(
+    "gravel",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        1..=4,
+      avg_per_chunk: 0.4,
+    },
+  );
+
+  gen.place(
+    "fir log",
+    PlacerStage::Tree,
+    placer::LongLog {
+      avg_per_chunk: 2.0,
+      ground:        [
+        ctx.blocks.dirt.block,
+        ctx.blocks.grass.block,
+        ctx.blocks.gravel.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.cobblestone.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+      ]
+      .into(),
+      log:           ctx.blocks.rgen_log.with_data(0),
+    },
+  );
 }
 
 fn fir_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -298,7 +430,18 @@ pub fn windswept_hill(ctx: &IdContext, gen: &mut BiomeBuilder) {
       replace:       gen.top_block().into(),
       place:         ctx.blocks.gravel.default_state,
       radius:        1..=4,
-      avg_per_chunk: 0.3,
+      avg_per_chunk: 0.9,
+    },
+  );
+
+  gen.place(
+    "gravel big",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        3..=4,
+      avg_per_chunk: 0.5,
     },
   );
 }
@@ -368,14 +511,27 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 
+  gen.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new(ctx.blocks));
+
   gen.place(
     "mossystone_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
       place:         ctx.blocks.rgen_mossy_stone.default_state,
-      radius:        1..=4,
-      avg_per_chunk: 6.0,
+      radius:        1..=2,
+      avg_per_chunk: 4.3,
+    },
+  );
+
+  gen.place(
+    "stone_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.stone.default_state,
+      radius:        1..=3,
+      avg_per_chunk: 5.4,
     },
   );
   gen.place(
@@ -386,6 +542,17 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
       radius:        1..=4,
       avg_per_chunk: 1.0,
+    },
+  );
+
+  gen.place(
+    "mossycobblestone_smaller_patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      radius:        1..=2,
+      avg_per_chunk: 4.0,
     },
   );
 
@@ -409,7 +576,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    230,
+      attempts:    430,
       place_above: [
         ctx.blocks.grass.block,
         ctx.blocks.rgen_mossy_stump.block,
@@ -475,14 +642,16 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
       leaves:      ctx.blocks.leaves.with_data(4),
 
       radius:        10..=20,
-      avg_per_chunk: 2.3,
+      avg_per_chunk: 5.3,
     },
   );
 }
 
+// EFFECTS
 fn ground(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.set_top_block(ctx.blocks.grass.default_state);
   gen.add_layer(ctx.blocks.dirt.default_state, 2, 5);
+  gen.set_underwater_block(ctx.blocks.gravel.default_state);
 }
 
 fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -557,6 +726,15 @@ fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
       radius:        4..=6,
       attempts:      13,
       avg_per_chunk: 3.0,
+    },
+  );
+  gen.place(
+    "little brown mushrooms",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    200,
+      place_above: [ctx.blocks.dirt.with_data(2)].into(),
+      place:       ctx.blocks.brown_mushroom.default_state,
     },
   );
 }

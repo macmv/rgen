@@ -209,6 +209,7 @@ big! { Blocks: BlockInfo
   wool => "minecraft:wool",
   lava => "minecraft:lava",
   iron_ore => "minecraft:iron_ore",
+  brown_mushroom => "minecraft:brown_mushroom",
 
   rgen_log => "rgen:log",
   rgen_log2 => "rgen:log2",
