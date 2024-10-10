@@ -4,9 +4,11 @@ use rgen_world::PartialWorld;
 use crate::{Placer, Random, Rng};
 
 pub struct JungleTree {
-  place_above:  BlockFilter,
-  trunk:        BlockState,
-  leaves:       BlockState,
+  place_above: BlockFilter,
+  trunk:       BlockState,
+  leaves:      BlockState,
+  cocoa:       BlockState,
+
   avg_in_chunk: f64,
 }
 
@@ -17,6 +19,7 @@ impl JungleTree {
       place_above:  [blocks.grass.block].into(),
       trunk:        blocks.log.with_data(3),
       leaves:       blocks.leaves.with_data(3),
+      cocoa:        blocks.cocoa.with_data(0),
     }
   }
 }
@@ -94,6 +97,8 @@ impl JungleTree {
         self.place_leaves(world, rng, pos);
         next_leaves += rng.rand_inclusive(4, 7);
       }
+
+      self.place_cocoa_beans(world, rng, pos);
     }
 
     self.place_leaves(world, rng, pos);
@@ -137,6 +142,28 @@ impl JungleTree {
         if world.get(pos).block == Block::AIR {
           world.set(pos, self.leaves);
         }
+      }
+    }
+  }
+
+  fn place_cocoa_beans(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+    if rng.rand_exclusive(0, 16) != 0 {
+      return;
+    }
+
+    let mut dirs = [
+      (Pos::new(1, 0, 0), 1),  // East, so place facing west.
+      (Pos::new(-1, 0, 0), 3), // West, so place facing east.
+      (Pos::new(0, 0, 1), 2),  // South, so place facing north.
+      (Pos::new(0, 0, -1), 0), // North, so place facing south.
+    ];
+    rng.shuffle(&mut dirs);
+
+    for (dir, data) in dirs {
+      if world.get(pos + dir).block == Block::AIR {
+        // Place fully grown.
+        world.set(pos + dir, self.cocoa.with_data(data | 8));
+        return;
       }
     }
   }
