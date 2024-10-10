@@ -97,6 +97,7 @@ impl JungleTree {
     }
 
     self.place_leaves(world, rng, pos);
+    self.place_top_leaves(world, rng, pos + Pos::new(0, 1, 0));
   }
 
   fn place_leaves(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
@@ -118,6 +119,21 @@ impl JungleTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 1..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, -i, dz);
+        if world.get(pos).block == Block::AIR {
+          world.set(pos, self.leaves);
+        }
+      }
+    }
+  }
+
+  fn place_top_leaves(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+    for x in -1..=1_i32 {
+      for z in -1..=1_i32 {
+        if (x.abs() + z.abs()) >= 2 && rng.rand_inclusive(0, 1) == 0 {
+          continue;
+        }
+
+        let pos = pos + Pos::new(x, 0, z);
         if world.get(pos).block == Block::AIR {
           world.set(pos, self.leaves);
         }
