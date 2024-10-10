@@ -50,46 +50,36 @@ impl Placer for LongLog {
     let mut dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
     rng.shuffle(&mut dirs);
 
-    for (dx, dz) in dirs {
-      let mut buildable = true;
+    let Some((dx, dz, length)) = dirs.iter().find_map(|&(dx, dz)| {
       let length = rng.rand_inclusive(4, 5);
-      let pos_st = pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2)));
-      let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
-      if (self.ground.contains(world.get(pos_st)) && self.ground.contains(world.get(pos_nd))) {
-        for i in 1..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-          if world.get(i_pos) != BlockState::AIR {
-            buildable = false;
-            break;
-          }
-        }
+      if self.is_buildable(world, pos, dx, dz, length) {
+        Some((dx, dz, length))
       } else {
-        buildable = false;
+        None
+      }
+    }) else {
+      return;
+    };
+
+    for i in 2..=length {
+      let i_pos = pos + Pos::new(i * dx, 0, i * dz);
+
+      let mut log_type = self.log;
+
+      log_type.state &= 0b0011; //reset
+
+      if dx != 0 {
+        // x axis be it (5, 6)
+        log_type.state |= 0b0100;
+      } else {
+        // z axis be it (9, 10)
+        log_type.state |= 0b1000;
       }
 
-      if !buildable {
-        return;
-      } else {
-        for i in 2..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-
-          let mut log_type = self.log;
-
-          log_type.state &= 0b0011; //reset
-
-          if dx != 0 {
-            // x axis be it (5, 6)
-            log_type.state |= 0b0100;
-          } else {
-            // z axis be it (9, 10)
-            log_type.state |= 0b1000;
-          }
-
-          world.set(i_pos, log_type);
-        }
-      }
-      world.set(pos, self.log);
+      world.set(i_pos, log_type);
     }
+
+    world.set(pos, self.log);
   }
 }
 
@@ -152,5 +142,24 @@ impl LongLog {
       }
     }
     false
+  }
+}
+
+impl LongLog {
+  fn is_buildable(&self, world: &PartialWorld, pos: Pos, dx: i32, dz: i32, length: i32) -> bool {
+    let pos_st = pos + Pos::new(dx * 2, -1, dz * 2);
+    let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
+    if !self.ground.contains(world.get(pos_st)) || !self.ground.contains(world.get(pos_nd)) {
+      return false;
+    }
+
+    for i in 1..=length {
+      let i_pos = pos + Pos::new(i * dx, 0, i * dz);
+      if world.get(i_pos) != BlockState::AIR {
+        return false;
+      }
+    }
+
+    true
   }
 }
