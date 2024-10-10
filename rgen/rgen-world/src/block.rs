@@ -5,14 +5,14 @@ use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
 use rgen_llama::Structure;
 
 impl PartialWorld {
-  pub(crate) fn chunk(&mut self, pos: ChunkPos) -> Option<&Chunk> {
+  pub(crate) fn chunk(&self, pos: ChunkPos) -> Option<&Chunk> {
     self.chunks.get(&pos).map(|c| &c.chunk)
   }
   pub(crate) fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> Option<&mut Chunk> {
     self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk)
   }
 
-  pub fn get(&mut self, pos: Pos) -> BlockState {
+  pub fn get(&self, pos: Pos) -> BlockState {
     if let Some(chunk) = self.chunk(pos.chunk()) {
       chunk.get_state(pos.chunk_rel())
     } else {
