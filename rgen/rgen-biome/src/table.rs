@@ -104,11 +104,12 @@ biome_categories!(
       &[b!(7, ice_spike_beach), b!(5, deep_snow_beach), b!(8, deep_snow_beach)];
     //
 
-    // SUB ARCTIC
+    // SUB ARCTIC,
     let (GeographicType::River, ClimateType::SubArctic) =
       &[b!(10, fir_river), b!(10, spruce_river)]; //&[b!(20, hard_frozen_river)];
     let (GeographicType::Canyon, ClimateType::SubArctic) =
-      &[b!(10, fir_grove), b!(10, spruce_grove)];
+      &[b!(10, windswept_fir_grove), b!(10, windswept_spruce_grove)];
+    //&[b!(10, fir_grove), b!(10, spruce_grove)];
 
     let (GeographicType::Standard, ClimateType::SubArctic) =
       &[b!(10, fir_grove), b!(10, spruce_grove)];

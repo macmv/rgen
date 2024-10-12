@@ -95,6 +95,7 @@ impl WaterResources {
 
           if world.get(pos).block != Block::WATER
             && world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
+            && pos.y < 63
           {
             world.set(pos, self.placement);
           }

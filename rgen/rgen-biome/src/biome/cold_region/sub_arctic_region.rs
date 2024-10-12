@@ -35,13 +35,65 @@ pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::BLUE),
-    b:       ctx.blocks.concrete.with_data(color::GRAY),
-  });
+  ground(ctx, gen);
+  gen.set_underwater_block(ctx.blocks.gravel.default_state);
+
+  river_mass_placer(ctx, gen);
+
+  evergreen_grass(ctx, gen);
+  evergreen_grass(ctx, gen);
+
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 3.0,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Standard,
+    },
+  );
+  gen.place(
+    "tall",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.8,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Tall,
+    },
+  );
+  gen.place(
+    "fat",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.3,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Fat,
+    },
+  );
 }
 
 pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -252,13 +304,65 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
   gen.set_underwater_block(ctx.blocks.stone.default_state);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
-  });
+  ground(ctx, gen);
+
+  river_mass_placer(ctx, gen);
+
+  evergreen_grass(ctx, gen);
+  evergreen_grass(ctx, gen);
+
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 3.0,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Standard,
+    },
+  );
+  gen.place(
+    "tall",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.8,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Tall,
+    },
+  );
+  gen.place(
+    "fat",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.3,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Fat,
+    },
+  );
 }
 
 pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
@@ -811,6 +915,34 @@ fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
       radius:        2..=4,
       attempts:      27,
       avg_per_chunk: 3.0,
+    },
+  );
+}
+
+fn river_mass_placer(ctx: &IdContext, gen: &mut BiomeBuilder) {
+  gen.place(
+    "underwater clay",
+    PlacerStage::Sand,
+    placer::WaterResources {
+      avg_in_chunk:       8.0, //2.4,
+      placement:          ctx.blocks.clay.default_state.into(),
+      tool_placement:     ctx.blocks.gold_block.default_state.into(),
+      tool_placement_two: ctx.blocks.iron_ore.default_state.into(),
+      size:               1..=2,
+      multiplyer:         3,
+    },
+  );
+
+  gen.place(
+    "underwater sand",
+    PlacerStage::Sand,
+    placer::WaterResources {
+      avg_in_chunk:       5.0, //1.0,
+      placement:          ctx.blocks.sand.default_state.into(),
+      tool_placement:     ctx.blocks.gold_block.default_state.into(),
+      tool_placement_two: ctx.blocks.iron_ore.default_state.into(),
+      size:               1..=2,
+      multiplyer:         1,
     },
   );
 }
