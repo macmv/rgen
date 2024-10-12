@@ -112,37 +112,37 @@ impl Placer for BushClumps {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    if self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
-      if world.get(pos).block == Block::AIR {
-        world.set(pos, self.log);
+    if self.place_above.contains(world.get(pos + Pos::new(0, -1, 0)))
+      && world.get(pos).block == Block::AIR
+    {
+      world.set(pos, self.log);
 
-        for offset in [
-          // surround the log in leaves
-          Pos::new(-1, 0, 0),
-          Pos::new(0, 0, -1),
-          Pos::new(0, 0, 1),
-          Pos::new(1, 0, 0),
-          // and build a few leaves on top
-          Pos::new(0, 1, 0),
-        ] {
-          let side = pos + offset;
-          if world.get(side).block == Block::AIR {
-            world.set(side, self.leaves);
-          }
+      for offset in [
+        // surround the log in leaves
+        Pos::new(-1, 0, 0),
+        Pos::new(0, 0, -1),
+        Pos::new(0, 0, 1),
+        Pos::new(1, 0, 0),
+        // and build a few leaves on top
+        Pos::new(0, 1, 0),
+      ] {
+        let side = pos + offset;
+        if world.get(side).block == Block::AIR {
+          world.set(side, self.leaves);
         }
+      }
 
-        // now sprink a few more leaves around
-        for _ in 0..10 {
-          let side_below = pos
-            + Pos::new(
-              rng.rand_inclusive(-2, 2),
-              rng.rand_inclusive(0, 1),
-              rng.rand_inclusive(-2, 2),
-            );
-          let side = side_below + Pos::new(0, 1, 0);
-          if world.get(side_below).block != Block::AIR && world.get(side).block == Block::AIR {
-            world.set(side, self.leaves);
-          }
+      // now sprink a few more leaves around
+      for _ in 0..10 {
+        let side_below = pos
+          + Pos::new(
+            rng.rand_inclusive(-2, 2),
+            rng.rand_inclusive(0, 1),
+            rng.rand_inclusive(-2, 2),
+          );
+        let side = side_below + Pos::new(0, 1, 0);
+        if world.get(side_below).block != Block::AIR && world.get(side).block == Block::AIR {
+          world.set(side, self.leaves);
         }
       }
     }

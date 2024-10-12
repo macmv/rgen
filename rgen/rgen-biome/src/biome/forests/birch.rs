@@ -159,7 +159,7 @@ pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "bushes",
     PlacerStage::Tree,
     placer::BasicDryBush {
-      avg_in_chunk: 13 as f64,
+      avg_in_chunk: 13_f64,
       leaves:       ctx.blocks.rgen_leaves3.default_state,
       place_above:  ctx.blocks.grass.block.into(),
       trunk:        ctx.blocks.log.with_data(2),

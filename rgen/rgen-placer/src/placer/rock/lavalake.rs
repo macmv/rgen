@@ -16,7 +16,7 @@ impl LavaLake {
       ground:       [blocks.stone.block, blocks.dirt.block, blocks.grass.block].into(),
       material:     blocks.rgen_basalt.with_data(0),
       avg_in_chunk: 0.1,
-      fluid:        blocks.lava.default_state.into(),
+      fluid:        blocks.lava.default_state,
     }
   }
 }

@@ -34,7 +34,7 @@ impl RenderQueue {
     let old_state = state.clone();
 
     if updater(&mut state) || *state != old_state {
-      self.regenerate_queue(&state, &rendered_chunks);
+      self.regenerate_queue(&state, rendered_chunks);
     }
   }
 
@@ -52,10 +52,8 @@ impl RenderQueue {
       let max_circle = state.center + RegionPos::new(i, i);
 
       let x_iter = (min_circle.x..=max_circle.x)
-        .into_iter()
         .flat_map(|x| [min_circle.z, max_circle.z].into_iter().map(move |z| RegionPos::new(x, z)));
       let z_iter = (min_circle.z + 1..max_circle.z)
-        .into_iter()
         .flat_map(|z| [min_circle.x, max_circle.x].into_iter().map(move |x| RegionPos::new(x, z)));
 
       for region_pos in x_iter.chain(z_iter) {

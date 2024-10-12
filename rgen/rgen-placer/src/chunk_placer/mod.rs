@@ -49,22 +49,20 @@ impl ChunkPlacer for GlowVine {
           let pos = chunk_pos.min_block_pos() + Pos::new(x as i32, y, z as i32);
 
           let block = chunk.chunk.get(pos.chunk_rel());
-          if block == rgen_base::Block::AIR {
-            if rng.rand_exclusive(0, 24) == 0 {
-              let north = chunk.chunk.get((pos + Pos::new(0, 0, -1)).chunk_rel()) == self.stone;
-              let south = chunk.chunk.get((pos + Pos::new(0, 0, 1)).chunk_rel()) == self.stone;
-              let east = chunk.chunk.get((pos + Pos::new(-1, 0, 0)).chunk_rel()) == self.stone;
-              let west = chunk.chunk.get((pos + Pos::new(1, 0, 0)).chunk_rel()) == self.stone;
+          if block == rgen_base::Block::AIR && rng.rand_exclusive(0, 24) == 0 {
+            let north = chunk.chunk.get((pos + Pos::new(0, 0, -1)).chunk_rel()) == self.stone;
+            let south = chunk.chunk.get((pos + Pos::new(0, 0, 1)).chunk_rel()) == self.stone;
+            let east = chunk.chunk.get((pos + Pos::new(-1, 0, 0)).chunk_rel()) == self.stone;
+            let west = chunk.chunk.get((pos + Pos::new(1, 0, 0)).chunk_rel()) == self.stone;
 
-              if north || south || east || west {
-                chunk.chunk.set(
-                  pos.chunk_rel(),
-                  BlockState {
-                    block: self.glow_vine,
-                    state: south as u8 | (east as u8) << 1 | (north as u8) << 2 | (west as u8) << 3,
-                  },
-                );
-              }
+            if north || south || east || west {
+              chunk.chunk.set(
+                pos.chunk_rel(),
+                BlockState {
+                  block: self.glow_vine,
+                  state: south as u8 | (east as u8) << 1 | (north as u8) << 2 | (west as u8) << 3,
+                },
+              );
             }
           }
         }

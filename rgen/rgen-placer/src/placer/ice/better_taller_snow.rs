@@ -66,7 +66,7 @@ impl BetterTallerSnow {
         }
       }
     }
-    return false;
+    false
   }
 
   fn base_build(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {

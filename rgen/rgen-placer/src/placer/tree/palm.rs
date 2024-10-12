@@ -84,12 +84,13 @@ impl Placer for PalmTree {
         for z in -radius..=radius {
           let dist = x.pow(2) + z.pow(2);
 
-          if dist > radius.pow(2) - 4 && dist <= radius.pow(2) + 3 {
-            if rng.rand_inclusive(0, 10) < chance {
-              let pos = pos + Pos::new(x, y_offset, z);
-              if world.get(pos).block == Block::AIR {
-                world.set(pos, self.leaves);
-              }
+          if dist > radius.pow(2) - 4
+            && dist <= radius.pow(2) + 3
+            && rng.rand_inclusive(0, 10) < chance
+          {
+            let pos = pos + Pos::new(x, y_offset, z);
+            if world.get(pos).block == Block::AIR {
+              world.set(pos, self.leaves);
             }
           }
         }

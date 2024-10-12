@@ -208,7 +208,7 @@ impl<'a> Parser<'a> {
 
   fn next_number(&mut self) -> u32 {
     let start = self.pos;
-    while self.peek().is_digit(10) {
+    while self.peek().is_ascii_digit() {
       self.next();
     }
     self.input[start..self.pos].parse().unwrap()

@@ -17,9 +17,9 @@ impl WaterResources {
   pub fn new(blocks: &Blocks) -> Self {
     WaterResources {
       avg_in_chunk:       1.0,
-      placement:          blocks.clay.default_state.into(),
-      tool_placement:     blocks.gold_block.default_state.into(),
-      tool_placement_two: blocks.iron_ore.default_state.into(),
+      placement:          blocks.clay.default_state,
+      tool_placement:     blocks.gold_block.default_state,
+      tool_placement_two: blocks.iron_ore.default_state,
       size:               2..=4,
       multiplyer:         3,
     }

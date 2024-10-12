@@ -143,7 +143,7 @@ pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "grass_splatter",
     PlacerStage::Sand,
     placer::Splatter {
-      replace:  gen.top_block().into(),
+      replace:  gen.top_block(),
       place:    ctx.blocks.grass.default_state,
       attempts: 40,
     },

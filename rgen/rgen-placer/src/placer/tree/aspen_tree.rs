@@ -140,7 +140,7 @@ impl AspenTree {
       }
 
       world.place_structure(
-        pos + pos_by_rotation[rotation as usize] + Pos::new(0, drape.height() as i32 * -1, 0),
+        pos + pos_by_rotation[rotation as usize] + Pos::new(0, -(drape.height() as i32), 0),
         &drape,
       );
     }

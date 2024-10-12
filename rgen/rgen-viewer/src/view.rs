@@ -57,7 +57,7 @@ impl WorldViewer {
       if mode == self_mode {
         w.insert(pos, chunk);
       } else {
-        self.other_mode_chunks.lock().entry(mode).or_insert_with(HashMap::new).insert(pos, chunk);
+        self.other_mode_chunks.lock().entry(mode).or_default().insert(pos, chunk);
       }
     }
   }
@@ -102,7 +102,7 @@ impl WorldViewer {
         let voronoi = (voronoi % 10) as f64 / 10.0;
 
         let biome = column.biome;
-        let meter_height = column.height as f64;
+        let meter_height = column.height;
 
         let block_distance = 1;
         // ╔═╦═╦═╗

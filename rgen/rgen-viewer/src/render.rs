@@ -35,7 +35,7 @@ impl RenderBuffer {
 
     let index = (y * self.width as i32 + x) as usize * 4;
 
-    self.buffer[index + 0] = color.b;
+    self.buffer[index] = color.b;
     self.buffer[index + 1] = color.g;
     self.buffer[index + 2] = color.r;
     self.buffer[index + 3] = color.a;

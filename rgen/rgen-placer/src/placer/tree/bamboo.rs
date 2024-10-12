@@ -44,7 +44,7 @@ impl Placer for Bamboo {
     }
 
     rng.rand_inclusive(15, 20);
-    let mut shoot = self.stalk.clone();
+    let mut shoot = self.stalk;
 
     // Sets rotation
     shoot.state &= 0b1100;
@@ -63,7 +63,7 @@ impl Placer for Bamboo {
       shoot.state |= 0b0011;
     }
 
-    let mut leaf = shoot.clone();
+    let mut leaf = shoot;
     // Sets leaft type
     leaf.state &= 0b0011;
     leaf.state |= 0b0100;

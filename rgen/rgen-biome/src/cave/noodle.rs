@@ -42,9 +42,9 @@ const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 impl NoodleCarver {
   pub fn new(ctx: &IdContext, seed: u64) -> Self {
     NoodleCarver {
-      seed: seed + 0,
+      seed,
 
-      grid:        PointGrid::new(),
+      grid: PointGrid::new(),
       density_map: OctavedNoise::new(seed, 1.0 / 16.0),
 
       water: ctx.blocks.water.block,

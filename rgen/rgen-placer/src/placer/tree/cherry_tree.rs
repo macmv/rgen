@@ -94,7 +94,7 @@ impl Sakura {
     for x in -1..=1_i32 {
       for z in -1..=1_i32 {
         // Remove the corners.
-        if (x.abs() == 1 && z.abs() == 1) && !(rng.rand_inclusive(0, 4) == 0) {
+        if (x.abs() == 1 && z.abs() == 1) && rng.rand_inclusive(0, 4) != 0 {
           continue;
         }
 
@@ -197,10 +197,10 @@ impl Sakura {
 
     if x_axis {
       a_pos = pos + Pos::new(a + 1, a_height, 0);
-      b_pos = pos + Pos::new((b + 1) * -1, b_height, 0);
+      b_pos = pos + Pos::new(-(b + 1), b_height, 0);
     } else {
       a_pos = pos + Pos::new(0, a_height, a + 1);
-      b_pos = pos + Pos::new(0, b_height, (b + 1) * -1);
+      b_pos = pos + Pos::new(0, b_height, -(b + 1));
     }
     let top_pos = pos + Pos::new(0, top, 0);
 
@@ -220,12 +220,10 @@ impl Sakura {
       } else {
         trunk_top = b_start;
       }
+    } else if a_start > b_start {
+      trunk_top = a_start;
     } else {
-      if a_start > b_start {
-        trunk_top = a_start;
-      } else {
-        trunk_top = b_start;
-      }
+      trunk_top = b_start;
     }
 
     // Trunk is built
@@ -242,10 +240,8 @@ impl Sakura {
         if world.get(a_pos) == BlockState::AIR {
           world.set(a_pos, self.trunk);
         }
-      } else {
-        if world.get(b_pos) == BlockState::AIR {
-          world.set(b_pos, self.trunk);
-        }
+      } else if world.get(b_pos) == BlockState::AIR {
+        world.set(b_pos, self.trunk);
       }
     } else {
       if world.get(a_pos) == BlockState::AIR {

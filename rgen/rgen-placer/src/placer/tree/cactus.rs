@@ -47,7 +47,7 @@ impl Placer for Cactus {
         }
 
         if world.get(arm_pos) == BlockState::AIR {
-          let mut an_arm = self.arms.clone();
+          let mut an_arm = self.arms;
 
           if !x_or_y && unit == -1 {
             an_arm.state = 2;

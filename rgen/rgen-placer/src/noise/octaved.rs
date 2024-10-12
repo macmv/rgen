@@ -101,7 +101,7 @@ mod tests {
     for x in 0..100 {
       for y in 0..100 {
         let v = noise.generate(x as f64 / 100.0, y as f64 / 100.0);
-        assert!(v >= -1.0 && v < 1.0, "v = {}", v);
+        assert!((-1.0..1.0).contains(&v), "v = {}", v);
       }
     }
   }
@@ -114,7 +114,7 @@ mod tests {
       for y in 0..100 {
         for z in 0..100 {
           let v = noise.generate_3d(x as f64 / 100.0, y as f64 / 100.0, z as f64 / 100.0);
-          assert!(v >= -1.0 && v < 1.0, "v = {}", v);
+          assert!((-1.0..1.0).contains(&v), "v = {}", v);
         }
       }
     }

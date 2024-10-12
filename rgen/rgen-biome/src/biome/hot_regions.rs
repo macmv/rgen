@@ -15,7 +15,7 @@ pub fn flat_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
-      avg_in_chunk: 0.5 as f64,
+      avg_in_chunk: 0.5_f64,
       arms:         ctx.blocks.rgen_cactus_arm.default_state,
       place_above:  ctx.blocks.sand.block.into(),
       body:         ctx.blocks.rgen_cactus.default_state,
@@ -44,7 +44,7 @@ pub fn lush_desert(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
-      avg_in_chunk: 1 as f64,
+      avg_in_chunk: 1_f64,
       arms:         ctx.blocks.rgen_cactus_arm.default_state,
       place_above:  ctx.blocks.sand.block.into(),
       body:         ctx.blocks.rgen_cactus.default_state,

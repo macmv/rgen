@@ -14,11 +14,11 @@ pub struct BlockState {
 }
 
 // FIXME: This should probably use the default state.
-impl Into<BlockState> for Block {
-  fn into(self) -> BlockState { BlockState { block: self, state: 0 } }
+impl From<Block> for BlockState {
+  fn from(val: Block) -> Self { BlockState { block: val, state: 0 } }
 }
-impl Into<BlockState> for BlockInfo {
-  fn into(self) -> BlockState { self.default_state }
+impl From<BlockInfo> for BlockState {
+  fn from(val: BlockInfo) -> Self { val.default_state }
 }
 
 impl Block {
@@ -58,7 +58,7 @@ impl BlockInfo {
   }
 
   fn from_raw_id(id: i32) -> BlockInfo {
-    assert!(id >= 0 && id < 256);
+    assert!((0..256).contains(&id));
     BlockInfo::temp_new("", id)
   }
 
@@ -124,7 +124,7 @@ impl Biome {
   pub const VOID: Biome = Biome(127);
 
   pub fn from_raw_id(id: i32) -> Biome {
-    assert!(id >= 0 && id < 256);
+    assert!((0..256).contains(&id));
     Biome(id as u8)
   }
 

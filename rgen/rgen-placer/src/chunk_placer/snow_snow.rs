@@ -19,11 +19,11 @@ impl SnowOnSnowSurface {
     let noise = OpenSimplexNoise::new(0);
     //noise.generate(pos.x as f64, pos.z as f64);
     SnowOnSnowSurface {
-      noise:       noise,
-      a:           blocks.snow_layer.default_state,
+      noise,
+      a: blocks.snow_layer.default_state,
       place_above: blocks.snow_layer.block.into(),
-      min_snow:    3,
-      add_snow:    3.0,
+      min_snow: 3,
+      add_snow: 3.0,
     }
   }
 }

@@ -130,21 +130,21 @@ impl WorldBiomes {
 
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
-      seed: seed + 0,
+      seed,
 
       composition_lookup: CompositionLookup::new(&ctx),
-      biome_override:     false,
+      biome_override: false,
 
-      cave:      CaveCarver::new(&ctx, seed),
+      cave: CaveCarver::new(&ctx, seed),
       structure: StructureGenerator::new(&ctx, seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
-      humidity_map:    OctavedNoise::new(seed, 1.0 / 4096.0),
+      humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
 
       continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
-      peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
-      erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
-      variance_map:        ShiftedNoise::new(
+      peaks_valleys_map: OctavedNoise::new(seed, 1.0 / 256.0),
+      erosion_map: OctavedNoise::new(seed, 1.0 / 2048.0),
+      variance_map: ShiftedNoise::new(
         VoronoiNoise::new(seed, 128),
         OpenSimplexNoise::new(seed),
         1.0,

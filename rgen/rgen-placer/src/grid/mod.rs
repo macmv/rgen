@@ -3,6 +3,10 @@ use crate::{Random, Rng};
 /// A determinstic, randomly spread out grid of points.
 pub struct PointGrid;
 
+impl Default for PointGrid {
+  fn default() -> Self { Self::new() }
+}
+
 impl PointGrid {
   pub fn new() -> Self { Self }
 
@@ -26,14 +30,14 @@ impl PointGrid {
       .unwrap()
   }
 
-  pub fn points_in_area<'a>(
-    &'a self,
+  pub fn points_in_area(
+    &self,
     seed: u64,
     min_x: f64,
     min_y: f64,
     max_x: f64,
     max_y: f64,
-  ) -> impl Iterator<Item = (f64, f64)> + 'a {
+  ) -> impl Iterator<Item = (f64, f64)> + '_ {
     (min_x.floor() as i32..=max_x.ceil() as i32).flat_map(move |x| {
       (min_y.floor() as i32..=max_y.ceil() as i32).filter_map(move |y| {
         let p = self.point_in_square(seed, x, y);

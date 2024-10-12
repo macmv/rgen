@@ -73,8 +73,6 @@ fn noise_2(point: Vector2, perm: &PermutationTable) -> f64 {
     }
   }
 
-  let point = Vector2::from(point);
-
   // Place input coordinates onto grid.
   let stretch_offset = point.sum() * STRETCH_CONSTANT;
   let stretched = Vector2::new(point.x + stretch_offset, point.y + stretch_offset);

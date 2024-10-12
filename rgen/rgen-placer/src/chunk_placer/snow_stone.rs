@@ -17,11 +17,11 @@ impl SnowOnStoneSurface {
   pub fn new(blocks: &Blocks) -> Self {
     let noise = OpenSimplexNoise::new(0);
     SnowOnStoneSurface {
-      noise:       noise,
-      a:           blocks.snow_layer.default_state,
+      noise,
+      a: blocks.snow_layer.default_state,
       place_above: blocks.stone.block.into(),
-      min_snow:    1,
-      add_snow:    2.0,
+      min_snow: 1,
+      add_snow: 2.0,
     }
   }
 }

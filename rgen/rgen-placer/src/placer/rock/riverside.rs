@@ -21,7 +21,7 @@ impl RiverSide {
         blocks.cobblestone.default_state,
       ],
       avg_in_chunk: 3.0,
-      fluid:        blocks.lava.default_state.into(),
+      fluid:        blocks.lava.default_state,
     }
   }
 }

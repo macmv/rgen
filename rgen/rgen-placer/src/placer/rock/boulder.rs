@@ -32,10 +32,10 @@ impl MossBoulder {
     MossBoulder {
       place_above:      [blocks.stone.block, blocks.dirt.block].into(),
       phobic:           blocks.grass.default_state.into(),
-      material:         /*blocks.wool.with_data(6), */ blocks.rgen_mossy_cobblestone.default_state.into(),
+      material:         /*blocks.wool.with_data(6), */ blocks.rgen_mossy_cobblestone.default_state,
       avg_in_chunk:     2.0,
-      plant_a:          blocks.tallgrass.with_data(2).into(),
-      plant_b:          blocks.tallgrass.with_data(1).into(),
+      plant_a:          blocks.tallgrass.with_data(2),
+      plant_b:          blocks.tallgrass.with_data(1),
       use_large_plants: false,
       large_plants:     [blocks.double_plant.with_data(3), blocks.double_plant.with_data(2)].into(),
     }
@@ -84,7 +84,6 @@ impl Placer for MossBoulder {
 
                 return;
               }
-              if world.get(pos).block == Block::AIR {}
 
               *cell = true;
             } else if rng.rand_inclusive(0, 3) == 0 {
@@ -99,10 +98,8 @@ impl Placer for MossBoulder {
               if rng.rand_inclusive(0, 15) != 0 {
                 *cell = true;
               }
-            } else {
-              if rng.rand_inclusive(0, 6) != 0 {
-                *cell = true;
-              }
+            } else if rng.rand_inclusive(0, 6) != 0 {
+              *cell = true;
             }
 
           // Top of boulder
@@ -113,10 +110,8 @@ impl Placer for MossBoulder {
               if rng.rand_inclusive(0, 6) != 0 {
                 *cell = true;
               }
-            } else {
-              if rng.rand_inclusive(0, 3) == 0 {
-                *cell = true;
-              }
+            } else if rng.rand_inclusive(0, 3) == 0 {
+              *cell = true;
             }
           }
         }
@@ -162,7 +157,7 @@ impl MossBoulder {
     height: i32,
     z: i32,
   ) {
-    let rel_pos = pos + Pos::new(x as i32, height, z as i32);
+    let rel_pos = pos + Pos::new(x, height, z);
     if cell {
       world.set(rel_pos, self.material);
     }

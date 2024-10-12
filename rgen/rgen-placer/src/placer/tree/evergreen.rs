@@ -193,12 +193,10 @@ impl EverGreen {
           if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
             world.set(pos + Pos::new(x, 0, z), self.leaves);
           }
-        } else {
-          if rng.rand_inclusive(0, 7) == 0 {
-            if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
-              world.set(pos + Pos::new(x, 0, z), self.leaves);
-            }
-          }
+        } else if rng.rand_inclusive(0, 7) == 0
+          && world.get(pos + Pos::new(x, 0, z)).block == Block::AIR
+        {
+          world.set(pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }
@@ -206,12 +204,11 @@ impl EverGreen {
 
     for x in -1i32..=1 {
       for z in -1i32..=1 {
-        if !(x.abs() == 1 && (z.abs() == 1)) {
-          if rng.rand_inclusive(0, 1) == 0 {
-            if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
-              world.set(pos + Pos::new(x, 0, z), self.leaves);
-            }
-          }
+        if !(x.abs() == 1 && (z.abs() == 1))
+          && rng.rand_inclusive(0, 1) == 0
+          && world.get(pos + Pos::new(x, 0, z)).block == Block::AIR
+        {
+          world.set(pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }
@@ -285,12 +282,12 @@ impl EverGreen {
 
   // BUILD DISK
   fn build_disk(&self, world: &mut PartialWorld, pos: &mut Pos, _rng: &mut Rng, size: i32) {
-    for x in (size * -1)..=size {
-      for z in (size * -1)..=size {
-        if (x.abs() + z.abs()) <= (size + (size / 2)) {
-          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
-            world.set(*pos + Pos::new(x, 0, z), self.leaves);
-          }
+    for x in -size..=size {
+      for z in -size..=size {
+        if (x.abs() + z.abs()) <= (size + (size / 2))
+          && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR
+        {
+          world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }
@@ -300,10 +297,8 @@ impl EverGreen {
   fn build_fir_top_disk(&self, world: &mut PartialWorld, pos: &mut Pos, _rng: &mut Rng) {
     for x in -2i32..=2 {
       for z in -2i32..=2 {
-        if !(x.abs() + z.abs() > 2) {
-          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
-            world.set(*pos + Pos::new(x, 0, z), self.leaves);
-          }
+        if x.abs() + z.abs() <= 2 && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
+          world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }
@@ -313,10 +308,9 @@ impl EverGreen {
   fn build_fir_spacer(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
     for x in -1..=1 {
       for z in -1..=1 {
-        if rng.rand_inclusive(0, 1) == 0 {
-          if world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
-            world.set(*pos + Pos::new(x, 0, z), self.leaves);
-          }
+        if rng.rand_inclusive(0, 1) == 0 && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR
+        {
+          world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }

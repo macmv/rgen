@@ -82,7 +82,7 @@ impl Structure {
   /// Rotates the structure on the Y axist by the given delta, in multiples of
   /// 90 degrees. Positive delta means clockwise.
   pub fn rotate(&mut self, delta: i32) {
-    let delta = (delta % 4 + 4) % 4;
+    let delta = delta.rem_euclid(4);
     if delta == 0 {
       return;
     }

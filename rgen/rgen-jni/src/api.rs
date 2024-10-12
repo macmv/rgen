@@ -161,7 +161,7 @@ static SYMBOLS: RwLock<Option<Symbols>> = RwLock::new(None);
 
 fn symbols<R>(f: impl FnOnce(&Symbols) -> R) -> R {
   let s = SYMBOLS.read();
-  f(&s.as_ref().expect("Library not initialized"))
+  f(s.as_ref().expect("Library not initialized"))
 }
 
 fn unload(s: &Symbols) {

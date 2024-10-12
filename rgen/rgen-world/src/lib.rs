@@ -25,6 +25,7 @@ pub trait Generator {
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
 }
 
+#[allow(clippy::new_without_default)]
 pub struct CachedWorld {
   base_chunks: Mutex<HashMap<ChunkPos, PartialChunk>>,
 
@@ -35,6 +36,7 @@ pub struct CachedWorld {
   requester: Requester,
 }
 
+#[allow(clippy::new_without_default)]
 pub struct PartialWorld {
   /// A chunk existing in here means its either decorated or about to be
   /// decorated.
@@ -184,9 +186,8 @@ impl CachedWorld {
     match chunks.chunks.get(&pos).unwrap().stage {
       Stage::Decorated => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::NeighborDecorated;
-        return;
       }
-      Stage::NeighborDecorated => return,
+      Stage::NeighborDecorated => (),
       Stage::Base => unreachable!(),
     }
   }
@@ -216,7 +217,7 @@ impl CachedWorld {
     }
 
     match chunks.chunks.get(&pos).unwrap().stage {
-      Stage::Decorated | Stage::NeighborDecorated => return,
+      Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
         generator.decorate(ctx, &mut chunks, pos);
@@ -276,13 +277,10 @@ impl Requester {
     // Real check.
     {
       let mut w = self.chunks.write();
-      match w.get_mut(&pos) {
-        Some(s) => {
-          if *s.get_mut() >= stage {
-            return;
-          }
+      if let Some(s) = w.get_mut(&pos) {
+        if *s.get_mut() >= stage {
+          return;
         }
-        _ => {}
       }
       w.insert(pos, Mutex::new(stage));
     }

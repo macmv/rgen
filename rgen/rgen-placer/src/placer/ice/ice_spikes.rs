@@ -17,9 +17,9 @@ impl IceSpikes {
     IceSpikes {
       ground:                      [blocks.stone.block, blocks.dirt.block, blocks.grass.block]
         .into(),
-      material:                    blocks.packed_ice.default_state.into(),
+      material:                    blocks.packed_ice.default_state,
       avg_in_chunk:                0.8,
-      fluid:                       blocks.lava.default_state.into(),
+      fluid:                       blocks.lava.default_state,
       chance_of_secondary_pillars: 3,
       replacables:                 [
         Block::AIR,
@@ -82,8 +82,8 @@ impl IceSpikes {
   }
   fn ground_placement(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     for neg_y in 1..8 {
-      if self.replacables.contains(world.get(pos + Pos::new(0, neg_y * -1, 0))) {
-        world.set(pos + Pos::new(0, neg_y * -1, 0), self.material)
+      if self.replacables.contains(world.get(pos + Pos::new(0, -neg_y, 0))) {
+        world.set(pos + Pos::new(0, -neg_y, 0), self.material)
       }
     }
   }

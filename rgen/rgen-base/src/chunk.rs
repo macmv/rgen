@@ -2,6 +2,7 @@ use crate::{Block, BlockState, ChunkRelPos};
 
 // Mirrors a ChunkPrimer in minecraft.
 #[derive(Clone)]
+#[allow(clippy::new_without_default)]
 pub struct Chunk {
   data: Box<[u16]>,
 }

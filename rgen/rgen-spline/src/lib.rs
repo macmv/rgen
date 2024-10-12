@@ -24,7 +24,7 @@ impl<'a> Spline<&'a [(f64, f64)]> {
 
 impl<T: SplineStorage + ?Sized> Spline<T> {
   pub fn sample<I: Interpolation>(&self, pos: f64) -> f64 {
-    if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {
+    if !(0.0..=1.0).contains(&pos) || self.storage.len() == 0 {
       return 0.0;
     }
 
@@ -47,7 +47,7 @@ impl<T: SplineStorage + ?Sized> Spline<T> {
 
 impl<T: BezierStorage + ?Sized> Spline<T> {
   pub fn sample_bezier(&self, pos: f64) -> f64 {
-    if pos < 0.0 || pos > 1.0 || self.storage.len() == 0 {
+    if !(0.0..=1.0).contains(&pos) || self.storage.len() == 0 {
       return 0.0;
     }
 

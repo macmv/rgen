@@ -74,7 +74,7 @@ pub struct Sequoia {
 impl Sequoia {
   pub fn new(blocks: &Blocks) -> Self {
     Sequoia {
-      avg_in_chunk: 3 as f64,
+      avg_in_chunk: 3_f64,
       leaves:       blocks.rgen_leaves.with_data(3),
       place_above:  blocks.grass.block.into(),
       trunk:        blocks.rgen_log.with_data(3),
@@ -196,10 +196,8 @@ impl Sequoia {
       for (z, cell) in row.iter().enumerate() {
         let rel_pos =
           pos + Pos::new(x as i32 - N as i32 / 2 + 1, height, z as i32 - M as i32 / 2 + 1);
-        if *cell {
-          if world.get(rel_pos) == BlockState::AIR {
-            world.set(rel_pos, self.leaves);
-          }
+        if *cell && world.get(rel_pos) == BlockState::AIR {
+          world.set(rel_pos, self.leaves);
         }
       }
     }

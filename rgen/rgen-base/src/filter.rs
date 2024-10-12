@@ -155,8 +155,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::BlockState(SmallVec::from_slice(&[
-        BlockState { block: Block(0), state: 0 }.into(),
-        BlockState { block: Block(0), state: 1 }.into(),
+        BlockState { block: Block(0), state: 0 },
+        BlockState { block: Block(0), state: 1 },
       ]))
     );
 

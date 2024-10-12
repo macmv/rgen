@@ -18,9 +18,8 @@ impl Random for Rng {
     let m1 = ((t1 >> 64) ^ t1) as u64;
 
     let t2 = (m1 as u128).wrapping_mul(0x1b03738712fad5c9);
-    let m2 = ((t2 >> 64) ^ t2) as u64;
 
-    m2
+    ((t2 >> 64) ^ t2) as u64
   }
 }
 
@@ -40,7 +39,7 @@ pub trait Random {
 
     let range = max - min;
     let rand = (self.next() & 0x7fffffff) as i32;
-    return min + (rand % (range + 1));
+    min + (rand % (range + 1))
   }
 
   #[track_caller]
@@ -49,7 +48,7 @@ pub trait Random {
 
     let range = max - min;
     let rand = (self.next() & 0x7fffffff) as i32;
-    return min + (rand % range);
+    min + (rand % range)
   }
 
   #[track_caller]

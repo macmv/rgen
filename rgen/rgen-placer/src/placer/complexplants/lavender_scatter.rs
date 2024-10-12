@@ -30,15 +30,15 @@ impl Placer for LavenderScatter {
         if self.is_large {
           let bush_var = lav_options[rng.rand_exclusive(0, 4) as usize]; //0, 1, 2, & 3
 
-          let mut bush_dw = self.place.clone();
+          let mut bush_dw = self.place;
           bush_dw.state = bush_var[0] as u8;
 
-          let mut bush_up = self.place.clone();
+          let mut bush_up = self.place;
           bush_up.state = bush_var[1] as u8;
           world.set(pos, bush_dw);
           world.set(pos + Pos::new(0, 1, 0), bush_up);
         } else {
-          let mut lav = self.place.clone();
+          let mut lav = self.place;
           lav.state = rng.rand_exclusive(0, 4) as u8;
           world.set(pos, lav);
         }
