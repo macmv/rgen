@@ -90,6 +90,7 @@ pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
+#[allow(dead_code)]
 pub fn windswept_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#899781";

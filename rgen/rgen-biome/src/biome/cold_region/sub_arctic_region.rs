@@ -1,4 +1,4 @@
-use rgen_placer::{chunk_placer, noise::SeededNoise, placer};
+use rgen_placer::{chunk_placer, placer};
 
 use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
@@ -546,6 +546,7 @@ pub fn windswept_hill(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
+#[allow(dead_code)]
 pub fn snowy_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
@@ -559,6 +560,7 @@ pub fn snowy_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
   });
 }
 
+#[allow(dead_code)]
 pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";

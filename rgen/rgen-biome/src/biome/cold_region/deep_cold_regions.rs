@@ -117,6 +117,7 @@ pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
+#[allow(dead_code)]
 pub fn hard_frozen_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.ice_plains;
   gen.color = "#B2DBEF";

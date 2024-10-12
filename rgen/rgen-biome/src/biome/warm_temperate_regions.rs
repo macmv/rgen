@@ -4,6 +4,7 @@ use crate::builder::PlacerStage;
 
 use super::{BiomeBuilder, IdContext};
 
+#[allow(dead_code)]
 pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#A3B5A0";
@@ -67,6 +68,7 @@ pub fn cherry_blossom_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
+#[allow(dead_code)]
 pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#7C8F6B";
@@ -74,6 +76,7 @@ pub fn cherry_blossom_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new(ctx.blocks));
 }
 
+#[allow(dead_code)]
 pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.birch_forest;
   gen.color = "#899781";
@@ -100,6 +103,8 @@ pub fn lavender_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 }
+
+#[allow(dead_code)]
 pub fn volcano_growth(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#899781";

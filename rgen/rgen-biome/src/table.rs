@@ -2,20 +2,10 @@ use std::collections::HashMap;
 
 use crate::{biome::*, builder::BiomeBuilder};
 
-pub type BiomeList = Vec<BiomeBuilder>;
-pub type BiomeTable = [[BiomeList; 8]; 12];
-
 type BiomeFnCategory = &'static [(u32, &'static str, BiomeFn)];
-type BiomeFnTable = &'static [&'static [BiomeFnCategory]];
 
 pub type BiomeComposition = Vec<BiomeBuilder>;
 type ClimateTable = &'static [&'static [ClimateType]];
-
-// TODO: Need all of these biomes.
-/*
-const VALLEY_TABLE: [[&str; 6]; 7] = [
-];
-*/
 
 macro_rules! b {
   ($rarity:expr, $f:expr) => {

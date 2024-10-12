@@ -1,5 +1,6 @@
 use super::{BiomeBuilder, IdContext};
 
+#[allow(dead_code)]
 pub fn river(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.river;
   gen.color = "#76B49C";

@@ -4,6 +4,7 @@ use crate::{builder::PlacerStage, BiomeBuilder};
 
 use super::IdContext;
 
+#[allow(dead_code)]
 pub fn deep_jungle(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.jungle;
   gen.color = "#E0705F";

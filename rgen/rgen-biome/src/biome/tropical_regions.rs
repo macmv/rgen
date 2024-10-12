@@ -1,6 +1,7 @@
 use super::{BiomeBuilder, IdContext, PlacerStage};
 use rgen_placer::placer;
 
+#[allow(dead_code)]
 pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#ffffff";
