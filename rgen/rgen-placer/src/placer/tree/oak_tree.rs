@@ -34,7 +34,7 @@ impl Placer for OakTree {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     let mut tree_choices = vec![SplitTree::Simple, SplitTree::Square, SplitTree::Big];
-    for i in 0..10 {
+    for _ in 0..10 {
       tree_choices.push(SplitTree::Simple);
     }
 
@@ -45,7 +45,7 @@ impl Placer for OakTree {
       SplitTree::Square => self.build_simple(world, pos, rng),
       SplitTree::Big => self.build_simple(world, pos, rng),
     }
-  } // /* ** */
+  }
 }
 
 impl OakTree {
@@ -100,6 +100,4 @@ impl OakTree {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
   }
-  fn build_square(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {}
-  fn build_big(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {}
 }

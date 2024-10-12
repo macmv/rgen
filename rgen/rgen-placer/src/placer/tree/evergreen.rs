@@ -66,8 +66,8 @@ impl Placer for EverGreen {
     } else {
       match self.size {
         EvergreenSize::Standard => self.build_standard_fir(world, pos, rng, false),
-        EvergreenSize::Fat => self.build_fat_fir(world, pos, rng, false),
-        EvergreenSize::Tall => self.build_tall_fir(world, pos, rng, true),
+        EvergreenSize::Fat => self.build_fat_fir(world, pos, rng),
+        EvergreenSize::Tall => self.build_tall_fir(world, pos, rng),
       }
     }
   }
@@ -81,7 +81,7 @@ impl EverGreen {
     rng: &mut Rng,
     is_tall: bool,
   ) {
-    for y in 0..=1 {
+    for _ in 0..=1 {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -92,13 +92,13 @@ impl EverGreen {
       self.build_disk(world, &mut pos, rng, 1);
     }
     // Builds the main standrd rings
-    let height = 2;
+    let mut height = 2;
 
     if is_tall {
-      let height = 3;
+      height = 3;
     }
 
-    for ring in 1..=height {
+    for _ in 1..=height {
       self.build_disk(world, &mut pos, rng, 2);
       self.build_disk(world, &mut pos, rng, 1);
     }
@@ -106,7 +106,7 @@ impl EverGreen {
   }
 
   fn build_fat_spruce(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
-    for y in 0..=rng.rand_inclusive(0, 1) {
+    for _ in 0..=rng.rand_inclusive(0, 1) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -132,19 +132,19 @@ impl EverGreen {
     rng: &mut Rng,
     is_tall: bool,
   ) {
-    for y in 0..=rng.rand_inclusive(1, 2) {
+    for _ in 0..=rng.rand_inclusive(1, 2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
 
     // Builds the main standrd rings
-    let height = 2;
+    let mut height = 2;
 
     if is_tall {
-      let height = 3;
+      height = 3;
     }
 
-    for ring in 1..=height {
+    for _ in 1..=height {
       self.build_disk(world, &mut pos, rng, 2);
       self.build_fir_spacer(world, &mut pos, rng);
     }
@@ -153,13 +153,13 @@ impl EverGreen {
     self.build_fir_crown(world, pos, rng);
   }
 
-  fn build_tall_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng, is_tall: bool) {
-    for y in 0..=rng.rand_inclusive(1, 2) {
+  fn build_tall_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
+    for _ in 0..=rng.rand_inclusive(1, 2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
 
-    for ring in 1..=3 {
+    for _ in 1..=3 {
       self.build_fir_top_disk(world, &mut pos, rng);
       self.build_fir_spacer(world, &mut pos, rng);
     }
@@ -168,8 +168,8 @@ impl EverGreen {
     self.build_fir_crown(world, pos, rng);
   }
 
-  fn build_fat_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng, is_tall: bool) {
-    for y in 0..=rng.rand_inclusive(1, 2) {
+  fn build_fat_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
+    for _ in 0..=rng.rand_inclusive(1, 2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -284,7 +284,7 @@ impl EverGreen {
   }
 
   // BUILD DISK
-  fn build_disk(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng, size: i32) {
+  fn build_disk(&self, world: &mut PartialWorld, pos: &mut Pos, _rng: &mut Rng, size: i32) {
     for x in (size * -1)..=size {
       for z in (size * -1)..=size {
         if (x.abs() + z.abs()) <= (size + (size / 2)) {
@@ -297,7 +297,7 @@ impl EverGreen {
     world.set(*pos, self.trunk);
     *pos = *pos + Pos::new(0, 1, 0);
   }
-  fn build_fir_top_disk(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
+  fn build_fir_top_disk(&self, world: &mut PartialWorld, pos: &mut Pos, _rng: &mut Rng) {
     for x in -2i32..=2 {
       for z in -2i32..=2 {
         if !(x.abs() + z.abs() > 2) {

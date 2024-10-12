@@ -205,17 +205,17 @@ impl Sakura {
     let top_pos = pos + Pos::new(0, top, 0);
 
     //This is where uno tree decideds where what arm its doing
-    let mut isA = false;
+    let mut is_a = false;
     if SplitTree::Uno == split_tree {
-      isA = rng.rand_inclusive(0, 1) == 1;
+      is_a = rng.rand_inclusive(0, 1) == 1;
     }
 
     // this decides how tall the trunk is
-    let mut trunk_top = 0;
+    let trunk_top;
     if SplitTree::Tri == split_tree {
       trunk_top = top;
     } else if SplitTree::Uno == split_tree {
-      if isA {
+      if is_a {
         trunk_top = a_start;
       } else {
         trunk_top = b_start;
@@ -238,7 +238,7 @@ impl Sakura {
     }
     //places the canapoy cores
     if split_tree == SplitTree::Uno {
-      if isA {
+      if is_a {
         if world.get(a_pos) == BlockState::AIR {
           world.set(a_pos, self.trunk);
         }
@@ -257,7 +257,7 @@ impl Sakura {
     }
 
     if split_tree == SplitTree::Uno {
-      if isA {
+      if is_a {
         self.build_cannopy(world, a_pos, rng);
       } else {
         self.build_cannopy(world, b_pos, rng);
@@ -271,7 +271,7 @@ impl Sakura {
     }
 
     if split_tree == SplitTree::Uno {
-      if isA {
+      if is_a {
         self.build_limb(world, pos, a_start, a, a_height, 1, x_axis);
       } else {
         self.build_limb(world, pos, b_start, b, b_height, -1, x_axis);

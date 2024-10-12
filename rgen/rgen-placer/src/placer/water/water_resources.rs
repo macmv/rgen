@@ -35,7 +35,7 @@ impl Placer for WaterResources {
     if pos.y + 20 >= 255 || pos.y <= 1 {
       return;
     }
-    for i in 1..=self.multiplyer {
+    for _ in 1..=self.multiplyer {
       self.find_water_depth(
         world,
         pos

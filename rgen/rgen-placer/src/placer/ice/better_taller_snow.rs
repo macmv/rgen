@@ -50,8 +50,8 @@ impl Placer for BetterTallerSnow {
 }
 
 impl BetterTallerSnow {
-  fn base_search(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) -> bool {
-    'outer: for rel_x in -1..=1_i32 {
+  fn base_search(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) -> bool {
+    for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if !(rel_x == 0 && rel_z == 0)
         /* || !(rel_x.abs() == 1 && rel_z.abs() == 1) // REMOVED TO ALLOW FOR CONNER SEARCH */
@@ -62,7 +62,6 @@ impl BetterTallerSnow {
             && block_check != self.ice
           {
             return true;
-            //break 'outer;
           }
         }
       }
@@ -70,7 +69,7 @@ impl BetterTallerSnow {
     return false;
   }
 
-  fn base_build(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+  fn base_build(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     self.snow_builder(pos, world, 7);
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {

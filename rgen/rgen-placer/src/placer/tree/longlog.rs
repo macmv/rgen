@@ -84,68 +84,6 @@ impl Placer for LongLog {
 }
 
 impl LongLog {
-  fn place_stump(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
-    for rel_x in -1..=1_i32 {
-      for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != BlockState::AIR {
-          return false;
-        }
-      }
-    }
-    world.set(pos, self.log);
-
-    return true;
-  }
-
-  fn place_log(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
-    let mut dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-    rng.shuffle(&mut dirs);
-
-    for (dx, dz) in dirs {
-      let mut buildable = true;
-      let length = rng.rand_inclusive(4, 6);
-      let pos_st = pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2)));
-      let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
-      if self.ground.contains(world.get(pos_st)) && self.ground.contains(world.get(pos_nd)) {
-        for i in 1..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-          if world.get(i_pos) != BlockState::AIR {
-            buildable = false;
-            break;
-          }
-        }
-      } else {
-        buildable = false;
-      }
-
-      if !buildable {
-        continue;
-      } else {
-        for i in 2..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-
-          let mut log_type = self.log;
-
-          log_type.state &= 0b0011; //reset
-
-          if dx != 0 {
-            // x axis be it (5, 6)
-            log_type.state |= 0b0100;
-          } else {
-            // z axis be it (9, 10)
-            log_type.state |= 0b1000;
-          }
-
-          world.set(i_pos, log_type);
-        }
-        return true;
-      }
-    }
-    false
-  }
-}
-
-impl LongLog {
   fn is_buildable(&self, world: &PartialWorld, pos: Pos, dx: i32, dz: i32, length: i32) -> bool {
     let pos_st = pos + Pos::new(dx * 2, -1, dz * 2);
     let pos_nd = pos + Pos::new(dx * length, -1, dz * length);

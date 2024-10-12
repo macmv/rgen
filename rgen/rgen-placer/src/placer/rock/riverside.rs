@@ -2,8 +2,6 @@ use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
-const GRID_SIZE: usize = 40;
-const BLOB_SIZE: usize = 20;
 
 pub struct RiverSide {
   pub ground:       BlockFilter,

@@ -2,8 +2,6 @@ use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
-const GRID_SIZE: usize = 40;
-const BLOB_SIZE: usize = 20;
 
 pub struct LavaLake {
   pub ground:       BlockFilter,
@@ -86,7 +84,7 @@ impl LavaLake {
       }
     }
   }
-  fn flat_plate(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
+  fn flat_plate(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         for rel_y in 0..-2_i32 {

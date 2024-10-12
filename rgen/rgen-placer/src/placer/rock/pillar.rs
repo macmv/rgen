@@ -48,8 +48,8 @@ impl Pillar {
   fn build_base(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        let mut min = 0;
-        let mut max = 0;
+        let min;
+        let max;
         if rel_x == 0 && rel_z == 0 {
           min = 4;
           max = 6;
