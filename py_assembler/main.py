@@ -20,34 +20,48 @@ all_values = sheet.get_all_values()
 # Initialize an empty dictionary to hold data categorized by climate and geographic type
 data_dict = {}
 current_climate = None
-
-# List of geographic types
-geo_types = ["STANDARD", "RIVER", "VALLEY", "HILLS", "MOUNTAIN"]
+geo_types = []
 
 # Parse the Google Sheet data
 for row in all_values:
+    # Debug: Print each row to see what we're working with
+    print(f"Processing row: {row}")
+
     if not row[0]:  # Skip empty rows
         continue
 
-    if row[0].isupper() and row[0] not in geo_types:  # This is a climate type
-        current_climate = row[0]
-        data_dict[current_climate] = {geo_type: [] for geo_type in geo_types}  # Initialize all geo types for this climate
-        # Debug: Print detected climate
+    # Detect if the row contains a climate type
+    if "ClimateType::" in row[0]:  # Climate types are prefixed by "ClimateType::"
+        current_climate = row[0].split("::")[1].strip()
+        data_dict[current_climate] = {}
         print(f"Detected climate: {current_climate}")
 
-    elif row[0].isdigit() and current_climate:  # Data rows containing percentages and names
+    # Detect if the row contains geographic types
+    elif "GeographicType::" in row[0]:  # Geographic types are prefixed by "GeographicType::"
+        geo_types = [entry.split("::")[1].strip().upper() for entry in row if "GeographicType::" in entry]
+        for geo_type in geo_types:
+            data_dict[current_climate][geo_type] = []
+        print(f"Detected geographic types: {geo_types}")
+
+    # Skip header rows ("% Name" rows)
+    elif row[0] == "%" and "Name" in row:
+        continue
+
+    # Parse rows with actual data (percentage and name)
+    elif current_climate and geo_types and row[0].isdigit():  # Data rows containing percentages and names
         for i, geo_type in enumerate(geo_types):  # Loop through the geographic types
-            # Each geographic type has two columns: percentage and name
             percentage_index = i * 2
             name_index = percentage_index + 1
 
             # Ensure the indices are within bounds and that the name isn't 'total'
-            if percentage_index < len(row) and name_index < len(row) and row[name_index] != 'total':
+            if percentage_index < len(row) and name_index < len(row) and row[name_index].lower() != 'total':
                 percentage = row[percentage_index]
                 name = row[name_index]
 
-                if percentage.isdigit() and name:  # Ensure valid entries
+                # Ensure valid percentage and name
+                if percentage.isdigit() and name:
                     data_dict[current_climate][geo_type].append(f'b!({float(percentage)}, {name})')
+                    print(f"Added: Climate: {current_climate}, GeoType: {geo_type}, Percentage: {percentage}, Name: {name}")
 
 # Generate Rust code
 rust_code = []
@@ -56,7 +70,7 @@ for climate, geo_data in data_dict.items():
     for geo_type, entries in geo_data.items():
         if entries:  # Only generate code if there are entries to add
             formatted_entries = ',\n    '.join(entries)
-            rust_code.append(f'let (GeographicType::{geo_type.capitalize()}, ClimateType::{climate.capitalize()}) = &[\n    {formatted_entries},\n];\n')
+            rust_code.append(f'let (GeographicType::{geo_type.capitalize()}, ClimateType::{climate}) = &[\n    {formatted_entries},\n];\n')
 
 # Debug: Print generated Rust code before writing to file
 print("Generated Rust Code:")
