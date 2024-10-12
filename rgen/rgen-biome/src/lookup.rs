@@ -59,8 +59,8 @@ impl WorldBiomes {
       (Sea, _, _) => GeographicType::Ocean,
       (Coast, _, _) => GeographicType::Beach,
 
-      (NearInland, Valley, 0..=2) => GeographicType::Standard,
-      (NearInland, Valley, 3..=6) => GeographicType::River,
+      (NearInland, Valley, 0) => GeographicType::Standard,
+      (NearInland, Valley, 1..=6) => GeographicType::River,
       (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
       (NearInland, LowSlice, 6) => GeographicType::River,
       (NearInland, MidSlice, 0) => GeographicType::Mountains,
@@ -149,15 +149,23 @@ impl WorldBiomes {
   }
 
   pub fn peaks_valleys_category(&self, pos: Pos) -> PeaksValleysCategory {
+    let continentalness = self.sample_continentalness(pos);
     let peaks_valleys = self.sample_peaks_valleys(pos);
 
     let v = if peaks_valleys > 0.5 { 1.0 - peaks_valleys } else { peaks_valleys };
+
+    // This is a bit odd, but its required for rivers. We need to modify the border
+    // of the valley edge given the continentalness, so that river edges line up
+    // correctly.
+    //
+    // Also these numbers are really fine-tuned. Change at your own risk.
+    let river_edge = 0.445 + (continentalness - 0.3) * 0.2;
 
     match v {
       x if x < 0.2 => PeaksValleysCategory::Peak,
       x if x < 0.3 => PeaksValleysCategory::HighSlice,
       x if x < 0.4 => PeaksValleysCategory::MidSlice,
-      x if x < 0.48 => PeaksValleysCategory::LowSlice,
+      x if x < river_edge => PeaksValleysCategory::LowSlice,
       _ => PeaksValleysCategory::Valley,
     }
   }
