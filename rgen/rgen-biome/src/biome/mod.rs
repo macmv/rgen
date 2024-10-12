@@ -4,9 +4,7 @@ mod blank;
 mod cave;
 mod coast_regions;
 mod cold_region;
-mod cold_regions;
-mod cool_regions;
-mod dry_regions;
+
 mod forests;
 mod hot_regions;
 mod jungle;
@@ -16,18 +14,24 @@ mod tropical_regions;
 mod warm_temperate_regions;
 
 pub use blank::*;
+#[allow(unused_imports)]
 pub use cave::*;
+#[allow(unused_imports)]
 pub use coast_regions::*;
 pub use cold_region::*;
-pub use cold_regions::*;
-pub use cool_regions::*;
-pub use dry_regions::*;
+#[allow(unused_imports)]
 pub use forests::*;
+#[allow(unused_imports)]
 pub use hot_regions::*;
+#[allow(unused_imports)]
 pub use jungle::*;
+#[allow(unused_imports)]
 pub use river::*;
+#[allow(unused_imports)]
 pub use temperate_river::*;
+#[allow(unused_imports)]
 pub use tropical_regions::*;
+#[allow(unused_imports)]
 pub use warm_temperate_regions::*;
 
 pub struct IdContext<'a> {

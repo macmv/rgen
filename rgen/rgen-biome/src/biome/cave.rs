@@ -2,6 +2,7 @@ use rgen_placer::chunk_placer;
 
 use super::{BiomeBuilder, IdContext};
 
+#[allow(dead_code)]
 pub fn cave(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#ffffff";
@@ -9,6 +10,7 @@ pub fn cave(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.place_chunk(chunk_placer::GlowVine::new(ctx.blocks));
 }
 
+#[allow(dead_code)]
 pub fn lush_cave(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.plains;
   gen.color = "#ffffff";
