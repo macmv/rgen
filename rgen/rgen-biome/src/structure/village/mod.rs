@@ -41,7 +41,7 @@ impl VillageGenerator {
         block![tallgrass],
       ]
       .into(),
-      road_block: block![log],
+      road_block: block![grass_path],
       buildings: vec![
         rgen_llama::parse(include_str!("building/house_1.ll")),
         rgen_llama::parse(include_str!("building/house_2.ll")),
