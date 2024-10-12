@@ -77,8 +77,8 @@ print("Generated Rust Code:")
 print('\n'.join(rust_code))
 
 # Write to a Rust file
-output_file_path = os.path.join(os.path.dirname(__file__), 'test.rs')
+output_file_path = os.path.join(os.path.dirname(__file__), 'tbl.rs')
 with open(output_file_path, 'w') as rust_file:
     rust_file.write('\n'.join(rust_code))
 
-print("Rust code generated and written to test.rs")
+print("Rust code generated and written to tbl.rs")
