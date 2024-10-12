@@ -1,4 +1,4 @@
-use rgen_base::{block, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 use rgen_world::PartialWorld;
@@ -15,9 +15,10 @@ pub struct VillageGenerator {
   seed: u64,
   grid: PointGrid,
 
-  buildings: Vec<Structure>,
+  replaceable: BlockFilter,
+  road_block:  BlockState,
 
-  road_block: BlockState,
+  buildings: Vec<Structure>,
 }
 
 const VILLAGE_RADIUS: i32 = 96;
@@ -29,6 +30,17 @@ impl VillageGenerator {
     VillageGenerator {
       seed,
       grid,
+      // FIXME: Needs so much replacing.
+      replaceable: [
+        block![air],
+        block![leaves],
+        block![rgen:leaves],
+        block![rgen:leaves2],
+        block![rgen:leaves3],
+        block![double_plant],
+        block![tallgrass],
+      ]
+      .into(),
       road_block: block![log],
       buildings: vec![
         rgen_llama::parse(include_str!("building/house_1.ll")),
@@ -137,7 +149,7 @@ impl<'a> Village<'a> {
           let pos = building.transform_to_world(structure, rel_pos);
 
           for y in (building_y..=255).rev() {
-            if world.get(pos.with_y(y)) != block![air] {
+            if !self.generator.replaceable.contains(world.get(pos.with_y(y))) {
               building_y = y;
               break;
             }
