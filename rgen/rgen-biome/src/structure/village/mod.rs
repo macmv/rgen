@@ -1,6 +1,7 @@
 use rgen_base::{block, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
+use rgen_world::PartialWorld;
 
 mod building;
 mod math;
@@ -37,7 +38,7 @@ impl VillageGenerator {
     }
   }
 
-  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn call_villages(&self, chunk_pos: ChunkPos, mut f: impl FnMut(Village)) {
     // FIXME: A lot of this is copied from noodle caves, need to dedupe.
 
     let scale = 256.0;
@@ -57,8 +58,20 @@ impl VillageGenerator {
       let village_seed = self.seed ^ ((pos.x as u64) << 8) ^ ((pos.y as u64) << 16);
 
       let village = Village::new(self, village_seed, pos);
-      village.generate(info, chunk, chunk_pos);
+      f(village)
     }
+  }
+
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    self.call_villages(chunk_pos, |village| {
+      village.generate(info, chunk, chunk_pos);
+    });
+  }
+
+  pub fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    self.call_villages(chunk_pos, |village| {
+      village.decorate(world, chunk_pos);
+    });
   }
 }
 
@@ -102,32 +115,38 @@ impl<'a> Village<'a> {
           }
         }
       }
+    }
+  }
 
-      for building in &self.buildings {
-        let structure = &self.generator.buildings[building.building_id as usize];
+  pub fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    for building in &self.buildings {
+      let structure = &self.generator.buildings[building.building_id as usize];
 
-        // This is the axis of rotation for the building.
-        let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
-        for rel_pos in structure.blocks() {
-          let block = structure.get(rel_pos);
-          if block != BlockState::AIR {
-            // Rotate `rel_pos` about the `front_center`.
-            let rotated_x = rel_pos.x - front_center.x;
-            let rotated_z = rel_pos.z - front_center.z;
-            let (rotated_x, rotated_z) = match building.forward {
-              Direction::North => (rotated_x, rotated_z),
-              Direction::East => (-rotated_z, rotated_x),
-              Direction::South => (-rotated_x, -rotated_z),
-              Direction::West => (rotated_z, -rotated_x),
-            };
-            let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
+      // This is the axis of rotation for the building.
+      let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
+      for rel_pos in structure.blocks() {
+        let block = structure.get(rel_pos);
+        if block != BlockState::AIR {
+          // Rotate `rel_pos` about the `front_center`.
+          let rotated_x = rel_pos.x - front_center.x;
+          let rotated_z = rel_pos.z - front_center.z;
+          let (rotated_x, rotated_z) = match building.forward {
+            Direction::North => (rotated_x, rotated_z),
+            Direction::East => (-rotated_z, rotated_x),
+            Direction::South => (-rotated_x, -rotated_z),
+            Direction::West => (rotated_z, -rotated_x),
+          };
+          let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
 
-            if pos.in_chunk(chunk_pos) {
-              // FIXME
-              chunk.set(pos.chunk_rel(), info.encode(block));
-            }
+          if pos.in_chunk(chunk_pos) {
+            world.set(pos, block);
           }
         }
+      }
+
+      let pos = building.pos;
+      if pos.in_chunk(chunk_pos) {
+        world.set(pos, block![log[2]]);
       }
     }
   }
