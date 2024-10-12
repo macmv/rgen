@@ -2,7 +2,6 @@ use crate::{Block, BlockState, ChunkRelPos};
 
 // Mirrors a ChunkPrimer in minecraft.
 #[derive(Clone)]
-#[allow(clippy::new_without_default)]
 pub struct Chunk {
   data: Box<[u16]>,
 }
@@ -14,6 +13,7 @@ fn pos_to_index(pos: ChunkRelPos) -> usize {
 }
 
 impl Chunk {
+  #[allow(clippy::new_without_default)]
   pub fn new() -> Chunk {
     // vec![0; 65536].into_boxed_slice() does the same thing, but it builds the
     // whole thing on the stack first in debug mode.

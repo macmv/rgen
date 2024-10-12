@@ -25,7 +25,6 @@ pub trait Generator {
   fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
 }
 
-#[allow(clippy::new_without_default)]
 pub struct CachedWorld {
   base_chunks: Mutex<HashMap<ChunkPos, PartialChunk>>,
 
@@ -36,7 +35,6 @@ pub struct CachedWorld {
   requester: Requester,
 }
 
-#[allow(clippy::new_without_default)]
 pub struct PartialWorld {
   /// A chunk existing in here means its either decorated or about to be
   /// decorated.
@@ -80,6 +78,7 @@ struct Requester {
 }
 
 impl CachedWorld {
+  #[allow(clippy::new_without_default)]
   pub fn new() -> Self {
     CachedWorld {
       base_chunks: Mutex::new(HashMap::new()),
@@ -248,6 +247,7 @@ impl CachedWorld {
 }
 
 impl PartialWorld {
+  #[allow(clippy::new_without_default)]
   pub fn new() -> Self { PartialWorld { chunks: HashMap::new() } }
 }
 
