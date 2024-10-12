@@ -28,4 +28,4 @@ forge*changelog.txt
 /.keys
 
 # removes the test page
-py_assembler/test.rs
+py_assembler/tbl.rs
