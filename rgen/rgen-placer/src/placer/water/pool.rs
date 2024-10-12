@@ -1,7 +1,4 @@
-use std::any;
-
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_llama::Structure;
+use rgen_base::{BlockFilter, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};

@@ -148,7 +148,7 @@ impl Sakura {
 
     while x != x2 || y != y2 {
       if x_axis {
-        let block_loc = (start_pos + Pos::new(x, y + offset, 0));
+        let block_loc = start_pos + Pos::new(x, y + offset, 0);
         if world.get(block_loc) == BlockState::AIR || world.get(block_loc) == self.leaves {
           world.set(block_loc, self.trunk);
         }
@@ -190,7 +190,7 @@ impl Sakura {
     let a_height = top - rng.rand_inclusive(0, 1);
     let b_height = top - rng.rand_inclusive(0, 1);
 
-    let x_axis = (rng.rand_inclusive(0, 1) == 0);
+    let x_axis = rng.rand_inclusive(0, 1) == 0;
 
     let a_pos: Pos;
     let b_pos: Pos;

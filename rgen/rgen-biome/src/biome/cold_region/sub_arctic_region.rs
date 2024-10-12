@@ -1,8 +1,4 @@
-use rgen_placer::{
-  chunk_placer,
-  noise::{OpenSimplexNoise, SeededNoise},
-  placer,
-};
+use rgen_placer::{chunk_placer, noise::SeededNoise, placer};
 
 use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};

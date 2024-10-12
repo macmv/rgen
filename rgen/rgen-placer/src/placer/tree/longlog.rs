@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -106,7 +106,7 @@ impl LongLog {
       let length = rng.rand_inclusive(4, 6);
       let pos_st = pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2)));
       let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
-      if (self.ground.contains(world.get(pos_st)) && self.ground.contains(world.get(pos_nd))) {
+      if self.ground.contains(world.get(pos_st)) && self.ground.contains(world.get(pos_nd)) {
         for i in 1..=length {
           let i_pos = pos + Pos::new(i * dx, 0, i * dz);
           if world.get(i_pos) != BlockState::AIR {

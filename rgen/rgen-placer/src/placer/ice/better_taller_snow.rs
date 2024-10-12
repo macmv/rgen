@@ -1,8 +1,7 @@
 use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_llama::Structure;
 use rgen_world::PartialWorld;
 
-use crate::{chunk, Placer, Random, Rng};
+use crate::{Placer, Rng};
 
 pub struct BetterTallerSnow {
   pub block:        BlockFilter,
@@ -62,13 +61,13 @@ impl BetterTallerSnow {
             && block_check.block != Block::AIR
             && block_check != self.ice
           {
-            return (true);
+            return true;
             //break 'outer;
           }
         }
       }
     }
-    return (false);
+    return false;
   }
 
   fn base_build(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {

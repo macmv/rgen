@@ -1,5 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_llama::Structure;
+use rgen_base::{Block, BlockState, Blocks, Pos};
 use rgen_world::PartialWorld;
 use std::ops::RangeInclusive;
 

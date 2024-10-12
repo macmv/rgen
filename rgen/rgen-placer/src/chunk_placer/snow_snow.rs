@@ -1,7 +1,7 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, ChunkRelPos, Pos};
+use rgen_base::{BlockFilter, BlockState, Blocks, ChunkRelPos};
 
 use crate::{
-  noise::{self, NoiseGenerator, OpenSimplexNoise, SeededNoise},
+  noise::{NoiseGenerator, OpenSimplexNoise, SeededNoise},
   BiomeCachedChunk, ChunkPlacer, Random,
 };
 

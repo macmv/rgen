@@ -1,6 +1,5 @@
 use rgen_base::{Biome, Pos};
 use rgen_biome::{BiomeBuilder, WorldBiomes};
-use rgen_world::Context;
 
 use crate::color::Color;
 
