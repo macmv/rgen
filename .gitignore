@@ -26,3 +26,6 @@ forge*changelog.txt
 
 /.vscode
 /.keys
+
+# removes the test page
+/py_assembler/test.rs
