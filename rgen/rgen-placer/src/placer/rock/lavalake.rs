@@ -87,7 +87,7 @@ impl LavaLake {
   fn flat_plate(&self, _rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        for rel_y in 0..-2_i32 {
+        for rel_y in (-2_i32..0).rev() {
           let rel_pos = pos + Pos::new(rel_x, rel_y, rel_z);
           if world.get(rel_pos).block == Block::AIR || world.get(rel_pos).block == Block::WATER {
             world.set(rel_pos, self.material);

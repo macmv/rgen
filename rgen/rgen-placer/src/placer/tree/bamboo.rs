@@ -27,12 +27,8 @@ impl Placer for Bamboo {
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let height;
-    if self.pint_size {
-      height = rng.rand_inclusive(8, 14);
-    } else {
-      height = rng.rand_inclusive(15, 20);
-    }
+    let height =
+      if self.pint_size { rng.rand_inclusive(8, 14) } else { rng.rand_inclusive(15, 20) };
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;

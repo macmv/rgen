@@ -125,6 +125,9 @@ impl Sakura {
     world.place_structure(pos + Pos::new(dx * 3 - dz.abs() * 2, -2, dz * 3 - dx.abs() * 2), &drape);
   }
 
+  // Note: this should really be replaced with a struct to hold all the fields of
+  // a limb.
+  #[allow(clippy::too_many_arguments)]
   fn build_limb(
     &self,
     world: &mut PartialWorld,

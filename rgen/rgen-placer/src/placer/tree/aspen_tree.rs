@@ -56,12 +56,8 @@ impl Placer for AspenTree {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
-          if x.abs() == 2 && z.abs() == 2 {
-            if y == -3 || y == -1 {
-              continue;
-            } else if rng.rand_inclusive(0, 4) != 0 {
-              continue;
-            }
+          if x.abs() == 2 && z.abs() == 2 && (y == -3 || y == -1 || rng.rand_inclusive(0, 4) != 0) {
+            continue;
           }
 
           let pos = pos + Pos::new(x, y + height, z);

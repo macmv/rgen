@@ -27,9 +27,10 @@ pub trait Placer: Send + Sync {
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos);
 }
 
-/// A ChunkPlacer places a set of decorations on a single chunk. This is less
-/// flexible than a `Placer`, because it can only access a single chunk, but it
-/// ends up being faster, as it will be run in parallel.
+/// A ChunkPlacer places a set of decorations on a single chunk.
+///
+/// This is less flexible than a `Placer`, because it can only access a single
+/// chunk, but it ends up being faster, as it will be run in parallel.
 pub trait ChunkPlacer: Send + Sync {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos);
 }
