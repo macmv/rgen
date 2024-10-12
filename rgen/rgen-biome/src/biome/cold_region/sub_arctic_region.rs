@@ -324,8 +324,8 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
         ctx.blocks.concrete.with_data(color::BLACK),
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -341,8 +341,8 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
         ctx.blocks.concrete.with_data(color::BLACK),
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -358,8 +358,8 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
         ctx.blocks.concrete.with_data(color::BLACK),
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -567,13 +567,217 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
   gen.id = ctx.biomes.taiga;
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
-  });
+  gen.set_underwater_block(ctx.blocks.dirt.default_state);
+  ground(ctx, gen);
+
+  gen.place(
+    "underwater clay",
+    PlacerStage::Sand,
+    placer::WaterResources {
+      avg_in_chunk:       2.0, //2.4,
+      placement:          ctx.blocks.clay.default_state.into(),
+      tool_placement:     ctx.blocks.gold_block.default_state.into(),
+      tool_placement_two: ctx.blocks.iron_ore.default_state.into(),
+      size:               3..=5,
+      multiplyer:         2,
+    },
+  );
+
+  gen.place(
+    "underwater sand",
+    PlacerStage::Sand,
+    placer::WaterResources {
+      avg_in_chunk:       1.5, //1.0,
+      placement:          ctx.blocks.sand.default_state.into(),
+      tool_placement:     ctx.blocks.gold_block.default_state.into(),
+      tool_placement_two: ctx.blocks.iron_ore.default_state.into(),
+      size:               2..=4,
+      multiplyer:         3,
+    },
+  );
+
+  gen.place(
+    "gravel",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace:       gen.top_block().into(),
+      place:         ctx.blocks.gravel.default_state,
+      radius:        1..=4,
+      avg_per_chunk: 0.9,
+    },
+  );
+
+  gen.place(
+    "grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    130,
+      place_above: [
+        ctx.blocks.grass.block,
+        ctx.blocks.rgen_mossy_stump.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      place:       ctx.blocks.tallgrass.with_data(2),
+    },
+  );
+
+  gen.place(
+    "ferns",
+    PlacerStage::Tree,
+    placer::Scatter {
+      attempts:    430,
+      place_above: [
+        ctx.blocks.grass.block,
+        ctx.blocks.rgen_mossy_stump.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+        ctx.blocks.rgen_mossy_stone.block,
+      ]
+      .into(),
+      place:       ctx.blocks.tallgrass.with_data(1),
+    },
+  );
+
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 3.0,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Standard,
+    },
+  );
+  gen.place(
+    "tall",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.8,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Tall,
+    },
+  );
+  gen.place(
+    "fat",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.3,
+      is_spruce:    true,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.leaves.with_data(1),
+      trunk:        ctx.blocks.log.with_data(1),
+      size:         placer::EvergreenSize::Fat,
+    },
+  );
+
+  gen.place(
+    "standard",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 3.0,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Standard,
+    },
+  );
+  gen.place(
+    "tall",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.8,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Tall,
+    },
+  );
+  gen.place(
+    "fat",
+    PlacerStage::Tree,
+    placer::EverGreen {
+      avg_in_chunk: 0.3,
+      is_spruce:    false,
+      place_above:  [
+        ctx.blocks.grass.default_state,
+        ctx.blocks.concrete.with_data(color::MAGENTA),
+        ctx.blocks.concrete.with_data(color::BLACK),
+      ]
+      .into(),
+      leaves:       ctx.blocks.rgen_leaves.with_data(0),
+      trunk:        ctx.blocks.rgen_log.with_data(0),
+      size:         placer::EvergreenSize::Fat,
+    },
+  );
+
+  gen.place(
+    "fir log",
+    PlacerStage::Tree,
+    placer::LongLog {
+      avg_per_chunk: 1.0,
+      ground:        [
+        ctx.blocks.dirt.block,
+        ctx.blocks.grass.block,
+        ctx.blocks.gravel.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.cobblestone.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+      ]
+      .into(),
+      log:           ctx.blocks.rgen_log.with_data(0),
+    },
+  );
+
+  gen.place(
+    "spruce log",
+    PlacerStage::Tree,
+    placer::LongLog {
+      avg_per_chunk: 1.0,
+      ground:        [
+        ctx.blocks.dirt.block,
+        ctx.blocks.grass.block,
+        ctx.blocks.gravel.block,
+        ctx.blocks.stone.block,
+        ctx.blocks.cobblestone.block,
+        ctx.blocks.rgen_mossy_cobblestone.block,
+      ]
+      .into(),
+      log:           ctx.blocks.log.with_data(1),
+    },
+  );
 }
 
 pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {

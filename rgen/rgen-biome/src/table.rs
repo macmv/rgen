@@ -121,7 +121,8 @@ biome_categories!(
       b!(7, windswept_spruce_grove),
     ];
 
-    let (GeographicType::Mountains, ClimateType::SubArctic) = &[b!(20, snowy_peak)];
+    let (GeographicType::Mountains, ClimateType::SubArctic) =
+      &[b!(7, windswept_fir_grove), b!(6, windswept_hill), b!(7, windswept_spruce_grove)]; //&[b!(20, snowy_peak)]; THIS WOULD AHVE BEEN SNOWY MOUNTIANS
 
     let (GeographicType::Beach, ClimateType::SubArctic) = &[
       b!(2, fir_grove), // maybe a fir beach in the future
