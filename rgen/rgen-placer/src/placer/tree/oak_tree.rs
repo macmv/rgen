@@ -19,7 +19,7 @@ pub struct OakTree {
 impl OakTree {
   pub fn new(blocks: &Blocks) -> Self {
     OakTree {
-      avg_in_chunk: 13.0, //40.0,
+      avg_in_chunk: 6.5, //40.0,
       place_above:  blocks.grass.default_state.into(),
       trunk:        blocks.log.with_data(0),
       leaves:       blocks.leaves.with_data(0),
@@ -50,7 +50,7 @@ impl Placer for OakTree {
 
 impl OakTree {
   fn build_simple(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    let height = rng.rand_inclusive(5, 8);
+    let height = rng.rand_inclusive(3, 5);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return;

@@ -122,7 +122,7 @@ impl WorldBiomes {
     let geographic_type = self.geographic_type(pos);
     let _climate_type = self.climate_type(pos);
 
-    let biomes = self.composition_lookup.choose(geographic_type, ClimateType::SubArctic); // climate_type_set
+    let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type_set
 
     let total = biomes.iter().map(|b| b.rarity).sum::<u32>();
     let mut variance = self.variance(pos) % total;
