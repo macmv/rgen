@@ -75,7 +75,7 @@ impl RenderQueue {
   }
 
   /// Pulls off the next chunk to be rendered.
-  pub fn pop_render<'a>(&self) -> Option<RegionPos> { self.rendering.lock().pop() }
+  pub fn pop_render(&self) -> Option<RegionPos> { self.rendering.lock().pop() }
 }
 
 const POOL_SIZE: usize = 32;

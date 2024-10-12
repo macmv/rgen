@@ -18,11 +18,11 @@ impl Color {
 
   pub fn from_gray(value: f32) -> Color { Color { r: value, g: value, b: value } }
 
-  pub fn to_sdl2(&self) -> sdl2::pixels::Color {
+  pub fn to_sdl2(self) -> sdl2::pixels::Color {
     sdl2::pixels::Color::RGB((self.r * 255.0) as u8, (self.g * 255.0) as u8, (self.b * 255.0) as u8)
   }
 
-  pub fn fade(&self, to: Color, alpha: f32) -> Self {
+  pub fn fade(self, to: Color, alpha: f32) -> Self {
     Color {
       r: self.r * alpha + to.r * (1.0 - alpha),
       g: self.g * alpha + to.g * (1.0 - alpha),
