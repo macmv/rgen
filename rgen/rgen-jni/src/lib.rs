@@ -45,9 +45,11 @@ macro_rules! functions {
         Self {
           handle,
 
+          #[allow(clippy::missing_transmute_annotations)]
           rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
 
           $(
+            #[allow(clippy::missing_transmute_annotations)]
             $name: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(concat!(stringify!($name), "\0").as_bytes()))),
           )*
         }
