@@ -77,7 +77,7 @@ impl<'a> Village<'a> {
     let mut village = Village { generator, roads: vec![], buildings: vec![], origin };
 
     let mut rng = Rng::new(seed);
-    village.recursive_road(&mut rng, origin, origin, 0);
+    village.recursive_road(&mut rng, origin, 0);
 
     village.place_buildings(&mut rng);
 
@@ -160,7 +160,7 @@ impl<'a> Village<'a> {
 
 // Village generation
 impl<'a> Village<'a> {
-  fn recursive_road(&mut self, rng: &mut Rng, origin: Pos, pos: Pos, depth: u32) {
+  fn recursive_road(&mut self, rng: &mut Rng, pos: Pos, depth: u32) {
     if depth > 3 {
       return;
     }
@@ -190,7 +190,7 @@ impl<'a> Village<'a> {
       let road = Road { start: pos, end: new_pos };
       self.roads.push(road);
 
-      self.recursive_road(rng, origin, new_pos, depth + 1);
+      self.recursive_road(rng, new_pos, depth + 1);
     }
   }
 

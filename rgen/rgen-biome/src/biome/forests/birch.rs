@@ -149,7 +149,7 @@ pub fn aspen_wood(ctx: &IdContext, gen: &mut BiomeBuilder) {
       ground:         ctx.blocks.grass.default_state,
       plants:         ctx.blocks.stone.default_state.into(),
       avg_per_chunk:  1.75,
-      chance_of_moss: 015,
+      chance_of_moss: 15,
       is_shrooms:     false,
       shroom:         ctx.blocks.rgen_polypore.default_state,
     },
