@@ -1,4 +1,4 @@
-use crate::{BlockName, Layer, LayerKey, Orientation, AST};
+use crate::{Ast, BlockName, Layer, LayerKey, Orientation};
 
 pub struct Parser<'a> {
   input: &'a str,
@@ -10,7 +10,7 @@ pub struct Parser<'a> {
 impl<'a> Parser<'a> {
   pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0, seen_orientation: false } }
 
-  pub fn parse(&mut self, ast: &mut AST) {
+  pub fn parse(&mut self, ast: &mut Ast) {
     loop {
       if self.peek() == '\n' {
         self.next();
@@ -56,7 +56,7 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn parse_layer(&mut self, ast: &mut AST) {
+  fn parse_layer(&mut self, ast: &mut Ast) {
     self.skip_whitespace();
     let name = self.next_word_opt();
 
@@ -125,20 +125,20 @@ impl<'a> Parser<'a> {
     ast.ordered.push(key);
   }
 
-  fn parse_repeat(&mut self, ast: &mut AST) {
+  fn parse_repeat(&mut self, ast: &mut Ast) {
     self.skip_whitespace();
 
     let layer = self.next_word();
     let key = LayerKey::Name(layer.clone());
 
-    if ast.layers.get(&key).is_none() {
+    if !ast.layers.contains_key(&key) {
       self.err(format!("unknown layer '{layer}'"));
     }
 
     ast.ordered.push(key);
   }
 
-  fn parse_orientation(&mut self, ast: &mut AST) {
+  fn parse_orientation(&mut self, ast: &mut Ast) {
     self.skip_whitespace();
 
     let orientation = self.next_word();
@@ -156,7 +156,7 @@ impl<'a> Parser<'a> {
     self.seen_orientation = true;
   }
 
-  fn parse_name(&mut self, ast: &mut AST, name: char) {
+  fn parse_name(&mut self, ast: &mut Ast, name: char) {
     self.skip_whitespace();
     if self.next() != ':' {
       self.err("expected `:`");

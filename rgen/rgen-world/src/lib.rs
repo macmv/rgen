@@ -193,7 +193,7 @@ impl CachedWorld {
 
   fn generate_decorated(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
     let mut chunks = self.chunks.lock();
-    if chunks.chunks.get(&pos).is_none() {
+    if !chunks.chunks.contains_key(&pos) {
       drop(chunks);
       self.generate_base(ctx, generator, pos);
       self.requester.retry(pos, Stage::Decorated);
@@ -204,7 +204,7 @@ impl CachedWorld {
     for x in -RADIUS..=RADIUS {
       for z in -RADIUS..=RADIUS {
         let pos = pos + ChunkPos::new(x, z);
-        if chunks.chunks.get(&pos).is_none() {
+        if !chunks.chunks.contains_key(&pos) {
           self.request(pos, Stage::Base);
           valid = false;
         }

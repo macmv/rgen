@@ -1,3 +1,4 @@
+#[allow(clippy::len_without_is_empty)]
 pub trait BezierStorage {
   fn len(&self) -> usize;
   fn get(&self, index: usize) -> (f64, f64, f64);

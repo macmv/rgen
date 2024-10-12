@@ -10,7 +10,7 @@ use rgen_base::{Blocks, Pos};
 pub use structure::Structure;
 
 #[derive(Default, Debug)]
-struct AST {
+struct Ast {
   names: HashMap<char, BlockName>,
 
   layers:      HashMap<LayerKey, Layer>,
@@ -48,7 +48,7 @@ struct BlockName {
 
 pub fn parse(blocks: &Blocks, input: &str) -> Structure {
   let mut parser = parser::Parser::new(input);
-  let mut ast = AST::default();
+  let mut ast = Ast::default();
 
   parser.parse(&mut ast);
 

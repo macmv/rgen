@@ -4,10 +4,11 @@ use smallvec::SmallVec;
 
 use crate::{Block, BlockState};
 
-/// A block filter is a filter for matching against blocks. It can match
-/// individual block states (like oak stairs facing north), or entire blocks
-/// (like any log block), or a combination of those (like any bottom slabs or
-/// any logs).
+/// A block filter is a filter for matching against blocks.
+///
+/// It can match individual block states (like oak stairs facing north), or
+/// entire blocks (like any log block), or a combination of those (like any
+/// bottom slabs or any logs).
 ///
 /// This filter can also be set to many every block, using the `Any` variant.
 ///
