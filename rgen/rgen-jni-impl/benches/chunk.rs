@@ -10,7 +10,7 @@ use rgen_world::{CachedWorld, Generator};
 use test::Bencher;
 
 #[bench]
-fn bench_chunk(b: &mut Bencher) {
+fn bench_sequential(b: &mut Bencher) {
   let world = Arc::new(CachedWorld::new());
   let context = Arc::new(rgen_world::Context {
     seed:   1_u64,
