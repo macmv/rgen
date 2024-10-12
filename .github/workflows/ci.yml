@@ -1,0 +1,32 @@
+name: rust build
+
+on:
+  pull_request:
+
+env: 
+  CARGO_TERM_COLOR: always
+
+jobs:
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - run: |
+          cd rgen
+          # Only check libs to avoid building `rgen-viewer`.
+          cargo clippy --lib -- -D warnings
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - run: |
+          cd rgen
+          # Only test libs to avoid building `rgen-viewer`.
+          cargo test --lib
