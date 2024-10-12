@@ -212,7 +212,7 @@ impl<'a> Village<'a> {
 
           let forward = if side { off_axis.positive_dir() } else { off_axis.negative_dir() };
 
-          let pos = Pos::new(x, 100, z) - forward.dir() * 2;
+          let pos = Pos::new(x, 0, z) - forward.dir() * 2;
 
           self.try_place_building(Building {
             pos,

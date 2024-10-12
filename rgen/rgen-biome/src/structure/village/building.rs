@@ -4,7 +4,8 @@ use super::math::{Direction, Rectangle};
 
 #[derive(Clone)]
 pub struct Building {
-  // The door position, or the front center of the building.
+  // The door position, or the front center of the building. The Y value will be zero, as the
+  // height of each building must be determined later, in the decoration phase.
   pub pos: Pos,
 
   // The direction the front door is facing. This is perpendicular to the road.
