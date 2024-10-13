@@ -1,4 +1,4 @@
-use rgen_base::{block, Block, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
   grid::PointGrid,
   noise::{NoiseGenerator3D, OctavedNoise, PerlinNoise},
@@ -191,7 +191,7 @@ impl NoodleCave<'_> {
                 if near_water {
                   hit_water = true;
                 } else {
-                  chunk.set(pos.chunk_rel(), Block::AIR);
+                  chunk.set(pos.chunk_rel(), StateId::AIR);
                 }
               }
             }
