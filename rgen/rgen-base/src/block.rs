@@ -135,12 +135,16 @@ macro_rules! big {
       ($default_name) => { $crate::$enum_name::$default_id };
       // block![minecraft:air]
       ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
+      // block![stone] -> block![minecraft:stone]
+      ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
       $(
-        // block![stone]
-        ($name) => { $crate::$macro_name![$default_namespace:$name] };
-        // block![minecraft:stone]
+        // block![rgen:log]
         ($namespace:$name) => { $crate::$enum_name::$id };
       )*
+
+      ($other_namespace:ident:$other:ident) => {
+        compile_error!(concat!("unknown block ", stringify!($other_namespace), ":", stringify!($other)))
+      };
     }
 
     impl $enum_name {
