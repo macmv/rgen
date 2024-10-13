@@ -9,7 +9,7 @@ use jni::{
 };
 use rgen_world::PartialWorldStorage;
 
-use crate::{ctx::Context, JniBlockInfoSupplier};
+use crate::{ctx::Context, lookup_block_info};
 use rgen_base::{ChunkPos, Pos, StateId};
 use rgen_spline::Cosine;
 
@@ -81,8 +81,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   _class: JClass,
   seed: jlong,
 ) {
-  let blocks = JniBlockInfoSupplier::new(&mut env);
-  Context::init(Box::new(blocks), seed);
+  let blocks = lookup_block_info(&mut env);
+  Context::init(blocks, seed);
 }
 
 #[no_mangle]

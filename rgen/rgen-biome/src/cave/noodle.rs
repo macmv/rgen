@@ -39,7 +39,7 @@ const CAVE_RADIUS: i32 = 96;
 const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
-  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     NoodleCarver {
       seed,
 

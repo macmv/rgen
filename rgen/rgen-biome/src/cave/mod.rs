@@ -14,7 +14,7 @@ pub struct CaveCarver {
 }
 
 impl CaveCarver {
-  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     CaveCarver { noodle: NoodleCarver::new(info, seed), cheese: CheeseCarver::new(info, seed) }
   }
 

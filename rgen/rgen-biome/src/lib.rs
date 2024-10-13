@@ -124,7 +124,7 @@ lazy_static::lazy_static! {
 }
 
 impl WorldBiomes {
-  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed,
@@ -293,7 +293,7 @@ impl Generator for WorldBiomes {
 impl WorldBiomes {
   fn generate_top_layer(
     &self,
-    block_info: &impl BlockInfoSupplier,
+    block_info: &BlockInfoSupplier,
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {
@@ -372,7 +372,7 @@ impl WorldBiomes {
 
   fn generate_chunk_placers(
     &self,
-    info: &impl BlockInfoSupplier,
+    info: &BlockInfoSupplier,
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {

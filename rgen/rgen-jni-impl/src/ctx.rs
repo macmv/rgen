@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
 use rgen_biome::WorldBiomes;
-use rgen_world::{BlockInfoCache, BlockInfoSupplier, CachedWorld};
+use rgen_world::{BlockInfoSupplier, CachedWorld};
 
 pub struct Context {
   pub generator: Arc<WorldBiomes>,
@@ -13,8 +13,7 @@ pub struct Context {
 static CONTEXT: RwLock<Option<Context>> = RwLock::new(None);
 
 impl Context {
-  pub fn init(blocks: Box<dyn BlockInfoSupplier + Send + Sync>, seed: i64) {
-    let blocks = BlockInfoCache::new(blocks);
+  pub fn init(blocks: BlockInfoSupplier, seed: i64) {
     let generator = WorldBiomes::new(&blocks, seed as u64);
 
     let ctx = Context {

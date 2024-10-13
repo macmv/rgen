@@ -11,7 +11,7 @@ use rgen_base::{BlockState, Chunk, ChunkRelPos};
 use rgen_world::BlockInfoSupplier;
 
 pub struct BiomeCachedChunk<'a> {
-  info:      &'a dyn BlockInfoSupplier,
+  info:      &'a BlockInfoSupplier,
   pub chunk: &'a mut Chunk,
 
   // The "active" biome. This chunk will be passed to various chunk placers, which will check if a
@@ -28,7 +28,7 @@ impl TemporaryBiome {
 }
 
 impl<'a> BiomeCachedChunk<'a> {
-  pub fn new(supplier: &'a dyn BlockInfoSupplier, chunk: &'a mut Chunk) -> Self {
+  pub fn new(supplier: &'a BlockInfoSupplier, chunk: &'a mut Chunk) -> Self {
     BiomeCachedChunk {
       info: supplier,
       chunk,

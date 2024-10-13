@@ -12,7 +12,7 @@ pub struct CheeseCarver {
 }
 
 impl CheeseCarver {
-  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     CheeseCarver {
       cave_map: OctavedNoise::new(seed, 1.0 / 64.0),
 

@@ -1,72 +1,33 @@
-use std::collections::HashMap;
-
 use jni::{objects::JValue, JNIEnv};
-use rgen_base::{block_kind, Block, BlockId, BlockInfo};
+use rgen_base::{Block, BlockId, BlockInfo};
 use rgen_world::BlockInfoSupplier;
 
-pub struct JniBlockInfoSupplier {
-  lookup: HashMap<Block, BlockId>,
-  info:   HashMap<BlockId, BlockInfo>,
+pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
+  let mut supplier = BlockInfoSupplier::default();
+  read(&mut supplier, env);
+  supplier
 }
 
-impl BlockInfoSupplier for JniBlockInfoSupplier {
-  fn lookup(&self, kind: Block) -> Option<BlockId> {
-    // Air is constant, so we don't cache it.
-    if kind == block_kind![air] {
-      return Some(BlockId::AIR);
-    }
+fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
+  for kind in Block::ALL {
+    let id = call_block_name_to_id(env, kind.name());
 
-    self.lookup.get(&kind).copied()
+    if id != 0 {
+      info.lookup.insert(*kind, BlockId(id as u16));
+    }
   }
 
-  fn get(&self, id: BlockId) -> BlockInfo {
-    if id == BlockId::AIR {
-      return BlockInfo {
-        name:         "air".to_string(),
-        block:        Some(block_kind![air]),
-        default_meta: 0,
-      };
-    }
+  let max_id = call_max_block_id(env);
 
-    self
-      .info
-      .get(&id)
-      .unwrap_or_else(|| {
-        panic!("no such block with id {id:?}");
-      })
-      .clone()
-  }
-}
+  // Lookup all the block infos, and skip air.
+  for id in 1..=max_id {
+    let name = call_block_id_to_name(env, id);
+    let block = Block::by_name(&name);
 
-impl JniBlockInfoSupplier {
-  pub fn new(env: &mut JNIEnv) -> Self {
-    let mut supplier = JniBlockInfoSupplier { lookup: HashMap::new(), info: HashMap::new() };
-
-    supplier.read(env);
-    supplier
-  }
-
-  fn read(&mut self, env: &mut JNIEnv) {
-    for kind in Block::ALL {
-      let id = call_block_name_to_id(env, kind.name());
-
-      if id != 0 {
-        self.lookup.insert(*kind, BlockId(id as u16));
-      }
-    }
-
-    let max_id = call_max_block_id(env);
-
-    // Lookup all the block infos, and skip air.
-    for id in 1..=max_id {
-      let name = call_block_id_to_name(env, id);
-      let block = Block::by_name(&name);
-
-      self.info.insert(
-        BlockId(id as u16),
-        BlockInfo { name, block, default_meta: call_lookup_default_meta(env, id) as u8 },
-      );
-    }
+    info.info.insert(
+      BlockId(id as u16),
+      BlockInfo { name, block, default_meta: call_lookup_default_meta(env, id) as u8 },
+    );
   }
 }
 

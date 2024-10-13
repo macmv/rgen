@@ -9,11 +9,11 @@ mod block;
 mod gc;
 mod info;
 
-pub use info::{BlockInfoCache, BlockInfoSupplier};
+pub use info::BlockInfoSupplier;
 
 pub struct Context {
   pub seed:   u64,
-  pub blocks: BlockInfoCache<Box<dyn BlockInfoSupplier + Send + Sync>>,
+  pub blocks: BlockInfoSupplier,
   // pub biomes: Biomes,
 }
 
@@ -42,7 +42,7 @@ pub struct CachedWorld {
 }
 
 pub struct PartialWorld<'a> {
-  info:    Box<dyn BlockInfoSupplier + 'a>,
+  info:    &'a BlockInfoSupplier,
   storage: Box<dyn PartialWorldStorage + 'a>,
 }
 
@@ -52,8 +52,8 @@ pub trait PartialWorldStorage {
 }
 
 impl<'a> PartialWorld<'a> {
-  pub fn new(info: impl BlockInfoSupplier + 'a, storage: impl PartialWorldStorage + 'a) -> Self {
-    PartialWorld { info: Box::new(info), storage: Box::new(storage) }
+  pub fn new(info: &'a BlockInfoSupplier, storage: impl PartialWorldStorage + 'a) -> Self {
+    PartialWorld { info, storage: Box::new(storage) }
   }
 }
 
@@ -241,10 +241,8 @@ impl CachedWorld {
       Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
-        generator.decorate(
-          &mut PartialWorld { info: Box::new(&ctx.blocks), storage: Box::new(&mut *chunks) },
-          pos,
-        );
+        generator
+          .decorate(&mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) }, pos);
       }
     }
   }
