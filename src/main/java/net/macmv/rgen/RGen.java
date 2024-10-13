@@ -70,7 +70,7 @@ public class RGen {
   @SideOnly(Side.CLIENT)
   @SubscribeEvent
   public static void registerModels(ModelRegistryEvent event) {
-
+    RBlocks.registerModels();
     RItems.registerModels();
   }
 

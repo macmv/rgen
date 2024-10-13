@@ -3,7 +3,12 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.RGen;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
 
@@ -74,5 +79,12 @@ public final class RBlocks {
     for (Block b : blocks) {
       reg.register(b);
     }
+  }
+
+  @SideOnly(Side.CLIENT)
+  public static void registerModels() {
+    // Ignores powered metadata alongside the rest of the metadata on the client side.
+    ModelLoader.setCustomStateMapper(DEAD_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
+    ModelLoader.setCustomStateMapper(MANGROVE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
   }
 }
