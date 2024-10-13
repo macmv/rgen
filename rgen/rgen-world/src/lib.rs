@@ -3,26 +3,32 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Biomes, BlockState, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Chunk, ChunkPos, Pos, StateId};
 
 mod block;
 mod gc;
+mod info;
+
+pub use info::{BlockInfoCache, BlockInfoSupplier};
 
 pub struct Context {
   pub seed:   u64,
-  pub blocks: Blocks,
-  pub biomes: Biomes,
+  pub blocks: BlockInfoCache<Box<dyn BlockInfoSupplier + Send + Sync>>,
+  // pub biomes: Biomes,
 }
 
 impl Context {
-  pub fn new_test(seed: u64) -> Context {
+  /*
+  pub fn new_test(seed: u64) -> Self {
     Context { seed, blocks: Blocks::test_blocks(), biomes: Biomes::test_blocks() }
   }
+  */
+  pub fn new_test(_seed: u64) -> Self { todo!() }
 }
 
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
+  fn decorate<T>(&self, ctx: &Context, world: &mut PartialWorld<T>, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -35,18 +41,19 @@ pub struct CachedWorld {
   requester: Requester,
 }
 
-pub struct PartialWorld<'a> {
+pub struct PartialWorld<'a, T> {
+  info:    T,
   storage: Box<dyn PartialWorldStorage + 'a>,
 }
 
 pub trait PartialWorldStorage {
-  fn get(&self, pos: Pos) -> BlockState;
-  fn set(&mut self, pos: Pos, block: BlockState);
+  fn get(&self, pos: Pos) -> StateId;
+  fn set(&mut self, pos: Pos, block: StateId);
 }
 
-impl<'a> PartialWorld<'a> {
-  pub fn new(storage: impl PartialWorldStorage + 'a) -> Self {
-    PartialWorld { storage: Box::new(storage) }
+impl<'a, T> PartialWorld<'a, T> {
+  pub fn new(info: T, storage: impl PartialWorldStorage + 'a) -> Self {
+    PartialWorld { info, storage: Box::new(storage) }
   }
 }
 
@@ -234,7 +241,11 @@ impl CachedWorld {
       Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
-        generator.decorate(ctx, &mut PartialWorld { storage: Box::new(&mut *chunks) }, pos);
+        generator.decorate(
+          ctx,
+          &mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) },
+          pos,
+        );
       }
     }
   }

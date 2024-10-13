@@ -1,7 +1,7 @@
 //! All the tools to edit blocks in a world.
 
-use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
-use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
+use crate::{BlockInfoSupplier, PartialWorld, PartialWorldStorage, StagedWorldStorage};
+use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
 impl StagedWorldStorage {
@@ -15,16 +15,16 @@ impl StagedWorldStorage {
 }
 
 impl PartialWorldStorage for &mut StagedWorldStorage {
-  fn get(&self, pos: Pos) -> BlockState {
+  fn get(&self, pos: Pos) -> StateId {
     if let Some(chunk) = self.chunk(pos.chunk()) {
-      chunk.get_state(pos.chunk_rel())
+      chunk.get(pos.chunk_rel())
     } else {
       // TODO: Log a warning when reading outside the world.
-      BlockState::AIR
+      StateId::AIR
     }
   }
 
-  fn set(&mut self, pos: Pos, block: BlockState) {
+  fn set(&mut self, pos: Pos, block: StateId) {
     if let Some(chunk) = self.chunk_mut(pos.chunk()) {
       chunk.set(pos.chunk_rel(), block);
     } else {
@@ -33,11 +33,16 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
   }
 }
 
-impl PartialWorld<'_> {
-  pub fn get(&self, pos: Pos) -> BlockState { self.storage.get(pos) }
+impl<T: BlockInfoSupplier> PartialWorld<'_, T> {
+  pub fn get(&self, pos: Pos) -> BlockState {
+    let state = self.storage.get(pos);
+    let info = self.info.get(state.block());
+    BlockState { block: info.block, state: state.meta() }
+  }
 
-  pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
-    self.storage.set(pos, block.into());
+  pub fn set(&mut self, pos: Pos, state: BlockState) {
+    let id = self.info.lookup(state.block).unwrap();
+    self.storage.set(pos, StateId::new(id, state.state));
   }
 
   // TODO: allow for an array of blocks to not be overridden
@@ -62,7 +67,7 @@ impl PartialWorld<'_> {
     let mut y = 255;
     while y > 0 {
       let block = self.get(pos.with_y(y)).block;
-      if block != Block::AIR && !exclude.contains(&block) {
+      if block != Block::Air && !exclude.contains(&block) {
         break;
       }
       y -= 1;
