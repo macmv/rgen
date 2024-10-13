@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -11,17 +11,17 @@ pub struct RiverSide {
 }
 
 impl RiverSide {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     RiverSide {
-      ground:       [blocks.dirt.block, blocks.grass.block].into(),
+      ground:       [block![dirt], block![grass]].into(),
       material:     vec![
-        blocks.gravel.default_state,
-        blocks.gravel.default_state,
-        blocks.rgen_mossy_cobblestone.default_state,
-        blocks.cobblestone.default_state,
+        block![gravel],
+        block![gravel],
+        block![rgen:mossy_cobblestone_rgen],
+        block![cobblestone],
       ],
       avg_in_chunk: 3.0,
-      fluid:        blocks.lava.default_state,
+      fluid:        block![lava],
     }
   }
 }
@@ -50,7 +50,7 @@ impl RiverSide {
       for rel_z in -1..=1_i32 {
         if !(rel_x == 0 && rel_z == 0) {
           let rel_pos = pos + Pos::new(rel_x, 0, rel_z);
-          if world.get(rel_pos).block == Block::WATER && self.ground.contains(world.get(pos)) {
+          if world.get(rel_pos) == block![water] && self.ground.contains(world.get(pos)) {
             world.set(pos, *rng.choose(&self.material));
           }
         }

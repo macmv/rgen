@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockState, Pos};
 use rgen_world::PartialWorld;
 use std::ops::RangeInclusive;
 
@@ -14,12 +14,12 @@ pub struct WaterResources {
 }
 
 impl WaterResources {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     WaterResources {
       avg_in_chunk:       1.0,
-      placement:          blocks.clay.default_state,
-      tool_placement:     blocks.gold_block.default_state,
-      tool_placement_two: blocks.iron_ore.default_state,
+      placement:          block![clay[0]],
+      tool_placement:     block![gold_block[0]],
+      tool_placement_two: block![iron_ore[0]],
       size:               2..=4,
       multiplyer:         3,
     }
@@ -52,7 +52,7 @@ impl Placer for WaterResources {
 
 impl WaterResources {
   fn find_water_depth(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    if world.get(pos + Pos::new(0, -1, 0)).block == Block::WATER {
+    if world.get(pos + Pos::new(0, -1, 0)).block == block![water] {
       //world.set(pos, self.tool_placement);
     } else {
       return;
@@ -60,7 +60,7 @@ impl WaterResources {
     let mut depth_pos = pos;
     for y in 1..=10 {
       depth_pos = depth_pos + Pos::new(0, -1, 0);
-      if world.get(depth_pos).block != Block::WATER {
+      if world.get(depth_pos).block != block![water] {
         break;
       }
       //world.set(depth_pos, self.placement);
@@ -92,8 +92,8 @@ impl WaterResources {
             continue;
           }
 
-          if world.get(pos).block != Block::WATER
-            && world.get(pos + Pos::new(0, 1, 0)).block != Block::AIR
+          if world.get(pos).block != block![water]
+            && world.get(pos + Pos::new(0, 1, 0)).block != block![air]
             && pos.y < 63
           {
             world.set(pos, self.placement);

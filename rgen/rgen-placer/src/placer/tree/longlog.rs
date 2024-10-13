@@ -64,19 +64,19 @@ impl Placer for LongLog {
     for i in 2..=length {
       let i_pos = pos + Pos::new(i * dx, 0, i * dz);
 
-      let mut log_type = self.log;
+      let mut log_type = self.log.state.state().unwrap_or_default();
 
-      log_type.state &= 0b0011; //reset
+      log_type &= 0b0011; //reset
 
       if dx != 0 {
         // x axis be it (5, 6)
-        log_type.state |= 0b0100;
+        log_type |= 0b0100;
       } else {
         // z axis be it (9, 10)
-        log_type.state |= 0b1000;
+        log_type |= 0b1000;
       }
 
-      world.set(i_pos, log_type);
+      world.set(i_pos, self.log.with_data(log_type));
     }
 
     world.set(pos, self.log);

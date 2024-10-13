@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -13,21 +13,20 @@ pub struct IceSpikes {
 }
 
 impl IceSpikes {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     IceSpikes {
-      ground:                      [blocks.stone.block, blocks.dirt.block, blocks.grass.block]
-        .into(),
-      material:                    blocks.packed_ice.default_state,
+      ground:                      [block![stone], block![dirt], block![grass]].into(),
+      material:                    block![packed_ice],
       avg_in_chunk:                0.8,
-      fluid:                       blocks.lava.default_state,
+      fluid:                       block![lava],
       chance_of_secondary_pillars: 3,
       replacables:                 [
-        Block::AIR,
-        blocks.snow_layer.block,
-        blocks.snow.block,
-        blocks.ice.block,
-        blocks.packed_ice.block,
-        blocks.water.block,
+        block![air],
+        block![snow_layer],
+        block![snow],
+        block![ice],
+        block![packed_ice],
+        block![water],
       ]
       .into(),
     }

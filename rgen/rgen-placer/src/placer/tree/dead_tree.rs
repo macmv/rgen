@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Blocks, Pos};
+use rgen_base::{block, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -8,7 +8,7 @@ pub struct DeadTree {
 }
 
 impl DeadTree {
-  pub fn new(blocks: &Blocks) -> Self { DeadTree { trunk: blocks.rgen_log2.with_data(12) } }
+  pub fn new() -> Self { DeadTree { trunk: block![rgen:log2[12]] } }
 }
 
 impl Placer for DeadTree {

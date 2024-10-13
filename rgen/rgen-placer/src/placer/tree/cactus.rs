@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -23,7 +23,7 @@ impl Placer for Cactus {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
@@ -46,20 +46,18 @@ impl Placer for Cactus {
           arm_pos = arm_pos + Pos::new(0, height + y_chance, unit);
         }
 
-        if world.get(arm_pos) == BlockState::AIR {
-          let mut an_arm = self.arms;
-
-          if !x_or_y && unit == -1 {
-            an_arm.state = 2;
+        if world.get(arm_pos) == block![air] {
+          let arm_state = if !x_or_y && unit == -1 {
+            2
           } else if !x_or_y && unit == 1 {
-            an_arm.state = 0;
+            0
           } else if unit == -1 {
-            an_arm.state = 1;
+            1
           } else {
-            an_arm.state = 3;
-          }
+            3
+          };
 
-          world.set(arm_pos, an_arm);
+          world.set(arm_pos, self.arms.with_data(arm_state));
         }
       } else {
         continue;

@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
@@ -24,22 +24,19 @@ impl Placer for LavenderScatter {
       let below_pos = pos + Pos::new(0, -1, 0);
 
       if self.place_above.contains(world.get(below_pos))
-        && world.get(pos).block == Block::AIR
-        && world.get(pos + Pos::new(0, 1, 0)).block == Block::AIR
+        && world.get(pos) == block![air]
+        && world.get(pos + Pos::new(0, 1, 0)) == block![air]
       {
         if self.is_large {
           let bush_var = lav_options[rng.rand_exclusive(0, 4) as usize]; //0, 1, 2, & 3
 
-          let mut bush_dw = self.place;
-          bush_dw.state = bush_var[0] as u8;
+          let bush_dw = self.place.with_data(bush_var[0] as u8);
+          let bush_up = self.place.with_data(bush_var[1] as u8);
 
-          let mut bush_up = self.place;
-          bush_up.state = bush_var[1] as u8;
           world.set(pos, bush_dw);
           world.set(pos + Pos::new(0, 1, 0), bush_up);
         } else {
-          let mut lav = self.place;
-          lav.state = rng.rand_exclusive(0, 4) as u8;
+          let lav = self.place.with_data(rng.rand_exclusive(0, 4) as u8);
           world.set(pos, lav);
         }
       }

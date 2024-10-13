@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -28,16 +28,16 @@ pub struct MossBoulder {
 }
 
 impl MossBoulder {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     MossBoulder {
-      place_above:      [blocks.stone.block, blocks.dirt.block].into(),
-      phobic:           blocks.grass.default_state.into(),
-      material:         /*blocks.wool.with_data(6), */ blocks.rgen_mossy_cobblestone.default_state,
+      place_above:      [block![stone], block![dirt]].into(),
+      phobic:           block![grass].into(),
+      material:         /*blocks.wool.with_data(6), */ block![rgen:mossy_cobblestone_rgen],
       avg_in_chunk:     2.0,
-      plant_a:          blocks.tallgrass.with_data(2),
-      plant_b:          blocks.tallgrass.with_data(1),
+      plant_a:          block![tallgrass[2]],
+      plant_b:          block![tallgrass[1]],
       use_large_plants: false,
-      large_plants:     [blocks.double_plant.with_data(3), blocks.double_plant.with_data(2)].into(),
+      large_plants:     [block![double_plant[3]], block![double_plant[2]]].into(),
     }
   }
 }
@@ -61,7 +61,7 @@ impl Placer for MossBoulder {
 
     // Checks if tree will be built on air
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
