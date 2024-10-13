@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "stage=0,type=fir": { "model": "rgen:wood/fir/fir_sapling" },
+    "stage=1,type=fir": { "model": "rgen:wood/fir/fir_sapling" },
+    "stage=0,type=palm": { "model": "rgen:wood/palm/palm_sapling" },
+    "stage=1,type=palm": { "model": "rgen:wood/palm/palm_sapling" },
+    "stage=0,type=sakura": { "model": "rgen:wood/sakura/sakura_sapling" },
+    "stage=1,type=sakura": { "model": "rgen:wood/sakura/sakura_sapling" },
+    "stage=0,type=cedar": { "model": "rgen:wood/cedar/cedar_sapling" },
+    "stage=1,type=cedar": { "model": "rgen:wood/cedar/cedar_sapling" },
+    "stage=0,type=mangrove": { "model": "rgen:wood/mangrove/mangrove_sapling" },
+    "stage=1,type=mangrove": { "model": "rgen:wood/mangrove/mangrove_sapling" },
+    "stage=0,type=lavender": { "model": "rgen:wood/lavender/lavender_sapling" },
+    "stage=1,type=lavender": { "model": "rgen:wood/lavender/lavender_sapling" },
+    "stage=0,type=seasonal": { "model": "rgen:wood/seasonal/seasonal_sapling" },
+    "stage=1,type=seasonal": { "model": "rgen:wood/seasonal/seasonal_sapling" },
+    "stage=0,type=dead": { "model": "rgen:wood/dead/dead_sapling" },
+    "stage=1,type=dead": { "model": "rgen:wood/dead/dead_sapling" }
+  }
+}

@@ -101,6 +101,17 @@ public class RItems {
         registerModel(i, LogType.CEDAR.meta, "rgen:cedar_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
         registerModel(i, LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
+      } else if (i.getRegistryName().toString().equals("rgen:sapling")) {
+        registerModel(i, LogType.FIR.meta, "rgen:fir_sapling");
+        registerModel(i, LogType.PALM.meta, "rgen:palm_sapling");
+        registerModel(i, LogType.SAKURA.meta, "rgen:sakura_sapling");
+        registerModel(i, LogType.CEDAR.meta, "rgen:cedar_sapling");
+        registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_sapling");
+        registerModel(i, LogType.LAVENDER.meta, "rgen:lavender_sapling");
+        registerModel(i, LogType.SEASONAL.meta, "rgen:seasonal_sapling");
+        registerModel(i, LogType.DEAD.meta, "rgen:dead_sapling");
+      } else if (i.getRegistryName().toString().equals("rgen:sapling2")) {
+        registerModel(i, LogType.ASPEN.meta - 8, "rgen:aspen_sapling");
       } else if (i.getRegistryName().toString().equals("rgen:planks")) {
         registerModel(i, LogType.FIR.meta, "rgen:fir_planks");
         registerModel(i, LogType.PALM.meta, "rgen:palm_planks");

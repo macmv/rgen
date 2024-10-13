@@ -21,6 +21,16 @@ tile.leaves2.mangrove.name=Mangrove Leaves
 tile.leaves2.lavender.name=Lavender Leaves
 tile.leaves2.seasonal.name=Seasonal Leaves
 
+tile.sapling.fir.name=Fir Sapling
+tile.sapling.palm.name=Palm Sapling
+tile.sapling.sakura.name=Sakura Sapling
+tile.sapling.cedar.name=Cedar Sapling
+tile.sapling.mangrove.name=Mangrove Sapling
+tile.sapling.lavender.name=Lavender Sapling
+tile.sapling.seasonal.name=Seasonal Sapling
+tile.sapling.dead.name=Dead Sapling
+tile.sapling2.aspen.name=Aspen Sapling
+
 tile.bamboo.name=Bamboo
 tile.glow_vine.name=Glow Vines
 
