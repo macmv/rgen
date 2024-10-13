@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 /// A realized block state. The least significant 4 bits are the data value, and
 /// the most significant 12 bits are the block id.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -62,19 +60,13 @@ impl StateOrDefault {
 impl From<Block> for BlockState {
   fn from(val: Block) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
 }
-impl From<BlockInfo> for BlockState {
-  fn from(val: BlockInfo) -> Self { val.default_state }
-}
 
 /// Stores info about a block, like its default states and properties.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockInfo {
-  pub name:          String,
-  pub block:         Block,
-  pub default_state: BlockState,
-  pub default_meta:  u8,
-
-  prop_map: HashMap<String, HashMap<String, u8>>,
+  pub name:         String,
+  pub block:        Block,
+  pub default_meta: u8,
 }
 
 impl BlockInfo {
@@ -93,17 +85,7 @@ impl BlockInfo {
   ///
   /// NOTE: This is note implemented yet, pulling out properties from java is a
   /// pain.
-  pub fn with_property(&self, key: &str, value: &str) -> BlockState {
-    let values = self
-      .prop_map
-      .get(key)
-      .unwrap_or_else(|| panic!("Block {} does not have a property {}", self.name, key));
-    let state = *values.get(value).unwrap_or_else(|| {
-      panic!("Block {} property {} does not have key {}", self.name, key, value)
-    });
-
-    BlockState { block: self.block, state: StateOrDefault::new(state) }
-  }
+  pub fn with_property(&self, _key: &str, _value: &str) -> BlockState { todo!() }
 }
 
 impl Block {
