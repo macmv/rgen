@@ -132,10 +132,42 @@ impl PartialEq<BlockState> for Block {
   fn eq(&self, other: &BlockState) -> bool { *self == other.block && other.state.is_default() }
 }
 
+#[macro_export]
+macro_rules! block {
+  // block![stone[2]]
+  ($block_name:ident [$state:expr]) => {
+    $crate::BlockState {
+      block: $crate::block_kind![$block_name],
+      state: $crate::StateOrDefault::new($state),
+    }
+  };
+  // block![minecraft:stone[2]]
+  ($block_namespace:ident:$block_name:ident [$state:expr]) => {
+    $crate::BlockState {
+      block: $crate::block_kind![$block_namespace:$block_name],
+      state: $crate::StateOrDefault::new($state),
+    }
+  };
+  // block![stone]
+  ($block_name:ident) => {
+    $crate::BlockState {
+      block: $crate::block_kind![$block_name],
+      state: $crate::StateOrDefault::DEFAULT,
+    }
+  };
+  // block![minecraft:stone]
+  ($block_namespace:ident:$block_name:ident) => {
+    $crate::BlockState {
+      block: $crate::block_kind![$block_namespace:$block_name],
+      state: $crate::StateOrDefault::DEFAULT,
+    }
+  };
+}
+
 // Block Identification Guide
 macro_rules! big {
   (
-    $enum_name:ident, $macro_name:ident, $macro_name_2:ident
+    $enum_name:ident, $macro_name:ident
     $default_id:ident => $default_namespace:ident:$default_name:ident,
     $($id:ident => $namespace:ident:$name:ident,)*
   ) => {
@@ -147,44 +179,12 @@ macro_rules! big {
 
     #[macro_export]
     macro_rules! $macro_name {
-      // block![stone[2]]
-      ($block_name:ident [$state:expr]) => {
-        $crate::BlockState {
-          block: $crate::$macro_name_2![$block_name],
-          state: $crate::StateOrDefault::new($state),
-        }
-      };
-      // block![minecraft:stone[2]]
-      ($block_namespace:ident:$block_name:ident [$state:expr]) => {
-        $crate::BlockState {
-          block: $crate::$macro_name_2![$block_namespace:$block_name],
-          state: $crate::StateOrDefault::new($state),
-        }
-      };
-      // block![stone]
-      ($block_name:ident) => {
-        $crate::BlockState {
-          block: $crate::$macro_name_2![$block_name],
-          state: $crate::StateOrDefault::DEFAULT,
-        }
-      };
-      // block![minecraft:stone]
-      ($block_namespace:ident:$block_name:ident) => {
-        $crate::BlockState {
-          block: $crate::$macro_name_2![$block_namespace:$block_name],
-          state: $crate::StateOrDefault::DEFAULT,
-        }
-      };
-    }
-
-    #[macro_export]
-    macro_rules! $macro_name_2 {
       // block_kind![air]
       ($default_name) => { $crate::$enum_name::$default_id };
       // block_kind![minecraft:air]
       ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
       // block_kind![stone] -> block_kind![minecraft:stone]
-      ($block_name:ident) => { $crate::$macro_name_2![$default_namespace:$block_name] };
+      ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
       $(
         // block_kind![rgen:log]
         ($namespace:$name) => { $crate::$enum_name::$id };
@@ -216,7 +216,7 @@ macro_rules! big {
   };
 }
 
-big! { Block, block, block_kind
+big! { Block, block_kind
   Air => minecraft:air,
 
   Stone => minecraft:stone,
@@ -277,7 +277,7 @@ big! { Block, block, block_kind
   RgenBasalt => rgen:basalt,
 }
 
-big! { Biome, biome, biome_kind
+big! { Biome, biome
   Void => minecraft:void,
 
   ColdTaiga => minecraft:taiga_cold,
