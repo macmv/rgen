@@ -4,7 +4,7 @@ mod filter;
 mod iter;
 mod pos;
 
-pub use block::{Biome, Block, BlockId, BlockInfo, BlockState, StateId};
+pub use block::{Biome, Block, BlockId, BlockInfo, BlockState, StateId, StateOrDefault};
 pub use chunk::Chunk;
 pub use filter::BlockFilter;
 pub use iter::{BlocksIterExclusive, BlocksIterInclusive};

@@ -32,12 +32,35 @@ impl BlockId {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BlockState {
   pub block: Block,
-  pub state: u8,
+  pub state: StateOrDefault,
+}
+
+/// A compressed enum. The states 0-15 are for placing with an explicit data,
+/// whereas the state 16 is to place the default state.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StateOrDefault(u8);
+
+impl StateOrDefault {
+  pub const DEFAULT: StateOrDefault = StateOrDefault(16);
+
+  pub const fn new(state: u8) -> StateOrDefault {
+    assert!(state < 16);
+    StateOrDefault(state)
+  }
+
+  pub fn is_default(&self) -> bool { self.0 == 16 }
+  pub fn state(&self) -> Option<u8> {
+    if self.is_default() {
+      None
+    } else {
+      Some(self.0)
+    }
+  }
 }
 
 // FIXME: This should probably use the default state.
 impl From<Block> for BlockState {
-  fn from(val: Block) -> Self { BlockState { block: val, state: 0 } }
+  fn from(val: Block) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
 }
 impl From<BlockInfo> for BlockState {
   fn from(val: BlockInfo) -> Self { val.default_state }
@@ -49,6 +72,7 @@ pub struct BlockInfo {
   pub name:          String,
   pub block:         Block,
   pub default_state: BlockState,
+  pub default_meta:  u8,
 
   prop_map: HashMap<String, HashMap<String, u8>>,
 }
@@ -59,7 +83,7 @@ impl BlockInfo {
   /// properties, which are almost always clearer.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: self.block, state: data }
+    BlockState { block: self.block, state: StateOrDefault::new(data) }
   }
 
   /// Creates a block state with the given property value.
@@ -78,7 +102,7 @@ impl BlockInfo {
       panic!("Block {} property {} does not have key {}", self.name, key, value)
     });
 
-    BlockState { block: self.block, state }
+    BlockState { block: self.block, state: StateOrDefault::new(state) }
   }
 }
 
@@ -86,12 +110,12 @@ impl Block {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: *self, state: data }
+    BlockState { block: *self, state: StateOrDefault::new(data) }
   }
 }
 
 impl BlockState {
-  pub const AIR: BlockState = BlockState { block: Block::Air, state: 0 };
+  pub const AIR: BlockState = BlockState { block: Block::Air, state: StateOrDefault::new(0) };
 
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
@@ -108,7 +132,7 @@ impl PartialEq<Block> for BlockState {
 // Block Identification Guide
 macro_rules! big {
   (
-    $enum_name:ident, $macro_name:ident
+    $enum_name:ident, $macro_name:ident, $macro_name_2:ident
     $default_id:ident => $default_namespace:ident:$default_name:ident,
     $($id:ident => $namespace:ident:$name:ident,)*
   ) => {
@@ -123,26 +147,36 @@ macro_rules! big {
       // block![stone[2]]
       ($block_name:ident [$state:expr]) => {
         $crate::BlockState {
-          block: block![$block_name],
-          state: $state,
+          block: $macro_name_2![$block_name],
+          state: $crate::StateOrDefault::new($state),
         }
       };
       // block![minecraft:stone[2]]
       ($block_namespace:ident:$block_name:ident [$state:expr]) => {
         $crate::BlockState {
-          block: block![$block_namespace:$block_name],
-          state: $state,
+          block: $macro_name_2![$block_namespace:$block_name],
+          state: $crate::StateOrDefault::new($state),
         }
       };
+      // block![stone]
+      ($block_name:ident) => {
+        $crate::BlockState {
+          block: $macro_name_2![$block_name],
+          state: $crate::StateOrDefault::DEFAULT,
+        }
+      };
+    }
 
-      // block![air]
+    #[macro_export]
+    macro_rules! $macro_name_2 {
+      // block_kind![air]
       ($default_name) => { $crate::$enum_name::$default_id };
-      // block![minecraft:air]
+      // block_kind![minecraft:air]
       ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
-      // block![stone] -> block![minecraft:stone]
+      // block_kind![stone] -> block_kind![minecraft:stone]
       ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
       $(
-        // block![rgen:log]
+        // block_kind![rgen:log]
         ($namespace:$name) => { $crate::$enum_name::$id };
       )*
 
@@ -172,7 +206,7 @@ macro_rules! big {
   };
 }
 
-big! { Block, block
+big! { Block, block, block_kind
   Air => minecraft:air,
 
   Stone => minecraft:stone,
@@ -233,7 +267,7 @@ big! { Block, block
   RgenBasalt => rgen:basalt,
 }
 
-big! { Biome, biome
+big! { Biome, biome, biome_kind
   Void => minecraft:void,
 
   ColdTaiga => minecraft:taiga_cold,
