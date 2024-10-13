@@ -72,15 +72,15 @@ impl From<Block> for BlockState {
   fn from(val: Block) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
 }
 
-/// Stores info about a block, like its default states and properties.
+/// Stores data about a block, like its default states and properties.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct BlockInfo {
+pub struct BlockData {
   pub name:         String,
   pub block:        Option<Block>,
   pub default_meta: u8,
 }
 
-impl BlockInfo {
+impl BlockData {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   /// Prefer `with_property` when possible, as that will use the named
   /// properties, which are almost always clearer.

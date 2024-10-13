@@ -4,12 +4,12 @@
 
 use std::collections::HashMap;
 
-use rgen_base::{block_kind, Block, BlockId, BlockInfo, BlockState, StateId, StateOrDefault};
+use rgen_base::{block_kind, Block, BlockData, BlockId, BlockState, StateId, StateOrDefault};
 
 #[derive(Default)]
 pub struct BlockInfoSupplier {
   pub lookup: HashMap<Block, BlockId>,
-  pub info:   HashMap<BlockId, BlockInfo>,
+  pub info:   HashMap<BlockId, BlockData>,
 }
 
 impl BlockInfoSupplier {
@@ -22,7 +22,7 @@ impl BlockInfoSupplier {
     self.lookup.get(&kind).copied()
   }
 
-  pub fn get(&self, id: BlockId) -> &BlockInfo {
+  pub fn get(&self, id: BlockId) -> &BlockData {
     self.info.get(&id).unwrap_or_else(|| {
       panic!("no such block with id {id:?}");
     })
