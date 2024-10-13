@@ -31,7 +31,7 @@ pub enum BlockFilter {
 
 impl From<Block> for BlockFilter {
   fn from(value: Block) -> Self {
-    BlockFilter::Block(SmallVec::from_buf_and_len([value, Block::AIR, Block::AIR, Block::AIR], 1))
+    BlockFilter::Block(SmallVec::from_buf_and_len([value, Block::Air, Block::Air, Block::Air], 1))
   }
 }
 impl From<BlockState> for BlockFilter {

@@ -1,9 +1,31 @@
 use std::collections::HashMap;
 
-/// A block represents a block type (like dirt, stone, etc).
-// TODO: If there's a static context set, Debug should print the block name.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Block(pub(crate) u16);
+/// A realized block state. The least significant 4 bits are the data value, and
+/// the most significant 12 bits are the block id.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(transparent)]
+pub struct StateId(pub u16);
+
+/// A realized block ID. This increments for 1 for each 16 state ids.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(transparent)]
+pub struct BlockId(pub u16);
+
+impl StateId {
+  pub const AIR: StateId = StateId(0);
+
+  pub fn new(block: BlockId, meta: u8) -> StateId {
+    assert!(meta < 16);
+    StateId((block.0 << 4) | meta as u16)
+  }
+
+  pub fn block(&self) -> BlockId { BlockId(self.0 >> 4) }
+  pub fn meta(&self) -> u8 { self.0 as u8 & 0x0f }
+}
+
+impl BlockId {
+  pub const AIR: BlockId = BlockId(0);
+}
 
 /// A block state represents a block with a specific data value (like wool
 /// color).
@@ -21,13 +43,8 @@ impl From<BlockInfo> for BlockState {
   fn from(val: BlockInfo) -> Self { val.default_state }
 }
 
-impl Block {
-  /// The raw ID used in the chunk data (air is 0, dirt is 16, etc).
-  pub fn raw_id(&self) -> u16 { self.0 << 4 }
-}
-
 /// Stores info about a block, like its default states and properties.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockInfo {
   pub name:          String,
   pub block:         Block,
@@ -36,32 +53,7 @@ pub struct BlockInfo {
   prop_map: HashMap<String, HashMap<String, u8>>,
 }
 
-impl Default for BlockInfo {
-  fn default() -> BlockInfo { BlockInfo::temp_new("minecraft:air", 0) }
-}
-
-impl Block {
-  pub const AIR: Block = Block(0);
-  pub const WATER: Block = Block(9); // Block ID 9
-}
-
 impl BlockInfo {
-  pub fn temp_new(name: &str, id: i32) -> BlockInfo {
-    let state = BlockState::from_raw_id(id as u16);
-
-    BlockInfo {
-      name:          name.to_string(),
-      block:         state.block,
-      default_state: state,
-      prop_map:      HashMap::new(),
-    }
-  }
-
-  fn from_raw_id(id: i32) -> BlockInfo {
-    assert!((0..256).contains(&id));
-    BlockInfo::temp_new("", id)
-  }
-
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   /// Prefer `with_property` when possible, as that will use the named
   /// properties, which are almost always clearer.
@@ -90,83 +82,52 @@ impl BlockInfo {
   }
 }
 
-impl BlockState {
-  pub const AIR: BlockState = BlockState { block: Block::AIR, state: 0 };
-
-  /// Only public for testing.
-  pub fn from_raw_id(id: u16) -> BlockState {
-    BlockState { block: Block(id >> 4), state: (id & 0xf) as u8 }
-  }
-
-  /// Returns the state ID used in the chunk data.
-  pub fn raw_id(&self) -> u16 {
-    assert!(self.state < 16);
-    self.block.raw_id() | (self.state as u16)
-  }
-
+impl Block {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
-  /// Prefer `with_property` when possible, as that will use the named
-  /// properties, which are almost always clearer.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: self.block, state: data }
+    BlockState { block: *self, state: data }
   }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Biome(pub(crate) u8);
+impl BlockState {
+  pub const AIR: BlockState = BlockState { block: Block::Air, state: 0 };
+
+  /// Creates a block state with the given data value, from 0 to 15 inclusive.
+  pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
+}
 
 impl Default for Biome {
-  fn default() -> Biome { Biome::VOID }
+  fn default() -> Biome { Biome::Void }
 }
 
-impl Biome {
-  pub const VOID: Biome = Biome(127);
-
-  pub fn from_raw_id(id: i32) -> Biome {
-    assert!((0..256).contains(&id));
-    Biome(id as u8)
-  }
-
-  /// The biome ID.
-  pub fn raw_id(&self) -> u8 { self.0 }
-}
 // Block Identification Guide
 macro_rules! big {
   (
-    $struct_name:ident: $item:ident
-    $default_name:ident => $default_str:literal = $default_id:expr,
-    $($id:ident => $name:expr,)*
+    $enum_name:ident
+    $default_id:ident => $default_namespace:ident:$default_name:ident,
+    $($id:ident => $namespace:ident:$name:ident,)*
   ) => {
-    pub struct $struct_name {
-      $(pub $id: $item),*
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub enum $enum_name {
+      $default_id,
+      $($id,)*
     }
 
-    impl $struct_name {
-      pub fn init(mut lookup: impl FnMut(&str) -> $item) -> $struct_name {
-        $struct_name {
-          $($id: lookup($name),)*
+    impl $enum_name {
+      pub fn name_of(&self) -> &'static str {
+        match self {
+          $(
+            Self::$id => stringify!($namespace:$name),
+          )*
+          _ => stringify!($default_namespace:$default_name),
         }
       }
 
-      /// Only public for testing.
-      pub fn test_blocks() -> $struct_name {
-        let mut id = 0;
-        $struct_name {
-          $($id: $item::from_raw_id({ id += 1; id }),)*
-        }
-      }
-
-      pub fn name_of(&self, v: $item) -> &'static str {
-        $(
-          if v == self.$id { return $name }
-        )*
-        $default_str
-      }
-
-      pub fn by_name(&self, name: &str) -> Option<&$item> {
+      pub fn by_name(name: &str) -> Option<Self> {
         match name {
-          $($name => Some(&self.$id),)*
+          s if s == stringify!($default_namespace:$default_name) => Some(Self::$default_id),
+          $(s if s == stringify!($namespace:$name) => Some(Self::$id),)*
           _ => None
         }
       }
@@ -174,83 +135,83 @@ macro_rules! big {
   };
 }
 
-big! { Blocks: BlockInfo
-  AIR => "minecraft:air" = 0,
+big! { Block
+  Air => minecraft:air,
 
-  stone => "minecraft:stone",
-  dirt => "minecraft:dirt",
-  clay => "minecraft:clay",
-  grass => "minecraft:grass",
-  snow => "minecraft:snow",
-  snow_layer => "minecraft:snow_layer",
-  sand => "minecraft:sand",
-  gravel => "minecraft:gravel",
-  log => "minecraft:log",
-  leaves => "minecraft:leaves",
-  water => "minecraft:water",
-  concrete => "minecraft:concrete",
-  cobblestone => "minecraft:cobblestone",
-  mossy_cobblestone => "minecraft:mossy_cobblestone",
-  ice => "minecraft:ice",
-  packed_ice => "minecraft:packed_ice",
-  tallgrass => "minecraft:tallgrass",
-  double_plant => "minecraft:double_plant",
-  red_flower => "minecraft:red_flower",
-  yellow_flower => "minecraft:yellow_flower",
+  Stone => minecraft:stone,
+  Dirt => minecraft:dirt,
+  Clay => minecraft:clay,
+  Grass => minecraft:grass,
+  Snow => minecraft:snow,
+  SnowLayer => minecraft:snow_layer,
+  Sand => minecraft:sand,
+  Gravel => minecraft:gravel,
+  Log => minecraft:log,
+  Leaves => minecraft:leaves,
+  Water => minecraft:water,
+  Concrete => minecraft:concrete,
+  Cobblestone => minecraft:cobblestone,
+  MossyCobblestone => minecraft:mossy_cobblestone,
+  Ice => minecraft:ice,
+  PackedIce => minecraft:packed_ice,
+  Tallgrass => minecraft:tallgrass,
+  DoublePlant => minecraft:double_plant,
+  RedFlower => minecraft:red_flower,
+  YellowFlower => minecraft:yellow_flower,
   // 0 - normal    1 - chiseled     2 - smooth
-  sandstone => "minecraft:sandstone",
+  Sandstone => minecraft:sandstone,
   // 0 - normal    1 - chiseled     2 - smooth (?)
-  red_sandstone => "minecraft:red_sandstone",
-  gold_block => "minecraft:gold_block",
-  hardened_clay => "minecraft:hardened_clay",
-  stained_hardened_clay => "minecraft:stained_hardened_clay",
-  planks => "minecraft:planks",
-  glass_pane => "minecraft:glass_pane",
-  wool => "minecraft:wool",
-  lava => "minecraft:lava",
-  iron_ore => "minecraft:iron_ore",
-  brown_mushroom => "minecraft:brown_mushroom",
-  cocoa => "minecraft:cocoa",
+  RedSandstone => minecraft:red_sandstone,
+  GoldBlock => minecraft:gold_block,
+  HardenedClay => minecraft:hardened_clay,
+  StainedHardenedClay => minecraft:stained_hardened_clay,
+  Planks => minecraft:planks,
+  GlassPane => minecraft:glass_pane,
+  Wool => minecraft:wool,
+  Lava => minecraft:lava,
+  IronOre => minecraft:iron_ore,
+  BrownMushroom => minecraft:brown_mushroom,
+  Cocoa => minecraft:cocoa,
 
-  rgen_log => "rgen:log",
-  rgen_log2 => "rgen:log2",
-  rgen_leaves => "rgen:leaves",
-  rgen_leaves2 => "rgen:leaves2",
-  rgen_leaves3 => "rgen:leaves3",
-  rgen_mossy_stump => "rgen:mossy_stump",
-  rgen_polypore => "rgen:polypore",
-  rgen_mossy_carpet => "rgen:mossy_carpet",
-  rgen_flower => "rgen:flower",
-  rgen_bamboo => "rgen:bamboo",
-  rgen_glow_vine => "rgen:glow_vine",
-  rgen_mossy_cobblestone => "rgen:mossy_cobblestone_rgen",
-  rgen_mossy_stone => "rgen:mossy_stone",
-  rgen_plant => "rgen:plant",
-  rgen_moss => "rgen:mossy_block",
-  rgen_lavender => "rgen:lavender_plant",
-  rgen_tall_lavender => "rgen:double_tall_lavender_plant",
-  rgen_juvenile_cactus => "rgen:juvenile_cactus",
-  rgen_cactus => "rgen:cactus",
-  rgen_cactus_arm => "rgen:cactus_arm",
-  rgen_basalt => "rgen:basalt",
+  RgenLog => rgen:log,
+  RgenLog2 => rgen:log2,
+  RgenLeaves => rgen:leaves,
+  RgenLeaves2 => rgen:leaves2,
+  RgenLeaves3 => rgen:leaves3,
+  RgenMossyStump => rgen:mossy_stump,
+  RgenPolypore => rgen:polypore,
+  RgenMossyCarpet => rgen:mossy_carpet,
+  RgenFlower => rgen:flower,
+  RgenBamboo => rgen:bamboo,
+  RgenGlowVine => rgen:glow_vine,
+  RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
+  RgenMossyStone => rgen:mossy_stone,
+  RgenPlant => rgen:plant,
+  RgenMoss => rgen:mossy_block,
+  RgenLavender => rgen:lavender_plant,
+  RgenTallLavender => rgen:double_tall_lavender_plant,
+  RgenJuvenileCactus => rgen:juvenile_cactus,
+  RgenCactus => rgen:cactus,
+  RgenCactusArm => rgen:cactus_arm,
+  RgenBasalt => rgen:basalt,
 }
 
-big! { Biomes: Biome
-  VOID => "minecraft:void" = 127,
+big! { Biome
+  Void => minecraft:void,
 
-  cold_taiga => "minecraft:taiga_cold",
-  taiga => "minecraft:taiga",
-  extreme_hills => "minecraft:extreme_hills",
-  ice_plains => "minecraft:ice_flats",
-  plains => "minecraft:plains",
-  beaches => "minecraft:beaches",
-  roofed_forest => "minecraft:roofed_forest",
-  savanna => "minecraft:savanna",
-  swamp => "minecraft:swampland",
-  stone_beach => "minecraft:stone_beach",
-  jungle => "minecraft:jungle",
-  birch_forest => "minecraft:birch_forest_hills",
-  river => "minecraft:river",
-  mesa => "minecraft:mesa",
-  desert => "minecraft:desert",
+  ColdTaiga => minecraft:taiga_cold,
+  Taiga => minecraft:taiga,
+  ExtremeHills => minecraft:extreme_hills,
+  IcePlains => minecraft:ice_flats,
+  Plains => minecraft:plains,
+  Beaches => minecraft:beaches,
+  RoofedForest => minecraft:roofed_forest,
+  Savanna => minecraft:savanna,
+  Swamp => minecraft:swampland,
+  StoneBeach => minecraft:stone_beach,
+  Jungle => minecraft:jungle,
+  BirchForest => minecraft:birch_forest_hills,
+  River => minecraft:river,
+  Mesa => minecraft:mesa,
+  Desert => minecraft:desert,
 }
