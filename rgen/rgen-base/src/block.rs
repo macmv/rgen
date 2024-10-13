@@ -102,6 +102,22 @@ impl BlockData {
   pub fn with_property(&self, _key: &str, _value: &str) -> BlockState { todo!() }
 }
 
+/// A block read from the world. This is a specific state of a block data, that
+/// can be compared against `BlockState`s, and used to get the block's
+/// properties.
+#[derive(Debug, Clone, Copy)]
+pub struct BlockInfo<'a> {
+  pub(crate) data:  &'a BlockData,
+  pub(crate) state: StateId,
+}
+
+impl BlockInfo<'_> {
+  // NB: Do not use! Only meant for `rgen-world` to construct.
+  pub fn new(data: &BlockData, state: StateId) -> BlockInfo { BlockInfo { data, state } }
+
+  pub fn block_kind(&self) -> BlockKind { self.data.block.unwrap_or(BlockKind::Air) }
+}
+
 impl BlockKind {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
@@ -126,6 +142,18 @@ impl PartialEq<BlockKind> for BlockState {
 }
 impl PartialEq<BlockState> for BlockKind {
   fn eq(&self, other: &BlockState) -> bool { *self == other.block && other.state.is_default() }
+}
+
+impl PartialEq<BlockKind> for BlockInfo<'_> {
+  fn eq(&self, other: &BlockKind) -> bool { self.data.block == Some(*other) }
+}
+
+// NB: Default meta on `other` is considered a match-all.
+impl PartialEq<BlockState> for BlockInfo<'_> {
+  fn eq(&self, other: &BlockState) -> bool {
+    self.data.block == Some(other.block)
+      && other.state.state().is_none_or(|m| m == self.state.meta())
+  }
 }
 
 #[macro_export]
