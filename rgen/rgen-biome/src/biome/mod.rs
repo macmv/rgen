@@ -34,13 +34,6 @@ pub use tropical_regions::*;
 #[allow(unused_imports)]
 pub use warm_temperate_regions::*;
 
-pub struct IdContext<'a> {
-  pub biomes: &'a Biomes,
-  pub blocks: &'a Blocks,
-}
-
-use rgen_base::{Biomes, Blocks};
-
 use crate::builder::{BiomeBuilder, PlacerStage};
 
 pub type BiomeFn = fn(&mut BiomeBuilder);

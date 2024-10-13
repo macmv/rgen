@@ -1,28 +1,29 @@
+use rgen_base::{biome, block};
 use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
 
-use super::super::{BiomeBuilder, IdContext};
+use super::super::BiomeBuilder;
 
-pub fn woodland_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.birch_forest;
+pub fn woodland_river(gen: &mut BiomeBuilder) {
+  gen.id = biome![birch_forest_hills];
   gen.color = "#899781";
-  gen.set_top_block(ctx.blocks.grass.default_state);
+  gen.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new(ctx.blocks));
+  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
   gen.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            ctx.blocks.log.with_data(0),
-      moss_log:       ctx.blocks.rgen_mossy_stump.with_data(0),
-      ground:         ctx.blocks.grass.default_state,
-      plants:         ctx.blocks.stone.default_state.into(),
+      log:            block![log[0]],
+      moss_log:       block![rgen:mossy_stump[0]],
+      ground:         block![grass],
+      plants:         block![stone].into(),
       avg_per_chunk:  0.5,
       chance_of_moss: 8,
       is_shrooms:     true,
-      shroom:         ctx.blocks.rgen_polypore.default_state,
+      shroom:         block![rgen:polypore],
     },
   );
 
@@ -31,8 +32,8 @@ pub fn woodland_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[2]],
     },
   );
 
@@ -41,31 +42,31 @@ pub fn woodland_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[1]],
     },
   );
 }
 
-pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.birch_forest;
+pub fn woodland(gen: &mut BiomeBuilder) {
+  gen.id = biome![birch_forest_hills];
   gen.color = "#899781";
-  gen.set_top_block(ctx.blocks.grass.default_state);
+  gen.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new(ctx.blocks));
+  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
   gen.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            ctx.blocks.log.with_data(0),
-      moss_log:       ctx.blocks.rgen_mossy_stump.with_data(0),
-      ground:         ctx.blocks.grass.default_state,
-      plants:         ctx.blocks.stone.default_state.into(),
+      log:            block![log[0]],
+      moss_log:       block![rgen:mossy_stump[0]],
+      ground:         block![grass],
+      plants:         block![stone].into(),
       avg_per_chunk:  0.5,
       chance_of_moss: 8,
       is_shrooms:     true,
-      shroom:         ctx.blocks.rgen_polypore.default_state,
+      shroom:         block![rgen:polypore],
     },
   );
 
@@ -74,8 +75,8 @@ pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[2]],
     },
   );
 
@@ -84,32 +85,32 @@ pub fn woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[1]],
     },
   );
 }
 
 #[allow(dead_code)]
-pub fn windswept_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.birch_forest;
+pub fn windswept_woodland(gen: &mut BiomeBuilder) {
+  gen.id = biome![birch_forest_hills];
   gen.color = "#899781";
-  gen.set_top_block(ctx.blocks.grass.default_state);
+  gen.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new(ctx.blocks));
+  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
   gen.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            ctx.blocks.log.with_data(0),
-      moss_log:       ctx.blocks.rgen_mossy_stump.with_data(0),
-      ground:         ctx.blocks.grass.default_state,
-      plants:         ctx.blocks.stone.default_state.into(),
+      log:            block![log[0]],
+      moss_log:       block![rgen:mossy_stump[0]],
+      ground:         block![grass],
+      plants:         block![stone].into(),
       avg_per_chunk:  0.5,
       chance_of_moss: 8,
       is_shrooms:     true,
-      shroom:         ctx.blocks.rgen_polypore.default_state,
+      shroom:         block![rgen:polypore],
     },
   );
 
@@ -118,8 +119,8 @@ pub fn windswept_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[2]],
     },
   );
 
@@ -128,8 +129,8 @@ pub fn windswept_woodland(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    160,
-      place_above: [ctx.blocks.grass.block, ctx.blocks.rgen_mossy_stump.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place_above: [block![grass], block![rgen:mossy_stump]].into(),
+      place:       block![tallgrass[1]],
     },
   );
 }
