@@ -82,11 +82,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
-    "dead_tree",
-    PlacerStage::Tree,
-    placer::DeadTree { trunk: ctx.blocks.rgen_log2.with_data(12) },
-  );
+  gen.place("dead_tree", PlacerStage::Tree, placer::DeadTree::new(ctx.blocks));
 }
 
 #[allow(dead_code)]
