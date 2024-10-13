@@ -128,6 +128,9 @@ impl Default for Biome {
 impl PartialEq<Block> for BlockState {
   fn eq(&self, other: &Block) -> bool { self.block == *other }
 }
+impl PartialEq<BlockState> for Block {
+  fn eq(&self, other: &BlockState) -> bool { *self == other.block && other.state.is_default() }
+}
 
 // Block Identification Guide
 macro_rules! big {
@@ -147,21 +150,28 @@ macro_rules! big {
       // block![stone[2]]
       ($block_name:ident [$state:expr]) => {
         $crate::BlockState {
-          block: $macro_name_2![$block_name],
+          block: $crate::$macro_name_2![$block_name],
           state: $crate::StateOrDefault::new($state),
         }
       };
       // block![minecraft:stone[2]]
       ($block_namespace:ident:$block_name:ident [$state:expr]) => {
         $crate::BlockState {
-          block: $macro_name_2![$block_namespace:$block_name],
+          block: $crate::$macro_name_2![$block_namespace:$block_name],
           state: $crate::StateOrDefault::new($state),
         }
       };
       // block![stone]
       ($block_name:ident) => {
         $crate::BlockState {
-          block: $macro_name_2![$block_name],
+          block: $crate::$macro_name_2![$block_name],
+          state: $crate::StateOrDefault::DEFAULT,
+        }
+      };
+      // block![minecraft:stone]
+      ($block_namespace:ident:$block_name:ident) => {
+        $crate::BlockState {
+          block: $crate::$macro_name_2![$block_namespace:$block_name],
           state: $crate::StateOrDefault::DEFAULT,
         }
       };
@@ -174,7 +184,7 @@ macro_rules! big {
       // block_kind![minecraft:air]
       ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
       // block_kind![stone] -> block_kind![minecraft:stone]
-      ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
+      ($block_name:ident) => { $crate::$macro_name_2![$default_namespace:$block_name] };
       $(
         // block_kind![rgen:log]
         ($namespace:$name) => { $crate::$enum_name::$id };
