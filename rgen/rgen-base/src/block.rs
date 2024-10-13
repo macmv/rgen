@@ -27,21 +27,10 @@ impl BlockId {
 
 /// A block state represents a block with a specific data value (like wool
 /// color).
-#[derive(Debug, Clone, Copy, Eq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct BlockState {
   pub block: BlockKind,
   pub state: StateOrDefault,
-}
-
-// FIXME: Remove once we've fixed the read path.
-impl PartialEq for BlockState {
-  fn eq(&self, other: &Self) -> bool {
-    self.block == other.block
-      && match (self.state.state(), other.state.state()) {
-        (Some(l), Some(r)) => l == r,
-        _ => true,
-      }
-  }
 }
 
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
@@ -65,11 +54,6 @@ impl StateOrDefault {
       Some(self.0)
     }
   }
-}
-
-// FIXME: This should probably use the default state.
-impl From<BlockKind> for BlockState {
-  fn from(val: BlockKind) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
 }
 
 /// Stores data about a block, like its default states and properties.
