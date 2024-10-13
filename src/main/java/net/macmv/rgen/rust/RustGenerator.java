@@ -1,5 +1,6 @@
 package net.macmv.rgen.rust;
 
+import com.google.common.collect.Iterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,8 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
@@ -34,13 +37,38 @@ public class RustGenerator {
 
   // Helpers for the rust code.
 
+  // Block name to block ID. This does not include the 4 metadata bits.
   private static int block_name_to_id(String name) {
     Block block = Block.getBlockFromName(name);
     if (block == null) {
       return 0;
     }
 
-    return GameData.getBlockStateIDMap().get(block.getDefaultState());
+    return GameData.getBlockStateIDMap().get(block.getDefaultState()) >> 4;
+  }
+
+  // Block name to block ID. This does not include the 4 metadata bits.
+  private static String block_id_to_name(int id) {
+    return Block.REGISTRY.getObjectById(id).getRegistryName().toString();
+  }
+
+  // Returns the maximum block ID (not state ID).
+  private static int max_block_id() {
+    // This is real dumb, but this is only called once on load.
+    int max = 0;
+    for (Block block : Block.REGISTRY) {
+      int id = Block.getIdFromBlock(block);
+      if (id > max) {
+        max = id;
+      }
+    }
+    return max;
+  }
+
+  // Default metadata of a block.
+  private static int lookup_default_meta(int id) {
+    Block block = Block.getBlockById(id);
+    return GameData.getBlockStateIDMap().get(block.getDefaultState()) & 0x0f;
   }
 
   private static int biome_name_to_id(String name) {

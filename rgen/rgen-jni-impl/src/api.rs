@@ -1,20 +1,16 @@
 //! Defines the JNI interface.
 
-use std::{
-  cell::RefCell,
-  ops::{Deref, DerefMut},
-};
+use std::cell::RefCell;
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
-use parking_lot::Mutex;
-use rgen_world::{BlockInfoSupplier, PartialWorldStorage};
+use rgen_world::PartialWorldStorage;
 
-use crate::ctx::Context;
-use rgen_base::{Block, BlockId, BlockInfo, ChunkPos, Pos, StateId};
+use crate::{ctx::Context, JniBlockInfoSupplier};
+use rgen_base::{ChunkPos, Pos, StateId};
 use rgen_spline::Cosine;
 
 fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
@@ -79,64 +75,13 @@ impl PartialWorldStorage for JniWorldStorage<'_, '_> {
   }
 }
 
-struct JniBlockInfoSupplier {
-  env: Mutex<SendJniEnv>,
-}
-
-struct SendJniEnv(JNIEnv<'static>);
-// This is fine, as we're calling static functions that are threadsafe.
-unsafe impl Send for SendJniEnv {}
-
-impl Deref for SendJniEnv {
-  type Target = JNIEnv<'static>;
-
-  fn deref(&self) -> &Self::Target { &self.0 }
-}
-impl DerefMut for SendJniEnv {
-  fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
-}
-
-impl BlockInfoSupplier for JniBlockInfoSupplier {
-  fn lookup(&self, kind: Block) -> Option<rgen_base::BlockId> {
-    let mut env = self.env.lock();
-
-    let jname = env.new_string(kind.name()).unwrap();
-
-    let block = env
-      .call_static_method(
-        "net/macmv/rgen/rust/RustGenerator",
-        "block_name_to_id",
-        "(Ljava/lang/String;)I",
-        &[JValue::Object(&jname.into())],
-      )
-      .unwrap()
-      .i()
-      .unwrap();
-
-    if block == 0 {
-      None
-    } else {
-      Some(BlockId(block as u16))
-    }
-  }
-  fn get(&self, _id: BlockId) -> BlockInfo {
-    BlockInfo { name: "unknown".to_string(), block: Block::Air, default_meta: 0 }
-  }
-}
-
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
-  env: JNIEnv,
+  mut env: JNIEnv,
   _class: JClass,
   seed: jlong,
 ) {
-  // Extend the lifetime of the env.
-  //
-  // SAFETY: This is probably safe. We're just packing ints back and forth, so the
-  // lifetime doesn't really matter much.
-  let long_lived = unsafe { JNIEnv::from_raw(env.get_raw()).unwrap() };
-
-  let blocks = JniBlockInfoSupplier { env: Mutex::new(SendJniEnv(long_lived)) };
+  let blocks = JniBlockInfoSupplier::new(&mut env);
   Context::init(Box::new(blocks), seed);
 }
 

@@ -16,7 +16,6 @@ rgen-world.workspace = true
 rgen-spline.workspace = true
 
 jni = "0.21.1"
-parking_lot = "0.12.3"
 
 [features]
 # Links to obfuscated names. Used for release builds.
