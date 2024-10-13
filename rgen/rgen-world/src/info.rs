@@ -14,7 +14,10 @@ pub trait BlockInfoSupplier {
   // FIXME: Return `BlockInfo` instead of `BlockState`.
   fn decode(&self, state: StateId) -> BlockState {
     let info = self.get(state.block());
-    BlockState { block: info.block, state: StateOrDefault::new(state.meta()) }
+    match info.block {
+      Some(block) => BlockState { block, state: StateOrDefault::new(state.meta()) },
+      None => BlockState::AIR,
+    }
   }
   fn encode(&self, state: BlockState) -> StateId {
     let id = self.lookup(state.block).unwrap();
