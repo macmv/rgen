@@ -2,7 +2,7 @@ use std::ops::BitOr;
 
 use smallvec::SmallVec;
 
-use crate::{BlockInfo, BlockKind, BlockState};
+use crate::{BlockInfo, BlockKind, BlockState, StateOrDefault};
 
 /// A block filter is a filter for matching against blocks.
 ///
@@ -19,42 +19,33 @@ pub enum BlockFilter {
   /// Matches any block.
   All,
 
-  /// Matches any of the given sets.
-  Any(Vec<BlockFilter>),
-
-  /// Matches any state of the given block.
-  Block(SmallVec<[BlockKind; 4]>),
-
-  /// Matches the specific block state.
-  BlockState(SmallVec<[BlockState; 2]>),
+  /// Matches the specific block state, or all states of the state is
+  /// `StateOrDefault::DEFAULT`.
+  Block(SmallVec<[BlockState; 2]>),
 }
 
 impl From<BlockKind> for BlockFilter {
   fn from(value: BlockKind) -> Self {
     BlockFilter::Block(SmallVec::from_buf_and_len(
-      [value, BlockKind::Air, BlockKind::Air, BlockKind::Air],
+      [
+        BlockState { block: value, state: StateOrDefault::DEFAULT },
+        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
+      ],
       1,
     ))
   }
 }
 impl From<BlockState> for BlockFilter {
   fn from(value: BlockState) -> Self {
-    BlockFilter::BlockState(SmallVec::from_buf_and_len([value, BlockState::AIR], 1))
+    BlockFilter::Block(SmallVec::from_buf_and_len([value, BlockState::AIR], 1))
   }
 }
 
-impl<const N: usize> From<[BlockKind; N]> for BlockFilter {
-  fn from(value: [BlockKind; N]) -> Self { BlockFilter::Block(SmallVec::from_slice(&value)) }
-}
-impl From<&[BlockKind]> for BlockFilter {
-  fn from(value: &[BlockKind]) -> Self { BlockFilter::Block(SmallVec::from_slice(value)) }
-}
-
 impl<const N: usize> From<[BlockState; N]> for BlockFilter {
-  fn from(value: [BlockState; N]) -> Self { BlockFilter::BlockState(SmallVec::from_slice(&value)) }
+  fn from(value: [BlockState; N]) -> Self { BlockFilter::Block(SmallVec::from_slice(&value)) }
 }
 impl From<&[BlockState]> for BlockFilter {
-  fn from(value: &[BlockState]) -> Self { BlockFilter::BlockState(SmallVec::from_slice(value)) }
+  fn from(value: &[BlockState]) -> Self { BlockFilter::Block(SmallVec::from_slice(value)) }
 }
 
 impl BitOr for BlockFilter {
@@ -66,40 +57,20 @@ impl BitOr for BlockFilter {
       (_, BlockFilter::All) => BlockFilter::All,
 
       (BlockFilter::Block(mut a), BlockFilter::Block(b)) => {
-        a.extend(b);
+        for block in b {
+          if a
+            .iter()
+            .any(|s| s.block == block.block && (s.state.is_default() || s.state == block.state))
+          {
+            continue;
+          }
+          if block.state.is_default() {
+            a.retain(|s| s.block != block.block);
+          }
+          a.push(block);
+        }
         BlockFilter::Block(a)
       }
-      (BlockFilter::BlockState(mut a), BlockFilter::BlockState(b)) => {
-        a.extend(b);
-        BlockFilter::BlockState(a)
-      }
-
-      (BlockFilter::Block(b), BlockFilter::BlockState(s))
-        if b.len() == 1 && s.iter().all(|s| s.block == b[0]) =>
-      {
-        BlockFilter::Block(b)
-      }
-      (BlockFilter::BlockState(s), BlockFilter::Block(b))
-        if b.len() == 1 && s.iter().all(|s| s.block == b[0]) =>
-      {
-        BlockFilter::Block(b)
-      }
-
-      (mut a, BlockFilter::Any(b)) => {
-        for b in b {
-          a = a | b;
-        }
-        a
-      }
-
-      (BlockFilter::Any(a), mut b) => {
-        for a in a {
-          b = b | a;
-        }
-        b
-      }
-
-      (a, b) => BlockFilter::Any(vec![a, b]),
     }
   }
 }
@@ -129,7 +100,11 @@ impl BlockFilter {
   /// let stone = BlockInfo::new(&stone_data, StateId(16 | 0));
   /// let air = BlockInfo::new(&air_data, StateId(0));
   ///
-  /// let filter: BlockFilter = [BlockKind::Grass, BlockKind::Air].into();
+  /// let default_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::DEFAULT };
+  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::new(1) };
+  /// let air_state = BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT };
+  ///
+  /// let filter: BlockFilter = [default_grass_state, air_state].into();
   ///
   /// assert!(filter.contains(default_grass));
   /// assert!(filter.contains(snowy_grass));
@@ -149,8 +124,6 @@ impl BlockFilter {
   /// assert!(any_filter.contains(BlockKind::Stone));
   /// assert!(any_filter.contains(BlockKind::Air));
   ///
-  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::new(1) };
-  ///
   /// let snowy_filter: BlockFilter = [snowy_grass_state].into();
   /// assert!(!snowy_filter.contains(default_grass));
   /// assert!(snowy_filter.contains(snowy_grass));
@@ -158,9 +131,7 @@ impl BlockFilter {
   pub fn contains(&self, state: impl BlockFilterable + Copy) -> bool {
     match self {
       BlockFilter::All => true,
-      BlockFilter::Any(b) => b.iter().any(|b| b.contains(state)),
-      BlockFilter::Block(b) => b.iter().any(|b| state.block_kind() == *b),
-      BlockFilter::BlockState(b) => b.iter().any(|s| state.compare_state(s)),
+      BlockFilter::Block(b) => b.iter().any(|s| state.compare_state(s)),
     }
   }
 }
@@ -204,7 +175,10 @@ mod tests {
 
     assert_eq!(
       a | b,
-      BlockFilter::Block(SmallVec::from_slice(&[BlockKind::Air, BlockKind::Stone]))
+      BlockFilter::Block(SmallVec::from_slice(&[
+        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
+        BlockState { block: BlockKind::Stone, state: StateOrDefault::DEFAULT },
+      ]))
     );
 
     let a = BlockFilter::from(block(BlockKind::Air, 0));
@@ -212,7 +186,7 @@ mod tests {
 
     assert_eq!(
       a | b,
-      BlockFilter::BlockState(SmallVec::from_slice(&[
+      BlockFilter::Block(SmallVec::from_slice(&[
         BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) },
         BlockState { block: BlockKind::Air, state: StateOrDefault::new(1) },
       ]))
@@ -222,7 +196,36 @@ mod tests {
     let b = BlockFilter::from(block(BlockKind::Air, 1));
     let c = BlockFilter::from(BlockKind::Air);
 
-    assert_eq!(a | b | c, BlockFilter::Block(SmallVec::from_slice(&[BlockKind::Air])));
+    assert_eq!(
+      a | b | c,
+      BlockFilter::Block(SmallVec::from_slice(&[BlockState {
+        block: BlockKind::Air,
+        state: StateOrDefault::DEFAULT,
+      },]))
+    );
+
+    let a = BlockFilter::from(block(BlockKind::Air, 0));
+    let b = BlockFilter::from(BlockKind::Air);
+    let c = BlockFilter::from(block(BlockKind::Air, 1));
+
+    assert_eq!(
+      a | b | c,
+      BlockFilter::Block(SmallVec::from_slice(&[BlockState {
+        block: BlockKind::Air,
+        state: StateOrDefault::DEFAULT,
+      },]))
+    );
+
+    let a = BlockFilter::from(block(BlockKind::Air, 0));
+    let b = BlockFilter::from(block(BlockKind::Air, 0));
+
+    assert_eq!(
+      a | b,
+      BlockFilter::Block(SmallVec::from_slice(&[BlockState {
+        block: BlockKind::Air,
+        state: StateOrDefault::new(0),
+      },]))
+    );
   }
 
   #[test]
