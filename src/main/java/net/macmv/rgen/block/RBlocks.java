@@ -35,6 +35,9 @@ public final class RBlocks {
   public static final Block LEAVES3 = register("leaves3", new LeavesBlockThree());
   public static final Block GLOW_VINE = register("glow_vine", new GlowVineBlock());
 
+  public static final Block SAPLING = register("sapling", new SaplingOne());
+  public static final Block SAPLING2 = register("sapling2", new SaplingTwo());
+
   public static final Block PLANKS = register("planks", new PlanksBlock());
 
   public static final Block FLOWER = register("flower", new FlowerBlock());
@@ -47,8 +50,8 @@ public final class RBlocks {
   public static final Block JUVENILE_CACTUS = register("juvenile_cactus", new JuvenileCactus());
   public static final Block LAVENDER_PLANT = register("lavender_plant", new LavenderPlant());
   public static final Block DOUBLE_TALL_LAVENDER_PLANT = register("double_tall_lavender_plant", new DoubleTallLavenderPlant());
-  public static final Block BASALT = register("basalt",new Basalt());
-  public static final Block PINK_FLOWERBED = register("pink_flowerbed",new PinkFlowerbed());
+  public static final Block BASALT = register("basalt", new Basalt());
+  public static final Block PINK_FLOWERBED = register("pink_flowerbed", new PinkFlowerbed());
 
 
   private static Block register(String name, Block block) {

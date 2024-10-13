@@ -28,6 +28,9 @@ public class RItems {
   public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
+  public static final Item SAPLING = registerBlockItem(RBlocks.SAPLING, new ItemMultiTexture(RBlocks.SAPLING, RBlocks.SAPLING, it -> LogType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item SAPLING2 = registerBlockItem(RBlocks.SAPLING2, new ItemMultiTexture(RBlocks.SAPLING2, RBlocks.SAPLING2, it -> LogType.fromMeta(it.getMetadata() + 8).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
@@ -98,6 +101,17 @@ public class RItems {
         registerModel(i, LogType.CEDAR.meta, "rgen:cedar_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:leaves2")) {
         registerModel(i, LogType.MANGROVE.meta - 4, "rgen:mangrove_leaves");
+      } else if (i.getRegistryName().toString().equals("rgen:sapling")) {
+        registerModel(i, LogType.FIR.meta, "rgen:fir_sapling");
+        registerModel(i, LogType.PALM.meta, "rgen:palm_sapling");
+        registerModel(i, LogType.SAKURA.meta, "rgen:sakura_sapling");
+        registerModel(i, LogType.CEDAR.meta, "rgen:cedar_sapling");
+        registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_sapling");
+        registerModel(i, LogType.LAVENDER.meta, "rgen:lavender_sapling");
+        registerModel(i, LogType.SEASONAL.meta, "rgen:seasonal_sapling");
+        registerModel(i, LogType.DEAD.meta, "rgen:dead_sapling");
+      } else if (i.getRegistryName().toString().equals("rgen:sapling2")) {
+        registerModel(i, LogType.ASPEN.meta - 8, "rgen:aspen_sapling");
       } else if (i.getRegistryName().toString().equals("rgen:planks")) {
         registerModel(i, LogType.FIR.meta, "rgen:fir_planks");
         registerModel(i, LogType.PALM.meta, "rgen:palm_planks");

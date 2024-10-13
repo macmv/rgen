@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "stage=0,type=aspen": { "model": "rgen:wood/aspen/aspen_sapling" },
+    "stage=1,type=aspen": { "model": "rgen:wood/aspen/aspen_sapling" }
+  }
+}
