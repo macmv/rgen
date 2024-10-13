@@ -15,11 +15,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanksBlock extends Block {
-  public static final PropertyEnum<LogBlockOne.LogType> VARIANT = PropertyEnum.create("variant", LogBlockOne.LogType.class, ty -> ty.meta <= LogBlockOne.LogType.MANGROVE.meta);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta <= LogType.MANGROVE.meta);
 
   public PlanksBlock() {
     super(Material.WOOD);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogBlockOne.LogType.FIR));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR));
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
     this.setHardness(2.0F);
     this.setResistance(5.0F);
@@ -33,8 +33,8 @@ public class PlanksBlock extends Block {
 
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-    for (LogBlockOne.LogType ty : LogBlockOne.LogType.values()) {
-      if (ty.meta <= LogBlockOne.LogType.MANGROVE.meta) {
+    for (LogType ty : LogType.values()) {
+      if (ty.meta <= LogType.MANGROVE.meta) {
         items.add(new ItemStack(this, 1, ty.meta));
       }
     }
@@ -42,7 +42,7 @@ public class PlanksBlock extends Block {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    return this.getDefaultState().withProperty(VARIANT, LogBlockOne.LogType.fromMeta(meta));
+    return this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta));
   }
 
   @Override
