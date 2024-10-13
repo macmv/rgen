@@ -101,6 +101,10 @@ impl Default for Biome {
   fn default() -> Biome { Biome::Void }
 }
 
+impl PartialEq<Block> for BlockState {
+  fn eq(&self, other: &Block) -> bool { self.block == *other }
+}
+
 // Block Identification Guide
 macro_rules! big {
   (
