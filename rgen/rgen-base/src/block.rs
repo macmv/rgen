@@ -208,6 +208,11 @@ macro_rules! big {
           _ => None
         }
       }
+
+      pub const ALL: &[Self] = &[
+        Self::$default_id,
+        $(Self::$id,)*
+      ];
     }
   };
 }
