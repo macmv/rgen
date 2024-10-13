@@ -22,22 +22,10 @@ impl BlockInfoSupplier {
     self.lookup.get(&kind).copied()
   }
 
-  pub fn get(&self, id: BlockId) -> BlockInfo {
-    if id == BlockId::AIR {
-      return BlockInfo {
-        name:         "air".to_string(),
-        block:        Some(block_kind![air]),
-        default_meta: 0,
-      };
-    }
-
-    self
-      .info
-      .get(&id)
-      .unwrap_or_else(|| {
-        panic!("no such block with id {id:?}");
-      })
-      .clone()
+  pub fn get(&self, id: BlockId) -> &BlockInfo {
+    self.info.get(&id).unwrap_or_else(|| {
+      panic!("no such block with id {id:?}");
+    })
   }
 
   // FIXME: Return `BlockInfo` instead of `BlockState`.

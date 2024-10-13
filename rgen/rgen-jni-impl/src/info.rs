@@ -19,6 +19,11 @@ fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
 
   let max_id = call_max_block_id(env);
 
+  info.info.insert(
+    BlockId::AIR,
+    BlockInfo { name: "air".to_string(), block: Some(Block::Air), default_meta: 0 },
+  );
+
   // Lookup all the block infos, and skip air.
   for id in 1..=max_id {
     let name = call_block_id_to_name(env, id);
