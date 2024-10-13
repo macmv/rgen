@@ -1,89 +1,21 @@
 //! Defines the JNI interface.
 
-use std::cell::RefCell;
+use std::{
+  cell::RefCell,
+  ops::{Deref, DerefMut},
+};
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
-use rgen_placer::{placer::Sakura, Placer, Rng};
-use rgen_world::{PartialWorld, PartialWorldImpl};
+use parking_lot::Mutex;
+use rgen_world::{BlockInfoSupplier, PartialWorldStorage};
 
-use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Biome, Biomes, BlockInfo, BlockState, Blocks, ChunkPos, Pos};
+use crate::ctx::Context;
+use rgen_base::{Block, BlockId, BlockInfo, ChunkPos, Pos, StateId};
 use rgen_spline::Cosine;
-
-// TODO: Do we need to worry about obfuscated names anymore?
-#[cfg(not(feature = "obf-names"))]
-fn lookup_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
-  let jname = env.new_string(name).unwrap();
-
-  let block = env
-    .call_static_method(
-      "net/macmv/rgen/rust/RustGenerator",
-      "block_name_to_id",
-      "(Ljava/lang/String;)I",
-      &[JValue::Object(&jname.into())],
-    )
-    .unwrap()
-    .i()
-    .unwrap();
-
-  if block == 0 {
-    None
-  } else {
-    Some(block)
-  }
-}
-
-#[cfg(feature = "obf-names")]
-fn lookup_id_opt(env: &mut JNIEnv, block_ids: &JObject, name: &str) -> Option<i32> {
-  let Ok(jname) = env.new_string(name) else { return Some(0) };
-
-  // This is effectively `block_ids.get(Blocks.STONE.getDefaultState())`
-
-  let block = match env.call_static_method(
-    "net/minecraft/block/Block",
-    "func_149684_b", // getBlockFromName
-    "(Ljava/lang/String;)Lnet/minecraft/block/Block;",
-    &[JValue::Object(&jname.into())],
-  ) {
-    Ok(block) => block.l().unwrap(),
-    Err(_) => return Some(0),
-  };
-
-  if block.is_null() {
-    return None;
-  }
-
-  let state = match env.call_method(
-    &block,
-    "func_176223_P", // getDefaultState
-    "()Lnet/minecraft/block/state/IBlockState;",
-    &[],
-  ) {
-    Ok(state) => state.l().unwrap(),
-    Err(_) => return Some(0),
-  };
-
-  match env.call_method(
-    block_ids,
-    "func_148747_b", // get
-    "(Ljava/lang/Object;)I",
-    &[JValue::Object(&state)],
-  ) {
-    Ok(id) => Some(id.i().unwrap()),
-    Err(_) => return Some(0),
-  }
-}
-
-fn lookup_block(env: &mut JNIEnv, name: &str) -> BlockInfo {
-  match lookup_id_opt(env, name) {
-    Some(id) => BlockInfo::temp_new(name, id),
-    None => panic!("block not found: {}", name),
-  }
-}
 
 fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
   let jname = env.new_string(name).unwrap();
@@ -106,19 +38,13 @@ fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
   }
 }
 
-fn lookup_biome(env: &mut JNIEnv, name: &str) -> Biome {
-  match lookup_biome_id_opt(env, name) {
-    Some(id) => Biome::from_raw_id(id),
-    None => panic!("biome not found: {}", name),
-  }
-}
-
+#[allow(dead_code)]
 struct JniWorldStorage<'a, 'b: 'a> {
   env: RefCell<&'a mut JNIEnv<'b>>,
 }
 
-impl PartialWorldImpl for JniWorldStorage<'_, '_> {
-  fn get(&self, pos: Pos) -> BlockState {
+impl PartialWorldStorage for JniWorldStorage<'_, '_> {
+  fn get(&self, pos: Pos) -> StateId {
     let raw_id = self
       .env
       .borrow_mut()
@@ -130,10 +56,10 @@ impl PartialWorldImpl for JniWorldStorage<'_, '_> {
       )
       .unwrap();
 
-    BlockState::from_raw_id(raw_id.s().unwrap() as u16)
+    StateId(raw_id.s().unwrap() as u16)
   }
 
-  fn set(&mut self, pos: Pos, block: BlockState) {
+  fn set(&mut self, pos: Pos, block: StateId) {
     self
       .env
       .borrow_mut()
@@ -146,22 +72,72 @@ impl PartialWorldImpl for JniWorldStorage<'_, '_> {
           JValue::Int(pos.x),
           JValue::Int(pos.y),
           JValue::Int(pos.z),
-          JValue::Short(block.raw_id() as i16),
+          JValue::Short(block.0 as i16),
         ],
       )
       .unwrap();
   }
 }
 
+struct JniBlockInfoSupplier {
+  env: Mutex<SendJniEnv>,
+}
+
+struct SendJniEnv(JNIEnv<'static>);
+// This is fine, as we're calling static functions that are threadsafe.
+unsafe impl Send for SendJniEnv {}
+
+impl Deref for SendJniEnv {
+  type Target = JNIEnv<'static>;
+
+  fn deref(&self) -> &Self::Target { &self.0 }
+}
+impl DerefMut for SendJniEnv {
+  fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+}
+
+impl BlockInfoSupplier for JniBlockInfoSupplier {
+  fn lookup(&self, kind: Block) -> Option<rgen_base::BlockId> {
+    let mut env = self.env.lock();
+
+    let jname = env.new_string(kind.name()).unwrap();
+
+    let block = env
+      .call_static_method(
+        "net/macmv/rgen/rust/RustGenerator",
+        "block_name_to_id",
+        "(Ljava/lang/String;)I",
+        &[JValue::Object(&jname.into())],
+      )
+      .unwrap()
+      .i()
+      .unwrap();
+
+    if block == 0 {
+      None
+    } else {
+      Some(BlockId(block as u16))
+    }
+  }
+  fn get(&self, _id: BlockId) -> BlockInfo {
+    BlockInfo { name: "unknown".to_string(), block: Block::Air, default_meta: 0 }
+  }
+}
+
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
-  mut env: JNIEnv,
+  env: JNIEnv,
   _class: JClass,
   seed: jlong,
 ) {
-  let blocks = Blocks::init(|name| lookup_block(&mut env, name));
-  let biomes = Biomes::init(|name| lookup_biome(&mut env, name));
-  Context::init(blocks, biomes, seed);
+  // Extend the lifetime of the env.
+  //
+  // SAFETY: This is probably safe. We're just packing ints back and forth, so the
+  // lifetime doesn't really matter much.
+  let long_lived = unsafe { JNIEnv::from_raw(env.get_raw()).unwrap() };
+
+  let blocks = JniBlockInfoSupplier { env: Mutex::new(SendJniEnv(long_lived)) };
+  Context::init(Box::new(blocks), seed);
 }
 
 #[no_mangle]
@@ -176,10 +152,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   assert_eq!(len, 65536, "data array must be 65536 elements long");
 
   Context::run(|ctx| {
-    let chunk_ctx =
-      ChunkContext { chunk_pos: ChunkPos::new(chunk_x, chunk_z), blocks: &ctx.context.blocks };
-
-    ctx.world.generate(chunk_ctx.chunk_pos, |chunk| {
+    ctx.world.generate(ChunkPos::new(chunk_x, chunk_z), |chunk| {
       env.set_char_array_region(data, 0, chunk.data()).unwrap();
     });
   });
@@ -208,7 +181,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
         // bullshit.
         let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
 
-        biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
+        // FIXME: Translate biome ids!
+        biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id as i8;
       }
     }
   });
@@ -239,7 +213,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
         // bullshit.
         let pos = Pos::new((x + cell_x) * 4, 255, (z + cell_z) * 4);
 
-        biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id.raw_id() as i8;
+        // FIXME: Translate biome ids!
+        biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id as i8;
       }
     }
   });
@@ -306,7 +281,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
 
   Context::run(|ctx| {
     let biome = ctx.generator.choose_biome(pos);
-    biome.id.raw_id() as i8
+    // FIXME: Translate biome ids!
+    biome.id as i8
   })
 }
 
