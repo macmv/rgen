@@ -27,9 +27,9 @@ impl ChunkPlacer for CheckerboardSurface {
         for y in (0..256).rev() {
           let pos = pos.with_y(y);
 
-          let block = chunk.chunk.get_state(pos);
+          let block = chunk.get(pos);
           if self.replace.contains(block) {
-            chunk.chunk.set(pos, selected);
+            chunk.set(pos, selected);
           }
         }
       }
