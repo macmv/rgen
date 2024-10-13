@@ -4,16 +4,16 @@
 
 use std::collections::HashMap;
 
-use rgen_base::{block_kind, Block, BlockData, BlockId, BlockState, StateId, StateOrDefault};
+use rgen_base::{block_kind, BlockData, BlockId, BlockKind, BlockState, StateId, StateOrDefault};
 
 #[derive(Default)]
 pub struct BlockInfoSupplier {
-  pub lookup: HashMap<Block, BlockId>,
+  pub lookup: HashMap<BlockKind, BlockId>,
   pub info:   HashMap<BlockId, BlockData>,
 }
 
 impl BlockInfoSupplier {
-  pub fn lookup(&self, kind: Block) -> Option<BlockId> {
+  pub fn lookup(&self, kind: BlockKind) -> Option<BlockId> {
     // Air is constant, so we don't cache it.
     if kind == block_kind![air] {
       return Some(BlockId::AIR);

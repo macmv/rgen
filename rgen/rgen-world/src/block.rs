@@ -1,7 +1,7 @@
 //! All the tools to edit blocks in a world.
 
 use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
-use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{BlockKind, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
 impl StagedWorldStorage {
@@ -60,11 +60,11 @@ impl PartialWorld<'_> {
   pub fn top_block(&mut self, pos: Pos) -> Pos { self.top_block_excluding(pos, &[]) }
 
   /// Returns the highest block that is not air and not in the `exclude` list.
-  pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[Block]) -> Pos {
+  pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[BlockKind]) -> Pos {
     let mut y = 255;
     while y > 0 {
       let block = self.get(pos.with_y(y)).block;
-      if block != Block::Air && !exclude.contains(&block) {
+      if block != BlockKind::Air && !exclude.contains(&block) {
         break;
       }
       y -= 1;

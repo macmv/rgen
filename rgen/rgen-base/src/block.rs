@@ -29,7 +29,7 @@ impl BlockId {
 /// color).
 #[derive(Debug, Clone, Copy, Eq)]
 pub struct BlockState {
-  pub block: Block,
+  pub block: BlockKind,
   pub state: StateOrDefault,
 }
 
@@ -68,15 +68,15 @@ impl StateOrDefault {
 }
 
 // FIXME: This should probably use the default state.
-impl From<Block> for BlockState {
-  fn from(val: Block) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
+impl From<BlockKind> for BlockState {
+  fn from(val: BlockKind) -> Self { BlockState { block: val, state: StateOrDefault::DEFAULT } }
 }
 
 /// Stores data about a block, like its default states and properties.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockData {
   pub name:         String,
-  pub block:        Option<Block>,
+  pub block:        Option<BlockKind>,
   pub default_meta: u8,
 }
 
@@ -102,7 +102,7 @@ impl BlockData {
   pub fn with_property(&self, _key: &str, _value: &str) -> BlockState { todo!() }
 }
 
-impl Block {
+impl BlockKind {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
@@ -111,7 +111,7 @@ impl Block {
 }
 
 impl BlockState {
-  pub const AIR: BlockState = BlockState { block: Block::Air, state: StateOrDefault::new(0) };
+  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) };
 
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
@@ -121,10 +121,10 @@ impl Default for Biome {
   fn default() -> Biome { Biome::Void }
 }
 
-impl PartialEq<Block> for BlockState {
-  fn eq(&self, other: &Block) -> bool { self.block == *other }
+impl PartialEq<BlockKind> for BlockState {
+  fn eq(&self, other: &BlockKind) -> bool { self.block == *other }
 }
-impl PartialEq<BlockState> for Block {
+impl PartialEq<BlockState> for BlockKind {
   fn eq(&self, other: &BlockState) -> bool { *self == other.block && other.state.is_default() }
 }
 
@@ -217,7 +217,7 @@ macro_rules! big {
   };
 }
 
-big! { Block, block_kind
+big! { BlockKind, block_kind
   Air => minecraft:air,
 
   Stone => minecraft:stone,
@@ -304,11 +304,11 @@ mod tests {
 
   #[test]
   fn block_by_name_works() {
-    assert_eq!(Block::by_name("minecraft:stone"), Some(Block::Stone));
+    assert_eq!(BlockKind::by_name("minecraft:stone"), Some(BlockKind::Stone));
   }
 
   #[test]
   fn block_name_works() {
-    assert_eq!(Block::Stone.name(), "minecraft:stone");
+    assert_eq!(BlockKind::Stone.name(), "minecraft:stone");
   }
 }

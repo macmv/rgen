@@ -2,7 +2,7 @@ use std::ops::BitOr;
 
 use smallvec::SmallVec;
 
-use crate::{Block, BlockState};
+use crate::{BlockKind, BlockState};
 
 /// A block filter is a filter for matching against blocks.
 ///
@@ -23,15 +23,18 @@ pub enum BlockFilter {
   Any(Vec<BlockFilter>),
 
   /// Matches any state of the given block.
-  Block(SmallVec<[Block; 4]>),
+  Block(SmallVec<[BlockKind; 4]>),
 
   /// Matches the specific block state.
   BlockState(SmallVec<[BlockState; 2]>),
 }
 
-impl From<Block> for BlockFilter {
-  fn from(value: Block) -> Self {
-    BlockFilter::Block(SmallVec::from_buf_and_len([value, Block::Air, Block::Air, Block::Air], 1))
+impl From<BlockKind> for BlockFilter {
+  fn from(value: BlockKind) -> Self {
+    BlockFilter::Block(SmallVec::from_buf_and_len(
+      [value, BlockKind::Air, BlockKind::Air, BlockKind::Air],
+      1,
+    ))
   }
 }
 impl From<BlockState> for BlockFilter {
@@ -40,11 +43,11 @@ impl From<BlockState> for BlockFilter {
   }
 }
 
-impl<const N: usize> From<[Block; N]> for BlockFilter {
-  fn from(value: [Block; N]) -> Self { BlockFilter::Block(SmallVec::from_slice(&value)) }
+impl<const N: usize> From<[BlockKind; N]> for BlockFilter {
+  fn from(value: [BlockKind; N]) -> Self { BlockFilter::Block(SmallVec::from_slice(&value)) }
 }
-impl From<&[Block]> for BlockFilter {
-  fn from(value: &[Block]) -> Self { BlockFilter::Block(SmallVec::from_slice(value)) }
+impl From<&[BlockKind]> for BlockFilter {
+  fn from(value: &[BlockKind]) -> Self { BlockFilter::Block(SmallVec::from_slice(value)) }
 }
 
 impl<const N: usize> From<[BlockState; N]> for BlockFilter {
@@ -143,59 +146,62 @@ mod tests {
   use crate::StateOrDefault;
 
   // NB: Other crates will write `block![]` instead of this function.
-  fn block(b: Block, state: u8) -> BlockState {
+  fn block(b: BlockKind, state: u8) -> BlockState {
     BlockState { block: b, state: StateOrDefault::new(state) }
   }
 
   #[test]
   fn block_set_or() {
-    let a = BlockFilter::from(Block::Air);
-    let b = BlockFilter::from(Block::Stone);
+    let a = BlockFilter::from(BlockKind::Air);
+    let b = BlockFilter::from(BlockKind::Stone);
 
-    assert_eq!(a | b, BlockFilter::Block(SmallVec::from_slice(&[Block::Air, Block::Stone])));
+    assert_eq!(
+      a | b,
+      BlockFilter::Block(SmallVec::from_slice(&[BlockKind::Air, BlockKind::Stone]))
+    );
 
-    let a = BlockFilter::from(block(Block::Air, 0));
-    let b = BlockFilter::from(block(Block::Air, 1));
+    let a = BlockFilter::from(block(BlockKind::Air, 0));
+    let b = BlockFilter::from(block(BlockKind::Air, 1));
 
     assert_eq!(
       a | b,
       BlockFilter::BlockState(SmallVec::from_slice(&[
-        BlockState { block: Block::Air, state: StateOrDefault::new(0) },
-        BlockState { block: Block::Air, state: StateOrDefault::new(1) },
+        BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) },
+        BlockState { block: BlockKind::Air, state: StateOrDefault::new(1) },
       ]))
     );
 
-    let a = BlockFilter::from(block(Block::Air, 0));
-    let b = BlockFilter::from(block(Block::Air, 1));
-    let c = BlockFilter::from(Block::Air);
+    let a = BlockFilter::from(block(BlockKind::Air, 0));
+    let b = BlockFilter::from(block(BlockKind::Air, 1));
+    let c = BlockFilter::from(BlockKind::Air);
 
-    assert_eq!(a | b | c, BlockFilter::Block(SmallVec::from_slice(&[Block::Air])));
+    assert_eq!(a | b | c, BlockFilter::Block(SmallVec::from_slice(&[BlockKind::Air])));
   }
 
   #[test]
   fn block_set_contains() {
-    let a = BlockFilter::from(Block::Air);
-    let b = BlockFilter::from(Block::Stone);
+    let a = BlockFilter::from(BlockKind::Air);
+    let b = BlockFilter::from(BlockKind::Stone);
 
-    assert!(a.contains(block(Block::Air, 0)));
-    assert!(!a.contains(block(Block::Stone, 0)));
-    assert!(b.contains(block(Block::Stone, 0)));
-    assert!(!b.contains(block(Block::Air, 0)));
+    assert!(a.contains(block(BlockKind::Air, 0)));
+    assert!(!a.contains(block(BlockKind::Stone, 0)));
+    assert!(b.contains(block(BlockKind::Stone, 0)));
+    assert!(!b.contains(block(BlockKind::Air, 0)));
 
-    let a = BlockFilter::from(block(Block::Air, 0));
-    let b = BlockFilter::from(block(Block::Air, 1));
+    let a = BlockFilter::from(block(BlockKind::Air, 0));
+    let b = BlockFilter::from(block(BlockKind::Air, 1));
 
-    assert!(a.contains(block(Block::Air, 0)));
-    assert!(b.contains(block(Block::Air, 1)));
-    assert!(!a.contains(block(Block::Air, 1)));
-    assert!(!b.contains(block(Block::Air, 0)));
-    assert!(!a.contains(block(Block::Stone, 0)));
-    assert!(!b.contains(block(Block::Stone, 0)));
+    assert!(a.contains(block(BlockKind::Air, 0)));
+    assert!(b.contains(block(BlockKind::Air, 1)));
+    assert!(!a.contains(block(BlockKind::Air, 1)));
+    assert!(!b.contains(block(BlockKind::Air, 0)));
+    assert!(!a.contains(block(BlockKind::Stone, 0)));
+    assert!(!b.contains(block(BlockKind::Stone, 0)));
 
     let a = BlockFilter::All;
 
-    assert!(a.contains(block(Block::Air, 0)));
-    assert!(a.contains(block(Block::Air, 1)));
-    assert!(a.contains(block(Block::Stone, 0)));
+    assert!(a.contains(block(BlockKind::Air, 0)));
+    assert!(a.contains(block(BlockKind::Air, 1)));
+    assert!(a.contains(block(BlockKind::Stone, 0)));
   }
 }

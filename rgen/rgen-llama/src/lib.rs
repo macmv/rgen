@@ -6,7 +6,7 @@ mod tests;
 
 use std::collections::HashMap;
 
-use rgen_base::{Block, Pos};
+use rgen_base::{BlockKind, Pos};
 pub use structure::Structure;
 
 #[derive(Default, Debug)]
@@ -71,7 +71,7 @@ pub fn parse(input: &str) -> Structure {
         let block_name = format!("{}:{}", name.category, name.block);
 
         let block =
-          Block::by_name(&block_name).unwrap_or_else(|| panic!("no such block {block_name}"));
+          BlockKind::by_name(&block_name).unwrap_or_else(|| panic!("no such block {block_name}"));
 
         let state = match name.state {
           Some(state) => block.with_data(state as u8),

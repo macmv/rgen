@@ -1,5 +1,5 @@
 use jni::{objects::JValue, JNIEnv};
-use rgen_base::{Block, BlockData, BlockId};
+use rgen_base::{BlockData, BlockId, BlockKind};
 use rgen_world::BlockInfoSupplier;
 
 pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
@@ -9,7 +9,7 @@ pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
 }
 
 fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
-  for kind in Block::ALL {
+  for kind in BlockKind::ALL {
     let id = call_block_name_to_id(env, kind.name());
 
     if id != 0 {
@@ -21,13 +21,17 @@ fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
 
   info.info.insert(
     BlockId::AIR,
-    BlockData { name: "air".to_string(), block: Some(Block::Air), default_meta: 0 },
+    BlockData {
+      name:         "air".to_string(),
+      block:        Some(BlockKind::Air),
+      default_meta: 0,
+    },
   );
 
   // Lookup all the block infos, and skip air.
   for id in 1..=max_id {
     let name = call_block_id_to_name(env, id);
-    let block = Block::by_name(&name);
+    let block = BlockKind::by_name(&name);
 
     info.info.insert(
       BlockId(id as u16),
