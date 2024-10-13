@@ -178,7 +178,7 @@ macro_rules! big {
     }
 
     impl $enum_name {
-      pub fn name_of(&self) -> &'static str {
+      pub fn name(&self) -> &'static str {
         match self {
           $(
             Self::$id => stringify!($namespace:$name),
