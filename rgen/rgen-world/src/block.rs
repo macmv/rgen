@@ -1,7 +1,7 @@
 //! All the tools to edit blocks in a world.
 
 use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
-use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos, StateId, StateOrDefault};
+use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
 impl StagedWorldStorage {
@@ -36,20 +36,10 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
 impl PartialWorld<'_> {
   // FIXME: Return a `BlockInfo`, so that we can compare against default state and
   // such.
-  pub fn get(&self, pos: Pos) -> BlockState {
-    let state = self.storage.get(pos);
-    let info = self.info.get(state.block());
-    BlockState { block: info.block, state: StateOrDefault::new(state.meta()) }
-  }
+  pub fn get(&self, pos: Pos) -> BlockState { self.info.decode(self.storage.get(pos)) }
 
   pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
-    let state: BlockState = state.into();
-    let id = self.info.lookup(state.block).unwrap();
-    let meta = match state.state.state() {
-      Some(meta) => meta,
-      None => self.info.get(id).default_meta,
-    };
-    self.storage.set(pos, StateId::new(id, meta));
+    self.storage.set(pos, self.info.encode(state.into()));
   }
 
   // TODO: allow for an array of blocks to not be overridden

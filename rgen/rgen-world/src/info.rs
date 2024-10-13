@@ -5,11 +5,25 @@
 use std::{collections::HashMap, num::NonZero};
 
 use parking_lot::RwLock;
-use rgen_base::{block_kind, Block, BlockId, BlockInfo};
+use rgen_base::{block_kind, Block, BlockId, BlockInfo, BlockState, StateId, StateOrDefault};
 
 pub trait BlockInfoSupplier {
   fn lookup(&self, kind: Block) -> Option<BlockId>;
   fn get(&self, id: BlockId) -> BlockInfo;
+
+  // FIXME: Return `BlockInfo` instead of `BlockState`.
+  fn decode(&self, state: StateId) -> BlockState {
+    let info = self.get(state.block());
+    BlockState { block: info.block, state: StateOrDefault::new(state.meta()) }
+  }
+  fn encode(&self, state: BlockState) -> StateId {
+    let id = self.lookup(state.block).unwrap();
+    let meta = match state.state.state() {
+      Some(meta) => meta,
+      None => self.get(id).default_meta,
+    };
+    StateId::new(id, meta)
+  }
 }
 
 impl<T: BlockInfoSupplier> BlockInfoSupplier for &T {
