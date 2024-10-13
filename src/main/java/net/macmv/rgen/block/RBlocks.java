@@ -27,6 +27,11 @@ public final class RBlocks {
 
   public static final Block LOG = register("log", new LogBlockOne());
   public static final Block LOG2 = register("log2", new LogBlockTwo());
+
+  //Doors
+  public static final Block DEAD_DOOR = register("dead_door", new DeadDoor());
+  public static final Block MANGROVE_DOOR = register("mangrove_door", new MangroveDoor());
+
   public static final Block MOSSY_STUMP = register("mossy_stump", new MossyLogBlock());
   public static final Block BAMBOO = register("bamboo", new Bamboo());
 
