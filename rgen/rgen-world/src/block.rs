@@ -40,7 +40,8 @@ impl PartialWorld<'_> {
     BlockState { block: info.block, state: state.meta() }
   }
 
-  pub fn set(&mut self, pos: Pos, state: BlockState) {
+  pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
+    let state: BlockState = state.into();
     let id = self.info.lookup(state.block).unwrap();
     self.storage.set(pos, StateId::new(id, state.state));
   }
