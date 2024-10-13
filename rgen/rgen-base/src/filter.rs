@@ -105,25 +105,23 @@ impl BlockFilter {
   /// Checks if a block filter contains the given block state.
   ///
   /// ```
-  /// # use rgen_base::{Block, BlockFilter, BlockState};
-  /// # let stone_block = BlockState::from_raw_id(16).block;
-  /// # let grass_block = BlockState::from_raw_id(32).block;
-  /// let default_grass = BlockState { block: grass_block, state: 0 };
-  /// let snowy_grass = BlockState { block: grass_block, state: 1 };
+  /// # use rgen_base::{Block, BlockFilter, BlockState, StateOrDefault};
+  /// let default_grass = BlockState { block: Block::Grass, state: StateOrDefault::new(0) };
+  /// let snowy_grass = BlockState { block: Block::Grass, state: StateOrDefault::new(1) };
   ///
-  /// let filter: BlockFilter = [grass_block, Block::AIR].into();
+  /// let filter: BlockFilter = [Block::Grass, Block::Air].into();
   ///
   /// assert!(filter.contains(default_grass));
   /// assert!(filter.contains(snowy_grass));
-  /// assert!(!filter.contains(stone_block.into()));
-  /// assert!(filter.contains(Block::AIR.into()));
+  /// assert!(!filter.contains(Block::Stone.into()));
+  /// assert!(filter.contains(Block::Air.into()));
   ///
   /// let any_filter = BlockFilter::All;
   ///
   /// assert!(any_filter.contains(default_grass));
   /// assert!(any_filter.contains(snowy_grass));
-  /// assert!(any_filter.contains(stone_block.into()));
-  /// assert!(any_filter.contains(Block::AIR.into()));
+  /// assert!(any_filter.contains(Block::Stone.into()));
+  /// assert!(any_filter.contains(Block::Air.into()));
   ///
   /// let snowy_filter: BlockFilter = [snowy_grass].into();
   /// assert!(!snowy_filter.contains(default_grass));
@@ -142,56 +140,62 @@ impl BlockFilter {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::StateOrDefault;
+
+  // NB: Other crates will write `block![]` instead of this function.
+  fn block(b: Block, state: u8) -> BlockState {
+    BlockState { block: b, state: StateOrDefault::new(state) }
+  }
 
   #[test]
   fn block_set_or() {
-    let a = BlockFilter::from(Block(0));
-    let b = BlockFilter::from(Block(1));
+    let a = BlockFilter::from(Block::Air);
+    let b = BlockFilter::from(Block::Stone);
 
-    assert_eq!(a | b, BlockFilter::Block(SmallVec::from_slice(&[Block(0), Block(1)])));
+    assert_eq!(a | b, BlockFilter::Block(SmallVec::from_slice(&[Block::Air, Block::Stone])));
 
-    let a = BlockFilter::from(BlockState { block: Block(0), state: 0 });
-    let b = BlockFilter::from(BlockState { block: Block(0), state: 1 });
+    let a = BlockFilter::from(block(Block::Air, 0));
+    let b = BlockFilter::from(block(Block::Air, 1));
 
     assert_eq!(
       a | b,
       BlockFilter::BlockState(SmallVec::from_slice(&[
-        BlockState { block: Block(0), state: 0 },
-        BlockState { block: Block(0), state: 1 },
+        BlockState { block: Block::Air, state: StateOrDefault::new(0) },
+        BlockState { block: Block::Air, state: StateOrDefault::new(1) },
       ]))
     );
 
-    let a = BlockFilter::from(BlockState { block: Block(0), state: 0 });
-    let b = BlockFilter::from(BlockState { block: Block(0), state: 1 });
-    let c = BlockFilter::from(Block(0));
+    let a = BlockFilter::from(block(Block::Air, 0));
+    let b = BlockFilter::from(block(Block::Air, 1));
+    let c = BlockFilter::from(Block::Air);
 
-    assert_eq!(a | b | c, BlockFilter::Block(SmallVec::from_slice(&[Block(0)])));
+    assert_eq!(a | b | c, BlockFilter::Block(SmallVec::from_slice(&[Block::Air])));
   }
 
   #[test]
   fn block_set_contains() {
-    let a = BlockFilter::from(Block(0));
-    let b = BlockFilter::from(Block(1));
+    let a = BlockFilter::from(Block::Air);
+    let b = BlockFilter::from(Block::Stone);
 
-    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
-    assert!(!a.contains(BlockState { block: Block(1), state: 0 }));
-    assert!(b.contains(BlockState { block: Block(1), state: 0 }));
-    assert!(!b.contains(BlockState { block: Block(0), state: 0 }));
+    assert!(a.contains(block(Block::Air, 0)));
+    assert!(!a.contains(block(Block::Stone, 0)));
+    assert!(b.contains(block(Block::Stone, 0)));
+    assert!(!b.contains(block(Block::Air, 0)));
 
-    let a = BlockFilter::from(BlockState { block: Block(0), state: 0 });
-    let b = BlockFilter::from(BlockState { block: Block(0), state: 1 });
+    let a = BlockFilter::from(block(Block::Air, 0));
+    let b = BlockFilter::from(block(Block::Air, 1));
 
-    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
-    assert!(b.contains(BlockState { block: Block(0), state: 1 }));
-    assert!(!a.contains(BlockState { block: Block(0), state: 1 }));
-    assert!(!b.contains(BlockState { block: Block(0), state: 0 }));
-    assert!(!a.contains(BlockState { block: Block(1), state: 0 }));
-    assert!(!b.contains(BlockState { block: Block(1), state: 0 }));
+    assert!(a.contains(block(Block::Air, 0)));
+    assert!(b.contains(block(Block::Air, 1)));
+    assert!(!a.contains(block(Block::Air, 1)));
+    assert!(!b.contains(block(Block::Air, 0)));
+    assert!(!a.contains(block(Block::Stone, 0)));
+    assert!(!b.contains(block(Block::Stone, 0)));
 
     let a = BlockFilter::All;
 
-    assert!(a.contains(BlockState { block: Block(0), state: 0 }));
-    assert!(a.contains(BlockState { block: Block(0), state: 1 }));
-    assert!(a.contains(BlockState { block: Block(1), state: 0 }));
+    assert!(a.contains(block(Block::Air, 0)));
+    assert!(a.contains(block(Block::Air, 1)));
+    assert!(a.contains(block(Block::Stone, 0)));
   }
 }
