@@ -181,16 +181,16 @@ macro_rules! big {
       pub fn name(&self) -> &'static str {
         match self {
           $(
-            Self::$id => stringify!($namespace:$name),
+            Self::$id => concat!(stringify!($namespace), ":", stringify!($name)),
           )*
-          _ => stringify!($default_namespace:$default_name),
+          _ => concat!(stringify!($default_namespace), ":", stringify!($default_name)),
         }
       }
 
       pub fn by_name(name: &str) -> Option<Self> {
         match name {
-          s if s == stringify!($default_namespace:$default_name) => Some(Self::$default_id),
-          $(s if s == stringify!($namespace:$name) => Some(Self::$id),)*
+          s if s == concat!(stringify!($default_namespace), ":", stringify!($default_name)) => Some(Self::$default_id),
+          $(s if s == concat!(stringify!($namespace), ":", stringify!($name)) => Some(Self::$id),)*
           _ => None
         }
       }
@@ -277,4 +277,19 @@ big! { Biome, biome
   River => minecraft:river,
   Mesa => minecraft:mesa,
   Desert => minecraft:desert,
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn block_by_name_works() {
+    assert_eq!(Block::by_name("minecraft:stone"), Some(Block::Stone));
+  }
+
+  #[test]
+  fn block_name_works() {
+    assert_eq!(Block::Stone.name(), "minecraft:stone");
+  }
 }
