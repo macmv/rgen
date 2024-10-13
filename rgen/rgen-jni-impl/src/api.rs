@@ -1,13 +1,17 @@
 //! Defines the JNI interface.
 
+use std::cell::RefCell;
+
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobjectArray, jstring},
   JNIEnv,
 };
+use rgen_placer::{placer::Sakura, Placer, Rng};
+use rgen_world::{PartialWorld, PartialWorldImpl};
 
 use crate::{ctx::Context, ChunkContext};
-use rgen_base::{Biome, Biomes, BlockInfo, Blocks, ChunkPos, Pos};
+use rgen_base::{Biome, Biomes, BlockInfo, BlockState, Blocks, ChunkPos, Pos};
 use rgen_spline::Cosine;
 
 // TODO: Do we need to worry about obfuscated names anymore?
@@ -106,6 +110,46 @@ fn lookup_biome(env: &mut JNIEnv, name: &str) -> Biome {
   match lookup_biome_id_opt(env, name) {
     Some(id) => Biome::from_raw_id(id),
     None => panic!("biome not found: {}", name),
+  }
+}
+
+struct JniWorldStorage<'a, 'b: 'a> {
+  env: RefCell<&'a mut JNIEnv<'b>>,
+}
+
+impl PartialWorldImpl for JniWorldStorage<'_, '_> {
+  fn get(&self, pos: Pos) -> BlockState {
+    let raw_id = self
+      .env
+      .borrow_mut()
+      .call_static_method(
+        "net/macmv/rgen/rust/RustGenerator",
+        "get_block",
+        "(IIII)S",
+        &[JValue::Int(0), JValue::Int(pos.x), JValue::Int(pos.y), JValue::Int(pos.z)],
+      )
+      .unwrap();
+
+    BlockState::from_raw_id(raw_id.s().unwrap() as u16)
+  }
+
+  fn set(&mut self, pos: Pos, block: BlockState) {
+    self
+      .env
+      .borrow_mut()
+      .call_static_method(
+        "net/macmv/rgen/rust/RustGenerator",
+        "set_block",
+        "(IIIIS)V",
+        &[
+          JValue::Int(0),
+          JValue::Int(pos.x),
+          JValue::Int(pos.y),
+          JValue::Int(pos.z),
+          JValue::Short(block.raw_id() as i16),
+        ],
+      )
+      .unwrap();
   }
 }
 

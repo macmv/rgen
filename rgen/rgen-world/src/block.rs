@@ -1,18 +1,21 @@
 //! All the tools to edit blocks in a world.
 
-use crate::PartialWorld;
+use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
 use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
 use rgen_llama::Structure;
 
-impl PartialWorld {
+impl StagedWorldStorage {
   pub(crate) fn chunk(&self, pos: ChunkPos) -> Option<&Chunk> {
     self.chunks.get(&pos).map(|c| &c.chunk)
   }
+
   pub(crate) fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> Option<&mut Chunk> {
     self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk)
   }
+}
 
-  pub fn get(&self, pos: Pos) -> BlockState {
+impl PartialWorldStorage for &mut StagedWorldStorage {
+  fn get(&self, pos: Pos) -> BlockState {
     if let Some(chunk) = self.chunk(pos.chunk()) {
       chunk.get_state(pos.chunk_rel())
     } else {
@@ -21,12 +24,20 @@ impl PartialWorld {
     }
   }
 
-  pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
+  fn set(&mut self, pos: Pos, block: BlockState) {
     if let Some(chunk) = self.chunk_mut(pos.chunk()) {
-      chunk.set(pos.chunk_rel(), block.into());
+      chunk.set(pos.chunk_rel(), block);
     } else {
       // TODO: Log a warning when writing outside the world.
     }
+  }
+}
+
+impl PartialWorld<'_> {
+  pub fn get(&self, pos: Pos) -> BlockState { self.storage.get(pos) }
+
+  pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
+    self.storage.set(pos, block.into());
   }
 
   // TODO: allow for an array of blocks to not be overridden
