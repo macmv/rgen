@@ -76,7 +76,7 @@ impl From<Block> for BlockState {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockInfo {
   pub name:         String,
-  pub block:        Block,
+  pub block:        Option<Block>,
   pub default_meta: u8,
 }
 
@@ -86,7 +86,10 @@ impl BlockInfo {
   /// properties, which are almost always clearer.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: self.block, state: StateOrDefault::new(data) }
+    match self.block {
+      Some(block) => BlockState { block, state: StateOrDefault::new(data) },
+      None => panic!("cannot construct a block state without a constant block definition"),
+    }
   }
 
   /// Creates a block state with the given property value.
