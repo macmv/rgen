@@ -104,7 +104,7 @@ impl Default for Biome {
 // Block Identification Guide
 macro_rules! big {
   (
-    $enum_name:ident
+    $enum_name:ident, $macro_name:ident
     $default_id:ident => $default_namespace:ident:$default_name:ident,
     $($id:ident => $namespace:ident:$name:ident,)*
   ) => {
@@ -112,6 +112,35 @@ macro_rules! big {
     pub enum $enum_name {
       $default_id,
       $($id,)*
+    }
+
+    #[macro_export]
+    macro_rules! $macro_name {
+      // block![stone[2]]
+      ($block_name:ident [$state:expr]) => {
+        $crate::BlockState {
+          block: block![$block_name],
+          state: $state,
+        }
+      };
+      // block![minecraft:stone[2]]
+      ($block_namespace:ident:$block_name:ident [$state:expr]) => {
+        $crate::BlockState {
+          block: block![$block_namespace:$block_name],
+          state: $state,
+        }
+      };
+
+      // block![air]
+      ($default_name) => { $crate::$enum_name::$default_id };
+      // block![minecraft:air]
+      ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
+      $(
+        // block![stone]
+        ($name) => { $crate::$macro_name![$default_namespace:$name] };
+        // block![minecraft:stone]
+        ($namespace:$name) => { $crate::$enum_name::$id };
+      )*
     }
 
     impl $enum_name {
@@ -135,7 +164,7 @@ macro_rules! big {
   };
 }
 
-big! { Block
+big! { Block, block
   Air => minecraft:air,
 
   Stone => minecraft:stone,
@@ -196,7 +225,7 @@ big! { Block
   RgenBasalt => rgen:basalt,
 }
 
-big! { Biome
+big! { Biome, biome
   Void => minecraft:void,
 
   ColdTaiga => minecraft:taiga_cold,

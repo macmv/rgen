@@ -5,7 +5,7 @@
 use std::{collections::HashMap, num::NonZero};
 
 use parking_lot::RwLock;
-use rgen_base::{Block, BlockId, BlockInfo};
+use rgen_base::{block, Block, BlockId, BlockInfo};
 
 pub trait BlockInfoSupplier {
   fn lookup(&self, kind: Block) -> Option<BlockId>;
@@ -28,7 +28,7 @@ impl<T: BlockInfoSupplier> BlockInfoSupplier for BlockInfoCache<T> {
   fn lookup(&self, kind: Block) -> Option<BlockId> {
     // Air is constant, so we don't cache it. This lets us cache an
     // `Option<NonZero<u16>>`, which is the same size as a `u16`.
-    if kind == Block::Air {
+    if kind == block![air] {
       return Some(BlockId::AIR);
     }
 
