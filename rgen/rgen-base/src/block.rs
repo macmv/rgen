@@ -116,6 +116,7 @@ impl BlockInfo<'_> {
   pub fn new(data: &BlockData, state: StateId) -> BlockInfo { BlockInfo { data, state } }
 
   pub fn block_kind(&self) -> BlockKind { self.data.block.unwrap_or(BlockKind::Air) }
+  pub fn meta(&self) -> u8 { self.state.meta() }
 }
 
 impl BlockKind {

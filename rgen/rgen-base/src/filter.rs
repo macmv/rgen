@@ -136,6 +136,9 @@ impl BlockFilter {
   /// assert!(!filter.contains(stone));
   /// assert!(filter.contains(air));
   ///
+  /// assert!(!filter.contains(BlockKind::Stone));
+  /// assert!(filter.contains(BlockKind::Air));
+  ///
   /// let any_filter = BlockFilter::All;
   ///
   /// assert!(any_filter.contains(default_grass));
@@ -143,20 +146,41 @@ impl BlockFilter {
   /// assert!(any_filter.contains(stone));
   /// assert!(any_filter.contains(air));
   ///
+  /// assert!(any_filter.contains(BlockKind::Stone));
+  /// assert!(any_filter.contains(BlockKind::Air));
+  ///
   /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::new(1) };
   ///
   /// let snowy_filter: BlockFilter = [snowy_grass_state].into();
   /// assert!(!snowy_filter.contains(default_grass));
   /// assert!(snowy_filter.contains(snowy_grass));
   /// ```
-  pub fn contains(&self, state: BlockInfo<'_>) -> bool {
+  pub fn contains(&self, state: impl BlockFilterable + Copy) -> bool {
     match self {
       BlockFilter::All => true,
       BlockFilter::Any(b) => b.iter().any(|b| b.contains(state)),
-      BlockFilter::Block(b) => b.iter().any(|b| *b == state.block_kind()),
-      BlockFilter::BlockState(b) => b.iter().any(|s| state == *s),
+      BlockFilter::Block(b) => b.iter().any(|b| state.block_kind() == *b),
+      BlockFilter::BlockState(b) => b.iter().any(|s| state.compare_state(s)),
     }
   }
+}
+
+pub trait BlockFilterable {
+  fn block_kind(&self) -> BlockKind;
+  fn compare_state(&self, other: &BlockState) -> bool;
+}
+
+impl BlockFilterable for BlockState {
+  fn block_kind(&self) -> BlockKind { self.block }
+  fn compare_state(&self, other: &BlockState) -> bool { self == other }
+}
+impl BlockFilterable for BlockInfo<'_> {
+  fn block_kind(&self) -> BlockKind { self.block_kind() }
+  fn compare_state(&self, other: &BlockState) -> bool { self == other }
+}
+impl BlockFilterable for BlockKind {
+  fn block_kind(&self) -> BlockKind { *self }
+  fn compare_state(&self, other: &BlockState) -> bool { other.block == *self }
 }
 
 #[cfg(test)]
