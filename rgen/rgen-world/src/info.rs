@@ -36,7 +36,6 @@ impl BlockInfoSupplier for Box<dyn BlockInfoSupplier + Send + Sync> {
   fn get(&self, id: BlockId) -> BlockInfo { BlockInfoSupplier::get(&**self, id) }
 }
 
-#[derive(Default)]
 pub struct BlockInfoCache<T> {
   lookup: RwLock<HashMap<Block, Option<NonZero<u16>>>>,
   info:   RwLock<HashMap<BlockId, BlockInfo>>,
@@ -44,8 +43,14 @@ pub struct BlockInfoCache<T> {
   supplier: T,
 }
 
-impl<T: Default> BlockInfoCache<T> {
-  pub fn new() -> Self { BlockInfoCache::default() }
+impl<T> BlockInfoCache<T> {
+  pub fn new(supplier: T) -> Self {
+    BlockInfoCache {
+      lookup: RwLock::new(HashMap::new()),
+      info: RwLock::new(HashMap::new()),
+      supplier,
+    }
+  }
 }
 
 impl<T: BlockInfoSupplier> BlockInfoSupplier for BlockInfoCache<T> {
