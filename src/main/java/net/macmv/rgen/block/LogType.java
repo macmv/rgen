@@ -14,6 +14,8 @@ public enum LogType implements IStringSerializable {
   DEAD(7, "dead", MapColor.BROWN),
   ASPEN(8, "aspen", MapColor.SAND);
 
+
+
   public final int meta;
   public final String name;
   public final MapColor mapColor;
