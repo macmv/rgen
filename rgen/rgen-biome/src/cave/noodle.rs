@@ -1,10 +1,9 @@
-use rgen_base::{Block, Chunk, ChunkPos, Pos};
+use rgen_base::{block, Block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
   grid::PointGrid,
   noise::{NoiseGenerator3D, OctavedNoise, PerlinNoise},
 };
-
-use crate::biome::IdContext;
+use rgen_world::BlockInfoSupplier;
 
 /// Noodle caves are the long thin tunnels, the "normal" caves.
 pub struct NoodleCarver {
@@ -13,7 +12,7 @@ pub struct NoodleCarver {
 
   density_map: OctavedNoise<PerlinNoise, 2>,
 
-  water: Block,
+  water: StateId,
 }
 
 #[derive(Clone)]
@@ -40,14 +39,14 @@ const CAVE_RADIUS: i32 = 96;
 const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
-  pub fn new(ctx: &IdContext, seed: u64) -> Self {
+  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
     NoodleCarver {
       seed,
 
       grid: PointGrid::new(),
       density_map: OctavedNoise::new(seed, 1.0 / 16.0),
 
-      water: ctx.blocks.water.block,
+      water: info.encode(block![water]),
     }
   }
 

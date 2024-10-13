@@ -28,7 +28,7 @@ impl Context {
 
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
+  fn decorate(&self, world: &mut PartialWorld, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -242,7 +242,6 @@ impl CachedWorld {
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
         generator.decorate(
-          ctx,
           &mut PartialWorld { info: Box::new(&ctx.blocks), storage: Box::new(&mut *chunks) },
           pos,
         );

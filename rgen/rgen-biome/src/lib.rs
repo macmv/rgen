@@ -1,6 +1,5 @@
-use biome::IdContext;
 use cave::CaveCarver;
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
@@ -9,7 +8,7 @@ use rgen_placer::{
   BiomeCachedChunk, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
-use rgen_world::{Context, Generator, PartialWorld};
+use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
 use structure::StructureGenerator;
 use table::CompositionLookup;
 
@@ -125,18 +124,16 @@ lazy_static::lazy_static! {
 }
 
 impl WorldBiomes {
-  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> Self {
-    let ctx = IdContext { biomes: biome_ids, blocks };
-
+  pub fn new(info: &impl BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed,
 
-      composition_lookup: CompositionLookup::new(&ctx),
+      composition_lookup: CompositionLookup::new(),
       biome_override: false,
 
-      cave: CaveCarver::new(&ctx, seed),
-      structure: StructureGenerator::new(&ctx, seed),
+      cave: CaveCarver::new(info, seed),
+      structure: StructureGenerator::new(seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
       humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
@@ -213,9 +210,9 @@ impl Generator for WorldBiomes {
 
             info.move_to(pos);
             if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
             } else {
-              chunk.set(pos.chunk_rel(), ctx.blocks.water.block);
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![water]));
             }
           }
         } else {
@@ -224,7 +221,7 @@ impl Generator for WorldBiomes {
 
             info.move_to(pos);
             if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
             }
           }
         }
@@ -243,8 +240,7 @@ impl Generator for WorldBiomes {
     self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
-
-    self.generate_chunk_placers(chunk, chunk_pos);
+    self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
     // TODO: Generate villages!
     if false {
@@ -252,7 +248,7 @@ impl Generator for WorldBiomes {
     }
   }
 
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+  fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
 
@@ -283,19 +279,24 @@ impl Generator for WorldBiomes {
 
     for biome in biome_set.into_iter().flatten() {
       let mut rng = Rng::new(self.seed);
-      biome.decorate(&ctx.blocks, &mut rng, chunk_pos, world, |pos| {
+      biome.decorate(&mut rng, chunk_pos, world, |pos| {
         let rel_x = pos.x - chunk_pos.min_block_pos().x;
         let rel_z = pos.z - chunk_pos.min_block_pos().z;
         biome_names[rel_x as usize][rel_z as usize] == biome.name
       });
     }
 
-    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), block![dirt]);
   }
 }
 
 impl WorldBiomes {
-  fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn generate_top_layer(
+    &self,
+    block_info: &impl BlockInfoSupplier,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+  ) {
     // FIXME: Remove this and use a chunk placer instead.
 
     const SEA_LEVEL: i32 = 64;
@@ -348,16 +349,16 @@ impl WorldBiomes {
             current_layer = &layers[layer];
           }
 
-          if chunk.get(rel_pos) == blocks.stone.block {
+          if block_info.decode(chunk.get(rel_pos)) == block![stone] {
             // Special case: if the top layer is grass, always place grass if there is air
             // above (this makes cave entrances look nice.)
-            if biome.top_block().block == blocks.grass.block
-              && chunk.get(rel_pos.with_y(y + 1)) == Block::AIR
+            if biome.top_block().block == block![grass]
+              && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
             {
-              chunk.set(rel_pos, blocks.grass.default_state);
+              chunk.set(rel_pos, block_info.encode(block![grass]));
             } else {
-              chunk.set(rel_pos, current_layer.state);
+              chunk.set(rel_pos, block_info.encode(current_layer.state));
             }
           }
         }
@@ -369,14 +370,19 @@ impl WorldBiomes {
     self.sub_layer_map.generate(pos.x as f64, pos.z as f64)
   }
 
-  fn generate_chunk_placers(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn generate_chunk_placers(
+    &self,
+    info: &impl BlockInfoSupplier,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+  ) {
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
     // decorated. This is an optimization to avoid allocating here.
     let mut biome_index = 0;
     let mut biome_set = [Option::<(&BiomeBuilder, TemporaryBiome)>::None; 16];
 
-    let mut chunk = BiomeCachedChunk::new(chunk);
+    let mut chunk = BiomeCachedChunk::new(info, chunk);
 
     for x in 0..16 {
       for z in 0..16 {

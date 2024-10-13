@@ -1,8 +1,6 @@
-use rgen_base::{BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{block, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
-
-use crate::biome::IdContext;
 
 mod building;
 mod math;
@@ -24,16 +22,16 @@ pub struct VillageGenerator {
 const VILLAGE_RADIUS: i32 = 96;
 
 impl VillageGenerator {
-  pub fn new(ctx: &IdContext, seed: u64) -> Self {
+  pub fn new(seed: u64) -> Self {
     let grid = PointGrid::new();
 
     VillageGenerator {
       seed,
       grid,
-      road_block: ctx.blocks.log.default_state,
+      road_block: block![log],
       buildings: vec![
-        rgen_llama::parse(ctx.blocks, include_str!("building/house_1.ll")),
-        rgen_llama::parse(ctx.blocks, include_str!("building/house_2.ll")),
+        rgen_llama::parse(include_str!("building/house_1.ll")),
+        rgen_llama::parse(include_str!("building/house_2.ll")),
       ],
     }
   }
@@ -99,8 +97,10 @@ impl<'a> Village<'a> {
 
               let rel = pos.chunk_rel();
 
-              let y = highest_block(chunk, rel).y();
-              chunk.set(rel.with_y(y), self.generator.road_block);
+              let _y = highest_block(chunk, rel).y();
+              // FIXME: Get `BlockInfoSupplier` in here.
+              //
+              // chunk.set(rel.with_y(y), self.generator.road_block);
             }
           }
         }
@@ -126,35 +126,48 @@ impl<'a> Village<'a> {
             let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
 
             if pos.in_chunk(chunk_pos) {
-              chunk.set(pos.chunk_rel(), block);
+              // FIXME
+              // chunk.set(pos.chunk_rel(), block);
             }
           }
         }
 
         let pos = building.pos;
         if pos.in_chunk(chunk_pos) {
+          // FIXME
+          /*
           chunk
             .set(pos.chunk_rel(), BlockState { block: self.generator.road_block.block, state: 2 });
+          */
         }
       }
 
       if road.start.in_chunk(chunk_pos) {
+        // FIXME
+        /*
         chunk.set(
           road.start.chunk_rel().with_y(100),
           BlockState { block: self.generator.road_block.block, state: 1 },
         );
+        */
       }
       if road.end.in_chunk(chunk_pos) {
+        // FIXME
+        /*
         chunk.set(
           road.end.chunk_rel().with_y(100),
           BlockState { block: self.generator.road_block.block, state: 2 },
         );
+        */
       }
     }
 
+    // FIXME
+    /*
     if self.origin.in_chunk(chunk_pos) {
       chunk.set(self.origin.chunk_rel().with_y(101), self.generator.road_block);
     }
+    */
   }
 }
 
@@ -258,7 +271,7 @@ fn highest_block(chunk: &Chunk, pos: ChunkRelPos) -> ChunkRelPos {
   let mut y = 255;
 
   // TODO: A better air check?
-  while chunk.get(pos.with_y(y)).raw_id() == 0 {
+  while chunk.get(pos.with_y(y)).0 == 0 {
     y -= 1;
   }
 

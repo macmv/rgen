@@ -27,14 +27,14 @@ macro_rules! biome_categories {
     }
   ) => {
     impl CompositionLookup {
-      pub fn new(ctx: &IdContext) -> CompositionLookup {
+      pub fn new() -> CompositionLookup {
         let mut lookup = HashMap::new();
         $(
-          if lookup.insert(($geographic, $climate), composition(ctx, &[$($biome),*])).is_some() {
+          if lookup.insert(($geographic, $climate), composition(&[$($biome),*])).is_some() {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(ctx, &[b!(1, blank)]), lookup }
+        CompositionLookup { blank: composition(&[b!(1, blank)]), lookup }
       }
     }
   };
@@ -146,19 +146,14 @@ pub const CLIMATE_TABLE: ClimateTable = &[
   &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
 ];
 
-fn composition(ctx: &IdContext, biome: BiomeFnCategory) -> BiomeComposition {
-  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, ctx, *rarity, *f)).collect()
+fn composition(biome: BiomeFnCategory) -> BiomeComposition {
+  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, *rarity, *f)).collect()
 }
 
 #[cfg(test)]
 mod tests {
-  use rgen_base::{Biomes, Blocks};
-
   use super::*;
 
   #[test]
-  fn composition() {
-    let ctx = IdContext { biomes: &Biomes::test_blocks(), blocks: &Blocks::test_blocks() };
-    CompositionLookup::new(&ctx);
-  }
+  fn composition() { CompositionLookup::new(); }
 }

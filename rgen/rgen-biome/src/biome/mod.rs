@@ -43,17 +43,17 @@ use rgen_base::{Biomes, Blocks};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
-pub type BiomeFn = fn(&IdContext, &mut BiomeBuilder);
+pub type BiomeFn = fn(&mut BiomeBuilder);
 
 impl BiomeBuilder {
-  pub fn build(name: &'static str, ctx: &IdContext, rarity: u32, build: BiomeFn) -> Self {
-    let mut builder = BiomeBuilder::new(name, ctx.blocks, rarity);
-    build(ctx, &mut builder);
+  pub fn build(name: &'static str, rarity: u32, build: BiomeFn) -> Self {
+    let mut builder = BiomeBuilder::new(name, rarity);
+    build(&mut builder);
     if builder.color.is_empty() {
       panic!("biome {} has no color", name);
     }
     builder.color();
-    builder.finish(ctx.blocks);
+    builder.finish();
     builder
   }
 
