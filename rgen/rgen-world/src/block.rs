@@ -1,6 +1,6 @@
 //! All the tools to edit blocks in a world.
 
-use crate::{BlockInfoSupplier, PartialWorld, PartialWorldStorage, StagedWorldStorage};
+use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
 use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
@@ -33,7 +33,7 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
   }
 }
 
-impl<T: BlockInfoSupplier> PartialWorld<'_, T> {
+impl PartialWorld<'_> {
   pub fn get(&self, pos: Pos) -> BlockState {
     let state = self.storage.get(pos);
     let info = self.info.get(state.block());

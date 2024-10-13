@@ -28,7 +28,7 @@ impl Context {
 
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
-  fn decorate<T>(&self, ctx: &Context, world: &mut PartialWorld<T>, pos: ChunkPos);
+  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -41,8 +41,8 @@ pub struct CachedWorld {
   requester: Requester,
 }
 
-pub struct PartialWorld<'a, T> {
-  info:    T,
+pub struct PartialWorld<'a> {
+  info:    Box<dyn BlockInfoSupplier + 'a>,
   storage: Box<dyn PartialWorldStorage + 'a>,
 }
 
@@ -51,9 +51,9 @@ pub trait PartialWorldStorage {
   fn set(&mut self, pos: Pos, block: StateId);
 }
 
-impl<'a, T> PartialWorld<'a, T> {
-  pub fn new(info: T, storage: impl PartialWorldStorage + 'a) -> Self {
-    PartialWorld { info, storage: Box::new(storage) }
+impl<'a> PartialWorld<'a> {
+  pub fn new(info: impl BlockInfoSupplier + 'a, storage: impl PartialWorldStorage + 'a) -> Self {
+    PartialWorld { info: Box::new(info), storage: Box::new(storage) }
   }
 }
 
@@ -243,7 +243,7 @@ impl CachedWorld {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
         generator.decorate(
           ctx,
-          &mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) },
+          &mut PartialWorld { info: Box::new(&ctx.blocks), storage: Box::new(&mut *chunks) },
           pos,
         );
       }

@@ -12,6 +12,16 @@ pub trait BlockInfoSupplier {
   fn get(&self, id: BlockId) -> BlockInfo;
 }
 
+impl<T: BlockInfoSupplier> BlockInfoSupplier for &T {
+  fn lookup(&self, kind: Block) -> Option<BlockId> { T::lookup(*self, kind) }
+  fn get(&self, id: BlockId) -> BlockInfo { T::get(*self, id) }
+}
+
+impl BlockInfoSupplier for Box<dyn BlockInfoSupplier + Send + Sync> {
+  fn lookup(&self, kind: Block) -> Option<BlockId> { BlockInfoSupplier::lookup(&**self, kind) }
+  fn get(&self, id: BlockId) -> BlockInfo { BlockInfoSupplier::get(&**self, id) }
+}
+
 #[derive(Default)]
 pub struct BlockInfoCache<T> {
   lookup: RwLock<HashMap<Block, Option<NonZero<u16>>>>,
