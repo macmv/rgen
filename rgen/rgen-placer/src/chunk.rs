@@ -7,7 +7,7 @@
 // as there will not be more than 16 biomes in one chunk. This means that only 4
 // bits of extra information are needed for each block.
 
-use rgen_base::{BlockState, Chunk, ChunkRelPos};
+use rgen_base::{BlockInfo, BlockState, Chunk, ChunkRelPos};
 use rgen_world::BlockInfoSupplier;
 
 pub struct BiomeCachedChunk<'a> {
@@ -61,7 +61,7 @@ impl<'a> BiomeCachedChunk<'a> {
 
 // Block impls
 impl<'a> BiomeCachedChunk<'a> {
-  pub fn get(&self, pos: ChunkRelPos) -> BlockState { self.info.decode(self.chunk.get(pos)) }
+  pub fn get(&self, pos: ChunkRelPos) -> BlockInfo { self.info.decode(self.chunk.get(pos)) }
   pub fn set(&mut self, pos: ChunkRelPos, state: impl Into<BlockState>) {
     self.chunk.set(pos, self.info.encode(state.into()))
   }

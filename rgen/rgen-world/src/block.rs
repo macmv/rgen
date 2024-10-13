@@ -1,7 +1,7 @@
 //! All the tools to edit blocks in a world.
 
 use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
-use rgen_base::{BlockKind, BlockState, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{BlockInfo, BlockKind, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
 impl StagedWorldStorage {
@@ -34,9 +34,7 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
 }
 
 impl PartialWorld<'_> {
-  // FIXME: Return a `BlockInfo`, so that we can compare against default state and
-  // such.
-  pub fn get(&self, pos: Pos) -> BlockState { self.info.decode(self.storage.get(pos)) }
+  pub fn get(&self, pos: Pos) -> BlockInfo { self.info.decode(self.storage.get(pos)) }
 
   pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
     self.storage.set(pos, self.info.encode(state.into()));
@@ -63,8 +61,8 @@ impl PartialWorld<'_> {
   pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[BlockKind]) -> Pos {
     let mut y = 255;
     while y > 0 {
-      let block = self.get(pos.with_y(y)).block;
-      if block != BlockKind::Air && !exclude.contains(&block) {
+      let block = self.get(pos.with_y(y));
+      if block != BlockKind::Air && !exclude.contains(&block.block_kind()) {
         break;
       }
       y -= 1;

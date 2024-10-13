@@ -52,7 +52,7 @@ impl Placer for WaterResources {
 
 impl WaterResources {
   fn find_water_depth(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    if world.get(pos + Pos::new(0, -1, 0)).block == block![water] {
+    if world.get(pos + Pos::new(0, -1, 0)) == block![water] {
       //world.set(pos, self.tool_placement);
     } else {
       return;
@@ -60,7 +60,7 @@ impl WaterResources {
     let mut depth_pos = pos;
     for y in 1..=10 {
       depth_pos = depth_pos + Pos::new(0, -1, 0);
-      if world.get(depth_pos).block != block![water] {
+      if world.get(depth_pos) != block![water] {
         break;
       }
       //world.set(depth_pos, self.placement);
@@ -92,8 +92,8 @@ impl WaterResources {
             continue;
           }
 
-          if world.get(pos).block != block![water]
-            && world.get(pos + Pos::new(0, 1, 0)).block != block![air]
+          if world.get(pos) != block![water]
+            && world.get(pos + Pos::new(0, 1, 0)) != block![air]
             && pos.y < 63
           {
             world.set(pos, self.placement);

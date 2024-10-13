@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use rgen_base::{block_kind, BlockData, BlockId, BlockKind, BlockState, StateId, StateOrDefault};
+use rgen_base::{block_kind, BlockData, BlockId, BlockInfo, BlockKind, BlockState, StateId};
 
 #[derive(Default)]
 pub struct BlockInfoSupplier {
@@ -28,13 +28,8 @@ impl BlockInfoSupplier {
     })
   }
 
-  // FIXME: Return `BlockInfo` instead of `BlockState`.
-  pub fn decode(&self, state: StateId) -> BlockState {
-    let info = self.get(state.block());
-    match info.block {
-      Some(block) => BlockState { block, state: StateOrDefault::new(state.meta()) },
-      None => BlockState::AIR,
-    }
+  pub fn decode(&self, state: StateId) -> BlockInfo {
+    BlockInfo::new(self.get(state.block()), state)
   }
 
   pub fn encode(&self, state: BlockState) -> StateId {

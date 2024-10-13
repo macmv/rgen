@@ -24,7 +24,7 @@ impl Placer for LongLog {
     // Checks to make sure is in open space from other woods
     for rel_x in -2..=2_i32 {
       for rel_z in -2..=2_i32 {
-        if world.get(pos + Pos::new(rel_x, 0, rel_z)).block == self.log.block {
+        if world.get(pos + Pos::new(rel_x, 0, rel_z)) == self.log.block {
           return;
         }
         //world.set(pos + Pos::new(rel_x, 0, rel_z), self.log);
