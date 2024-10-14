@@ -146,7 +146,10 @@ impl PartialEq<BlockKind> for BlockInfo<'_> {
 impl PartialEq<BlockState> for BlockInfo<'_> {
   fn eq(&self, other: &BlockState) -> bool {
     self.data.block == Some(other.block)
-      && other.state.state().is_none_or(|m| m == self.state.meta())
+      && match other.state.state() {
+        Some(m) => self.state.meta() == m,
+        None => true,
+      }
   }
 }
 
