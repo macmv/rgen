@@ -127,6 +127,7 @@ impl BlockState {
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for Biome {
   fn default() -> Biome { Biome::Void }
 }
