@@ -24,6 +24,7 @@ public final class RBlocks {
   public static final Block MOSSY_COBBLESTONE_RGEN = register("mossy_cobblestone_rgen", new PlantableStone());
   public static final Block MOSSY_STONE = register("mossy_stone", new PlantableStone());
   public static final Block POLYPORE = register("polypore", new PolyporeBlock());
+  public static final Block RED_POLYPORE = register("red_polypore", new PolyporeBlock());
 
   public static final Block LOG = register("log", new LogBlockOne());
   public static final Block LOG2 = register("log2", new LogBlockTwo());
