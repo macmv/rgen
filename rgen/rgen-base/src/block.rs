@@ -25,6 +25,15 @@ impl BlockId {
   pub const AIR: BlockId = BlockId(0);
 }
 
+/// A realized biome ID.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(transparent)]
+pub struct BiomeId(pub u16);
+
+impl BiomeId {
+  pub const VOID: BiomeId = BiomeId(127);
+}
+
 /// A block state represents a block with a specific data value (like wool
 /// color).
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]

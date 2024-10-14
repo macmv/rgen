@@ -9,7 +9,7 @@ mod block;
 mod gc;
 mod info;
 
-pub use info::BlockInfoSupplier;
+pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub struct Context {
   pub seed:   u64,
