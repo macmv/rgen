@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -11,12 +11,12 @@ pub struct LavaLake {
 }
 
 impl LavaLake {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     LavaLake {
-      ground:       [blocks.stone.block, blocks.dirt.block, blocks.grass.block].into(),
-      material:     blocks.rgen_basalt.with_data(0),
+      ground:       [block![stone], block![dirt], block![grass]].into(),
+      material:     block![rgen:basalt[0]],
       avg_in_chunk: 0.1,
-      fluid:        blocks.lava.default_state,
+      fluid:        block![lava],
     }
   }
 }
@@ -75,7 +75,7 @@ impl LavaLake {
           let pos_rel = pos + Pos::new(rel_x, 0, rel_z);
 
           if self.ground.contains(world.get(pos_rel))
-            || (world.get(pos_rel).block == Block::AIR || world.get(pos_rel).block == Block::WATER)
+            || (world.get(pos_rel) == block![air] || world.get(pos_rel) == block![water])
           {
             world.set(pos_rel, self.fluid);
             world.set(pos_below, self.material)
@@ -89,7 +89,7 @@ impl LavaLake {
       for rel_z in -1..=1_i32 {
         for rel_y in (-2_i32..0).rev() {
           let rel_pos = pos + Pos::new(rel_x, rel_y, rel_z);
-          if world.get(rel_pos).block == Block::AIR || world.get(rel_pos).block == Block::WATER {
+          if world.get(rel_pos) == block![air] || world.get(rel_pos) == block![water] {
             world.set(rel_pos, self.material);
           }
         }
@@ -100,8 +100,8 @@ impl LavaLake {
   fn feature_add(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld, rel_x: i32, rel_z: i32) {
     //adds the flatplates if there is ground missing below
     //world.set(pos + Pos::new(rel_x, -1, rel_z), self.fluid);
-    if world.get(pos + Pos::new(rel_x, -1, rel_z)).block == Block::AIR
-      || world.get(pos + Pos::new(rel_x, -1, rel_z)).block == Block::WATER
+    if world.get(pos + Pos::new(rel_x, -1, rel_z)) == block![air]
+      || world.get(pos + Pos::new(rel_x, -1, rel_z)) == block![water]
     {
       self.flat_plate(rng, pos + Pos::new(0, -1, 0), world);
     }

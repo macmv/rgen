@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -23,7 +23,7 @@ impl Placer for BasicTree {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 

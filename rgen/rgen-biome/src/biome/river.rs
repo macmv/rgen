@@ -1,8 +1,10 @@
-use super::{BiomeBuilder, IdContext};
+use rgen_base::{biome, block};
+
+use super::BiomeBuilder;
 
 #[allow(dead_code)]
-pub fn river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.river;
+pub fn river(gen: &mut BiomeBuilder) {
+  gen.id = biome![river];
   gen.color = "#76B49C";
-  gen.set_top_block(ctx.blocks.grass.default_state);
+  gen.set_top_block(block![grass]);
 }

@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Rng};
@@ -38,7 +38,7 @@ impl Placer for BasicDryBush {
           }
 
           let pos = pos + Pos::new(x, y, z);
-          if world.get(pos) == BlockState::AIR {
+          if world.get(pos) == block![air] {
             world.set(pos, self.leaves);
           }
         }

@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
@@ -36,7 +36,7 @@ impl Placer for Splotch {
           }
 
           if self.replace.contains(world.get(pos))
-            && !(world.get(pos + Pos::new(0, 1, 0)).block == Block::WATER)
+            && !(world.get(pos + Pos::new(0, 1, 0)) == block![water])
           {
             world.set(pos, self.place);
           }

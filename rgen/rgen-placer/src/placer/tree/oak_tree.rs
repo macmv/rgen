@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -17,12 +17,12 @@ pub struct OakTree {
 }
 
 impl OakTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     OakTree {
       avg_in_chunk: 6.5, //40.0,
-      place_above:  blocks.grass.default_state.into(),
-      trunk:        blocks.log.with_data(0),
-      leaves:       blocks.leaves.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[0]],
+      leaves:       block![leaves[0]],
     }
   }
 }
@@ -57,7 +57,7 @@ impl OakTree {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 

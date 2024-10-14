@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, ChunkRelPos};
+use rgen_base::{block, BlockFilter, BlockState, ChunkRelPos};
 
 use crate::{
   noise::{NoiseGenerator, OpenSimplexNoise, SeededNoise},
@@ -14,12 +14,12 @@ pub struct SnowOnStoneSurface {
 }
 
 impl SnowOnStoneSurface {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     let noise = OpenSimplexNoise::new(0);
     SnowOnStoneSurface {
       noise,
-      a: blocks.snow_layer.default_state,
-      place_above: blocks.stone.block.into(),
+      a: block![snow_layer],
+      place_above: block![stone].into(),
       min_snow: 1,
       add_snow: 2.0,
     }
@@ -43,14 +43,14 @@ impl ChunkPlacer for SnowOnStoneSurface {
         for y in (0..256).rev() {
           let pos = pos.with_y(y);
 
-          let block = chunk.chunk.get_state(pos);
+          let block = chunk.get(pos);
           if self.place_above.contains(block) {
             let snow_addition = ((self.noise.generate(x as f64 / 4.0, z as f64 / 4.0) * 0.5 + 0.5)
               * self.add_snow) as i32;
             let snow = self
               .a
               .with_data((rng.rand_inclusive(self.min_snow, self.min_snow + snow_addition)) as u8);
-            chunk.chunk.set(pos.with_y(y + 1), snow);
+            chunk.set(pos.with_y(y + 1), snow);
             break;
           }
         }

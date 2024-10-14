@@ -1,4 +1,4 @@
-use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
+use rgen_base::{block, Biome, BlockState, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 use smallvec::{smallvec, SmallVec};
@@ -45,22 +45,14 @@ impl PlacerBuilder {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, blocks: &Blocks, rarity: u32) -> Self {
+  pub fn new(name: &'static str, rarity: u32) -> Self {
     Self {
       name,
       rarity,
-      id: Biome::VOID,
+      id: Biome::Void,
       color: "",
-      layers: smallvec![Layer {
-        state:     blocks.grass.default_state,
-        min_depth: 1,
-        max_depth: 1,
-      }],
-      underwater_layers: smallvec![Layer {
-        state:     blocks.gravel.default_state,
-        min_depth: 1,
-        max_depth: 1,
-      }],
+      layers: smallvec![Layer { state: block![grass], min_depth: 1, max_depth: 1 }],
+      underwater_layers: smallvec![Layer { state: block![gravel], min_depth: 1, max_depth: 1 }],
       min_height: 64,
       max_height: 128,
       placers: vec![],
@@ -68,9 +60,9 @@ impl BiomeBuilder {
     }
   }
 
-  pub fn finish(&mut self, blocks: &Blocks) {
-    if self.layers.len() == 1 && self.top_block().block == blocks.grass.block {
-      self.add_layer(blocks.dirt.default_state, 3, 5);
+  pub fn finish(&mut self) {
+    if self.layers.len() == 1 && self.top_block().block == block![grass] {
+      self.add_layer(block![dirt], 3, 5);
     }
 
     // Default underwater layers to being a bit thicker.
@@ -121,7 +113,6 @@ impl BiomeBuilder {
   /// the world seed.
   pub fn decorate(
     &self,
-    blocks: &Blocks,
     rng: &mut Rng,
     chunk_pos: ChunkPos,
     world: &mut PartialWorld,
@@ -141,7 +132,7 @@ impl BiomeBuilder {
       for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
         let pos = world.top_block_excluding(
           Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32),
-          &[blocks.leaves.block],
+          &[block![leaves].block],
         );
         let pos = pos.with_y(pos.y + 1);
 

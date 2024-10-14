@@ -3,26 +3,48 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Biomes, BlockState, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, StateId};
 
 mod block;
 mod gc;
+mod info;
+
+pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub struct Context {
   pub seed:   u64,
-  pub blocks: Blocks,
-  pub biomes: Biomes,
+  pub blocks: BlockInfoSupplier,
+  pub biomes: BiomeInfoSupplier,
 }
 
 impl Context {
-  pub fn new_test(seed: u64) -> Context {
+  /*
+  pub fn new_test(seed: u64) -> Self {
     Context { seed, blocks: Blocks::test_blocks(), biomes: Biomes::test_blocks() }
+  }
+  */
+  pub fn new_test(seed: u64) -> Self {
+    let mut blocks = BlockInfoSupplier::default();
+    for kind in BlockKind::ALL {
+      blocks.lookup.insert(*kind, BlockId(*kind as u16));
+      blocks.info.insert(
+        BlockId(*kind as u16),
+        BlockData { name: String::new(), block: Some(*kind), default_meta: 0 },
+      );
+    }
+
+    let mut biomes = BiomeInfoSupplier::default();
+    for kind in Biome::ALL {
+      biomes.lookup.insert(*kind, BiomeId(*kind as u8));
+    }
+
+    Context { seed, blocks, biomes }
   }
 }
 
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
+  fn decorate(&self, world: &mut PartialWorld, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -36,17 +58,18 @@ pub struct CachedWorld {
 }
 
 pub struct PartialWorld<'a> {
+  info:    &'a BlockInfoSupplier,
   storage: Box<dyn PartialWorldStorage + 'a>,
 }
 
 pub trait PartialWorldStorage {
-  fn get(&self, pos: Pos) -> BlockState;
-  fn set(&mut self, pos: Pos, block: BlockState);
+  fn get(&self, pos: Pos) -> StateId;
+  fn set(&mut self, pos: Pos, block: StateId);
 }
 
 impl<'a> PartialWorld<'a> {
-  pub fn new(storage: impl PartialWorldStorage + 'a) -> Self {
-    PartialWorld { storage: Box::new(storage) }
+  pub fn new(info: &'a BlockInfoSupplier, storage: impl PartialWorldStorage + 'a) -> Self {
+    PartialWorld { info, storage: Box::new(storage) }
   }
 }
 
@@ -234,7 +257,8 @@ impl CachedWorld {
       Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
-        generator.decorate(ctx, &mut PartialWorld { storage: Box::new(&mut *chunks) }, pos);
+        generator
+          .decorate(&mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) }, pos);
       }
     }
   }

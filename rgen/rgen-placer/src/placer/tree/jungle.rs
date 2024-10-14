@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -13,13 +13,13 @@ pub struct JungleTree {
 }
 
 impl JungleTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Self {
       avg_in_chunk: 8.0,
-      place_above:  [blocks.grass.block].into(),
-      trunk:        blocks.log.with_data(3),
-      leaves:       blocks.leaves.with_data(3),
-      cocoa:        blocks.cocoa.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[3]],
+      leaves:       block![leaves[3]],
+      cocoa:        block![cocoa[0]],
     }
   }
 }
@@ -37,7 +37,7 @@ impl Placer for JungleTree {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
@@ -52,7 +52,7 @@ impl Placer for JungleTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 0..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, i, dz);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
@@ -113,7 +113,7 @@ impl JungleTree {
 
         if dist <= radius.pow(2) {
           let pos = pos + Pos::new(x, 0, z);
-          if world.get(pos).block == Block::AIR {
+          if world.get(pos) == block![air] {
             world.set(pos, self.leaves);
           }
         }
@@ -124,7 +124,7 @@ impl JungleTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 1..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, -i, dz);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
@@ -139,7 +139,7 @@ impl JungleTree {
         }
 
         let pos = pos + Pos::new(x, 0, z);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
@@ -160,7 +160,7 @@ impl JungleTree {
     rng.shuffle(&mut dirs);
 
     for (dir, data) in dirs {
-      if world.get(pos + dir).block == Block::AIR {
+      if world.get(pos + dir) == block![air] {
         // Place fully grown.
         world.set(pos + dir, self.cocoa.with_data(data | 8));
         return;

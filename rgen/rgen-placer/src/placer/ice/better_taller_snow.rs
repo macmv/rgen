@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Rng};
@@ -12,12 +12,12 @@ pub struct BetterTallerSnow {
 }
 
 impl BetterTallerSnow {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     BetterTallerSnow {
-      block:        [blocks.snow_layer.block].into(),
-      snow:         blocks.snow_layer.default_state,
-      ice:          blocks.packed_ice.default_state,
-      debug:        blocks.concrete.with_data(5),
+      block:        [block![snow_layer]].into(),
+      snow:         block![snow_layer],
+      ice:          block![packed_ice],
+      debug:        block![concrete[5]],
       avg_in_chunk: 2.0,
     }
   }
@@ -58,7 +58,7 @@ impl BetterTallerSnow {
         {
           let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
           if !self.block.contains(block_check)
-            && block_check.block != Block::AIR
+            && block_check != block![air]
             && block_check != self.ice
           {
             return true;
@@ -78,7 +78,7 @@ impl BetterTallerSnow {
           // Check if the block is a snow layer
           let local_pos = pos + Pos::new(rel_x, 0, rel_z);
           if self.block.contains(world.get(local_pos)) {
-            let height = world.get(local_pos).state;
+            let height = world.get(local_pos).meta();
             // Check if the snow is low enough if it is it needs to be made taller
             if height < 4 {
               //world.set()

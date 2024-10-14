@@ -35,7 +35,7 @@ impl Column {
 
 impl BiomeInfo {
   const VOID: BiomeInfo = BiomeInfo {
-    biome:           Biome::VOID,
+    biome:           Biome::Void,
     name:            "void",
     color:           Color::BLACK,
     continentalness: 0.0,

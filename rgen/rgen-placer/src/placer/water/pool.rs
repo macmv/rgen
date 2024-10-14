@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -20,32 +20,25 @@ macro_rules! bools {
   };
 }
 pub struct Pool {
-  pub border_types:                     BlockFilter,
-  pub water_cause_there_is_no_constant: BlockState,
-  pub avg_in_chunk:                     f64,
-  pub moss:                             BlockState,
-  pub moss_carpet:                      BlockState,
-  pub temp_filer:                       BlockState,
-  pub stone:                            BlockState,
-  pub clay:                             BlockState,
+  pub border_types: BlockFilter,
+  pub avg_in_chunk: f64,
+  pub moss:         BlockState,
+  pub moss_carpet:  BlockState,
+  pub temp_filer:   BlockState,
+  pub stone:        BlockState,
+  pub clay:         BlockState,
 }
 
 impl Pool {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Pool {
-      border_types:                     [
-        blocks.stone.block,
-        blocks.dirt.block,
-        blocks.rgen_mossy_cobblestone.block,
-      ]
-      .into(),
-      water_cause_there_is_no_constant: blocks.water.default_state,
-      avg_in_chunk:                     12.0,
-      moss:                             blocks.rgen_moss.default_state,
-      moss_carpet:                      blocks.rgen_mossy_carpet.default_state,
-      temp_filer:                       blocks.concrete.with_data(12),
-      stone:                            blocks.stone.default_state,
-      clay:                             blocks.clay.default_state,
+      border_types: [block![stone], block![dirt], block![rgen:mossy_cobblestone_rgen]].into(),
+      avg_in_chunk: 12.0,
+      moss:         block![rgen:mossy_block],
+      moss_carpet:  block![rgen:mossy_carpet],
+      temp_filer:   block![concrete[12]],
+      stone:        block![stone],
+      clay:         block![clay],
     }
   }
 }
@@ -112,10 +105,7 @@ impl Placer for Pool {
       for (z, cell) in row.iter().enumerate() {
         //
         if *cell == 0 {
-          world.set(
-            level_pos + Pos::new(x as i32, 0, z as i32),
-            self.water_cause_there_is_no_constant,
-          );
+          world.set(level_pos + Pos::new(x as i32, 0, z as i32), block![water]);
           if rng.rand_inclusive(0, 1) == 0 {
             world.set(level_pos + Pos::new(x as i32, -1, z as i32), self.clay);
           }

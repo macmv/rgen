@@ -66,7 +66,7 @@ pub fn main() -> Result<(), String> {
   let mut render = Render::new()?;
 
   let context = Context::new_test(seed);
-  let terrain = WorldBiomes::new(&context.blocks, &context.biomes, context.seed);
+  let terrain = WorldBiomes::new(&context.blocks, context.seed);
   let world = Arc::new(World::new(terrain));
   let world_view = Arc::new(WorldViewer::new());
 

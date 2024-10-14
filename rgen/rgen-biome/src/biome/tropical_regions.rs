@@ -1,18 +1,19 @@
-use super::{BiomeBuilder, IdContext, PlacerStage};
+use super::{BiomeBuilder, PlacerStage};
+use rgen_base::{biome, block};
 use rgen_placer::placer;
 
 #[allow(dead_code)]
-pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+pub fn plains(gen: &mut BiomeBuilder) {
+  gen.id = biome![plains];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.grass.default_state);
+  gen.set_top_block(block![grass]);
 
   gen.place(
     "poppy",
     PlacerStage::Tree,
     placer::Clumps {
       place_above: gen.top_block().into(),
-      place:       ctx.blocks.red_flower.default_state,
+      place:       block![red_flower],
 
       radius:        3..=6,
       attempts:      20,
@@ -25,7 +26,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Clumps {
       place_above: gen.top_block().into(),
-      place:       ctx.blocks.yellow_flower.default_state,
+      place:       block![yellow_flower],
 
       radius:        2..=3,
       attempts:      20,
@@ -38,7 +39,7 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Clumps {
       place_above: gen.top_block().into(),
-      place:       ctx.blocks.red_flower.with_data(8),
+      place:       block![red_flower[8]],
 
       radius:        2..=4,
       attempts:      20,
@@ -51,9 +52,9 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+      place_short:      block![tallgrass[1]],     // Grass
+      place_tall_lower: block![double_plant[2]],  // Tall grass lower
+      place_tall_upper: block![double_plant[10]], // Tall grass upper
 
       radius:        4..=10,
       attempts:      20,
@@ -66,8 +67,8 @@ pub fn plains(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BushClumps {
       place_above: gen.top_block().into(),
-      log:         ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.default_state,
+      log:         block![log],
+      leaves:      block![leaves],
 
       radius:        10..=20,
       avg_per_chunk: 0.2,

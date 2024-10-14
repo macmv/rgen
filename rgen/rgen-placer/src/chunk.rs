@@ -7,9 +7,11 @@
 // as there will not be more than 16 biomes in one chunk. This means that only 4
 // bits of extra information are needed for each block.
 
-use rgen_base::{Chunk, ChunkRelPos};
+use rgen_base::{BlockInfo, BlockState, Chunk, ChunkRelPos};
+use rgen_world::BlockInfoSupplier;
 
 pub struct BiomeCachedChunk<'a> {
+  info:      &'a BlockInfoSupplier,
   pub chunk: &'a mut Chunk,
 
   // The "active" biome. This chunk will be passed to various chunk placers, which will check if a
@@ -26,8 +28,13 @@ impl TemporaryBiome {
 }
 
 impl<'a> BiomeCachedChunk<'a> {
-  pub fn new(chunk: &'a mut Chunk) -> Self {
-    BiomeCachedChunk { chunk, active: TemporaryBiome(0), biomes: Box::new([[[0; 8]; 16]; 256]) }
+  pub fn new(supplier: &'a BlockInfoSupplier, chunk: &'a mut Chunk) -> Self {
+    BiomeCachedChunk {
+      info: supplier,
+      chunk,
+      active: TemporaryBiome(0),
+      biomes: Box::new([[[0; 8]; 16]; 256]),
+    }
   }
 
   /// Sets the active biome ID. Note that placers should not call this!
@@ -49,5 +56,13 @@ impl<'a> BiomeCachedChunk<'a> {
   pub fn set_biome(&mut self, pos: ChunkRelPos, biome: TemporaryBiome) {
     self.biomes[pos.y() as usize][pos.z() as usize][(pos.x() / 2) as usize] |=
       if pos.x() % 2 == 0 { biome.0 } else { biome.0 << 4 };
+  }
+}
+
+// Block impls
+impl<'a> BiomeCachedChunk<'a> {
+  pub fn get(&self, pos: ChunkRelPos) -> BlockInfo { self.info.decode(self.chunk.get(pos)) }
+  pub fn set(&mut self, pos: ChunkRelPos, state: impl Into<BlockState>) {
+    self.chunk.set(pos, self.info.encode(state.into()))
   }
 }
