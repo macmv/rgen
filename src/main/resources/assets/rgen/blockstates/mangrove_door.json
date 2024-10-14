@@ -9,7 +9,7 @@
       "facing=west,half=lower,hinge=right,open=false":  { "model": "rgen:doors/mangrove_door_bottom", "y": 180 },
       "facing=north,half=lower,hinge=right,open=false": { "model": "rgen:doors/mangrove_door_bottom", "y": 270 },
       "facing=east,half=lower,hinge=left,open=true":  { "model": "rgen:doors/mangrove_door_bottom", "y": 90 },
-      "facing=south,half=lower,hinge=left,open=true": { "model": "rgen:doors/mangrove_door_bottom_", "y": 180 },
+      "facing=south,half=lower,hinge=left,open=true": { "model": "rgen:doors/mangrove_door_bottom", "y": 180 },
       "facing=west,half=lower,hinge=left,open=true":  { "model": "rgen:doors/mangrove_door_bottom", "y": 270 },
       "facing=north,half=lower,hinge=left,open=true": { "model": "rgen:doors/mangrove_door_bottom" },
       "facing=east,half=lower,hinge=right,open=true":  { "model": "rgen:doors/mangrove_door_bottom", "y": 270 },
