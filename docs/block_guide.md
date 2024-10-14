@@ -87,10 +87,26 @@ Also note that the texture paths do not include `.png` at the end. `png` texture
 supported texture in minecraft.
 
 ### The Blockstate
-Block states are used to set different states on a block. If the block has a different shape or
-texture, a different model will be needed. If it's being rotated, a command is entered to rotate it.
+Block states are used to make small changes to a block. For example, stairs have a different block
+state for each rotation they can be in, and crops have a different state for how much they've grown.
 
-_This example shows the polypore blockstate_
+The blockstate JSON file defines a list of properties (these come from java), and a model for each
+set of properties.
+
+For our derp_dog block, there are no properties, so the blockstate JSON looks like this:
+```json
+{
+  "variants": {
+    "normal": { "model": "rgen:derp_dog" }
+  }
+}
+```
+
+Nice and simple, right? It seems pointless here, but you need this file for minecraft to know what
+model to use.
+
+Now, for a more complex example, we have a polypore block. These can be rotated in one of 4
+directions, and they have 3 different types. So, the blockstate looks like this:
 ```json
 {
   "variants": {
@@ -110,11 +126,9 @@ _This example shows the polypore blockstate_
 }
 
 ```
-Polypore has two different variations:
-- `facing`, which rotates the block on its y-axis `"y": 90` is polypore rotated by 90 degrees.
-- `type`, which has a different model for if the polypore is made of 1, 2, or 3 polypores. 
-
-The variations must be in alphabetical order ie. `apple=true,banana=false`
+The properties must be in alphabetical order ie. `apple=true,banana=false`. If the properties are
+incorrect, the block will show up in game in all pink and black, with the property name written on
+it in blue.
 
 ## Creating the block's code (creating a Block Class)
 
