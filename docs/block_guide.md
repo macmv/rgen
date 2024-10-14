@@ -1,8 +1,10 @@
 # Block Guide
-Rgen is made of two parts a forge based minecraft mod that adds in new modded content like blocks
-and mobs, and the rust based rgen world generation program. Blocks as part of the forge mod requires
-you to create a texture, a model, a java block class, and setup to block inside the mods block list.
-The example block here will be `derp_dog`.
+Rgen is made of two parts: a minecraft mod written with forge, and a terrain generator written in
+rust. The forge mod creates all the new blocks, defines how they behave, and what they look like in
+game. This guide covers setting up a new block in the forge mod.
+
+For this example, we're going to create a block called `derp_dog`. This block is a cube, with no
+custom behaviors attached (for example, it doesn't get powered by redstone).
 
 ## Creating block art and model 
 Minecraft blocks have three parts to them: a texture, a model, and a block state.
@@ -12,16 +14,16 @@ Minecraft blocks have three parts to them: a texture, a model, and a block state
 
 
 
-```
-src/main/resources/assets/rgen/textures/      # The location of the textures
-src/main/resources/assets/rgen/models/        # The location of the models
-src/main/resources/assets/rgen/blockstates/   # The location of the blockstates
+```sh
+src/main/resources/assets/rgen/textures/blocks/ # The location of the block textures (note the 's' at the end)
+src/main/resources/assets/rgen/models/block/    # The location of the block models
+src/main/resources/assets/rgen/blockstates/     # The location of the blockstates
 ```
 
 ### The texture
 Here is our example block texture, which we are now going to store inside a folder called
 `derp_dog_folder`. Here are all the textures being used on Derp dog:
-```
+```sh
 src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_bottom.png
 src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_front.png
 src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_side.png
@@ -32,7 +34,7 @@ src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_top.png
 ![alt text](../art/example_block.png "example block image")
 
 ### The model
-The JSON code below is how a model appears in JSON; however, we recommend you use the
+The JSON code below is how a model appears in JSON. However, we recommend you use the
 [blockbench tool](###blockbench), as editing a model file in a text editor is a sign of madness. 
 ```json
 {
@@ -64,16 +66,25 @@ The JSON code below is how a model appears in JSON; however, we recommend you us
 
 **Note:** This section goes into hyper detail on models, feel free to move onto Blockstates.
 
-The parent refers to the Minecraft model from which this block is inheriting. As a basic block, Derp
-dog simply inherits from `block/block`; however, if you're making a flower like a tulip, you would
-inherit from `block/cross` to get the cross shape of Minecraft plants.
+Models define the following:
+- A list of elements. Each element is a cuboid, that can be rotated in increments of 22.5 degrees.
+- Each element contains a list of faces. Each face contains a texture.
+- A list of named textures to attach to faces.
+- Transforms for how the model looks in the hand.
 
-The textures being mapped onto the block are then listed next alphanumerically. All textures start
-with `rgen:blocks/` and then the path. **They do not include `.png`** The particles are what appears
-when you walk on the block and are made of the colors from the image in the texture.
+Models may inherit the above properties from the `parent` key. In our example, the `derp_dog` model
+inherits from `block/block`. This a traditional minecraft block (like stone or dirt).
 
-Next are the elements, each block shape. You can see the textures being wrapped onto the faces of
-each element. In this example, only one element is listed.
+Another common parent is `block/cross`, which is used for tall grass and flowers.
+
+Because this model has a specific front, side, and back texture, we define a single element, which
+ranges from 0,0,0 to 16,16,16. This element is a cube, which covers the entire area of the block.
+
+Finally, we attach our textures to this element in the `faces` section (the `#2` refers to the
+texture `2`, for example).
+
+Also note that the texture paths do not include `.png` at the end. `png` textures are the only
+supported texture in minecraft.
 
 ### The Blockstate
 Block states are used to set different states on a block. If the block has a different shape or
