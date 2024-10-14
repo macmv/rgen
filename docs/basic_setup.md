@@ -7,4 +7,4 @@ Welcome to the basic setup guide. This guide is designed for users with little t
 
 ## Continuing
 Congrats on setting up the basics of rgen the following documents can help you with other parts of the project.
-[Creating Blocks](docs/block_guide.md)
+[Creating Blocks](./docs/block_guide.md)
