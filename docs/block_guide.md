@@ -16,6 +16,35 @@ Here is our example block texture,s which we are now going to store inside a fol
 
 A texture should be 16x16.
 
+### The model
+```json
+{
+  "parent": "block/block",
+  "textures": {
+    "0": "rgen:blocks/derp_dog_folder/derp_dog_bottom",
+    "1": "rgen:blocks/derp_dog_folder/derp_dog_front",
+    "2": "rgen:blocks/derp_dog_folder/derp_dog_side",
+    "3": "rgen:blocks/derp_dog_folder/derp_dog_tail",
+    "4": "rgen:blocks/derp_dog_folder/derp_dog_top",
+    "particle": "rgen:blocks/derp_dog_folder/derp_dog_bottom"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#3"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#2"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#2"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#0"}
+      }
+    }
+  ]
+}
+```
+
 ## Creating the block's code
 
 ## Setting up the block
