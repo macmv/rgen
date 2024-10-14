@@ -53,6 +53,11 @@ public class RItems {
 
   public static final Item DEAD_DOOR = registerItem("dead_door", new ItemDoor(RBlocks.DEAD_DOOR));
   public static final Item MANGROVE_DOOR = registerItem("mangrove_door", new ItemDoor(RBlocks.MANGROVE_DOOR));
+  public static final Item BAMBOO_DOOR = registerItem("bamboo_door", new ItemDoor(RBlocks.BAMBOO_DOOR));
+  public static final Item CEDAR_DOOR = registerItem("cedar_door", new ItemDoor(RBlocks.CEDAR_DOOR));
+  public static final Item CHERRY_DOOR = registerItem("cherry_door", new ItemDoor(RBlocks.CHERRY_DOOR));
+  public static final Item FIR_DOOR = registerItem("fir_door", new ItemDoor(RBlocks.FIR_DOOR));
+  public static final Item PALM_DOOR = registerItem("palm_door", new ItemDoor(RBlocks.PALM_DOOR));
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
