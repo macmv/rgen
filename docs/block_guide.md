@@ -65,8 +65,33 @@ The particles are what appears when you walk on the block and are made of the co
 
 Next are the elements, each block shape. You can see the textures being wrapped onto the faces of each element. In this example, only one element is listed.
 
-### Blockstates
-WIP
+### The Blockstate
+Block states are used to set different states on a block. If the block has a different shape or texture, a different model will be needed. If it's being rotated, a command is entered to rotate it.
+_This example shows the polypore blockstate_
+```json
+{
+  "variants": {
+    "facing=north,type=1": { "model": "rgen:polypore_type_one" },
+    "facing=south,type=1": { "model": "rgen:polypore_type_one", "y": 180 },
+    "facing=east,type=1": { "model": "rgen:polypore_type_one", "y": 90 },
+    "facing=west,type=1": { "model": "rgen:polypore_type_one", "y": 270 },
+    "facing=north,type=2": { "model": "rgen:polypore_type_two" },
+    "facing=south,type=2": { "model": "rgen:polypore_type_two", "y": 180 },
+    "facing=east,type=2": { "model": "rgen:polypore_type_two", "y": 90 },
+    "facing=west,type=2": { "model": "rgen:polypore_type_two", "y": 270 },
+    "facing=north,type=3": { "model": "rgen:polypore_type_three" },
+    "facing=south,type=3": { "model": "rgen:polypore_type_three", "y": 180 },
+    "facing=east,type=3": { "model": "rgen:polypore_type_three", "y": 90 },
+    "facing=west,type=3": { "model": "rgen:polypore_type_three", "y": 270 }
+  }
+}
+
+```
+Polypore has two different variations:
+- `facing`, which rotates the block on its y-axis `"y": 90` is polypore rotated by 90 degrees.
+- `type`, which has a different model for if the polypore is made of 1, 2, or 3 polypores. 
+
+The variations must be in alphabetical order ie. `apple=true,banana=false`
 
 ## Creating the block's code
 WIP
@@ -76,6 +101,9 @@ WIP
 
 ## Continuing
 [adding an item for a block]()
+more &
+more...
 ### Blockbench
-[Download Blockbench](https://www.blockbench.net/downloads)
+[Download Blockbench](https://www.blockbench.net/downloads) 
+
 How to use Blockbench *I could find no guide that i found worthwhile to recomend**
