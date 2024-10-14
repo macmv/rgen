@@ -1,5 +1,5 @@
 # Block Guide
-Rgen is made of two parts a forge based minecraft mod that adds in new modded content like blocks and mobs, and the rust based rgen world generation program. Blocks as part of the forge mod requires you to create a texture, a model, a java block class, and setup to block inside the mods block list. In this example you will be making an example block called `example`.
+Rgen is made of two parts a forge based minecraft mod that adds in new modded content like blocks and mobs, and the rust based rgen world generation program. Blocks as part of the forge mod requires you to create a texture, a model, a java block class, and setup to block inside the mods block list. The example block here will be `derp_dog`.
 
 ## Creating block art and model 
 Minecraft blocks have three parts to them: a texture, a model, and a block state.
@@ -16,13 +16,19 @@ src/main/resources/assets/rgen/blockstates/   # The location of the blockstates
 ```
 
 ### The texture
-Here is our example block texture,s which we are now going to store inside a folder called `derp_dog_folder` so our full path is `src/main/resources/assets/rgen/textures/derp_dog_folder/derp_dog_front.png`
+Here is our example block texture, which we are now going to store inside a folder called `derp_dog_folder`. Here are all the textures being used on Derp dog;
+```
+src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_bottom.png
+src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_front.png
+src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_side.png
+src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_tail.png
+src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_top.png
+```
 
 ![alt text](../art/example_block.png "example block image")
 
-A texture should be 16x16.
-
 ### The model
+The JSON code below is how a model appears in JSON; however, we recommend you use the [blockbench tool](###blockbench), as editing a model file in a text editor is a sign of madness. 
 ```json
 {
   "parent": "block/block",
@@ -50,11 +56,26 @@ A texture should be 16x16.
   ]
 }
 ```
+**Note:** This section goes into hyper detail on models feel free to move onto Blockstates
+
+The parent refers to the Minecraft model from which this block is inheriting. As a basic block, Derp dog simply inherits from `block/block`; however, if you're making a flower like a tulip, you would inherit from `block/cross` to get the cross shape of Minecraft plants.
+
+The textures being mapped onto the block are then listed next alphanumerically. All textures start with `rgen:blocks/` and then the path. **They do not include `.png`** 
+The particles are what appears when you walk on the block and are made of the colors from the image in the texture.
+
+Next are the elements, each block shape. You can see the textures being wrapped onto the faces of each element. In this example, only one element is listed.
+
+### Blockstates
+WIP
 
 ## Creating the block's code
+WIP
 
 ## Setting up the block
+WIP
 
 ## Continuing
 [adding an item for a block]()
-
+### Blockbench
+[Download Blockbench](https://www.blockbench.net/downloads)
+How to use Blockbench *I could find no guide that i found worthwhile to recomend**
