@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, StateId};
 
 mod block;
 mod gc;
@@ -23,7 +23,23 @@ impl Context {
     Context { seed, blocks: Blocks::test_blocks(), biomes: Biomes::test_blocks() }
   }
   */
-  pub fn new_test(_seed: u64) -> Self { todo!() }
+  pub fn new_test(seed: u64) -> Self {
+    let mut blocks = BlockInfoSupplier::default();
+    for kind in BlockKind::ALL {
+      blocks.lookup.insert(*kind, BlockId(*kind as u16));
+      blocks.info.insert(
+        BlockId(*kind as u16),
+        BlockData { name: String::new(), block: Some(*kind), default_meta: 0 },
+      );
+    }
+
+    let mut biomes = BiomeInfoSupplier::default();
+    for kind in Biome::ALL {
+      biomes.lookup.insert(*kind, BiomeId(*kind as u8));
+    }
+
+    Context { seed, blocks, biomes }
+  }
 }
 
 pub trait Generator {
