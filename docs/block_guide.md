@@ -93,11 +93,56 @@ Polypore has two different variations:
 
 The variations must be in alphabetical order ie. `apple=true,banana=false`
 
-## Creating the block's code
-WIP
+## Creating the block's code (creating a Block Class)
 
-## Setting up the block
-WIP
+To create a custom block in Minecraft, you need to define the block class in Java. This section walks through the basic steps for creating a block in Minecraft using the Forge API. In this example, we’ll create a custom block called `DerpDog`.
+### 1. Create a java class
+in the path `src/main/java/net/macmv/rgen/block` and create a class file. 
+In JetBrains this can be done by right-clicking on the block folder and selecting `new > Java Class`
+The naming convention is capitals at the beginning and after spaces. (Don't include the spaces) `DerpDog`
+
+### 2. Setup the class
+Start by creating a new class for your block. To set the right package, include `net.macmv.rgen.block`. This basic structure for a custom block extends Minecraft's `Block` class and sets its material type.
+
+Here’s an example of a simple block class:
+
+```java
+package net.macmv.rgen.block;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+
+public class DerpDog extends Block {
+
+    // Constructor to set the block's material type
+    public DerpDog() {
+        super(Material.GROUND);  // Defines the material of the block as 'GROUND'
+    }
+}
+```
+
+### 3. Setup the block registration
+The final step is registering the block with `RBlocks`. The path is `src/main/java/net/macmv/rgen/block/RBlocks.java` in the `RBlocks` class add the following:
+```java
+public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleBlock());
+```
+`public`: This makes the variable `EXAMPLE_BLOCK` accessible from anywhere in the code.
+
+`static`: This means the block belongs to the class, not an instance of the class. So, you can reference it directly without needing to create an instance of the class.
+
+`final`: This makes the block a constant, meaning once it’s assigned a value, it cannot be changed.
+
+`Block`: This is the type of object being created—specifically, a Minecraft block.
+
+`EXAMPLE_BLOCK`: The variable name for the block, which is used when referencing it in code.
+
+`register(string, Block)`: takes the name of the block in the format of `example_block` followed by a new block class of the block you're adding.
+
+#### Adding to a creative tab
+The block can also be added to one of the Rgen creative tabs like this:
+```java
+public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
+```
 
 ## Continuing
 [adding an item for a block]()
