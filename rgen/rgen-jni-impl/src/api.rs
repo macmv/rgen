@@ -10,7 +10,7 @@ use jni::{
 use rgen_world::PartialWorldStorage;
 
 use crate::{ctx::Context, lookup_biome_info, lookup_block_info};
-use rgen_base::{ChunkPos, Pos, StateId};
+use rgen_base::{BiomeId, ChunkPos, Pos, StateId};
 use rgen_spline::Cosine;
 
 #[allow(dead_code)]
@@ -107,7 +107,9 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
         let pos = chunk_pos.min_block_pos() + Pos::new(x, 255, z);
 
         // FIXME: Translate biome ids!
-        biome_out[(z << 4 | x) as usize] = ctx.generator.choose_biome(pos).id as i8;
+        let biome = ctx.generator.choose_biome(pos).id;
+        biome_out[(z << 4 | x) as usize] =
+          ctx.context.biomes.lookup(biome).unwrap_or(BiomeId::VOID).0 as i8;
       }
     }
   });
@@ -138,8 +140,9 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
         // bullshit.
         let pos = Pos::new((x + cell_x) * 4, 255, (z + cell_z) * 4);
 
-        // FIXME: Translate biome ids!
-        biome_out[(z * width + x) as usize] = ctx.generator.choose_biome(pos).id as i8;
+        let biome = ctx.generator.choose_biome(pos).id;
+        biome_out[(z * width + x) as usize] =
+          ctx.context.biomes.lookup(biome).unwrap_or(BiomeId::VOID).0 as i8;
       }
     }
   });
@@ -206,8 +209,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
 
   Context::run(|ctx| {
     let biome = ctx.generator.choose_biome(pos);
-    // FIXME: Translate biome ids!
-    biome.id as i8
+    ctx.context.biomes.lookup(biome.id).unwrap_or(BiomeId::VOID).0 as i8
   })
 }
 

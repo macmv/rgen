@@ -28,7 +28,7 @@ impl BlockId {
 /// A realized biome ID.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(transparent)]
-pub struct BiomeId(pub u16);
+pub struct BiomeId(pub u8);
 
 impl BiomeId {
   pub const VOID: BiomeId = BiomeId(127);

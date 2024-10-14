@@ -51,7 +51,7 @@ fn read_biomes(info: &mut BiomeInfoSupplier, env: &mut JNIEnv) {
     let id = call_biome_name_to_id(env, kind.name());
 
     if id != 0 {
-      info.lookup.insert(*kind, BiomeId(id as u16));
+      info.lookup.insert(*kind, BiomeId(id as u8));
     }
   }
 }
