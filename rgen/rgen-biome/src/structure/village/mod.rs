@@ -1,4 +1,4 @@
-use rgen_base::{block, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
@@ -14,8 +14,6 @@ pub struct VillageGenerator {
   seed: u64,
   grid: PointGrid,
 
-  road_block: BlockState,
-
   buildings: Vec<Structure>,
 }
 
@@ -28,7 +26,6 @@ impl VillageGenerator {
     VillageGenerator {
       seed,
       grid,
-      road_block: block![log],
       buildings: vec![
         rgen_llama::parse(include_str!("building/house_1.ll")),
         rgen_llama::parse(include_str!("building/house_2.ll")),
@@ -66,13 +63,11 @@ struct Village<'a> {
 
   roads:     Vec<Road>,
   buildings: Vec<Building>,
-
-  origin: Pos,
 }
 
 impl<'a> Village<'a> {
   pub fn new(generator: &'a VillageGenerator, seed: u64, origin: Pos) -> Self {
-    let mut village = Village { generator, roads: vec![], buildings: vec![], origin };
+    let mut village = Village { generator, roads: vec![], buildings: vec![] };
 
     let mut rng = Rng::new(seed);
     village.recursive_road(&mut rng, origin, 0);
