@@ -1,9 +1,9 @@
 use std::ops::RangeInclusive;
 
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Bamboo {
   pub place_above:  BlockFilter,
@@ -26,17 +26,17 @@ impl Placer for Bamboo {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height =
       if self.pint_size { rng.rand_inclusive(8, 14) } else { rng.rand_inclusive(15, 20) };
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return;
+      return Err(UndoError);
     }
 
     rng.rand_inclusive(15, 20);
@@ -70,9 +70,11 @@ impl Placer for Bamboo {
       if world.get(pos) == block![air] {
         world.set(pos, self.stalk.with_data(if y > height - 3 { leaf } else { shoot }));
       } else {
-        return;
+        return Ok(());
       }
     }
+
+    Ok(())
   }
 }
 
@@ -80,7 +82,7 @@ impl Placer for BambooClump {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
 
     for _ in 0..self.attempts {
@@ -92,8 +94,10 @@ impl Placer for BambooClump {
       let below_pos = pos + Pos::new(0, -1, 0);
 
       if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
-        self.bamboo.place(world, rng, pos);
+        world.attempt(|world| self.bamboo.place(world, rng, pos));
       }
     }
+
+    Ok(())
   }
 }

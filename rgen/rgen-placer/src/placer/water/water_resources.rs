@@ -1,8 +1,8 @@
 use rgen_base::{block, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 use std::ops::RangeInclusive;
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct WaterResources {
   pub placement:          BlockState,
@@ -31,10 +31,11 @@ impl Placer for WaterResources {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     for _ in 1..=self.multiplyer {
       self.find_water_depth(
         world,
@@ -47,6 +48,8 @@ impl Placer for WaterResources {
         rng,
       );
     }
+
+    Ok(())
   }
 }
 

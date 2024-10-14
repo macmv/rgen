@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Rng};
+use crate::{rng::Random, Placer, Result, Rng};
 
 /// Creates spreads(cirlcesish) of blocks 1 above the ground level.
 pub struct Spread {
@@ -17,7 +17,7 @@ impl Placer for Spread {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive((*self.radius.start()).into(), (*self.radius.end()).into());
 
     let r2 = radius.pow(2);
@@ -43,5 +43,7 @@ impl Placer for Spread {
         }
       }
     }
+
+    Ok(())
   }
 }

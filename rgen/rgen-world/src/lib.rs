@@ -12,6 +12,7 @@ mod block;
 mod gc;
 mod info;
 
+pub use block::UndoError;
 pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 
 #[macro_use]

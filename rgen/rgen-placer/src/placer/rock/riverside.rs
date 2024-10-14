@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct RiverSide {
   pub ground:       BlockFilter,
@@ -31,16 +31,19 @@ impl Placer for RiverSide {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
     pos = pos + Pos::new(0, -1, 0);
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         self.build_siding(rng, pos + Pos::new(rel_x, 0, rel_z), world);
       }
     }
+
+    Ok(())
   }
 }
 

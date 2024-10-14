@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct EverGreen {
   pub place_above:  BlockFilter,
@@ -36,22 +36,22 @@ impl Placer for EverGreen {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(9, 11);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return;
+      return Err(UndoError);
     }
 
     for x in -1..=1 {
       for z in -1..=1 {
         if world.get(pos + Pos::new(x, 0, z)) == self.trunk {
-          return;
+          return Err(UndoError);
         }
       }
     }
@@ -70,6 +70,8 @@ impl Placer for EverGreen {
         EvergreenSize::Tall => self.build_tall_fir(world, pos, rng),
       }
     }
+
+    Ok(())
   }
 }
 

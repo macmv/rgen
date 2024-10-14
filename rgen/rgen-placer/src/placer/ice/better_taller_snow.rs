@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Rng};
+use crate::{Placer, Result, Rng};
 
 pub struct BetterTallerSnow {
   pub block:        BlockFilter,
@@ -28,10 +28,11 @@ impl Placer for BetterTallerSnow {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     let chunk_pos = pos.chunk();
     for z in 0..16 {
       for x in 0..16 {
@@ -46,6 +47,8 @@ impl Placer for BetterTallerSnow {
         }
       }
     }
+
+    Ok(())
   }
 }
 

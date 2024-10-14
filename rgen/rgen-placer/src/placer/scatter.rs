@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Rng};
+use crate::{rng::Random, Placer, Result, Rng};
 
 pub struct Scatter {
   pub place_above: BlockFilter,
@@ -13,7 +13,7 @@ pub struct Scatter {
 impl Placer for Scatter {
   fn radius(&self) -> u8 { 8 }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     for _ in 0..self.attempts {
       let pos = pos
         + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
@@ -24,5 +24,7 @@ impl Placer for Scatter {
         world.set(pos, self.place);
       }
     }
+
+    Ok(())
   }
 }
