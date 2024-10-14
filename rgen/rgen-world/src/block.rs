@@ -1,6 +1,6 @@
 //! All the tools to edit blocks in a world.
 
-use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
+use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage, UndoFrame};
 use rgen_base::{BlockInfo, BlockKind, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
@@ -33,11 +33,34 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
   }
 }
 
+/// An error that will cause the current placement to be undone.
+pub struct UndoError;
+
 impl PartialWorld<'_> {
   pub fn get(&self, pos: Pos) -> BlockInfo { self.info.decode(self.storage.get(pos)) }
 
   pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
+    if let Some(frame) = self.undo_stack.last_mut() {
+      frame.blocks.push((pos, self.storage.get(pos)));
+    }
     self.storage.set(pos, self.info.encode(state.into()));
+  }
+
+  pub fn attempt<T>(&mut self, f: impl FnOnce(&mut Self) -> Result<T, UndoError>) -> Option<T> {
+    self.undo_stack.push(UndoFrame::default());
+    let res = f(self);
+    let frame = self.undo_stack.pop().unwrap();
+
+    match res {
+      Ok(v) => Some(v),
+      Err(UndoError) => {
+        for (pos, state) in frame.blocks.into_iter().rev() {
+          self.storage.set(pos, state);
+        }
+
+        None
+      }
+    }
   }
 
   // TODO: allow for an array of blocks to not be overridden

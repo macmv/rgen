@@ -89,6 +89,13 @@ pub struct CachedWorld {
 pub struct PartialWorld<'a> {
   info:    &'a BlockInfoSupplier,
   storage: Box<dyn PartialWorldStorage + 'a>,
+
+  undo_stack: Vec<UndoFrame>,
+}
+
+#[derive(Default)]
+struct UndoFrame {
+  blocks: Vec<(Pos, StateId)>,
 }
 
 pub trait PartialWorldStorage {
@@ -98,7 +105,7 @@ pub trait PartialWorldStorage {
 
 impl<'a> PartialWorld<'a> {
   pub fn new(info: &'a BlockInfoSupplier, storage: impl PartialWorldStorage + 'a) -> Self {
-    PartialWorld { info, storage: Box::new(storage) }
+    PartialWorld { info, storage: Box::new(storage), undo_stack: vec![] }
   }
 }
 
@@ -286,8 +293,14 @@ impl CachedWorld {
       Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
-        generator
-          .decorate(&mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) }, pos);
+        generator.decorate(
+          &mut PartialWorld {
+            info:       &ctx.blocks,
+            storage:    Box::new(&mut *chunks),
+            undo_stack: vec![],
+          },
+          pos,
+        );
       }
     }
   }
