@@ -1,14 +1,20 @@
 use jni::{objects::JValue, JNIEnv};
-use rgen_base::{BlockData, BlockId, BlockKind};
-use rgen_world::BlockInfoSupplier;
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind};
+use rgen_world::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
   let mut supplier = BlockInfoSupplier::default();
-  read(&mut supplier, env);
+  read_blocks(&mut supplier, env);
   supplier
 }
 
-fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
+pub fn lookup_biome_info(env: &mut JNIEnv) -> BiomeInfoSupplier {
+  let mut supplier = BiomeInfoSupplier::default();
+  read_biomes(&mut supplier, env);
+  supplier
+}
+
+fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
   for kind in BlockKind::ALL {
     let id = call_block_name_to_id(env, kind.name());
 
@@ -40,6 +46,16 @@ fn read(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
   }
 }
 
+fn read_biomes(info: &mut BiomeInfoSupplier, env: &mut JNIEnv) {
+  for kind in Biome::ALL {
+    let id = call_biome_name_to_id(env, kind.name());
+
+    if id != 0 {
+      info.lookup.insert(*kind, BiomeId(id as u16));
+    }
+  }
+}
+
 fn call_block_name_to_id(env: &mut JNIEnv, name: &str) -> i32 {
   let jname = env.new_string(name).unwrap();
 
@@ -47,6 +63,21 @@ fn call_block_name_to_id(env: &mut JNIEnv, name: &str) -> i32 {
     .call_static_method(
       "net/macmv/rgen/rust/RustGenerator",
       "block_name_to_id",
+      "(Ljava/lang/String;)I",
+      &[JValue::Object(&jname.into())],
+    )
+    .unwrap()
+    .i()
+    .unwrap()
+}
+
+fn call_biome_name_to_id(env: &mut JNIEnv, name: &str) -> i32 {
+  let jname = env.new_string(name).unwrap();
+
+  env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "biome_name_to_id",
       "(Ljava/lang/String;)I",
       &[JValue::Object(&jname.into())],
     )

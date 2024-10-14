@@ -9,30 +9,9 @@ use jni::{
 };
 use rgen_world::PartialWorldStorage;
 
-use crate::{ctx::Context, lookup_block_info};
+use crate::{ctx::Context, lookup_biome_info, lookup_block_info};
 use rgen_base::{ChunkPos, Pos, StateId};
 use rgen_spline::Cosine;
-
-fn lookup_biome_id_opt(env: &mut JNIEnv, name: &str) -> Option<i32> {
-  let jname = env.new_string(name).unwrap();
-
-  let biome = env
-    .call_static_method(
-      "net/macmv/rgen/rust/RustGenerator",
-      "biome_name_to_id",
-      "(Ljava/lang/String;)I",
-      &[JValue::Object(&jname.into())],
-    )
-    .unwrap()
-    .i()
-    .unwrap();
-
-  if biome == 0 {
-    None
-  } else {
-    Some(biome)
-  }
-}
 
 #[allow(dead_code)]
 struct JniWorldStorage<'a, 'b: 'a> {
@@ -82,7 +61,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   seed: jlong,
 ) {
   let blocks = lookup_block_info(&mut env);
-  Context::init(blocks, seed);
+  let biomes = lookup_biome_info(&mut env);
+  Context::init(blocks, biomes, seed);
 }
 
 #[no_mangle]

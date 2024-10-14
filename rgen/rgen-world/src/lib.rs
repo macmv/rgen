@@ -14,7 +14,7 @@ pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 pub struct Context {
   pub seed:   u64,
   pub blocks: BlockInfoSupplier,
-  // pub biomes: Biomes,
+  pub biomes: BiomeInfoSupplier,
 }
 
 impl Context {
