@@ -9,8 +9,12 @@ src/main/resources/assets/rgen/models/        # The location of the models
 src/main/resources/assets/rgen/blockstates/   # The location of the blockstates
 ```
 
-Here is our example block texture which we are now going to store in texture file inside a folder called `example_folder` so our full path is `src/main/resources/assets/rgen/textures/example_folder/example_block.png`
-![alt text](art/example_block.png "example block image")
+### The texture
+Here is our example block texture,s which we are now going to store inside a folder called `derp_dog_folder` so our full path is `src/main/resources/assets/rgen/textures/derp_dog_folder/derp_dog_front.png`
+
+![alt text](../art/example_block.png "example block image")
+
+A texture should be 16x16.
 
 ## Creating the block's code
 
