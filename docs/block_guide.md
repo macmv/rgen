@@ -1,5 +1,8 @@
 # Block Guide
-Rgen is made of two parts a forge based minecraft mod that adds in new modded content like blocks and mobs, and the rust based rgen world generation program. Blocks as part of the forge mod requires you to create a texture, a model, a java block class, and setup to block inside the mods block list. The example block here will be `derp_dog`.
+Rgen is made of two parts a forge based minecraft mod that adds in new modded content like blocks
+and mobs, and the rust based rgen world generation program. Blocks as part of the forge mod requires
+you to create a texture, a model, a java block class, and setup to block inside the mods block list.
+The example block here will be `derp_dog`.
 
 ## Creating block art and model 
 Minecraft blocks have three parts to them: a texture, a model, and a block state.
@@ -16,7 +19,8 @@ src/main/resources/assets/rgen/blockstates/   # The location of the blockstates
 ```
 
 ### The texture
-Here is our example block texture, which we are now going to store inside a folder called `derp_dog_folder`. Here are all the textures being used on Derp dog;
+Here is our example block texture, which we are now going to store inside a folder called
+`derp_dog_folder`. Here are all the textures being used on Derp dog:
 ```
 src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_bottom.png
 src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_front.png
@@ -28,7 +32,8 @@ src/main/resources/assets/rgen/textures/blocks/derp_dog_folder/derp_dog_top.png
 ![alt text](../art/example_block.png "example block image")
 
 ### The model
-The JSON code below is how a model appears in JSON; however, we recommend you use the [blockbench tool](###blockbench), as editing a model file in a text editor is a sign of madness. 
+The JSON code below is how a model appears in JSON; however, we recommend you use the
+[blockbench tool](###blockbench), as editing a model file in a text editor is a sign of madness. 
 ```json
 {
   "parent": "block/block",
@@ -56,17 +61,24 @@ The JSON code below is how a model appears in JSON; however, we recommend you us
   ]
 }
 ```
-**Note:** This section goes into hyper detail on models feel free to move onto Blockstates
 
-The parent refers to the Minecraft model from which this block is inheriting. As a basic block, Derp dog simply inherits from `block/block`; however, if you're making a flower like a tulip, you would inherit from `block/cross` to get the cross shape of Minecraft plants.
+**Note:** This section goes into hyper detail on models, feel free to move onto Blockstates.
 
-The textures being mapped onto the block are then listed next alphanumerically. All textures start with `rgen:blocks/` and then the path. **They do not include `.png`** 
-The particles are what appears when you walk on the block and are made of the colors from the image in the texture.
+The parent refers to the Minecraft model from which this block is inheriting. As a basic block, Derp
+dog simply inherits from `block/block`; however, if you're making a flower like a tulip, you would
+inherit from `block/cross` to get the cross shape of Minecraft plants.
 
-Next are the elements, each block shape. You can see the textures being wrapped onto the faces of each element. In this example, only one element is listed.
+The textures being mapped onto the block are then listed next alphanumerically. All textures start
+with `rgen:blocks/` and then the path. **They do not include `.png`** The particles are what appears
+when you walk on the block and are made of the colors from the image in the texture.
+
+Next are the elements, each block shape. You can see the textures being wrapped onto the faces of
+each element. In this example, only one element is listed.
 
 ### The Blockstate
-Block states are used to set different states on a block. If the block has a different shape or texture, a different model will be needed. If it's being rotated, a command is entered to rotate it.
+Block states are used to set different states on a block. If the block has a different shape or
+texture, a different model will be needed. If it's being rotated, a command is entered to rotate it.
+
 _This example shows the polypore blockstate_
 ```json
 {
@@ -95,14 +107,18 @@ The variations must be in alphabetical order ie. `apple=true,banana=false`
 
 ## Creating the block's code (creating a Block Class)
 
-To create a custom block in Minecraft, you need to define the block class in Java. This section walks through the basic steps for creating a block in Minecraft using the Forge API. In this example, we’ll create a custom block called `DerpDog`.
+To create a custom block in Minecraft, you need to define the block class in Java. This section
+walks through the basic steps for creating a block in Minecraft using the Forge API. In this
+example, we’ll create a custom block called `DerpDog`.
 ### 1. Create a java class
 in the path `src/main/java/net/macmv/rgen/block` and create a class file. 
 In JetBrains this can be done by right-clicking on the block folder and selecting `new > Java Class`
 The naming convention is capitals at the beginning and after spaces. (Don't include the spaces) `DerpDog`
 
 ### 2. Setup the class
-Start by creating a new class for your block. To set the right package, include `net.macmv.rgen.block`. This basic structure for a custom block extends Minecraft's `Block` class and sets its material type.
+Start by creating a new class for your block. To set the right package, include
+`net.macmv.rgen.block`. This basic structure for a custom block extends Minecraft's `Block` class
+and sets its material type.
 
 Here’s an example of a simple block class:
 
@@ -122,13 +138,15 @@ public class DerpDog extends Block {
 ```
 
 ### 3. Setup the block registration
-The final step is registering the block with `RBlocks`. The path is `src/main/java/net/macmv/rgen/block/RBlocks.java` in the `RBlocks` class add the following:
+The final step is registering the block with `RBlocks`. The path is
+`src/main/java/net/macmv/rgen/block/RBlocks.java` in the `RBlocks` class add the following:
 ```java
 public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleBlock());
 ```
 `public`: This makes the variable `EXAMPLE_BLOCK` accessible from anywhere in the code.
 
-`static`: This means the block belongs to the class, not an instance of the class. So, you can reference it directly without needing to create an instance of the class.
+`static`: This means the block belongs to the class, not an instance of the class. So, you can
+reference it directly without needing to create an instance of the class.
 
 `final`: This makes the block a constant, meaning once it’s assigned a value, it cannot be changed.
 
@@ -136,7 +154,8 @@ public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleB
 
 `EXAMPLE_BLOCK`: The variable name for the block, which is used when referencing it in code.
 
-`register(string, Block)`: takes the name of the block in the format of `example_block` followed by a new block class of the block you're adding.
+`register(string, Block)`: takes the name of the block in the format of `example_block` followed by
+a new block class of the block you're adding.
 
 #### Adding to a creative tab
 The block can also be added to one of the Rgen creative tabs like this:
