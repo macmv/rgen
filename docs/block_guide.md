@@ -135,16 +135,13 @@ it in blue.
 To create a custom block in Minecraft, you need to define the block class in Java. This section
 walks through the basic steps for creating a block in Minecraft using the Forge API. In this
 example, we’ll create a custom block called `DerpDog`.
+
 ### 1. Create a java class
-in the path `src/main/java/net/macmv/rgen/block` and create a class file. 
-In JetBrains this can be done by right-clicking on the block folder and selecting `new > Java Class`
-The naming convention is capitals at the beginning and after spaces. (Don't include the spaces) `DerpDog`
+In IntelliJ, open up the package `src/main/java/net/macmv/rgen/block` and create a new class.
+This can be done by right-clicking on the block package and selecting `new > Java Class`. The naming
+convention is capitals at the beginning and after spaces. Spaces are not allowed.
 
 ### 2. Setup the class
-Start by creating a new class for your block. To set the right package, include
-`net.macmv.rgen.block`. This basic structure for a custom block extends Minecraft's `Block` class
-and sets its material type.
-
 Here’s an example of a simple block class:
 
 ```java
@@ -154,38 +151,34 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 
 public class DerpDog extends Block {
-
-    // Constructor to set the block's material type
-    public DerpDog() {
-        super(Material.GROUND);  // Defines the material of the block as 'GROUND'
-    }
+  // Constructor to set the block's material type
+  public DerpDog() {
+    super(Material.GROUND);  // Defines the material of the block as 'GROUND'
+  }
 }
 ```
 
 ### 3. Setup the block registration
-The final step is registering the block with `RBlocks`. The path is
-`src/main/java/net/macmv/rgen/block/RBlocks.java` in the `RBlocks` class add the following:
+The final step is to register the block with `RBlocks`. Open up the class at
+`src/main/java/net/macmv/rgen/block/RBlocks.java`, and add the following line next to the existing
+blocks:
 ```java
-public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleBlock());
+public static final Block DERP_DOG = register("derp_dog", new DerpDog());
 ```
-`public`: This makes the variable `EXAMPLE_BLOCK` accessible from anywhere in the code.
 
-`static`: This means the block belongs to the class, not an instance of the class. So, you can
-reference it directly without needing to create an instance of the class.
+The `public static final` bit is Java existing, its not important for now. The name is specified
+twice:
+- `DERP_DOG`, in all caps, is how you'd refer to the block in other parts of the mod. This is the
+  internal name, and it should be the same as the block name (but in all caps).
+- `"derp_dog"` is the name of the block in Minecraft.
 
-`final`: This makes the block a constant, meaning once it’s assigned a value, it cannot be changed.
-
-`Block`: This is the type of object being created—specifically, a Minecraft block.
-
-`EXAMPLE_BLOCK`: The variable name for the block, which is used when referencing it in code.
-
-`register(string, Block)`: takes the name of the block in the format of `example_block` followed by
-a new block class of the block you're adding.
+The `register()` function the name of the block, and a class to define the block's behavior.
 
 #### Adding to a creative tab
+
 The block can also be added to one of the Rgen creative tabs like this:
 ```java
-public static final Block EXAMPLE_BLOCK = register("example_block", new ExampleBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
+public static final Block DERP_DOG = register("derp_dog", new DerpDog().setCreativeTab(RCreativeTabs.DECORATIONS));
 ```
 
 ## Continuing
