@@ -1,4 +1,5 @@
-use rgen_base::{block, BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use math::Direction;
+use rgen_base::{block, block_kind, BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 use rgen_world::PartialWorld;
@@ -175,7 +176,7 @@ impl<'a> Village<'a> {
         let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, max_height, 0));
 
         if block != block![air] {
-          world.set(pos, block);
+          world.set(pos, rotate_block(block, building.forward));
         }
       }
 
@@ -305,4 +306,28 @@ fn highest_block(chunk: &Chunk, pos: ChunkRelPos) -> ChunkRelPos {
   }
 
   ChunkRelPos::new(pos.x(), y, pos.z())
+}
+
+fn rotate_block(block: BlockState, dir: Direction) -> BlockState {
+  fn rotate_ccw(block: BlockState) -> BlockState {
+    let state = block.state.state().unwrap_or_default();
+
+    let new_state = match block.block {
+      // axis=x -> axis=z
+      block_kind![log] if state & 0b1100 == 0b0100 => state & 0b0011 | 0b1000,
+      // axis=z -> axis=x
+      block_kind![log] if state & 0b1100 == 0b1000 => state & 0b0011 | 0b0100,
+
+      _ => return block,
+    };
+
+    block.with_data(new_state)
+  }
+
+  match dir {
+    Direction::North => block,
+    Direction::East => rotate_ccw(block),
+    Direction::South => rotate_ccw(rotate_ccw(block)),
+    Direction::West => rotate_ccw(rotate_ccw(rotate_ccw(block))),
+  }
 }
