@@ -4,7 +4,9 @@ use jni::{
   objects::{JObject, JObjectArray, JValue},
   JNIEnv,
 };
-use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap, PropType};
+use rgen_base::{
+  Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap, PropMapOwned, PropType, PropValueOwned,
+};
 use rgen_world::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
@@ -37,7 +39,7 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
       block:        Some(BlockKind::Air),
       default_meta: 0,
       prop_types:   HashMap::new(),
-      prop_values:  [PropMap::empty(); 16],
+      prop_values:  [const { PropMapOwned::empty() }; 16],
     },
   );
 
@@ -53,7 +55,7 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
         block,
         default_meta: call_lookup_default_meta(env, id) as u8,
         prop_types: call_lookup_prop_types(env, id),
-        prop_values: [PropMap::empty(); 16],
+        prop_values: call_lookup_prop_values(env, id),
       },
     );
   }
@@ -181,6 +183,57 @@ fn call_lookup_prop_types(env: &mut JNIEnv, id: i32) -> HashMap<String, PropType
       v => {
         panic!("unknown prop kind {v} for prop named {name}");
       }
+    }
+  }
+
+  out
+}
+
+fn call_lookup_prop_values(env: &mut JNIEnv, id: i32) -> [PropMapOwned; 16] {
+  let types: JObjectArray = env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "lookup_block_prop_values",
+      "(I)[Lnet/macmv/rgen/rust/PropMap;",
+      &[JValue::Int(id)],
+    )
+    .unwrap_or_else(|_| {
+      env.exception_describe().unwrap();
+      panic!();
+    })
+    .l()
+    .unwrap()
+    .into();
+
+  let mut out = [const { PropMapOwned::empty() }; 16];
+  for i in 0..16 {
+    let map: JObject = env.get_object_array_element(&types, i).unwrap().into();
+
+    let values: JObjectArray =
+      env.get_field(map, "values", "[Lnet/macmv/rgen/rust/PropValue;").unwrap().l().unwrap().into();
+
+    for j in 0..env.get_array_length(&values).unwrap() {
+      let value: JObject = env.get_object_array_element(&values, j).unwrap().into();
+
+      let jname = env.get_field(&value, "name", "Ljava/lang/String;").unwrap().l().unwrap().into();
+      let name = env.get_string(&jname).unwrap().into();
+
+      let value = match env.get_field(&value, "kind", "I").unwrap().i().unwrap() {
+        0 => PropValueOwned::Bool(env.get_field(&value, "bool", "Z").unwrap().z().unwrap()),
+        1 => PropValueOwned::Int(env.get_field(&value, "integer", "I").unwrap().i().unwrap()),
+        2 => {
+          let jstr =
+            env.get_field(&value, "str", "Ljava/lang/String;").unwrap().l().unwrap().into();
+          let str = env.get_string(&jstr).unwrap().into();
+
+          PropValueOwned::Enum(str)
+        }
+        v => {
+          panic!("unknown prop kind {v} for prop named {name}");
+        }
+      };
+
+      out[i as usize].entries[j as usize] = (name, value);
     }
   }
 

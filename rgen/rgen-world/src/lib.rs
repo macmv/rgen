@@ -4,7 +4,7 @@ use std::{collections::HashMap, sync::Arc};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
 use rgen_base::{
-  Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMap, StateId,
+  Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMapOwned, StateId,
 };
 
 mod block;
@@ -36,7 +36,7 @@ impl Context {
           block:        Some(*kind),
           default_meta: 0,
           prop_types:   HashMap::new(),
-          prop_values:  [PropMap::empty(); 16],
+          prop_values:  [const { PropMapOwned::empty() }; 16],
         },
       );
     }

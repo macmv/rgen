@@ -78,6 +78,12 @@ public class RustGenerator {
     return PropType.lookup(block);
   }
 
+  // A mapping from metadatas to property maps.
+  private static PropMap[] lookup_block_prop_values(int id) {
+    Block block = Block.getBlockById(id);
+    return PropMap.lookup(block);
+  }
+
   private static int biome_name_to_id(String name) {
     Biome biome = Biome.REGISTRY.getObject(new ResourceLocation(name));
     if (biome == null) {
