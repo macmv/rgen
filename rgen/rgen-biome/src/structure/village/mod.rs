@@ -108,23 +108,27 @@ impl<'a> Village<'a> {
 
   pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for road in &self.roads {
-      for x in road.min().x..=road.max().x {
-        for z in road.min().z..=road.max().z {
+      for x in road.min().x - 1..=road.max().x + 1 {
+        for z in road.min().z - 1..=road.max().z + 1 {
           let pos = Pos::new(x, 100, z);
 
-          for dx in -1..=1 {
-            for dz in -1..=1 {
-              let pos = pos + Pos::new(dx, 0, dz);
-              if !pos.in_chunk(chunk_pos) {
-                continue;
-              }
-
-              let rel = pos.chunk_rel();
-
-              let y = highest_block(chunk, rel).y();
-              chunk.set(rel.with_y(y), info.encode(self.generator.road_block));
-            }
+          if !pos.in_chunk(chunk_pos) {
+            continue;
           }
+
+          let rel = pos.chunk_rel();
+
+          let y = highest_block(chunk, rel).y();
+
+          let replacing = info.decode(chunk.get(rel.with_y(y)));
+          // Intersections get placed multiple times, so we need to check for planks here
+          // too.
+          let placing = if replacing == block![water] || replacing == block![planks] {
+            block![planks]
+          } else {
+            self.generator.road_block
+          };
+          chunk.set(rel.with_y(y), info.encode(placing));
         }
       }
     }
