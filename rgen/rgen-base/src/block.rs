@@ -170,7 +170,7 @@ macro_rules! block {
     $crate::BlockState {
       block: $crate::block_kind![$b1 $(:$b2)?],
       state: $crate::StateOrProps::Props($crate::PropMap::new(&[
-        $((stringify!($key), $crate::PropValue::from($value)),)*
+        $(($crate::prop_name![$key], $crate::PropValue::from($value)),)*
       ])),
     }
   };
