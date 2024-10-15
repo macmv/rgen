@@ -1,28 +1,24 @@
-use rgen_base::{Blocks, Pos};
+use rgen_base::{block, Pos};
 
 #[test]
 fn parse_house() {
-  let blocks = Blocks::test_blocks();
+  let house = crate::parse(include_str!("./house.ll"));
 
-  let house = crate::parse(&blocks, include_str!("./house.ll"));
-
-  assert_eq!(house.get(Pos::new(0, 0, 0)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(1, 0, 0)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(0, 0, 1)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(0, 1, 0)), blocks.cobblestone.default_state);
+  assert_eq!(house.get(Pos::new(0, 0, 0)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(1, 0, 0)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(0, 0, 1)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(0, 1, 0)), block![cobblestone[0]]);
 }
 
 #[test]
 fn parse_house_vertical() {
-  let blocks = Blocks::test_blocks();
+  let house = crate::parse(include_str!("./house.ll"));
+  let vertical = crate::parse(include_str!("./house_vertical.ll"));
 
-  let house = crate::parse(&blocks, include_str!("./house.ll"));
-  let vertical = crate::parse(&blocks, include_str!("./house_vertical.ll"));
-
-  assert_eq!(house.get(Pos::new(0, 0, 0)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(1, 0, 0)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(0, 0, 1)), blocks.stone.default_state);
-  assert_eq!(house.get(Pos::new(0, 1, 0)), blocks.cobblestone.default_state);
+  assert_eq!(house.get(Pos::new(0, 0, 0)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(1, 0, 0)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(0, 0, 1)), block![stone[0]]);
+  assert_eq!(house.get(Pos::new(0, 1, 0)), block![cobblestone[0]]);
 
   for y in 0..house.height() {
     for x in 0..house.width() {

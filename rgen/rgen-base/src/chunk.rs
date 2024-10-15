@@ -1,4 +1,4 @@
-use crate::{Block, BlockState, ChunkRelPos};
+use crate::{ChunkRelPos, StateId};
 
 // Mirrors a ChunkPrimer in minecraft.
 #[derive(Clone)]
@@ -31,18 +31,17 @@ impl Chunk {
     }
   }
 
-  pub fn set(&mut self, pos: ChunkRelPos, block: impl Into<BlockState>) {
+  pub fn set(&mut self, pos: ChunkRelPos, block: StateId) {
     if pos_in_world(pos) {
-      self.data[pos_to_index(pos)] = block.into().raw_id();
+      self.data[pos_to_index(pos)] = block.0;
     }
   }
 
-  pub fn get(&self, pos: ChunkRelPos) -> Block { self.get_state(pos).block }
-  pub fn get_state(&self, pos: ChunkRelPos) -> BlockState {
+  pub fn get(&self, pos: ChunkRelPos) -> StateId {
     if pos_in_world(pos) {
-      BlockState::from_raw_id(self.data[pos_to_index(pos)])
+      StateId(self.data[pos_to_index(pos)])
     } else {
-      BlockState::AIR
+      StateId::AIR
     }
   }
 

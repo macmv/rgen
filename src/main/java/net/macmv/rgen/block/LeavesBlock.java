@@ -55,7 +55,7 @@ public abstract class LeavesBlock extends BlockLeaves {
         // Only use the extra offsets for palm leaves
         int maxOffset = 6;
         if (state.getBlock() instanceof LeavesBlock) {
-          if (((LeavesBlock) state.getBlock()).getLogType(state) == LogBlockOne.LogType.PALM) {
+          if (((LeavesBlock) state.getBlock()).getLogType(state) == LogType.PALM) {
             maxOffset = offsets.length;
           }
         }
@@ -143,5 +143,5 @@ public abstract class LeavesBlock extends BlockLeaves {
     return BlockPlanks.EnumType.OAK;
   }
 
-  public abstract LogBlockOne.LogType getLogType(IBlockState state);
+  public abstract LogType getLogType(IBlockState state);
 }

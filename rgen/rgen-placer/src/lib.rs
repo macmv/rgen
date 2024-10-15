@@ -1,3 +1,5 @@
+#![allow(clippy::new_without_default)]
+
 mod chunk;
 pub mod chunk_placer;
 pub mod grid;

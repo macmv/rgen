@@ -1,10 +1,14 @@
-use rgen_base::{BlockState, Pos};
+use rgen_base::{block, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
 
 pub struct DeadTree {
   pub trunk: BlockState,
+}
+
+impl DeadTree {
+  pub fn new() -> Self { DeadTree { trunk: block![rgen:log2[12]] } }
 }
 
 impl Placer for DeadTree {

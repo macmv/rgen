@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Rng};
@@ -37,7 +37,7 @@ impl Placer for Spread {
           }
 
           let below_pos = pos + Pos::new(0, -1, 0);
-          if self.replace.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+          if self.replace.contains(world.get(below_pos)) && world.get(pos) == block![air] {
             world.set(pos, self.place);
           }
         }

@@ -1,7 +1,6 @@
 package net.macmv.rgen.block;
 
 import net.macmv.rgen.tab.RCreativeTabs;
-import net.macmv.rgen.block.LogBlockOne.LogType;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;

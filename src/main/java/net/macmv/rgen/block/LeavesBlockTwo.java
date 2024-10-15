@@ -17,10 +17,10 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 
 public class LeavesBlockTwo extends LeavesBlock {
-  public static final PropertyEnum<LogBlockOne.LogType> VARIANT = PropertyEnum.create("variant", LogBlockOne.LogType.class, ty -> ty.meta >= 4 && ty.meta < 7);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta >= 4 && ty.meta < 7);
 
   public LeavesBlockTwo() {
-    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogBlockOne.LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 
   // TODO: Override
@@ -31,9 +31,9 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, LogBlockOne.LogType.MANGROVE.meta - 4));
-    items.add(new ItemStack(this, 1, LogBlockOne.LogType.LAVENDER.meta - 4));
-    items.add(new ItemStack(this, 1, LogBlockOne.LogType.SEASONAL.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.MANGROVE.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.LAVENDER.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.SEASONAL.meta - 4));
   }
 
   @Override
@@ -43,7 +43,7 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    LogBlockOne.LogType variant = LogBlockOne.LogType.fromMeta((meta & 3) + 4);
+    LogType variant = LogType.fromMeta((meta & 3) + 4);
 
     return this.getDefaultState().withProperty(VARIANT, variant).withProperty(DECAYABLE, (meta & 4) == 0).withProperty(CHECK_DECAY, (meta & 8) > 0);
   }
@@ -65,7 +65,7 @@ public class LeavesBlockTwo extends LeavesBlock {
   }
 
   @Override
-  public LogBlockOne.LogType getLogType(IBlockState state) {
+  public LogType getLogType(IBlockState state) {
     return state.getValue(VARIANT);
   }
 

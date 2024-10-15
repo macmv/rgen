@@ -1,8 +1,7 @@
+use rgen_base::{biome, block};
 use rgen_placer::placer;
 
 use crate::builder::{BiomeBuilder, PlacerStage};
-
-use super::IdContext;
 
 // TODO:  - add snow topping feature
 //        - add fallen logs feature
@@ -17,18 +16,18 @@ use super::IdContext;
 //          - add feature to to palm beach
 
 #[allow(dead_code)]
-pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.stone_beach;
+pub fn ancient_shores(gen: &mut BiomeBuilder) {
+  gen.id = biome![stone_beach];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.sand.default_state);
-  gen.add_layer(ctx.blocks.stone.default_state, 1, 3);
+  gen.set_top_block(block![sand]);
+  gen.add_layer(block![stone], 1, 3);
 
   gen.place(
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        2..=5,
       avg_per_chunk: 1.0,
     },
@@ -38,7 +37,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.cobblestone.default_state,
+      place:         block![cobblestone],
       radius:        2..=4,
       avg_per_chunk: 1.0,
     },
@@ -48,7 +47,7 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.stone.default_state,
+      place:         block![stone],
       radius:        2..=4,
       avg_per_chunk: 1.0,
     },
@@ -58,8 +57,8 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_stone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.stone.default_state,
+      place_above: block![stone].into(),
+      place:       block![stone],
       attempts:    20,
     },
   );
@@ -67,8 +66,8 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.mossy_cobblestone.default_state,
+      place_above: block![stone].into(),
+      place:       block![mossy_cobblestone],
       attempts:    40,
     },
   );
@@ -76,32 +75,28 @@ pub fn ancient_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.stone.default_state,
+      place_above: block![stone].into(),
+      place:       block![stone],
       attempts:    30,
     },
   );
 
-  gen.place(
-    "dead_tree",
-    PlacerStage::Tree,
-    placer::DeadTree { trunk: ctx.blocks.rgen_log2.with_data(12) },
-  );
+  gen.place("dead_tree", PlacerStage::Tree, placer::DeadTree::new());
 }
 
 #[allow(dead_code)]
-pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.stone_beach;
+pub fn dry_shores(gen: &mut BiomeBuilder) {
+  gen.id = biome![stone_beach];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.gravel.default_state);
-  gen.add_layer(ctx.blocks.stone.default_state, 1, 3);
+  gen.set_top_block(block![gravel]);
+  gen.add_layer(block![stone], 1, 3);
 
   gen.place(
     "sand_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.sand.default_state,
+      place:         block![sand],
       radius:        2..=4,
       avg_per_chunk: 1.0,
     },
@@ -111,7 +106,7 @@ pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.stone.default_state,
+      place:         block![stone],
       radius:        3..=3,
       avg_per_chunk: 1.0,
     },
@@ -121,78 +116,74 @@ pub fn dry_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    30,
-      place_above: [ctx.blocks.gravel.block, ctx.blocks.sand.block, ctx.blocks.stone.block].into(),
-      place:       ctx.blocks.tallgrass.with_data(0),
+      place_above: [block![gravel], block![sand], block![stone]].into(),
+      place:       block![tallgrass[0]],
     },
   )
 }
 #[allow(dead_code)]
-pub fn bare_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.stone_beach;
+pub fn bare_rock(gen: &mut BiomeBuilder) {
+  gen.id = biome![stone_beach];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 }
 #[allow(dead_code)]
-pub fn wet_rock(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+pub fn wet_rock(gen: &mut BiomeBuilder) {
+  gen.id = biome![plains];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.add_layer(ctx.blocks.stone.default_state, 1, 3);
+  gen.set_top_block(block![stone]);
+  gen.add_layer(block![stone], 1, 3);
 
   gen.place(
     "grass_splatter",
     PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block(),
-      place:    ctx.blocks.grass.default_state,
-      attempts: 40,
-    },
+    placer::Splatter { replace: gen.top_block(), place: block![grass], attempts: 40 },
   );
   gen.place(
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.mossy_cobblestone.default_state,
+      place:         block![mossy_cobblestone],
       radius:        2..=3,
       avg_per_chunk: 1.0,
     },
   );
 }
 #[allow(dead_code)]
-pub fn sand_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.beaches;
+pub fn sand_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![beaches];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.sand.default_state);
-  gen.add_layer(ctx.blocks.sand.default_state, 1, 3);
+  gen.set_top_block(block![sand]);
+  gen.add_layer(block![sand], 1, 3);
 
-  gen.set_underwater_block(ctx.blocks.sand.default_state);
+  gen.set_underwater_block(block![sand]);
 
-  gen.place("palm_tree", PlacerStage::Tree, placer::PalmTree::new(ctx.blocks));
+  gen.place("palm_tree", PlacerStage::Tree, placer::PalmTree::new());
 }
 #[allow(dead_code)]
-pub fn monument_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.beaches;
+pub fn monument_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![beaches];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.sand.default_state);
-  gen.add_layer(ctx.blocks.sand.default_state, 1, 3);
+  gen.set_top_block(block![sand]);
+  gen.add_layer(block![sand], 1, 3);
 
   // places monument
   gen.place(
     "sand_monument",
     PlacerStage::Tree,
     placer::Monument {
-      material:       ctx.blocks.sandstone.with_data(0),
-      fancy_material: ctx.blocks.sandstone.with_data(1),
-      reward:         ctx.blocks.gold_block.default_state,
+      material:       block![sandstone[0]],
+      fancy_material: block![sandstone[1]],
+      reward:         block![gold_block],
     },
   )
 }
 
 #[allow(dead_code)]
-pub fn palm_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.beaches;
+pub fn palm_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![beaches];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.sand.default_state);
-  gen.add_layer(ctx.blocks.sand.default_state, 1, 3);
+  gen.set_top_block(block![sand]);
+  gen.add_layer(block![sand], 1, 3);
 }

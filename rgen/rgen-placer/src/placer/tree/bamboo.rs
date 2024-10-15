@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -35,40 +35,40 @@ impl Placer for Bamboo {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
     rng.rand_inclusive(15, 20);
-    let mut shoot = self.stalk;
+    let mut shoot = 0;
 
     // Sets rotation
-    shoot.state &= 0b1100;
+    shoot &= 0b1100;
     let rand = rng.rand_inclusive(0, 3);
     if rand == 0 {
       // 0
-      shoot.state |= 0b0000;
+      shoot |= 0b0000;
     } else if rand == 1 {
       // 1
-      shoot.state |= 0b0001;
+      shoot |= 0b0001;
     } else if rand == 2 {
       // 2
-      shoot.state |= 0b0010;
+      shoot |= 0b0010;
     } else if rand == 3 {
       // 3
-      shoot.state |= 0b0011;
+      shoot |= 0b0011;
     }
 
     let mut leaf = shoot;
-    // Sets leaft type
-    leaf.state &= 0b0011;
-    leaf.state |= 0b0100;
+    // Sets leaf type
+    leaf &= 0b0011;
+    leaf |= 0b0100;
 
     for y in 0..=height {
       let pos = pos + Pos::new(0, y, 0);
 
-      if world.get(pos) == BlockState::AIR {
-        world.set(pos, if y > height - 3 { leaf } else { shoot });
+      if world.get(pos) == block![air] {
+        world.set(pos, self.stalk.with_data(if y > height - 3 { leaf } else { shoot }));
       } else {
         return;
       }
@@ -91,7 +91,7 @@ impl Placer for BambooClump {
 
       let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
         self.bamboo.place(world, rng, pos);
       }
     }

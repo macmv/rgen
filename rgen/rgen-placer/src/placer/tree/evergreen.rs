@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -19,12 +19,12 @@ pub enum EvergreenSize {
 }
 
 impl EverGreen {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     EverGreen {
       avg_in_chunk: 13.0, //40.0,
-      place_above:  blocks.grass.default_state.into(),
-      trunk:        blocks.log.with_data(2),
-      leaves:       blocks.rgen_leaves3.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[2]],
+      leaves:       block![rgen:leaves3[0]],
       is_spruce:    true,
       size:         EvergreenSize::Standard,
     }
@@ -44,7 +44,7 @@ impl Placer for EverGreen {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
@@ -190,11 +190,10 @@ impl EverGreen {
     for x in -1i32..=1 {
       for z in -1i32..=1 {
         if !(x.abs() == 1 && (z.abs() == 1)) {
-          if world.get(pos + Pos::new(x, 0, z)).block == Block::AIR {
+          if world.get(pos + Pos::new(x, 0, z)) == block![air] {
             world.set(pos + Pos::new(x, 0, z), self.leaves);
           }
-        } else if rng.rand_inclusive(0, 7) == 0
-          && world.get(pos + Pos::new(x, 0, z)).block == Block::AIR
+        } else if rng.rand_inclusive(0, 7) == 0 && world.get(pos + Pos::new(x, 0, z)) == block![air]
         {
           world.set(pos + Pos::new(x, 0, z), self.leaves);
         }
@@ -206,17 +205,17 @@ impl EverGreen {
       for z in -1i32..=1 {
         if !(x.abs() == 1 && (z.abs() == 1))
           && rng.rand_inclusive(0, 1) == 0
-          && world.get(pos + Pos::new(x, 0, z)).block == Block::AIR
+          && world.get(pos + Pos::new(x, 0, z)) == block![air]
         {
           world.set(pos + Pos::new(x, 0, z), self.leaves);
         }
       }
     }
-    if world.get(pos).block == Block::AIR {
+    if world.get(pos) == block![air] {
       world.set(pos, self.leaves);
     }
     pos = pos + Pos::new(0, 1, 0);
-    if world.get(pos).block == Block::AIR {
+    if world.get(pos) == block![air] {
       world.set(pos, self.leaves);
     }
   }
@@ -285,7 +284,7 @@ impl EverGreen {
     for x in -size..=size {
       for z in -size..=size {
         if (x.abs() + z.abs()) <= (size + (size / 2))
-          && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR
+          && world.get(*pos + Pos::new(x, 0, z)) == block![air]
         {
           world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
@@ -297,7 +296,7 @@ impl EverGreen {
   fn build_fir_top_disk(&self, world: &mut PartialWorld, pos: &mut Pos, _rng: &mut Rng) {
     for x in -2i32..=2 {
       for z in -2i32..=2 {
-        if x.abs() + z.abs() <= 2 && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR {
+        if x.abs() + z.abs() <= 2 && world.get(*pos + Pos::new(x, 0, z)) == block![air] {
           world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }
@@ -308,8 +307,7 @@ impl EverGreen {
   fn build_fir_spacer(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
     for x in -1..=1 {
       for z in -1..=1 {
-        if rng.rand_inclusive(0, 1) == 0 && world.get(*pos + Pos::new(x, 0, z)).block == Block::AIR
-        {
+        if rng.rand_inclusive(0, 1) == 0 && world.get(*pos + Pos::new(x, 0, z)) == block![air] {
           world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }

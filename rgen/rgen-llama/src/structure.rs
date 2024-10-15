@@ -128,17 +128,15 @@ impl Structure {
 
 #[cfg(test)]
 mod tests {
-  use rgen_base::Blocks;
+  use rgen_base::block;
 
   use super::*;
 
   #[test]
   fn structure_rotate() {
-    let blocks = Blocks::test_blocks();
-
-    let s = blocks.stone.default_state;
-    let w = blocks.wool.default_state;
-    let l = blocks.log.default_state;
+    let s = block![stone];
+    let w = block![wool];
+    let l = block![log];
 
     #[rustfmt::skip]
     let original = vec![

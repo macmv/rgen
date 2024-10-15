@@ -1,32 +1,43 @@
 //! All the tools to edit blocks in a world.
 
-use crate::PartialWorld;
-use rgen_base::{Block, BlockState, Chunk, ChunkPos, Pos};
+use crate::{PartialWorld, PartialWorldStorage, StagedWorldStorage};
+use rgen_base::{BlockInfo, BlockKind, BlockState, Chunk, ChunkPos, Pos, StateId};
 use rgen_llama::Structure;
 
-impl PartialWorld {
+impl StagedWorldStorage {
   pub(crate) fn chunk(&self, pos: ChunkPos) -> Option<&Chunk> {
     self.chunks.get(&pos).map(|c| &c.chunk)
   }
+
   pub(crate) fn chunk_mut(&mut self, chunk_pos: ChunkPos) -> Option<&mut Chunk> {
     self.chunks.get_mut(&chunk_pos).map(|c| &mut c.chunk)
   }
+}
 
-  pub fn get(&self, pos: Pos) -> BlockState {
+impl PartialWorldStorage for &mut StagedWorldStorage {
+  fn get(&self, pos: Pos) -> StateId {
     if let Some(chunk) = self.chunk(pos.chunk()) {
-      chunk.get_state(pos.chunk_rel())
+      chunk.get(pos.chunk_rel())
     } else {
       // TODO: Log a warning when reading outside the world.
-      BlockState::AIR
+      StateId::AIR
     }
   }
 
-  pub fn set(&mut self, pos: Pos, block: impl Into<BlockState>) {
+  fn set(&mut self, pos: Pos, block: StateId) {
     if let Some(chunk) = self.chunk_mut(pos.chunk()) {
-      chunk.set(pos.chunk_rel(), block.into());
+      chunk.set(pos.chunk_rel(), block);
     } else {
       // TODO: Log a warning when writing outside the world.
     }
+  }
+}
+
+impl PartialWorld<'_> {
+  pub fn get(&self, pos: Pos) -> BlockInfo { self.info.decode(self.storage.get(pos)) }
+
+  pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
+    self.storage.set(pos, self.info.encode(state.into()));
   }
 
   // TODO: allow for an array of blocks to not be overridden
@@ -47,11 +58,11 @@ impl PartialWorld {
   pub fn top_block(&mut self, pos: Pos) -> Pos { self.top_block_excluding(pos, &[]) }
 
   /// Returns the highest block that is not air and not in the `exclude` list.
-  pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[Block]) -> Pos {
+  pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[BlockKind]) -> Pos {
     let mut y = 255;
     while y > 0 {
-      let block = self.get(pos.with_y(y)).block;
-      if block != Block::AIR && !exclude.contains(&block) {
+      let block = self.get(pos.with_y(y));
+      if block != BlockKind::Air && !exclude.contains(&block.block_kind()) {
         break;
       }
       y -= 1;

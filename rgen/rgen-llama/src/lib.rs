@@ -6,7 +6,7 @@ mod tests;
 
 use std::collections::HashMap;
 
-use rgen_base::{Blocks, Pos};
+use rgen_base::{BlockKind, Pos};
 pub use structure::Structure;
 
 #[derive(Default, Debug)]
@@ -46,7 +46,7 @@ struct BlockName {
   state:    Option<u32>,
 }
 
-pub fn parse(blocks: &Blocks, input: &str) -> Structure {
+pub fn parse(input: &str) -> Structure {
   let mut parser = parser::Parser::new(input);
   let mut ast = Ast::default();
 
@@ -71,11 +71,11 @@ pub fn parse(blocks: &Blocks, input: &str) -> Structure {
         let block_name = format!("{}:{}", name.category, name.block);
 
         let block =
-          blocks.by_name(&block_name).unwrap_or_else(|| panic!("no such block {block_name}"));
+          BlockKind::by_name(&block_name).unwrap_or_else(|| panic!("no such block {block_name}"));
 
         let state = match name.state {
           Some(state) => block.with_data(state as u8),
-          None => block.default_state,
+          None => block.with_data(0),
         };
 
         let pos = match ast.orientation {

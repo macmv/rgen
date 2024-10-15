@@ -1,4 +1,4 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_llama::Structure;
 use rgen_world::PartialWorld;
 
@@ -21,18 +21,18 @@ pub struct Sakura {
 }
 
 impl Sakura {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Sakura {
       avg_in_chunk: 1.0,
-      place_above:  blocks.grass.default_state.into(),
-      trunk:        blocks.rgen_log.with_data(2),
-      leaves:       blocks.rgen_leaves.with_data(2),
+      place_above:  block![grass].into(),
+      trunk:        block![rgen:log[2]],
+      leaves:       block![rgen:leaves[2]],
       large_size:   true,
 
       drapes: vec![
-        rgen_llama::parse(blocks, include_str!("structure/drape_1.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_2.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_3.ll")),
+        rgen_llama::parse(include_str!("structure/drape_1.ll")),
+        rgen_llama::parse(include_str!("structure/drape_2.ll")),
+        rgen_llama::parse(include_str!("structure/drape_3.ll")),
       ],
     }
   }
@@ -51,7 +51,7 @@ impl Placer for Sakura {
 
     // Checks if tree will be built on air
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
       return;
     }
 
@@ -78,7 +78,7 @@ impl Sakura {
     for rel_y in -1..=2_i32 {
       for rel_x in -2..=2_i32 {
         for rel_z in -2..=2_i32 {
-          if world.get(pos + Pos::new(rel_x, rel_y, rel_z)) == BlockState::AIR {
+          if world.get(pos + Pos::new(rel_x, rel_y, rel_z)) == block![air] {
             world.set(pos + Pos::new(rel_x, rel_y, rel_z), self.leaves);
           }
         }
@@ -98,7 +98,7 @@ impl Sakura {
           continue;
         }
 
-        if world.get(pos + Pos::new(x, 3, z)) == BlockState::AIR {
+        if world.get(pos + Pos::new(x, 3, z)) == block![air] {
           world.set(pos + Pos::new(x, 3, z), self.leaves);
         }
       }
@@ -152,12 +152,12 @@ impl Sakura {
     while x != x2 || y != y2 {
       if x_axis {
         let block_loc = start_pos + Pos::new(x, y + offset, 0);
-        if world.get(block_loc) == BlockState::AIR || world.get(block_loc) == self.leaves {
+        if world.get(block_loc) == block![air] || world.get(block_loc) == self.leaves {
           world.set(block_loc, self.trunk);
         }
       } else {
         let block_loc = start_pos + Pos::new(0, y + offset, x);
-        if world.get(block_loc) == BlockState::AIR || world.get(block_loc) == self.leaves {
+        if world.get(block_loc) == block![air] || world.get(block_loc) == self.leaves {
           world.set(block_loc, self.trunk);
         }
       }
@@ -231,7 +231,7 @@ impl Sakura {
 
     // Trunk is built
     for y in 0..=trunk_top {
-      if world.get(pos + Pos::new(0, y, 0)) == BlockState::AIR
+      if world.get(pos + Pos::new(0, y, 0)) == block![air]
         || world.get(pos + Pos::new(0, y, 0)) == self.leaves
       {
         world.set(pos + Pos::new(0, y, 0), self.trunk);
@@ -240,17 +240,17 @@ impl Sakura {
     //places the canapoy cores
     if split_tree == SplitTree::Uno {
       if is_a {
-        if world.get(a_pos) == BlockState::AIR {
+        if world.get(a_pos) == block![air] {
           world.set(a_pos, self.trunk);
         }
-      } else if world.get(b_pos) == BlockState::AIR {
+      } else if world.get(b_pos) == block![air] {
         world.set(b_pos, self.trunk);
       }
     } else {
-      if world.get(a_pos) == BlockState::AIR {
+      if world.get(a_pos) == block![air] {
         world.set(a_pos, self.trunk);
       }
-      if world.get(b_pos) == BlockState::AIR {
+      if world.get(b_pos) == block![air] {
         world.set(b_pos, self.trunk);
       }
     }

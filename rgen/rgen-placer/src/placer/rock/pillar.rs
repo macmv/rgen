@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{Placer, Random, Rng};
@@ -12,13 +12,13 @@ pub struct Pillar {
 }
 
 impl Pillar {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Pillar {
-      ground:                      [blocks.stone.block, blocks.dirt.block, blocks.grass.block]
-        .into(),
-      material:                    blocks.rgen_basalt.with_data(0),
-      avg_in_chunk:                0.8,
-      fluid:                       blocks.lava.default_state,
+      ground:       [block![stone], block![dirt], block![grass]].into(),
+      material:     block![rgen:basalt[0]],
+      avg_in_chunk: 0.8,
+      fluid:        block![lava],
+
       chance_of_secondary_pillars: 11,
     }
   }

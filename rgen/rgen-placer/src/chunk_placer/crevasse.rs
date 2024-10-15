@@ -1,4 +1,4 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, ChunkRelPos, Pos};
+use rgen_base::{block, BlockFilter, BlockState, ChunkRelPos, Pos};
 use rgen_spline::{Cosine, Spline};
 
 use crate::{
@@ -16,11 +16,11 @@ pub struct Crevasse {
 }
 
 impl Crevasse {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Crevasse {
-      replace:    blocks.packed_ice.block.into(),
+      replace:    block![packed_ice].into(),
       height:     10,
-      packed_ice: blocks.packed_ice.default_state,
+      packed_ice: block![packed_ice],
       noise:      OctavedNoise::new(0, 1.0 / 16.0),
     }
   }
@@ -51,10 +51,10 @@ impl ChunkPlacer for Crevasse {
         for y in (0..256).rev() {
           let rel_pos = rel_pos.with_y(y);
 
-          let block = chunk.chunk.get_state(rel_pos);
+          let block = chunk.get(rel_pos);
           if self.replace.contains(block) {
             for i in 0..target_depth {
-              chunk.chunk.set(rel_pos.with_y(y + i), self.packed_ice);
+              chunk.set(rel_pos.with_y(y + i), self.packed_ice);
             }
 
             break;

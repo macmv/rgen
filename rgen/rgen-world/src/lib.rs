@@ -3,26 +3,48 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Biomes, Blocks, Chunk, ChunkPos};
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, StateId};
 
 mod block;
 mod gc;
+mod info;
+
+pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub struct Context {
   pub seed:   u64,
-  pub blocks: Blocks,
-  pub biomes: Biomes,
+  pub blocks: BlockInfoSupplier,
+  pub biomes: BiomeInfoSupplier,
 }
 
 impl Context {
-  pub fn new_test(seed: u64) -> Context {
+  /*
+  pub fn new_test(seed: u64) -> Self {
     Context { seed, blocks: Blocks::test_blocks(), biomes: Biomes::test_blocks() }
+  }
+  */
+  pub fn new_test(seed: u64) -> Self {
+    let mut blocks = BlockInfoSupplier::default();
+    for kind in BlockKind::ALL {
+      blocks.lookup.insert(*kind, BlockId(*kind as u16));
+      blocks.info.insert(
+        BlockId(*kind as u16),
+        BlockData { name: String::new(), block: Some(*kind), default_meta: 0 },
+      );
+    }
+
+    let mut biomes = BiomeInfoSupplier::default();
+    for kind in Biome::ALL {
+      biomes.lookup.insert(*kind, BiomeId(*kind as u8));
+    }
+
+    Context { seed, blocks, biomes }
   }
 }
 
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, pos: ChunkPos);
+  fn decorate(&self, world: &mut PartialWorld, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -30,12 +52,28 @@ pub struct CachedWorld {
 
   // FIXME: Need to clean up this map once it gets full. The cleanup needs to be somewhat
   // intelligent, so this is kinda tricky.
-  chunks: Mutex<PartialWorld>,
+  chunks: Mutex<StagedWorldStorage>,
 
   requester: Requester,
 }
 
-pub struct PartialWorld {
+pub struct PartialWorld<'a> {
+  info:    &'a BlockInfoSupplier,
+  storage: Box<dyn PartialWorldStorage + 'a>,
+}
+
+pub trait PartialWorldStorage {
+  fn get(&self, pos: Pos) -> StateId;
+  fn set(&mut self, pos: Pos, block: StateId);
+}
+
+impl<'a> PartialWorld<'a> {
+  pub fn new(info: &'a BlockInfoSupplier, storage: impl PartialWorldStorage + 'a) -> Self {
+    PartialWorld { info, storage: Box::new(storage) }
+  }
+}
+
+pub struct StagedWorldStorage {
   /// A chunk existing in here means its either decorated or about to be
   /// decorated.
   ///
@@ -82,7 +120,7 @@ impl CachedWorld {
   pub fn new() -> Self {
     CachedWorld {
       base_chunks: Mutex::new(HashMap::new()),
-      chunks:      Mutex::new(PartialWorld::new()),
+      chunks:      Mutex::new(StagedWorldStorage::new()),
       requester:   Requester::new(),
     }
   }
@@ -219,7 +257,8 @@ impl CachedWorld {
       Stage::Decorated | Stage::NeighborDecorated => (),
       Stage::Base => {
         chunks.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
-        generator.decorate(ctx, &mut chunks, pos);
+        generator
+          .decorate(&mut PartialWorld { info: &ctx.blocks, storage: Box::new(&mut *chunks) }, pos);
       }
     }
   }
@@ -246,9 +285,9 @@ impl CachedWorld {
   }
 }
 
-impl PartialWorld {
+impl StagedWorldStorage {
   #[allow(clippy::new_without_default)]
-  pub fn new() -> Self { PartialWorld { chunks: HashMap::new() } }
+  pub fn new() -> Self { StagedWorldStorage { chunks: HashMap::new() } }
 }
 
 impl Requester {
@@ -296,7 +335,7 @@ impl Requester {
   }
 }
 
-impl fmt::Display for PartialWorld {
+impl fmt::Display for StagedWorldStorage {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     write!(f, "PartialWorld {{")?;
 
