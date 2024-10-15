@@ -1,12 +1,19 @@
 use std::fmt;
 
 #[derive(Clone, Copy, Eq)]
-pub struct PropMap<'a> {
+pub struct PropMap {
   // Garuntee: There cannot be more than 8 properties on a block.
   //
   // Also, this will always be sorted by key.
-  entries: [(Option<PropName>, PropValue<'a>); 8],
+  entries: [(Option<PropName>, PropValueCompact); 8],
 }
+
+/// Stores a property value. The bits are:
+/// - 0 and 1: bools.
+/// - 1 through 127: ints.
+/// - 128 and 255: enums.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct PropValueCompact(u8);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PropValue<'a> {
@@ -47,7 +54,7 @@ impl From<&'static str> for PropValue<'_> {
   fn from(value: &'static str) -> Self { PropValue::Enum(value) }
 }
 
-impl fmt::Debug for PropMap<'_> {
+impl fmt::Debug for PropMap {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_map().entries(self.entries()).finish()
   }
@@ -59,7 +66,7 @@ impl fmt::Debug for PropMapOwned {
   }
 }
 
-impl fmt::Display for PropMap<'_> {
+impl fmt::Display for PropMap {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     for (i, (key, value)) in self.entries().enumerate() {
       if i != 0 {
@@ -105,20 +112,20 @@ impl fmt::Display for PropValueOwned {
   }
 }
 
-impl<'a> PropMap<'a> {
-  pub const fn empty() -> Self { PropMap { entries: [(None, PropValue::Bool(false)); 8] } }
+impl PropMap {
+  pub const fn empty() -> Self { PropMap { entries: [(None, PropValueCompact(0)); 8] } }
 
   // Should be constructed with the `block![]` macro.
   #[doc(hidden)]
   #[track_caller]
-  pub fn new(values: &[(PropName, PropValue<'a>)]) -> Self {
+  pub fn new(values: &[(PropName, PropValue<'static>)]) -> Self {
     if values.len() > 8 {
       panic!("too many properties");
     }
 
-    let mut entries = [(None, PropValue::Bool(false)); 8];
+    let mut entries = [(None, PropValueCompact(0)); 8];
     for (i, (key, value)) in values.iter().enumerate() {
-      entries[i] = (Some(*key), *value);
+      entries[i] = (Some(*key), PropValueCompact::for_value_or_panic(*value));
     }
 
     entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
@@ -129,17 +136,21 @@ impl<'a> PropMap<'a> {
   pub fn len(&self) -> usize { self.entries().count() }
   pub fn is_empty(&self) -> bool { self.len() == 0 }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&'a str, PropValue)> + '_ {
-    self.entries.iter().copied().filter_map(|(key, value)| key.map(|key| (key.name(), value)))
+  pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue)> + '_ {
+    self
+      .entries
+      .iter()
+      .copied()
+      .filter_map(|(key, value)| key.map(|key| (key.name(), value.as_value())))
   }
 
   #[track_caller]
-  pub fn set(&mut self, key: &'static str, value: PropValue<'a>) {
+  pub fn set(&mut self, key: &str, value: PropValue) {
     let name = PropName::for_name_or_panic(key);
 
     for entry in self.entries.iter_mut() {
       if entry.0 == Some(name) {
-        entry.1 = value;
+        entry.1 = PropValueCompact::for_value_or_panic(value);
         return;
       }
     }
@@ -147,7 +158,7 @@ impl<'a> PropMap<'a> {
     panic!("key '{key}' not found");
   }
 
-  pub fn insert_if_unset(&mut self, key: &'a str, value: PropValue<'a>) {
+  pub fn insert_if_unset(&mut self, key: &str, value: PropValue) {
     let name = PropName::for_name_or_panic(key);
 
     for entry in self.entries() {
@@ -158,7 +169,7 @@ impl<'a> PropMap<'a> {
 
     for entry in self.entries.iter_mut() {
       if entry.0.is_none() {
-        *entry = (Some(name), value);
+        *entry = (Some(name), PropValueCompact::for_value_or_panic(value));
         // FIXME: Insert this key in the right spot, instead of just sorting. This is a
         // somewhat hot path, so probably with optimizing at some point.
         self.entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
@@ -215,14 +226,14 @@ impl PropMapOwned {
   }
 }
 
-impl PartialEq<PropMap<'_>> for PropMapOwned {
+impl PartialEq<PropMap> for PropMapOwned {
   fn eq(&self, other: &PropMap) -> bool { self.entries().eq(other.entries()) }
 }
-impl PartialEq<PropMapOwned> for PropMap<'_> {
+impl PartialEq<PropMapOwned> for PropMap {
   fn eq(&self, other: &PropMapOwned) -> bool { self.entries().eq(other.entries()) }
 }
 
-impl PartialEq<PropMap<'_>> for PropMap<'_> {
+impl PartialEq<PropMap> for PropMap {
   fn eq(&self, other: &PropMap) -> bool { self.entries().eq(other.entries()) }
 }
 impl PartialEq<PropMapOwned> for PropMapOwned {
@@ -290,6 +301,17 @@ macro_rules! intern {
 
 intern! { PropName, prop_name
   Axis => axis,
+  Variant => variant,
+}
+
+intern! { PropEnum, prop_enum
+  Andesite => andesite,
+
+  Oak => oak,
+
+  X => x,
+  Y => y,
+  Z => z,
 }
 
 impl PropName {
@@ -301,12 +323,39 @@ impl PropName {
   }
 }
 
+impl PropValueCompact {
+  pub fn for_value_or_panic(value: PropValue) -> Self {
+    match value {
+      PropValue::Bool(value) => PropValueCompact(value as u8),
+      PropValue::Int(value) => {
+        if value < 0 || value > 125 {
+          panic!("int value out of range: {}", value);
+        }
+        PropValueCompact(value as u8 + 2)
+      }
+      PropValue::Enum(value) => {
+        let value =
+          PropEnum::for_name(value).unwrap_or_else(|| panic!("unknown enum value: {}", value));
+        PropValueCompact(128 + value as u8)
+      }
+    }
+  }
+
+  pub fn as_value(&self) -> PropValue<'static> {
+    match self.0 {
+      0..=1 => PropValue::Bool(self.0 != 0),
+      2..=127 => PropValue::Int(self.0 as i32 - 2),
+      128..=255 => PropValue::Enum(PropEnum::ALL[(self.0 - 128) as usize].name()),
+    }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
 
   #[test]
   fn size_of_prop_map() {
-    assert_eq!(std::mem::size_of::<PropMap>(), 256);
+    assert_eq!(std::mem::size_of::<PropMap>(), 16);
   }
 }
