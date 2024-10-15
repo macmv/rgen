@@ -3,7 +3,9 @@ use std::{collections::HashMap, sync::Arc};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
-use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{
+  Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMap, StateId,
+};
 
 mod block;
 mod gc;
@@ -29,7 +31,13 @@ impl Context {
       blocks.lookup.insert(*kind, BlockId(*kind as u16));
       blocks.info.insert(
         BlockId(*kind as u16),
-        BlockData { name: String::new(), block: Some(*kind), default_meta: 0 },
+        BlockData {
+          name:         String::new(),
+          block:        Some(*kind),
+          default_meta: 0,
+          prop_types:   HashMap::new(),
+          prop_values:  [PropMap::empty(); 16],
+        },
       );
     }
 

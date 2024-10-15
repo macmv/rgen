@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use jni::{objects::JValue, JNIEnv};
-use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind};
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap};
 use rgen_world::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
@@ -31,6 +33,8 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
       name:         "air".to_string(),
       block:        Some(BlockKind::Air),
       default_meta: 0,
+      prop_types:   HashMap::new(),
+      prop_values:  [PropMap::empty(); 16],
     },
   );
 
@@ -41,7 +45,13 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
 
     info.info.insert(
       BlockId(id as u16),
-      BlockData { name, block, default_meta: call_lookup_default_meta(env, id) as u8 },
+      BlockData {
+        name,
+        block,
+        default_meta: call_lookup_default_meta(env, id) as u8,
+        prop_types: HashMap::new(),
+        prop_values: [PropMap::empty(); 16],
+      },
     );
   }
 }
