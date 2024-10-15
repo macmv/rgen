@@ -128,18 +128,6 @@ impl<'a> Village<'a> {
             }
           }
         }
-
-        let pos = building.pos;
-        if pos.in_chunk(chunk_pos) {
-          chunk.set(pos.chunk_rel(), info.encode(block![log[2]]));
-        }
-      }
-
-      if road.start.in_chunk(chunk_pos) {
-        chunk.set(road.start.chunk_rel().with_y(100), info.encode(block![log[1]]));
-      }
-      if road.end.in_chunk(chunk_pos) {
-        chunk.set(road.end.chunk_rel().with_y(100), info.encode(block![log[2]]));
       }
     }
   }
