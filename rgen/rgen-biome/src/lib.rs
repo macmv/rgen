@@ -123,6 +123,8 @@ lazy_static::lazy_static! {
   ]);
 }
 
+const VILLAGES: bool = false;
+
 impl WorldBiomes {
   pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
@@ -242,14 +244,18 @@ impl Generator for WorldBiomes {
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
     self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
-    self.structure.generate(&ctx.blocks, chunk, chunk_pos);
+    if VILLAGES {
+      self.structure.generate(&ctx.blocks, chunk, chunk_pos);
+    }
   }
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
 
-    self.structure.decorate(world, chunk_pos);
+    if VILLAGES {
+      self.structure.decorate(world, chunk_pos);
+    }
 
     let mut biome_names = [[""; 16]; 16];
     // The length of this list is how many total biomes we support in a single
