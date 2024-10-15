@@ -79,21 +79,28 @@ impl BlockFilter {
   /// Checks if a block filter contains the given block state.
   ///
   /// ```
-  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrProps, BlockInfo, StateId};
+  /// # use std::collections::HashMap;
+  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrProps, BlockInfo, StateId, PropMapOwned};
   /// let grass_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Grass),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let stone_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Stone),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let air_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Air),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let default_grass = BlockInfo::new(&grass_data, StateId(32 | 0));
   /// let snowy_grass = BlockInfo::new(&grass_data, StateId(32 | 1));
@@ -156,8 +163,10 @@ impl BlockFilterable for BlockKind {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::HashMap;
+
   use super::*;
-  use crate::{BlockData, StateId, StateOrProps};
+  use crate::{BlockData, PropMapOwned, StateId, StateOrProps};
 
   // NB: Other crates will write `block![]` instead of this function.
   fn block(b: BlockKind, state: u8) -> BlockState {
@@ -237,11 +246,15 @@ mod tests {
       name:         String::new(),
       block:        Some(BlockKind::Air),
       default_meta: 0,
+      prop_types:   HashMap::new(),
+      prop_values:  [const { PropMapOwned::empty() }; 16],
     };
     let stone_data = BlockData {
       name:         String::new(),
       block:        Some(BlockKind::Stone),
       default_meta: 0,
+      prop_types:   HashMap::new(),
+      prop_values:  [const { PropMapOwned::empty() }; 16],
     };
 
     assert!(a.contains(block_info(&air_data, 0)));
