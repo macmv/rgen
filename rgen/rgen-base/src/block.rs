@@ -156,31 +156,18 @@ impl PartialEq<BlockState> for BlockInfo<'_> {
 
 #[macro_export]
 macro_rules! block {
-  // block![stone[2]]
-  ($block_name:ident [$state:expr]) => {
-    $crate::BlockState {
-      block: $crate::block_kind![$block_name],
-      state: $crate::StateOrProps::meta($state),
-    }
-  };
   // block![minecraft:stone[2]]
-  ($block_namespace:ident:$block_name:ident [$state:expr]) => {
+  ($b1:ident $(:$b2:ident)? [$state:expr]) => {
     $crate::BlockState {
-      block: $crate::block_kind![$block_namespace:$block_name],
+      block: $crate::block_kind![$b1 $(:$b2)?],
       state: $crate::StateOrProps::meta($state),
     }
   };
-  // block![stone]
-  ($block_name:ident) => {
-    $crate::BlockState {
-      block: $crate::block_kind![$block_name],
-      state: $crate::StateOrProps::Default,
-    }
-  };
+
   // block![minecraft:stone]
-  ($block_namespace:ident:$block_name:ident) => {
+  ($b1:ident $(:$b2:ident)?) => {
     $crate::BlockState {
-      block: $crate::block_kind![$block_namespace:$block_name],
+      block: $crate::block_kind![$b1 $(:$b2)?],
       state: $crate::StateOrProps::Default,
     }
   };
