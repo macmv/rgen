@@ -118,7 +118,7 @@ impl<'a> PropMap<'a> {
       entries[i] = (*key, *value);
     }
 
-    entries.sort_by(|a, b| a.0.cmp(b.0));
+    entries.sort_unstable_by(|a, b| a.0.cmp(b.0));
 
     Self { entries }
   }
@@ -154,7 +154,7 @@ impl<'a> PropMap<'a> {
         *entry = (key, value);
         // FIXME: Insert this key in the right spot, instead of just sorting. This is a
         // somewhat hot path, so probably with optimizing at some point.
-        self.entries.sort_by(|a, b| a.0.cmp(b.0));
+        self.entries.sort_unstable_by(|a, b| a.0.cmp(b.0));
         return;
       }
     }

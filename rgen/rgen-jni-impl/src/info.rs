@@ -237,7 +237,7 @@ fn call_lookup_prop_values(env: &mut JNIEnv, id: i32) -> [PropMapOwned; 16] {
     }
 
     // Keep the entries sorted.
-    out[i as usize].entries.sort_by(|a, b| a.0.cmp(&b.0));
+    out[i as usize].entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
   }
 
   out
