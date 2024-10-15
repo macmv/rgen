@@ -1,3 +1,5 @@
+use crate::PropMap;
+
 /// A realized block state. The least significant 4 bits are the data value, and
 /// the most significant 12 bits are the block id.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -48,6 +50,7 @@ pub struct BlockState {
 pub enum StateOrProps {
   Default,
   Meta(u8),
+  Props(PropMap),
 }
 
 impl StateOrProps {
@@ -60,6 +63,7 @@ impl StateOrProps {
   pub fn state(&self) -> Option<u8> {
     match self {
       StateOrProps::Default => None,
+      StateOrProps::Props(_) => None,
       StateOrProps::Meta(m) => Some(*m),
     }
   }
@@ -156,6 +160,16 @@ impl PartialEq<BlockState> for BlockInfo<'_> {
 
 #[macro_export]
 macro_rules! block {
+  // block![stone[variant = andesite]]
+  ($b1:ident $(:$b2:ident)? [$($key:ident = $value:expr),*]) => {
+    $crate::BlockState {
+      block: $crate::block_kind![$b1 $(:$b2)?],
+      state: $crate::StateOrProps::Props($crate::PropMap::new(&[
+        $((stringify!($key), $crate::PropValue::from($value)),)*
+      ])),
+    }
+  };
+
   // block![minecraft:stone[2]]
   ($b1:ident $(:$b2:ident)? [$state:expr]) => {
     $crate::BlockState {
