@@ -187,10 +187,13 @@ impl PropMapOwned {
   }
 
   pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue)> + '_ {
-    self
-      .entries
-      .iter()
-      .filter_map(|(key, value)| if *key != "" { Some((&**key, value.as_value())) } else { None })
+    self.entries.iter().filter_map(|(key, value)| {
+      if key.is_empty() {
+        None
+      } else {
+        Some((&**key, value.as_value()))
+      }
+    })
   }
 
   #[track_caller]
@@ -213,7 +216,7 @@ impl PropMapOwned {
     }
 
     for entry in self.entries.iter_mut() {
-      if entry.0 == "" {
+      if entry.0.is_empty() {
         *entry = (key, value);
         // FIXME: Insert this key in the right spot, instead of just sorting. This is a
         // somewhat hot path, so probably with optimizing at some point.
@@ -525,7 +528,7 @@ impl PropValueCompact {
     match value {
       PropValue::Bool(value) => PropValueCompact(value as u8),
       PropValue::Int(value) => {
-        if value < 0 || value > 15 {
+        if !(0..=15).contains(&value) {
           panic!("int value out of range: {}", value);
         }
         PropValueCompact(value as u8 + 2)

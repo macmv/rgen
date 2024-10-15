@@ -33,6 +33,7 @@ impl Context {
 
       let mut prop_types = HashMap::new();
       let mut prop_values = [const { PropMapOwned::empty() }; 16];
+      #[allow(clippy::single_match)]
       match kind {
         block_kind![log] => {
           prop_types.insert(

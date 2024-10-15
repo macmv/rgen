@@ -152,7 +152,7 @@ fn call_lookup_prop_types(env: &mut JNIEnv, id: i32) -> HashMap<String, PropType
 
   let mut out = HashMap::new();
   for i in 0..env.get_array_length(&types).unwrap() {
-    let ty: JObject = env.get_object_array_element(&types, i).unwrap().into();
+    let ty: JObject = env.get_object_array_element(&types, i).unwrap();
 
     let jname = env.get_field(&ty, "name", "Ljava/lang/String;").unwrap().l().unwrap().into();
     let name = env.get_string(&jname).unwrap().into();
@@ -207,13 +207,13 @@ fn call_lookup_prop_values(env: &mut JNIEnv, id: i32) -> [PropMapOwned; 16] {
 
   let mut out = [const { PropMapOwned::empty() }; 16];
   for i in 0..16 {
-    let map: JObject = env.get_object_array_element(&types, i).unwrap().into();
+    let map: JObject = env.get_object_array_element(&types, i).unwrap();
 
     let values: JObjectArray =
       env.get_field(map, "values", "[Lnet/macmv/rgen/rust/PropValue;").unwrap().l().unwrap().into();
 
     for j in 0..env.get_array_length(&values).unwrap() {
-      let value: JObject = env.get_object_array_element(&values, j).unwrap().into();
+      let value: JObject = env.get_object_array_element(&values, j).unwrap();
 
       let jname = env.get_field(&value, "name", "Ljava/lang/String;").unwrap().l().unwrap().into();
       let name = env.get_string(&jname).unwrap().into();
