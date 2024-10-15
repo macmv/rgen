@@ -178,6 +178,24 @@ impl<'a> Village<'a> {
           world.set(pos, block);
         }
       }
+
+      // Fill in some dirt below the foundation.
+      for x in 0..structure.width() {
+        for z in 0..structure.depth() {
+          let rel_pos = Pos::new(x as i32, 0, z as i32);
+          let pos = building.transform_to_world(structure, rel_pos);
+
+          let mut y = max_height - 1;
+          while self.generator.replaceable.contains(world.get(pos.with_y(y))) {
+            world.set(pos.with_y(y), block![dirt]);
+            y -= 1;
+          }
+
+          // Set the layer below to dirt (this is usually grass, which we want to
+          // replace).
+          world.set(pos.with_y(y), block![dirt]);
+        }
+      }
     }
   }
 }
