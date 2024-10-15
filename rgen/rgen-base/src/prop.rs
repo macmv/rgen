@@ -13,6 +13,13 @@ pub enum PropValue {
   Enum(&'static str),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PropType {
+  Bool,
+  Int(i32, i32),
+  Enum(&'static [&'static str]),
+}
+
 impl From<bool> for PropValue {
   fn from(value: bool) -> Self { PropValue::Bool(value) }
 }
@@ -26,6 +33,29 @@ impl From<&'static str> for PropValue {
 impl fmt::Debug for PropMap {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_map().entries(self.entries()).finish()
+  }
+}
+
+impl fmt::Display for PropMap {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    for (i, (key, value)) in self.entries().enumerate() {
+      if i != 0 {
+        write!(f, ",")?;
+      }
+
+      write!(f, "{key}={value},")?;
+    }
+    Ok(())
+  }
+}
+
+impl fmt::Display for PropValue {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      PropValue::Bool(value) => write!(f, "{}", value),
+      PropValue::Int(value) => write!(f, "{}", value),
+      PropValue::Enum(value) => write!(f, "{}", value),
+    }
   }
 }
 

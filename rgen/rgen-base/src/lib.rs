@@ -12,4 +12,4 @@ pub use chunk::Chunk;
 pub use filter::BlockFilter;
 pub use iter::{BlocksIterExclusive, BlocksIterInclusive};
 pub use pos::{ChunkPos, ChunkRelPos, Pos};
-pub use prop::{PropMap, PropValue};
+pub use prop::{PropMap, PropType, PropValue};
