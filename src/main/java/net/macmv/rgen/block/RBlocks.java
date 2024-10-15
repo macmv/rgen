@@ -19,7 +19,7 @@ public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
 
   // FIXME: Need block items.
-  // public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
+  public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
   public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
   public static final Block LOOSE_ROCK = register("loose_rock", new LooseRockBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", new PlantBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
@@ -32,6 +32,16 @@ public final class RBlocks {
 
   public static final Block LOG = register("log", new LogBlockOne());
   public static final Block LOG2 = register("log2", new LogBlockTwo());
+
+  public static final Block PLANKS = register("planks", new PlanksBlock());
+  //Stairs
+  //public static final Block BAMBOO_STAIRS = register("bamboo_stairs", new BambooStairs());
+  public static final Block DEAD_STAIRS = register("dead_stairs", new RgenStairs(LogType.DEAD));
+  public static final Block MANGROVE_STAIRS = register("mangrove_stairs", new RgenStairs(LogType.MANGROVE));
+  public static final Block CEDAR_STAIRS = register("cedar_stairs", new RgenStairs(LogType.CEDAR));
+  public static final Block CHERRY_STAIRS = register("cherry_stairs", new RgenStairs(LogType.SAKURA));
+  public static final Block FIR_STAIRS = register("fir_stairs", new RgenStairs(LogType.FIR));
+  public static final Block PALM_STAIRS = register("palm_stairs", new RgenStairs(LogType.PALM));
 
   //Doors
   public static final Block DEAD_DOOR = register("dead_door", new DeadDoor());
@@ -53,8 +63,6 @@ public final class RBlocks {
 
   public static final Block SAPLING = register("sapling", new SaplingOne());
   public static final Block SAPLING2 = register("sapling2", new SaplingTwo());
-
-  public static final Block PLANKS = register("planks", new PlanksBlock());
 
   public static final Block FLOWER = register("flower", new FlowerBlock());
   public static final Block CACTUS_ARM = register("cactus_arm", new CactusArm());

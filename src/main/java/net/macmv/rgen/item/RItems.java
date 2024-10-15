@@ -59,6 +59,17 @@ public class RItems {
   public static final Item FIR_DOOR = registerItem("fir_door", new ItemDoor(RBlocks.FIR_DOOR));
   public static final Item PALM_DOOR = registerItem("palm_door", new ItemDoor(RBlocks.PALM_DOOR));
 
+  public static final Item DEAD_STAIRS = registerItem("dead_stairs", new ItemBlock(RBlocks.DEAD_STAIRS));
+  public static final Item MANGROVE_STAIRS = registerItem("mangrove_stairs", new ItemBlock(RBlocks.MANGROVE_STAIRS));
+  //public static final Item BAMBOO_STAIRS = registerItem("bamboo_stairs", new ItemBlock(RBlocks.BAMBOO_STAIRS));
+  public static final Item CEDAR_STAIRS = registerItem("cedar_stairs", new ItemBlock(RBlocks.CEDAR_STAIRS));
+  public static final Item CHERRY_STAIRS = registerItem("cherry_stairs", new ItemBlock(RBlocks.CHERRY_STAIRS));
+  public static final Item FIR_STAIRS = registerItem("fir_stairs", new ItemBlock(RBlocks.FIR_STAIRS));
+  public static final Item PALM_STAIRS = registerItem("palm_stairs", new ItemBlock(RBlocks.PALM_STAIRS));
+
+
+
+
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
