@@ -300,3 +300,13 @@ impl PropName {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn size_of_prop_map() {
+    assert_eq!(std::mem::size_of::<PropMap>(), 256);
+  }
+}
