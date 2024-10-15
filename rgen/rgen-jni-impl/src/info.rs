@@ -5,7 +5,7 @@ use jni::{
   JNIEnv,
 };
 use rgen_base::{
-  Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap, PropMapOwned, PropType, PropValueOwned,
+  Biome, BiomeId, BlockData, BlockId, BlockKind, PropMapOwned, PropType, PropValueOwned,
 };
 use rgen_world::{BiomeInfoSupplier, BlockInfoSupplier};
 
@@ -235,6 +235,9 @@ fn call_lookup_prop_values(env: &mut JNIEnv, id: i32) -> [PropMapOwned; 16] {
 
       out[i as usize].entries[j as usize] = (name, value);
     }
+
+    // Keep the entries sorted.
+    out[i as usize].entries.sort_by(|a, b| a.0.cmp(&b.0));
   }
 
   out

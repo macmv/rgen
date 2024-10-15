@@ -3,6 +3,8 @@ use std::fmt;
 #[derive(Clone, Copy, Eq)]
 pub struct PropMap<'a> {
   // Garuntee: There cannot be more than 8 properties on a block.
+  //
+  // Also, this will always be sorted by key.
   entries: [(&'a str, PropValue<'a>); 8],
 }
 
@@ -16,6 +18,8 @@ pub enum PropValue<'a> {
 #[derive(Clone, Eq)]
 pub struct PropMapOwned {
   // Garuntee: There cannot be more than 8 properties on a block.
+  //
+  // Also, this will always be sorted by key.
   pub entries: [(String, PropValueOwned); 8],
 }
 
@@ -113,6 +117,8 @@ impl<'a> PropMap<'a> {
     for (i, (key, value)) in values.iter().enumerate() {
       entries[i] = (*key, *value);
     }
+
+    entries.sort_by(|a, b| a.0.cmp(b.0));
 
     Self { entries }
   }
