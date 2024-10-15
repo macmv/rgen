@@ -4,7 +4,8 @@ use std::{collections::HashMap, sync::Arc};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
 use rgen_base::{
-  Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMapOwned, StateId,
+  block_kind, Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMapOwned,
+  PropType, PropValueOwned, StateId,
 };
 
 mod block;
@@ -29,14 +30,30 @@ impl Context {
     let mut blocks = BlockInfoSupplier::default();
     for kind in BlockKind::ALL {
       blocks.lookup.insert(*kind, BlockId(*kind as u16));
+
+      let mut prop_types = HashMap::new();
+      let mut prop_values = [const { PropMapOwned::empty() }; 16];
+      match kind {
+        block_kind![log] => {
+          prop_types.insert(
+            "axis".to_string(),
+            PropType::Enum(vec!["x".to_string(), "y".to_string(), "z".to_string()]),
+          );
+          prop_values[0].insert_if_unset("axis".into(), PropValueOwned::Enum("x".into()));
+          prop_values[1].insert_if_unset("axis".into(), PropValueOwned::Enum("y".into()));
+          prop_values[2].insert_if_unset("axis".into(), PropValueOwned::Enum("z".into()));
+        }
+        _ => {}
+      };
+
       blocks.info.insert(
         BlockId(*kind as u16),
         BlockData {
-          name:         String::new(),
-          block:        Some(*kind),
+          name: String::new(),
+          block: Some(*kind),
           default_meta: 0,
-          prop_types:   HashMap::new(),
-          prop_values:  [const { PropMapOwned::empty() }; 16],
+          prop_types,
+          prop_values,
         },
       );
     }

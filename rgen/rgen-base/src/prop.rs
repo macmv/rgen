@@ -186,6 +186,26 @@ impl PropMapOwned {
 
     panic!("key '{key}' not found");
   }
+
+  pub fn insert_if_unset(&mut self, key: String, value: PropValueOwned) {
+    for entry in self.entries() {
+      if entry.0 == key {
+        return;
+      }
+    }
+
+    for entry in self.entries.iter_mut() {
+      if entry.0 == "" {
+        *entry = (key, value);
+        // FIXME: Insert this key in the right spot, instead of just sorting. This is a
+        // somewhat hot path, so probably with optimizing at some point.
+        self.entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
+        return;
+      }
+    }
+
+    panic!("no more space for key '{key}'");
+  }
 }
 
 impl PartialEq<PropMap<'_>> for PropMapOwned {

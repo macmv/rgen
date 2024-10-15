@@ -5,8 +5,8 @@
 use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
 use rgen_base::{
-  Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropMapOwned,
-  PropType, PropValue, StateId, StateOrProps,
+  Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropType,
+  PropValue, StateId, StateOrProps,
 };
 
 pub struct InfoSupplier<K, I, D> {
