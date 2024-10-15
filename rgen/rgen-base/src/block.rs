@@ -45,22 +45,22 @@ pub struct BlockState {
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
 /// whereas the state 16 is to place the default state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct StateOrProps(u8);
+pub enum StateOrProps {
+  Default,
+  Meta(u8),
+}
 
 impl StateOrProps {
-  pub const DEFAULT: StateOrProps = StateOrProps(16);
-
-  pub const fn new(state: u8) -> StateOrProps {
+  pub const fn meta(state: u8) -> StateOrProps {
     assert!(state < 16);
-    StateOrProps(state)
+    StateOrProps::Meta(state)
   }
 
-  pub fn is_default(&self) -> bool { self.0 == 16 }
+  pub fn is_default(&self) -> bool { matches!(self, StateOrProps::Default) }
   pub fn state(&self) -> Option<u8> {
-    if self.is_default() {
-      None
-    } else {
-      Some(self.0)
+    match self {
+      StateOrProps::Default => None,
+      StateOrProps::Meta(m) => Some(*m),
     }
   }
 }
@@ -80,7 +80,7 @@ impl BlockData {
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
     match self.block {
-      Some(block) => BlockState { block, state: StateOrProps::new(data) },
+      Some(block) => BlockState { block, state: StateOrProps::meta(data) },
       None => panic!("cannot construct a block state without a constant block definition"),
     }
   }
@@ -116,12 +116,12 @@ impl BlockKind {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: *self, state: StateOrProps::new(data) }
+    BlockState { block: *self, state: StateOrProps::meta(data) }
   }
 }
 
 impl BlockState {
-  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrProps::new(0) };
+  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrProps::meta(0) };
 
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
@@ -160,28 +160,28 @@ macro_rules! block {
   ($block_name:ident [$state:expr]) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_name],
-      state: $crate::StateOrProps::new($state),
+      state: $crate::StateOrProps::meta($state),
     }
   };
   // block![minecraft:stone[2]]
   ($block_namespace:ident:$block_name:ident [$state:expr]) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrProps::new($state),
+      state: $crate::StateOrProps::meta($state),
     }
   };
   // block![stone]
   ($block_name:ident) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_name],
-      state: $crate::StateOrProps::DEFAULT,
+      state: $crate::StateOrProps::Default,
     }
   };
   // block![minecraft:stone]
   ($block_namespace:ident:$block_name:ident) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrProps::DEFAULT,
+      state: $crate::StateOrProps::Default,
     }
   };
 }

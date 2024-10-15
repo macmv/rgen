@@ -28,8 +28,8 @@ impl From<BlockKind> for BlockFilter {
   fn from(value: BlockKind) -> Self {
     BlockFilter::Block(SmallVec::from_buf_and_len(
       [
-        BlockState { block: value, state: StateOrProps::DEFAULT },
-        BlockState { block: BlockKind::Air, state: StateOrProps::DEFAULT },
+        BlockState { block: value, state: StateOrProps::Default },
+        BlockState { block: BlockKind::Air, state: StateOrProps::Default },
       ],
       1,
     ))
@@ -79,7 +79,7 @@ impl BlockFilter {
   /// Checks if a block filter contains the given block state.
   ///
   /// ```
-  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrDefault, BlockInfo, StateId};
+  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrProps, BlockInfo, StateId};
   /// let grass_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Grass),
@@ -100,9 +100,9 @@ impl BlockFilter {
   /// let stone = BlockInfo::new(&stone_data, StateId(16 | 0));
   /// let air = BlockInfo::new(&air_data, StateId(0));
   ///
-  /// let default_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::DEFAULT };
-  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::new(1) };
-  /// let air_state = BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT };
+  /// let default_grass_state = BlockState { block: BlockKind::Grass, state: StateOrProps::Default };
+  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrProps::meta(1) };
+  /// let air_state = BlockState { block: BlockKind::Air, state: StateOrProps::Default };
   ///
   /// let filter: BlockFilter = [default_grass_state, air_state].into();
   ///
@@ -161,7 +161,7 @@ mod tests {
 
   // NB: Other crates will write `block![]` instead of this function.
   fn block(b: BlockKind, state: u8) -> BlockState {
-    BlockState { block: b, state: StateOrProps::new(state) }
+    BlockState { block: b, state: StateOrProps::meta(state) }
   }
 
   fn block_info(data: &BlockData, state: u8) -> BlockInfo {
@@ -176,8 +176,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrProps::DEFAULT },
-        BlockState { block: BlockKind::Stone, state: StateOrProps::DEFAULT },
+        BlockState { block: BlockKind::Air, state: StateOrProps::Default },
+        BlockState { block: BlockKind::Stone, state: StateOrProps::Default },
       ]))
     );
 
@@ -187,8 +187,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrProps::new(0) },
-        BlockState { block: BlockKind::Air, state: StateOrProps::new(1) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::meta(0) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::meta(1) },
       ]))
     );
 
@@ -200,7 +200,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrProps::DEFAULT,
+        state: StateOrProps::Default,
       },]))
     );
 
@@ -212,7 +212,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrProps::DEFAULT,
+        state: StateOrProps::Default,
       },]))
     );
 
@@ -223,7 +223,7 @@ mod tests {
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrProps::new(0),
+        state: StateOrProps::meta(0),
       },]))
     );
   }
