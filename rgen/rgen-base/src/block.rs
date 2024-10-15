@@ -52,7 +52,7 @@ pub struct BlockState {
 pub enum StateOrProps {
   Default,
   Meta(u8),
-  Props(PropMap),
+  Props(PropMap<'static>),
 }
 
 impl StateOrProps {

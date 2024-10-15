@@ -1,16 +1,16 @@
 use std::fmt;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct PropMap {
+pub struct PropMap<'a> {
   // Garuntee: There cannot be more than 8 properties on a block.
-  entries: [(&'static str, PropValue); 8],
+  entries: [(&'a str, PropValue<'a>); 8],
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PropValue {
+pub enum PropValue<'a> {
   Bool(bool),
   Int(i32),
-  Enum(&'static str),
+  Enum(&'a str),
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -33,17 +33,17 @@ pub enum PropType {
   Enum(Vec<String>),
 }
 
-impl From<bool> for PropValue {
+impl From<bool> for PropValue<'_> {
   fn from(value: bool) -> Self { PropValue::Bool(value) }
 }
-impl From<i32> for PropValue {
+impl From<i32> for PropValue<'_> {
   fn from(value: i32) -> Self { PropValue::Int(value) }
 }
-impl From<&'static str> for PropValue {
+impl From<&'static str> for PropValue<'_> {
   fn from(value: &'static str) -> Self { PropValue::Enum(value) }
 }
 
-impl fmt::Debug for PropMap {
+impl fmt::Debug for PropMap<'_> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_map().entries(self.entries()).finish()
   }
@@ -55,7 +55,7 @@ impl fmt::Debug for PropMapOwned {
   }
 }
 
-impl fmt::Display for PropMap {
+impl fmt::Display for PropMap<'_> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     for (i, (key, value)) in self.entries().enumerate() {
       if i != 0 {
@@ -81,7 +81,7 @@ impl fmt::Display for PropMapOwned {
   }
 }
 
-impl fmt::Display for PropValue {
+impl fmt::Display for PropValue<'_> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       PropValue::Bool(value) => write!(f, "{}", value),
@@ -101,10 +101,10 @@ impl fmt::Display for PropValueOwned {
   }
 }
 
-impl PropMap {
+impl<'a> PropMap<'a> {
   pub const fn empty() -> Self { PropMap { entries: [("", PropValue::Bool(false)); 8] } }
   #[track_caller]
-  pub fn new(values: &[(&'static str, PropValue)]) -> Self {
+  pub fn new(values: &[(&'a str, PropValue<'a>)]) -> Self {
     if values.len() > 8 {
       panic!("too many properties");
     }
@@ -120,12 +120,12 @@ impl PropMap {
   pub fn len(&self) -> usize { self.entries().count() }
   pub fn is_empty(&self) -> bool { self.len() == 0 }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&'static str, PropValue)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&'a str, PropValue)> + '_ {
     self.entries.iter().copied().filter(|(key, _)| *key != "")
   }
 
   #[track_caller]
-  pub fn set(&mut self, key: &'static str, value: PropValue) {
+  pub fn set(&mut self, key: &'static str, value: PropValue<'a>) {
     for entry in self.entries.iter_mut() {
       if entry.0 == key {
         *entry = (key, value);
@@ -142,10 +142,20 @@ impl PropMapOwned {
     PropMapOwned { entries: [const { (String::new(), PropValueOwned::Bool(false)) }; 8] }
   }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&str, &PropValueOwned)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue)> + '_ {
     self
       .entries
       .iter()
-      .filter_map(|(key, value)| if *key != "" { Some((&**key, value)) } else { None })
+      .filter_map(|(key, value)| if *key != "" { Some((&**key, value.as_value())) } else { None })
+  }
+}
+
+impl PropValueOwned {
+  pub fn as_value(&self) -> PropValue {
+    match self {
+      PropValueOwned::Bool(value) => PropValue::Bool(*value),
+      PropValueOwned::Int(value) => PropValue::Int(*value),
+      PropValueOwned::Enum(value) => PropValue::Enum(value),
+    }
   }
 }
