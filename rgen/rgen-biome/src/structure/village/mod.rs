@@ -142,24 +142,37 @@ impl<'a> Village<'a> {
       }
 
       // The Y position of the base of the building.
-      let mut building_y = 0;
+      let mut max_height = 0;
+      let mut min_height = 255;
       for x in 0..structure.width() {
         for z in 0..structure.depth() {
           let rel_pos = Pos::new(x as i32, 0, z as i32);
           let pos = building.transform_to_world(structure, rel_pos);
 
-          for y in (building_y..=255).rev() {
+          for y in (0..=255).rev() {
             if !self.generator.replaceable.contains(world.get(pos.with_y(y))) {
-              building_y = y;
+              if y < min_height {
+                min_height = y;
+              }
+              if y > max_height {
+                max_height = y;
+              }
               break;
             }
           }
         }
       }
 
+      // If the ground is too steep, don't place the building.
+      if max_height - min_height > 5 {
+        continue;
+      }
+
       for rel_pos in structure.blocks() {
         let block = structure.get(rel_pos);
-        let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, building_y, 0));
+        // NB: The building is placed at `max_height` to set it into the surface by 1
+        // block.
+        let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, max_height, 0));
 
         if block != block![air] {
           world.set(pos, block);
