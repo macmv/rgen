@@ -1,4 +1,5 @@
 use rgen_base::Pos;
+use rgen_llama::Structure;
 
 use super::math::{Direction, Rectangle};
 
@@ -48,6 +49,27 @@ impl Building {
 
     Rectangle { min: Pos::new(min_x, self.pos.y, min_z), max: Pos::new(max_x, self.pos.y, max_z) }
   }
+
+  pub fn transform_to_world(&self, structure: &Structure, pos: Pos) -> Pos {
+    // This is the axis of rotation for the building.
+    let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
+
+    self.pos + rotate_around(pos - front_center, Pos::new(0, 0, 0), self.forward)
+  }
+}
+
+// Rotate `pos` about `around`.
+fn rotate_around(pos: Pos, around: Pos, dir: Direction) -> Pos {
+  let rotated_x = pos.x - around.x;
+  let rotated_z = pos.z - around.z;
+  let (rotated_x, rotated_z) = match dir {
+    Direction::North => (rotated_x, rotated_z),
+    Direction::East => (-rotated_z, rotated_x),
+    Direction::South => (-rotated_x, -rotated_z),
+    Direction::West => (rotated_z, -rotated_x),
+  };
+
+  Pos::new(around.x + rotated_x, pos.y, around.z + rotated_z)
 }
 
 #[cfg(test)]
@@ -64,5 +86,25 @@ mod tests {
     assert_eq!(building.front_right(), pos + Pos::new(1, 0, 0));
     assert_eq!(building.back_left(), pos + Pos::new(-1, 0, 4));
     assert_eq!(building.back_right(), pos + Pos::new(1, 0, 4));
+  }
+
+  #[test]
+  fn rotate_around_works() {
+    assert_eq!(
+      rotate_around(Pos::new(1, 0, 2), Pos::new(1, 0, 1), Direction::North),
+      Pos::new(1, 0, 2)
+    );
+    assert_eq!(
+      rotate_around(Pos::new(1, 0, 2), Pos::new(1, 0, 1), Direction::East),
+      Pos::new(0, 0, 1)
+    );
+    assert_eq!(
+      rotate_around(Pos::new(1, 0, 2), Pos::new(1, 0, 1), Direction::South),
+      Pos::new(1, 0, 0)
+    );
+    assert_eq!(
+      rotate_around(Pos::new(1, 0, 2), Pos::new(1, 0, 1), Direction::West),
+      Pos::new(2, 0, 1)
+    );
   }
 }

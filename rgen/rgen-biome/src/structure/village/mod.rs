@@ -8,7 +8,6 @@ mod math;
 mod road;
 
 use building::Building;
-use math::Direction;
 use rgen_world::BlockInfoSupplier;
 use road::Road;
 
@@ -122,31 +121,37 @@ impl<'a> Village<'a> {
     for building in &self.buildings {
       let structure = &self.generator.buildings[building.building_id as usize];
 
-      // This is the axis of rotation for the building.
-      let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
-      for rel_pos in structure.blocks() {
-        let block = structure.get(rel_pos);
-        if block != BlockState::AIR {
-          // Rotate `rel_pos` about the `front_center`.
-          let rotated_x = rel_pos.x - front_center.x;
-          let rotated_z = rel_pos.z - front_center.z;
-          let (rotated_x, rotated_z) = match building.forward {
-            Direction::North => (rotated_x, rotated_z),
-            Direction::East => (-rotated_z, rotated_x),
-            Direction::South => (-rotated_x, -rotated_z),
-            Direction::West => (rotated_z, -rotated_x),
-          };
-          let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
+      // If the building is in this chunk, we place it. Because this is part of the
+      // decoration pass, we can modify blocks in neighboring chunks. So we'll
+      // place the entire building at once, and we can consistently find ground
+      // level at the same time.
+      if !building.pos.in_chunk(chunk_pos) {
+        continue;
+      }
 
-          if pos.in_chunk(chunk_pos) {
-            world.set(pos, block);
+      // The Y position of the base of the building.
+      let mut building_y = 0;
+      for x in 0..structure.width() {
+        for z in 0..structure.depth() {
+          let rel_pos = Pos::new(x as i32, 0, z as i32);
+          let pos = building.transform_to_world(structure, rel_pos);
+
+          for y in (building_y..=255).rev() {
+            if world.get(pos.with_y(y)) != block![air] {
+              building_y = y;
+              break;
+            }
           }
         }
       }
 
-      let pos = building.pos;
-      if pos.in_chunk(chunk_pos) {
-        world.set(pos, block![log[2]]);
+      for rel_pos in structure.blocks() {
+        let block = structure.get(rel_pos);
+        let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, building_y, 0));
+
+        if block != block![air] {
+          world.set(pos, block);
+        }
       }
     }
   }
