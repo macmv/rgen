@@ -280,6 +280,7 @@ big! { BlockKind, block_kind
   IronOre => minecraft:iron_ore,
   BrownMushroom => minecraft:brown_mushroom,
   Cocoa => minecraft:cocoa,
+  GrassPath => minecraft:grass_path,
 
   RgenLog => rgen:log,
   RgenLog2 => rgen:log2,

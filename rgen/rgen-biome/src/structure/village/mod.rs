@@ -1,18 +1,23 @@
-use rgen_base::{BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use math::Direction;
+use rgen_base::{block, block_kind, BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
+use rgen_world::PartialWorld;
 
 mod building;
 mod math;
 mod road;
 
 use building::Building;
-use math::Direction;
+use rgen_world::BlockInfoSupplier;
 use road::Road;
 
 pub struct VillageGenerator {
   seed: u64,
   grid: PointGrid,
+
+  replaceable: BlockFilter,
+  road_block:  BlockState,
 
   buildings: Vec<Structure>,
 }
@@ -26,6 +31,18 @@ impl VillageGenerator {
     VillageGenerator {
       seed,
       grid,
+      // FIXME: Needs so much replacing.
+      replaceable: [
+        block![air],
+        block![leaves],
+        block![rgen:leaves],
+        block![rgen:leaves2],
+        block![rgen:leaves3],
+        block![double_plant],
+        block![tallgrass],
+      ]
+      .into(),
+      road_block: block![grass_path],
       buildings: vec![
         rgen_llama::parse(include_str!("building/house_1.ll")),
         rgen_llama::parse(include_str!("building/house_2.ll")),
@@ -33,7 +50,7 @@ impl VillageGenerator {
     }
   }
 
-  pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn call_villages(&self, chunk_pos: ChunkPos, mut f: impl FnMut(Village)) {
     // FIXME: A lot of this is copied from noodle caves, need to dedupe.
 
     let scale = 256.0;
@@ -53,8 +70,20 @@ impl VillageGenerator {
       let village_seed = self.seed ^ ((pos.x as u64) << 8) ^ ((pos.y as u64) << 16);
 
       let village = Village::new(self, village_seed, pos);
-      village.generate(chunk, chunk_pos);
+      f(village)
     }
+  }
+
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    self.call_villages(chunk_pos, |village| {
+      village.generate(info, chunk, chunk_pos);
+    });
+  }
+
+  pub fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    self.call_villages(chunk_pos, |village| {
+      village.decorate(world, chunk_pos);
+    });
   }
 }
 
@@ -77,92 +106,102 @@ impl<'a> Village<'a> {
     village
   }
 
-  pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for road in &self.roads {
-      for x in road.min().x..=road.max().x {
-        for z in road.min().z..=road.max().z {
+      for x in road.min().x - 1..=road.max().x + 1 {
+        for z in road.min().z - 1..=road.max().z + 1 {
           let pos = Pos::new(x, 100, z);
 
-          for dx in -1..=1 {
-            for dz in -1..=1 {
-              let pos = pos + Pos::new(dx, 0, dz);
-              if !pos.in_chunk(chunk_pos) {
-                continue;
+          if !pos.in_chunk(chunk_pos) {
+            continue;
+          }
+
+          let rel = pos.chunk_rel();
+
+          let y = highest_block(chunk, rel).y();
+
+          let replacing = info.decode(chunk.get(rel.with_y(y)));
+          // Intersections get placed multiple times, so we need to check for planks here
+          // too.
+          let placing = if replacing == block![water] || replacing == block![planks] {
+            block![planks]
+          } else {
+            self.generator.road_block
+          };
+          chunk.set(rel.with_y(y), info.encode(placing));
+        }
+      }
+    }
+  }
+
+  pub fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    for building in &self.buildings {
+      let structure = &self.generator.buildings[building.building_id as usize];
+
+      // If the building is in this chunk, we place it. Because this is part of the
+      // decoration pass, we can modify blocks in neighboring chunks. So we'll
+      // place the entire building at once, and we can consistently find ground
+      // level at the same time.
+      if !building.pos.in_chunk(chunk_pos) {
+        continue;
+      }
+
+      // The Y position of the base of the building.
+      let mut max_height = 0;
+      let mut min_height = 255;
+      for x in 0..structure.width() {
+        for z in 0..structure.depth() {
+          let rel_pos = Pos::new(x as i32, 0, z as i32);
+          let pos = building.transform_to_world(structure, rel_pos);
+
+          for y in (0..=255).rev() {
+            if !self.generator.replaceable.contains(world.get(pos.with_y(y))) {
+              if y < min_height {
+                min_height = y;
               }
-
-              let rel = pos.chunk_rel();
-
-              let _y = highest_block(chunk, rel).y();
-              // FIXME: Get `BlockInfoSupplier` in here.
-              //
-              // chunk.set(rel.with_y(y), self.generator.road_block);
+              if y > max_height {
+                max_height = y;
+              }
+              break;
             }
           }
         }
       }
 
-      for building in &self.buildings {
-        let structure = &self.generator.buildings[building.building_id as usize];
+      // If the ground is too steep, don't place the building.
+      if max_height - min_height > 5 {
+        continue;
+      }
 
-        // This is the axis of rotation for the building.
-        let front_center = Pos::new(structure.width() as i32 / 2, 0, 0);
-        for rel_pos in structure.blocks() {
-          let block = structure.get(rel_pos);
-          if block != BlockState::AIR {
-            // Rotate `rel_pos` about the `front_center`.
-            let rotated_x = rel_pos.x - front_center.x;
-            let rotated_z = rel_pos.z - front_center.z;
-            let (rotated_x, rotated_z) = match building.forward {
-              Direction::North => (rotated_x, rotated_z),
-              Direction::East => (-rotated_z, rotated_x),
-              Direction::South => (-rotated_x, -rotated_z),
-              Direction::West => (rotated_z, -rotated_x),
-            };
-            let pos = building.pos + Pos::new(rotated_x, rel_pos.y, rotated_z);
+      for rel_pos in structure.blocks() {
+        let block = structure.get(rel_pos);
+        // NB: The building is placed at `max_height` to set it into the surface by 1
+        // block.
+        let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, max_height, 0));
 
-            if pos.in_chunk(chunk_pos) {
-              // FIXME
-              // chunk.set(pos.chunk_rel(), block);
-            }
+        if block != block![air] {
+          world.set(pos, rotate_block(block, building.forward));
+        }
+      }
+
+      // Fill in some dirt below the foundation.
+      for x in 0..structure.width() {
+        for z in 0..structure.depth() {
+          let rel_pos = Pos::new(x as i32, 0, z as i32);
+          let pos = building.transform_to_world(structure, rel_pos);
+
+          let mut y = max_height - 1;
+          while self.generator.replaceable.contains(world.get(pos.with_y(y))) {
+            world.set(pos.with_y(y), block![dirt]);
+            y -= 1;
           }
-        }
 
-        let pos = building.pos;
-        if pos.in_chunk(chunk_pos) {
-          // FIXME
-          /*
-          chunk
-            .set(pos.chunk_rel(), BlockState { block: self.generator.road_block.block, state: 2 });
-          */
+          // Set the layer below to dirt (this is usually grass, which we want to
+          // replace).
+          world.set(pos.with_y(y), block![dirt]);
         }
       }
-
-      if road.start.in_chunk(chunk_pos) {
-        // FIXME
-        /*
-        chunk.set(
-          road.start.chunk_rel().with_y(100),
-          BlockState { block: self.generator.road_block.block, state: 1 },
-        );
-        */
-      }
-      if road.end.in_chunk(chunk_pos) {
-        // FIXME
-        /*
-        chunk.set(
-          road.end.chunk_rel().with_y(100),
-          BlockState { block: self.generator.road_block.block, state: 2 },
-        );
-        */
-      }
     }
-
-    // FIXME
-    /*
-    if self.origin.in_chunk(chunk_pos) {
-      chunk.set(self.origin.chunk_rel().with_y(101), self.generator.road_block);
-    }
-    */
   }
 }
 
@@ -226,7 +265,7 @@ impl<'a> Village<'a> {
 
           let forward = if side { off_axis.positive_dir() } else { off_axis.negative_dir() };
 
-          let pos = Pos::new(x, 100, z) - forward.dir() * 2;
+          let pos = Pos::new(x, 0, z) - forward.dir() * 2;
 
           self.try_place_building(Building {
             pos,
@@ -271,4 +310,28 @@ fn highest_block(chunk: &Chunk, pos: ChunkRelPos) -> ChunkRelPos {
   }
 
   ChunkRelPos::new(pos.x(), y, pos.z())
+}
+
+fn rotate_block(block: BlockState, dir: Direction) -> BlockState {
+  fn rotate_ccw(block: BlockState) -> BlockState {
+    let state = block.state.state().unwrap_or_default();
+
+    let new_state = match block.block {
+      // axis=x -> axis=z
+      block_kind![log] if state & 0b1100 == 0b0100 => state & 0b0011 | 0b1000,
+      // axis=z -> axis=x
+      block_kind![log] if state & 0b1100 == 0b1000 => state & 0b0011 | 0b0100,
+
+      _ => return block,
+    };
+
+    block.with_data(new_state)
+  }
+
+  match dir {
+    Direction::North => block,
+    Direction::East => rotate_ccw(block),
+    Direction::South => rotate_ccw(rotate_ccw(block)),
+    Direction::West => rotate_ccw(rotate_ccw(rotate_ccw(block))),
+  }
 }
