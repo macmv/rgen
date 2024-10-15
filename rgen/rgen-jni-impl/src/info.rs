@@ -224,9 +224,9 @@ fn call_lookup_prop_values(env: &mut JNIEnv, id: i32) -> [PropMapOwned; 16] {
         2 => {
           let jstr =
             env.get_field(&value, "str", "Ljava/lang/String;").unwrap().l().unwrap().into();
-          let str = env.get_string(&jstr).unwrap().into();
+          let str: String = env.get_string(&jstr).unwrap().into();
 
-          PropValueOwned::Enum(str)
+          PropValueOwned::Enum(str.to_lowercase())
         }
         v => {
           panic!("unknown prop kind {v} for prop named {name}");
