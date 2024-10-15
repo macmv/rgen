@@ -2,7 +2,7 @@ use std::ops::BitOr;
 
 use smallvec::SmallVec;
 
-use crate::{BlockInfo, BlockKind, BlockState, StateOrDefault};
+use crate::{BlockInfo, BlockKind, BlockState, StateOrProps};
 
 /// A block filter is a filter for matching against blocks.
 ///
@@ -28,8 +28,8 @@ impl From<BlockKind> for BlockFilter {
   fn from(value: BlockKind) -> Self {
     BlockFilter::Block(SmallVec::from_buf_and_len(
       [
-        BlockState { block: value, state: StateOrDefault::DEFAULT },
-        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
+        BlockState { block: value, state: StateOrProps::Default },
+        BlockState { block: BlockKind::Air, state: StateOrProps::Default },
       ],
       1,
     ))
@@ -79,30 +79,37 @@ impl BlockFilter {
   /// Checks if a block filter contains the given block state.
   ///
   /// ```
-  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrDefault, BlockInfo, StateId};
+  /// # use std::collections::HashMap;
+  /// # use rgen_base::{BlockKind, BlockData, BlockFilter, BlockState, StateOrProps, BlockInfo, StateId, PropMapOwned};
   /// let grass_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Grass),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let stone_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Stone),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let air_data = BlockData {
   ///   name:         String::new(),
   ///   block:        Some(BlockKind::Air),
   ///   default_meta: 0,
+  ///   prop_types:   HashMap::new(),
+  ///   prop_values:  [const { PropMapOwned::empty() }; 16],
   /// };
   /// let default_grass = BlockInfo::new(&grass_data, StateId(32 | 0));
   /// let snowy_grass = BlockInfo::new(&grass_data, StateId(32 | 1));
   /// let stone = BlockInfo::new(&stone_data, StateId(16 | 0));
   /// let air = BlockInfo::new(&air_data, StateId(0));
   ///
-  /// let default_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::DEFAULT };
-  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrDefault::new(1) };
-  /// let air_state = BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT };
+  /// let default_grass_state = BlockState { block: BlockKind::Grass, state: StateOrProps::Default };
+  /// let snowy_grass_state = BlockState { block: BlockKind::Grass, state: StateOrProps::meta(1) };
+  /// let air_state = BlockState { block: BlockKind::Air, state: StateOrProps::Default };
   ///
   /// let filter: BlockFilter = [default_grass_state, air_state].into();
   ///
@@ -156,12 +163,14 @@ impl BlockFilterable for BlockKind {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::HashMap;
+
   use super::*;
-  use crate::{BlockData, StateId, StateOrDefault};
+  use crate::{BlockData, PropMapOwned, StateId, StateOrProps};
 
   // NB: Other crates will write `block![]` instead of this function.
   fn block(b: BlockKind, state: u8) -> BlockState {
-    BlockState { block: b, state: StateOrDefault::new(state) }
+    BlockState { block: b, state: StateOrProps::meta(state) }
   }
 
   fn block_info(data: &BlockData, state: u8) -> BlockInfo {
@@ -176,8 +185,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
-        BlockState { block: BlockKind::Stone, state: StateOrDefault::DEFAULT },
+        BlockState { block: BlockKind::Air, state: StateOrProps::Default },
+        BlockState { block: BlockKind::Stone, state: StateOrProps::Default },
       ]))
     );
 
@@ -187,8 +196,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) },
-        BlockState { block: BlockKind::Air, state: StateOrDefault::new(1) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::meta(0) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::meta(1) },
       ]))
     );
 
@@ -200,7 +209,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::DEFAULT,
+        state: StateOrProps::Default,
       },]))
     );
 
@@ -212,7 +221,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::DEFAULT,
+        state: StateOrProps::Default,
       },]))
     );
 
@@ -223,7 +232,7 @@ mod tests {
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::new(0),
+        state: StateOrProps::meta(0),
       },]))
     );
   }
@@ -237,11 +246,15 @@ mod tests {
       name:         String::new(),
       block:        Some(BlockKind::Air),
       default_meta: 0,
+      prop_types:   HashMap::new(),
+      prop_values:  [const { PropMapOwned::empty() }; 16],
     };
     let stone_data = BlockData {
       name:         String::new(),
       block:        Some(BlockKind::Stone),
       default_meta: 0,
+      prop_types:   HashMap::new(),
+      prop_values:  [const { PropMapOwned::empty() }; 16],
     };
 
     assert!(a.contains(block_info(&air_data, 0)));

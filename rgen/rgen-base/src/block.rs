@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use crate::{PropMap, PropMapOwned, PropType};
+
 /// A realized block state. The least significant 4 bits are the data value, and
 /// the most significant 12 bits are the block id.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -39,28 +43,30 @@ impl BiomeId {
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct BlockState {
   pub block: BlockKind,
-  pub state: StateOrDefault,
+  pub state: StateOrProps,
 }
 
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
 /// whereas the state 16 is to place the default state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct StateOrDefault(u8);
+pub enum StateOrProps {
+  Default,
+  Meta(u8),
+  Props(PropMap),
+}
 
-impl StateOrDefault {
-  pub const DEFAULT: StateOrDefault = StateOrDefault(16);
-
-  pub const fn new(state: u8) -> StateOrDefault {
+impl StateOrProps {
+  pub const fn meta(state: u8) -> StateOrProps {
     assert!(state < 16);
-    StateOrDefault(state)
+    StateOrProps::Meta(state)
   }
 
-  pub fn is_default(&self) -> bool { self.0 == 16 }
+  pub fn is_default(&self) -> bool { matches!(self, StateOrProps::Default) }
   pub fn state(&self) -> Option<u8> {
-    if self.is_default() {
-      None
-    } else {
-      Some(self.0)
+    match self {
+      StateOrProps::Default => None,
+      StateOrProps::Props(_) => None,
+      StateOrProps::Meta(m) => Some(*m),
     }
   }
 }
@@ -71,6 +77,9 @@ pub struct BlockData {
   pub name:         String,
   pub block:        Option<BlockKind>,
   pub default_meta: u8,
+
+  pub prop_types:  HashMap<String, PropType>,
+  pub prop_values: [PropMapOwned; 16],
 }
 
 impl BlockData {
@@ -80,7 +89,7 @@ impl BlockData {
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
     match self.block {
-      Some(block) => BlockState { block, state: StateOrDefault::new(data) },
+      Some(block) => BlockState { block, state: StateOrProps::meta(data) },
       None => panic!("cannot construct a block state without a constant block definition"),
     }
   }
@@ -116,12 +125,12 @@ impl BlockKind {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: *self, state: StateOrDefault::new(data) }
+    BlockState { block: *self, state: StateOrProps::meta(data) }
   }
 }
 
 impl BlockState {
-  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) };
+  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrProps::meta(0) };
 
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
@@ -156,32 +165,29 @@ impl PartialEq<BlockState> for BlockInfo<'_> {
 
 #[macro_export]
 macro_rules! block {
-  // block![stone[2]]
-  ($block_name:ident [$state:expr]) => {
+  // block![stone[variant = andesite]]
+  ($b1:ident $(:$b2:ident)? [$($key:ident = $value:expr),*]) => {
     $crate::BlockState {
-      block: $crate::block_kind![$block_name],
-      state: $crate::StateOrDefault::new($state),
+      block: $crate::block_kind![$b1 $(:$b2)?],
+      state: $crate::StateOrProps::Props($crate::PropMap::new(&[
+        $(($crate::prop_name![$key], $crate::PropValue::from($value)),)*
+      ])),
     }
   };
+
   // block![minecraft:stone[2]]
-  ($block_namespace:ident:$block_name:ident [$state:expr]) => {
+  ($b1:ident $(:$b2:ident)? [$state:expr]) => {
     $crate::BlockState {
-      block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrDefault::new($state),
+      block: $crate::block_kind![$b1 $(:$b2)?],
+      state: $crate::StateOrProps::meta($state),
     }
   };
-  // block![stone]
-  ($block_name:ident) => {
-    $crate::BlockState {
-      block: $crate::block_kind![$block_name],
-      state: $crate::StateOrDefault::DEFAULT,
-    }
-  };
+
   // block![minecraft:stone]
-  ($block_namespace:ident:$block_name:ident) => {
+  ($b1:ident $(:$b2:ident)?) => {
     $crate::BlockState {
-      block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrDefault::DEFAULT,
+      block: $crate::block_kind![$b1 $(:$b2)?],
+      state: $crate::StateOrProps::Default,
     }
   };
 }

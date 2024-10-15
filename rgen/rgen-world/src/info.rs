@@ -4,7 +4,10 @@
 
 use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
-use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, StateId};
+use rgen_base::{
+  Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropType,
+  PropValue, StateId, StateOrProps,
+};
 
 pub struct InfoSupplier<K, I, D> {
   pub lookup: HashMap<K, I>,
@@ -65,10 +68,55 @@ impl BlockInfoSupplier {
 
   pub fn encode(&self, state: BlockState) -> StateId {
     let id = self.lookup(state.block).unwrap();
-    let meta = match state.state.state() {
-      Some(meta) => meta,
-      None => self.get(id).default_meta,
+    let meta = match state.state {
+      StateOrProps::Default => self.get(id).default_meta,
+      StateOrProps::Meta(meta) => meta,
+      StateOrProps::Props(mut props) => {
+        let data = self.get(id);
+
+        let default_props = data.prop_values[data.default_meta as usize].clone();
+        for (k, v) in default_props.entries() {
+          props.insert_if_unset(k, v);
+        }
+
+        data
+          .prop_values
+          .iter()
+          .enumerate()
+          .find_map(|(i, d)| if *d == props { Some(i) } else { None })
+          .unwrap_or_else(|| {
+            prop_error(data, props);
+
+            panic!("block {} does not have a state with the properties {props:?}", data.name)
+          }) as u8
+      }
     };
     StateId::new(id, meta)
+  }
+}
+
+fn prop_error(data: &BlockData, props: PropMap) {
+  for (k, v) in props.entries() {
+    match (data.prop_types.get(k), v) {
+      (None, _) => panic!("block {} does not have prop {k}, but {k} = {v} was passed", data.name),
+      (Some(PropType::Bool), PropValue::Bool(_)) => {}
+      (Some(PropType::Bool), _) => {
+        panic!("block {} has a boolean property {k}, but {k} = {v} was passed", data.name)
+      }
+      (Some(PropType::Int(min, max)), PropValue::Int(v)) if v >= *min && v < *max => {}
+      (Some(PropType::Int(min, max)), _) => {
+        panic!(
+          "block {} has an integer property {k} in the range {min}..{max}, but {k} = {v} was passed",
+          data.name
+        )
+      }
+      (Some(PropType::Enum(variants)), PropValue::Enum(v)) if variants.iter().any(|a| a == v) => {}
+      (Some(PropType::Enum(variants)), _) => {
+        panic!(
+          "block {} has an enum property {k} with the variants {variants:?}, but {k} = {v} was passed",
+          data.name
+        )
+      }
+    }
   }
 }
