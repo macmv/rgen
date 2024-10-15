@@ -10,8 +10,8 @@ pub struct PropMap {
 
 /// Stores a property value. The bits are:
 /// - 0 and 1: bools.
-/// - 1 through 127: ints.
-/// - 128 and 255: enums.
+/// - 2 through 17: ints (vanilla only uses integers from 0 to 16).
+/// - 18 through 166: enums.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct PropValueCompact(u8);
 
@@ -525,7 +525,7 @@ impl PropValueCompact {
     match value {
       PropValue::Bool(value) => PropValueCompact(value as u8),
       PropValue::Int(value) => {
-        if value < 0 || value > 125 {
+        if value < 0 || value > 15 {
           panic!("int value out of range: {}", value);
         }
         PropValueCompact(value as u8 + 2)
@@ -533,7 +533,7 @@ impl PropValueCompact {
       PropValue::Enum(value) => {
         let value =
           PropEnum::for_name(value).unwrap_or_else(|| panic!("unknown enum value: {}", value));
-        PropValueCompact(128 + value as u8)
+        PropValueCompact(18 + value as u8)
       }
     }
   }
@@ -541,8 +541,9 @@ impl PropValueCompact {
   pub fn as_value(&self) -> PropValue<'static> {
     match self.0 {
       0..=1 => PropValue::Bool(self.0 != 0),
-      2..=127 => PropValue::Int(self.0 as i32 - 2),
-      128..=255 => PropValue::Enum(PropEnum::ALL[(self.0 - 128) as usize].name()),
+      2..=17 => PropValue::Int(self.0 as i32 - 2),
+      18..=166 => PropValue::Enum(PropEnum::ALL[(self.0 - 18) as usize].name()),
+      _ => panic!("invalid compact prop value: {}", self.0),
     }
   }
 }
