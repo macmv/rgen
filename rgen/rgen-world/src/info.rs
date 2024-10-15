@@ -92,20 +92,20 @@ impl BlockInfoSupplier {
 
 fn prop_error(data: &BlockData, props: PropMap) {
   for (k, v) in props.entries() {
-    match (data.prop_types.get(k).copied(), v) {
+    match (data.prop_types.get(k), v) {
       (None, _) => panic!("block {} does not have prop {k}, but {k} = {v} was passed", data.name),
       (Some(PropType::Bool), PropValue::Bool(_)) => {}
       (Some(PropType::Bool), _) => {
         panic!("block {} has a boolean property {k}, but {k} = {v} was passed", data.name)
       }
-      (Some(PropType::Int(min, max)), PropValue::Int(v)) if v >= min && v < max => {}
+      (Some(PropType::Int(min, max)), PropValue::Int(v)) if v >= *min && v < *max => {}
       (Some(PropType::Int(min, max)), _) => {
         panic!(
           "block {} has an integer property {k} in the range {min}..{max}, but {k} = {v} was passed",
           data.name
         )
       }
-      (Some(PropType::Enum(variants)), PropValue::Enum(v)) if variants.contains(&v) => {}
+      (Some(PropType::Enum(variants)), PropValue::Enum(v)) if variants.iter().any(|a| a == v) => {}
       (Some(PropType::Enum(variants)), _) => {
         panic!(
           "block {} has an enum property {k} with the variants {variants:?}, but {k} = {v} was passed",

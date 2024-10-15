@@ -13,11 +13,11 @@ pub enum PropValue {
   Enum(&'static str),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PropType {
   Bool,
   Int(i32, i32),
-  Enum(&'static [&'static str]),
+  Enum(Vec<String>),
 }
 
 impl From<bool> for PropValue {

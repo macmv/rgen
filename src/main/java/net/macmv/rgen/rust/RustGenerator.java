@@ -1,7 +1,9 @@
 package net.macmv.rgen.rust;
 
-import com.google.common.collect.Iterators;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -21,8 +23,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.Collection;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
@@ -69,6 +70,12 @@ public class RustGenerator {
   private static int lookup_default_meta(int id) {
     Block block = Block.getBlockById(id);
     return GameData.getBlockStateIDMap().get(block.getDefaultState()) & 0x0f;
+  }
+
+  // The properties of a block.
+  private static PropType[] lookup_block_prop_types(int id) {
+    Block block = Block.getBlockById(id);
+    return PropType.lookup(block);
   }
 
   private static int biome_name_to_id(String name) {

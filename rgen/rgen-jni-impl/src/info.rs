@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use jni::{objects::JValue, JNIEnv};
-use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap};
+use jni::{
+  objects::{JObject, JObjectArray, JValue},
+  JNIEnv,
+};
+use rgen_base::{Biome, BiomeId, BlockData, BlockId, BlockKind, PropMap, PropType};
 use rgen_world::{BiomeInfoSupplier, BlockInfoSupplier};
 
 pub fn lookup_block_info(env: &mut JNIEnv) -> BlockInfoSupplier {
@@ -49,7 +52,7 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
         name,
         block,
         default_meta: call_lookup_default_meta(env, id) as u8,
-        prop_types: HashMap::new(),
+        prop_types: call_lookup_prop_types(env, id),
         prop_values: [PropMap::empty(); 16],
       },
     );
@@ -130,4 +133,56 @@ fn call_lookup_default_meta(env: &mut JNIEnv, id: i32) -> i32 {
     .unwrap()
     .i()
     .unwrap()
+}
+
+fn call_lookup_prop_types(env: &mut JNIEnv, id: i32) -> HashMap<String, PropType> {
+  let types: JObjectArray = env
+    .call_static_method(
+      "net/macmv/rgen/rust/RustGenerator",
+      "lookup_block_prop_types",
+      "(I)[Lnet/macmv/rgen/rust/PropType;",
+      &[JValue::Int(id)],
+    )
+    .unwrap()
+    .l()
+    .unwrap()
+    .into();
+
+  let mut out = HashMap::new();
+  for i in 0..env.get_array_length(&types).unwrap() {
+    let ty: JObject = env.get_object_array_element(&types, i).unwrap().into();
+
+    let jname = env.get_field(&ty, "name", "Ljava/lang/String;").unwrap().l().unwrap().into();
+    let name = env.get_string(&jname).unwrap().into();
+
+    match env.get_field(&ty, "kind", "I").unwrap().i().unwrap() {
+      0 => {
+        out.insert(name, PropType::Bool);
+      }
+      1 => {
+        let min = env.get_field(&ty, "min", "I").unwrap().i().unwrap();
+        let max = env.get_field(&ty, "max", "I").unwrap().i().unwrap();
+        out.insert(name, PropType::Int(min, max));
+      }
+      2 => {
+        let array: JObjectArray =
+          env.get_field(&ty, "variants", "[Ljava/lang/String;").unwrap().l().unwrap().into();
+        let len = env.get_array_length(&array).unwrap();
+
+        let mut variants = vec![String::new(); len as usize];
+
+        for i in 0..len {
+          let jname = env.get_object_array_element(&array, i).unwrap().into();
+          variants[i as usize] = env.get_string(&jname).unwrap().into();
+        }
+
+        out.insert(name, PropType::Enum(variants));
+      }
+      v => {
+        panic!("unknown prop kind {v} for prop named {name}");
+      }
+    }
+  }
+
+  out
 }

@@ -78,7 +78,7 @@ pub struct BlockData {
   pub block:        Option<BlockKind>,
   pub default_meta: u8,
 
-  pub prop_types:  HashMap<&'static str, PropType>,
+  pub prop_types:  HashMap<String, PropType>,
   pub prop_values: [PropMap; 16],
 }
 
