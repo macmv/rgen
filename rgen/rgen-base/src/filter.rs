@@ -2,7 +2,7 @@ use std::ops::BitOr;
 
 use smallvec::SmallVec;
 
-use crate::{BlockInfo, BlockKind, BlockState, StateOrDefault};
+use crate::{BlockInfo, BlockKind, BlockState, StateOrProps};
 
 /// A block filter is a filter for matching against blocks.
 ///
@@ -28,8 +28,8 @@ impl From<BlockKind> for BlockFilter {
   fn from(value: BlockKind) -> Self {
     BlockFilter::Block(SmallVec::from_buf_and_len(
       [
-        BlockState { block: value, state: StateOrDefault::DEFAULT },
-        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
+        BlockState { block: value, state: StateOrProps::DEFAULT },
+        BlockState { block: BlockKind::Air, state: StateOrProps::DEFAULT },
       ],
       1,
     ))
@@ -157,11 +157,11 @@ impl BlockFilterable for BlockKind {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::{BlockData, StateId, StateOrDefault};
+  use crate::{BlockData, StateId, StateOrProps};
 
   // NB: Other crates will write `block![]` instead of this function.
   fn block(b: BlockKind, state: u8) -> BlockState {
-    BlockState { block: b, state: StateOrDefault::new(state) }
+    BlockState { block: b, state: StateOrProps::new(state) }
   }
 
   fn block_info(data: &BlockData, state: u8) -> BlockInfo {
@@ -176,8 +176,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrDefault::DEFAULT },
-        BlockState { block: BlockKind::Stone, state: StateOrDefault::DEFAULT },
+        BlockState { block: BlockKind::Air, state: StateOrProps::DEFAULT },
+        BlockState { block: BlockKind::Stone, state: StateOrProps::DEFAULT },
       ]))
     );
 
@@ -187,8 +187,8 @@ mod tests {
     assert_eq!(
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[
-        BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) },
-        BlockState { block: BlockKind::Air, state: StateOrDefault::new(1) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::new(0) },
+        BlockState { block: BlockKind::Air, state: StateOrProps::new(1) },
       ]))
     );
 
@@ -200,7 +200,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::DEFAULT,
+        state: StateOrProps::DEFAULT,
       },]))
     );
 
@@ -212,7 +212,7 @@ mod tests {
       a | b | c,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::DEFAULT,
+        state: StateOrProps::DEFAULT,
       },]))
     );
 
@@ -223,7 +223,7 @@ mod tests {
       a | b,
       BlockFilter::Block(SmallVec::from_slice(&[BlockState {
         block: BlockKind::Air,
-        state: StateOrDefault::new(0),
+        state: StateOrProps::new(0),
       },]))
     );
   }

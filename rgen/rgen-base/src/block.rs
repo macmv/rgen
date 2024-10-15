@@ -39,20 +39,20 @@ impl BiomeId {
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct BlockState {
   pub block: BlockKind,
-  pub state: StateOrDefault,
+  pub state: StateOrProps,
 }
 
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
 /// whereas the state 16 is to place the default state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct StateOrDefault(u8);
+pub struct StateOrProps(u8);
 
-impl StateOrDefault {
-  pub const DEFAULT: StateOrDefault = StateOrDefault(16);
+impl StateOrProps {
+  pub const DEFAULT: StateOrProps = StateOrProps(16);
 
-  pub const fn new(state: u8) -> StateOrDefault {
+  pub const fn new(state: u8) -> StateOrProps {
     assert!(state < 16);
-    StateOrDefault(state)
+    StateOrProps(state)
   }
 
   pub fn is_default(&self) -> bool { self.0 == 16 }
@@ -80,7 +80,7 @@ impl BlockData {
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
     match self.block {
-      Some(block) => BlockState { block, state: StateOrDefault::new(data) },
+      Some(block) => BlockState { block, state: StateOrProps::new(data) },
       None => panic!("cannot construct a block state without a constant block definition"),
     }
   }
@@ -116,12 +116,12 @@ impl BlockKind {
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState {
     assert!(data < 16);
-    BlockState { block: *self, state: StateOrDefault::new(data) }
+    BlockState { block: *self, state: StateOrProps::new(data) }
   }
 }
 
 impl BlockState {
-  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrDefault::new(0) };
+  pub const AIR: BlockState = BlockState { block: BlockKind::Air, state: StateOrProps::new(0) };
 
   /// Creates a block state with the given data value, from 0 to 15 inclusive.
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
@@ -160,28 +160,28 @@ macro_rules! block {
   ($block_name:ident [$state:expr]) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_name],
-      state: $crate::StateOrDefault::new($state),
+      state: $crate::StateOrProps::new($state),
     }
   };
   // block![minecraft:stone[2]]
   ($block_namespace:ident:$block_name:ident [$state:expr]) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrDefault::new($state),
+      state: $crate::StateOrProps::new($state),
     }
   };
   // block![stone]
   ($block_name:ident) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_name],
-      state: $crate::StateOrDefault::DEFAULT,
+      state: $crate::StateOrProps::DEFAULT,
     }
   };
   // block![minecraft:stone]
   ($block_namespace:ident:$block_name:ident) => {
     $crate::BlockState {
       block: $crate::block_kind![$block_namespace:$block_name],
-      state: $crate::StateOrDefault::DEFAULT,
+      state: $crate::StateOrProps::DEFAULT,
     }
   };
 }
