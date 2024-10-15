@@ -5,8 +5,8 @@
 use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
 use rgen_base::{
-  Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropType,
-  PropValue, StateId, StateOrProps,
+  Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropMapOwned,
+  PropType, PropValue, StateId, StateOrProps,
 };
 
 pub struct InfoSupplier<K, I, D> {
@@ -71,8 +71,13 @@ impl BlockInfoSupplier {
     let meta = match state.state {
       StateOrProps::Default => self.get(id).default_meta,
       StateOrProps::Meta(meta) => meta,
-      StateOrProps::Props(props) => {
+      StateOrProps::Props(mut props) => {
         let data = self.get(id);
+
+        let default_props = data.prop_values[data.default_meta as usize].clone();
+        for (k, v) in default_props.entries() {
+          props.insert_if_unset(k, v);
+        }
 
         data
           .prop_values
