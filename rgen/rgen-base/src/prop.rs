@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Eq)]
 pub struct PropMap<'a> {
   // Garuntee: There cannot be more than 8 properties on a block.
   entries: [(&'a str, PropValue<'a>); 8],
@@ -13,7 +13,7 @@ pub enum PropValue<'a> {
   Enum(&'a str),
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Eq)]
 pub struct PropMapOwned {
   // Garuntee: There cannot be more than 8 properties on a block.
   pub entries: [(String, PropValueOwned); 8],
@@ -148,6 +148,20 @@ impl PropMapOwned {
       .iter()
       .filter_map(|(key, value)| if *key != "" { Some((&**key, value.as_value())) } else { None })
   }
+}
+
+impl PartialEq<PropMap<'_>> for PropMapOwned {
+  fn eq(&self, other: &PropMap) -> bool { self.entries().eq(other.entries()) }
+}
+impl PartialEq<PropMapOwned> for PropMap<'_> {
+  fn eq(&self, other: &PropMapOwned) -> bool { self.entries().eq(other.entries()) }
+}
+
+impl PartialEq<PropMap<'_>> for PropMap<'_> {
+  fn eq(&self, other: &PropMap) -> bool { self.entries().eq(other.entries()) }
+}
+impl PartialEq<PropMapOwned> for PropMapOwned {
+  fn eq(&self, other: &PropMapOwned) -> bool { self.entries().eq(other.entries()) }
 }
 
 impl PropValueOwned {
