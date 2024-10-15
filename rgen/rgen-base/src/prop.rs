@@ -13,6 +13,19 @@ pub enum PropValue {
   Enum(&'static str),
 }
 
+#[derive(Clone, PartialEq, Eq)]
+pub struct PropMapOwned {
+  // Garuntee: There cannot be more than 8 properties on a block.
+  pub entries: [(String, PropValueOwned); 8],
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PropValueOwned {
+  Bool(bool),
+  Int(i32),
+  Enum(String),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PropType {
   Bool,
@@ -36,7 +49,26 @@ impl fmt::Debug for PropMap {
   }
 }
 
+impl fmt::Debug for PropMapOwned {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    f.debug_map().entries(self.entries()).finish()
+  }
+}
+
 impl fmt::Display for PropMap {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    for (i, (key, value)) in self.entries().enumerate() {
+      if i != 0 {
+        write!(f, ",")?;
+      }
+
+      write!(f, "{key}={value},")?;
+    }
+    Ok(())
+  }
+}
+
+impl fmt::Display for PropMapOwned {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     for (i, (key, value)) in self.entries().enumerate() {
       if i != 0 {
@@ -55,6 +87,16 @@ impl fmt::Display for PropValue {
       PropValue::Bool(value) => write!(f, "{}", value),
       PropValue::Int(value) => write!(f, "{}", value),
       PropValue::Enum(value) => write!(f, "{}", value),
+    }
+  }
+}
+
+impl fmt::Display for PropValueOwned {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      PropValueOwned::Bool(value) => write!(f, "{}", value),
+      PropValueOwned::Int(value) => write!(f, "{}", value),
+      PropValueOwned::Enum(value) => write!(f, "{}", value),
     }
   }
 }
@@ -92,5 +134,18 @@ impl PropMap {
     }
 
     panic!("key '{key}' not found");
+  }
+}
+
+impl PropMapOwned {
+  pub const fn empty() -> Self {
+    PropMapOwned { entries: [const { (String::new(), PropValueOwned::Bool(false)) }; 8] }
+  }
+
+  pub fn entries(&self) -> impl Iterator<Item = (&str, &PropValueOwned)> + '_ {
+    self
+      .entries
+      .iter()
+      .filter_map(|(key, value)| if *key != "" { Some((&**key, value)) } else { None })
   }
 }

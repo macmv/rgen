@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{PropMap, PropType};
+use crate::{PropMap, PropMapOwned, PropType};
 
 /// A realized block state. The least significant 4 bits are the data value, and
 /// the most significant 12 bits are the block id.
@@ -79,7 +79,7 @@ pub struct BlockData {
   pub default_meta: u8,
 
   pub prop_types:  HashMap<String, PropType>,
-  pub prop_values: [PropMap; 16],
+  pub prop_values: [PropMapOwned; 16],
 }
 
 impl BlockData {
