@@ -1,4 +1,5 @@
 use rgen_base::{Chunk, ChunkPos};
+use rgen_world::BlockInfoSupplier;
 
 mod village;
 
@@ -11,7 +12,7 @@ impl StructureGenerator {
     StructureGenerator { village: village::VillageGenerator::new(seed) }
   }
 
-  pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    self.village.generate(chunk, chunk_pos);
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    self.village.generate(info, chunk, chunk_pos);
   }
 }

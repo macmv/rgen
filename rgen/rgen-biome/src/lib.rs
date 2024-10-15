@@ -242,10 +242,7 @@ impl Generator for WorldBiomes {
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
     self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
-    // TODO: Generate villages!
-    if false {
-      self.structure.generate(chunk, chunk_pos);
-    }
+    self.structure.generate(&ctx.blocks, chunk, chunk_pos);
   }
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {

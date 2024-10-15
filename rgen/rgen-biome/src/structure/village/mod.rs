@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{block, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
 use rgen_llama::Structure;
 use rgen_placer::{grid::PointGrid, Random, Rng};
 
@@ -8,6 +8,7 @@ mod road;
 
 use building::Building;
 use math::Direction;
+use rgen_world::BlockInfoSupplier;
 use road::Road;
 
 pub struct VillageGenerator {
@@ -15,6 +16,8 @@ pub struct VillageGenerator {
   grid: PointGrid,
 
   buildings: Vec<Structure>,
+
+  road_block: BlockState,
 }
 
 const VILLAGE_RADIUS: i32 = 96;
@@ -26,6 +29,7 @@ impl VillageGenerator {
     VillageGenerator {
       seed,
       grid,
+      road_block: block![log],
       buildings: vec![
         rgen_llama::parse(include_str!("building/house_1.ll")),
         rgen_llama::parse(include_str!("building/house_2.ll")),
@@ -33,7 +37,7 @@ impl VillageGenerator {
     }
   }
 
-  pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     // FIXME: A lot of this is copied from noodle caves, need to dedupe.
 
     let scale = 256.0;
@@ -53,7 +57,7 @@ impl VillageGenerator {
       let village_seed = self.seed ^ ((pos.x as u64) << 8) ^ ((pos.y as u64) << 16);
 
       let village = Village::new(self, village_seed, pos);
-      village.generate(chunk, chunk_pos);
+      village.generate(info, chunk, chunk_pos);
     }
   }
 }
@@ -77,7 +81,7 @@ impl<'a> Village<'a> {
     village
   }
 
-  pub fn generate(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  pub fn generate(&self, info: &BlockInfoSupplier, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     for road in &self.roads {
       for x in road.min().x..=road.max().x {
         for z in road.min().z..=road.max().z {
@@ -92,10 +96,8 @@ impl<'a> Village<'a> {
 
               let rel = pos.chunk_rel();
 
-              let _y = highest_block(chunk, rel).y();
-              // FIXME: Get `BlockInfoSupplier` in here.
-              //
-              // chunk.set(rel.with_y(y), self.generator.road_block);
+              let y = highest_block(chunk, rel).y();
+              chunk.set(rel.with_y(y), info.encode(self.generator.road_block));
             }
           }
         }
@@ -122,47 +124,24 @@ impl<'a> Village<'a> {
 
             if pos.in_chunk(chunk_pos) {
               // FIXME
-              // chunk.set(pos.chunk_rel(), block);
+              chunk.set(pos.chunk_rel(), info.encode(block));
             }
           }
         }
 
         let pos = building.pos;
         if pos.in_chunk(chunk_pos) {
-          // FIXME
-          /*
-          chunk
-            .set(pos.chunk_rel(), BlockState { block: self.generator.road_block.block, state: 2 });
-          */
+          chunk.set(pos.chunk_rel(), info.encode(block![log[2]]));
         }
       }
 
       if road.start.in_chunk(chunk_pos) {
-        // FIXME
-        /*
-        chunk.set(
-          road.start.chunk_rel().with_y(100),
-          BlockState { block: self.generator.road_block.block, state: 1 },
-        );
-        */
+        chunk.set(road.start.chunk_rel().with_y(100), info.encode(block![log[1]]));
       }
       if road.end.in_chunk(chunk_pos) {
-        // FIXME
-        /*
-        chunk.set(
-          road.end.chunk_rel().with_y(100),
-          BlockState { block: self.generator.road_block.block, state: 2 },
-        );
-        */
+        chunk.set(road.end.chunk_rel().with_y(100), info.encode(block![log[2]]));
       }
     }
-
-    // FIXME
-    /*
-    if self.origin.in_chunk(chunk_pos) {
-      chunk.set(self.origin.chunk_rel().with_y(101), self.generator.road_block);
-    }
-    */
   }
 }
 
