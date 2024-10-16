@@ -87,15 +87,18 @@ public class DebugStickItem extends Item {
         }
         first = false;
 
-        sb.append(green);
         sb.append(prop.getName().toLowerCase());
 
-        sb.append(white);
         sb.append("=");
 
         if (prop instanceof PropertyBool) {
-          sb.append(red);
-          sb.append(state.getValue(prop));
+          if ((Boolean) state.getValue(prop)) {
+            sb.append(green);
+            sb.append("true");
+          } else {
+            sb.append(red);
+            sb.append("false");
+          }
         } else if (prop instanceof PropertyInteger) {
           sb.append(blue);
           sb.append(state.getValue(prop));
