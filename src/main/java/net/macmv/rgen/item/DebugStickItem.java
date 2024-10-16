@@ -8,9 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,35 +17,44 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class DebugStickItem extends Item {
   @Override
   public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
-    if (player.getEntityWorld().isRemote) {
-      showBlockName(pos, player);
-    }
+    cycleBlock(player.world, pos, player.isSneaking() ? 15 : 1);
+    showBlockName(pos, player);
 
     return false;
   }
 
   @Override
-  public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
+  public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
     if (player.getEntityWorld().isRemote) {
       showBlockName(pos, player);
     }
 
-    return true;
+    return EnumActionResult.SUCCESS;
   }
 
   @Override
   public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
     if (world.isRemote) {
-      if (Minecraft.getMinecraft().player.capabilities.getFlySpeed() >= 1.0f) {
-        // Default speed
-        Minecraft.getMinecraft().player.capabilities.setFlySpeed(0.05f);
-      } else {
-        // Nyoooom
-        Minecraft.getMinecraft().player.capabilities.setFlySpeed(1.0f);
+      if (player.isSneaking()) {
+        if (Minecraft.getMinecraft().player.capabilities.getFlySpeed() >= 1.0f) {
+          // Default speed
+          Minecraft.getMinecraft().player.capabilities.setFlySpeed(0.05f);
+        } else {
+          // Nyoooom
+          Minecraft.getMinecraft().player.capabilities.setFlySpeed(1.0f);
+        }
       }
     }
 
     return super.onItemRightClick(world, player, hand);
+  }
+
+  private static void cycleBlock(World world, BlockPos pos, int offset) {
+    IBlockState state = world.getBlockState(pos);
+    int meta = state.getBlock().getMetaFromState(state);
+    int newMeta = (meta + offset) % 16;
+    IBlockState newState = state.getBlock().getStateFromMeta(newMeta);
+    world.setBlockState(pos, newState);
   }
 
   @SideOnly(Side.CLIENT)
