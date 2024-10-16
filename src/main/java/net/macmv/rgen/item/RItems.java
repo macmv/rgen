@@ -119,7 +119,7 @@ public class RItems {
         registerModel(i, LogType.CEDAR.meta, "rgen:cedar_planks");
         registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_planks");
       } else if (i.getRegistryName().toString().equals("rgen:flower")) {
-        registerModel(i, FlowerBlock.FlowerType.FORGET_ME_NOT.meta, "rgen:forget_me_not");
+        registerModel(i, FlowerBlock.FlowerType.FORGETMENOT.meta, "rgen:forgetmenot");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
         registerModel(i, 0, "rgen:mossy_oak_stump");
         registerModel(i, 1, "rgen:mossy_birch_stump");
