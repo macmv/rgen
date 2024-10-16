@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "rgen:door/dead_door"
+    "layer0": "rgen:items/doors/dead_door"
   }
 }
