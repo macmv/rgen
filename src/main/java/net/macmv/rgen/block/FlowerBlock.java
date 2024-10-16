@@ -21,7 +21,7 @@ public class FlowerBlock extends BlockBush {
   public static PropertyEnum<FlowerType> TYPE = PropertyEnum.create("type", FlowerType.class);
 
   protected FlowerBlock() {
-    this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, FlowerType.FORGET_ME_NOT));
+    this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, FlowerType.FORGETMENOT));
 
     this.setCreativeTab(RCreativeTabs.DECORATIONS);
     this.setSoundType(SoundType.PLANT);
@@ -81,7 +81,7 @@ public class FlowerBlock extends BlockBush {
   }
 
   public enum FlowerType implements IStringSerializable {
-    FORGET_ME_NOT(0, "forget_me_not");
+    FORGETMENOT(0, "forgetmenot");
 
     public final int meta;
     public final String name;
@@ -99,7 +99,7 @@ public class FlowerBlock extends BlockBush {
     public static FlowerType fromMeta(int meta) {
       switch (meta) {
         default:
-          return FORGET_ME_NOT;
+          return FORGETMENOT;
       }
     }
   }
