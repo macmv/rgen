@@ -1,9 +1,6 @@
 package net.macmv.rgen.rust;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,7 +20,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
-import java.util.Collection;
 
 public class RustGenerator {
   private static native void init_generator(long seed);
