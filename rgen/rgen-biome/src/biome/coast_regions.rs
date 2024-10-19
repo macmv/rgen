@@ -117,7 +117,7 @@ pub fn dry_shores(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    30,
       place_above: [block![gravel], block![sand], block![stone]].into(),
-      place:       block![tallgrass[0]],
+      place:       block![tallgrass[type = "dead_bush"]],
     },
   )
 }
@@ -173,8 +173,8 @@ pub fn monument_beach(gen: &mut BiomeBuilder) {
     "sand_monument",
     PlacerStage::Tree,
     placer::Monument {
-      material:       block![sandstone[0]],
-      fancy_material: block![sandstone[1]],
+      material:       block![sandstone],
+      fancy_material: block![sandstone[type = "chiseled_sandstone"]],
       reward:         block![gold_block],
     },
   )

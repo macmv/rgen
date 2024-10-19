@@ -17,8 +17,8 @@ pub fn deep_jungle(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BushClumps {
       place_above:   [block![grass]].into(),
-      log:           block![log[3]],
-      leaves:        block![leaves[3]],
+      log:           block![log[variant = "jungle"]],
+      leaves:        block![leaves[variant = "jungle"]],
       avg_per_chunk: 6.0,
       radius:        3..=5,
     },
@@ -29,9 +29,9 @@ pub fn deep_jungle(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
       attempts:      50,
