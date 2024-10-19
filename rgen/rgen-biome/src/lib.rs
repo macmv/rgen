@@ -198,6 +198,10 @@ impl WorldBiomes {
 
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    if (0..=8).contains(&chunk_pos.x()) {
+      return;
+    }
+
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -250,6 +254,10 @@ impl Generator for WorldBiomes {
   }
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    if (-1..=9).contains(&chunk_pos.x()) {
+      return;
+    }
+
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
 
