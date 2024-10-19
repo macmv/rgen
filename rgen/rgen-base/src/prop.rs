@@ -63,6 +63,17 @@ impl<const N: usize> From<[&str; N]> for PropType {
   }
 }
 
+impl PropType {
+  pub fn matches(&self, value: &PropValue) -> bool {
+    match (self, value) {
+      (PropType::Bool, PropValue::Bool(_)) => true,
+      (PropType::Int(min, max), PropValue::Int(value)) => min <= value && value <= max,
+      (PropType::Enum(allowed), PropValue::Enum(value)) => allowed.contains(&value.to_string()),
+      _ => false,
+    }
+  }
+}
+
 impl fmt::Debug for PropMap {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_map().entries(self.entries()).finish()

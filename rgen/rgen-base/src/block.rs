@@ -37,6 +37,40 @@ pub struct BlockState {
   pub state: StateOrProps,
 }
 
+impl BlockState {
+  // Use `block![]` instead.
+  #[doc(hidden)]
+  #[track_caller]
+  pub fn new(block: BlockKind, state: StateOrProps) -> Self {
+    match state {
+      StateOrProps::Default => {}
+      StateOrProps::Meta(m) => assert!(m < 16),
+      StateOrProps::Props(p) => {
+        let expected = block.expected_props();
+
+        for (k, v) in p.entries() {
+          assert!(
+            expected.contains_key(k),
+            "unexpected property for block {}: {}",
+            block.name(),
+            k
+          );
+          assert!(
+            expected[k].matches(&v),
+            "invalid property value for block {}: {} = {:?} (expected: {:?})",
+            block.name(),
+            k,
+            v,
+            expected[k]
+          );
+        }
+      }
+    }
+
+    BlockState { block, state }
+  }
+}
+
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
 /// whereas the state 16 is to place the default state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -153,12 +187,12 @@ impl PartialEq<BlockState> for BlockInfo<'_> {
 macro_rules! block {
   // block![stone[variant = andesite]]
   ($b1:ident $(:$b2:ident)? [$($key:ident = $value:expr),*]) => {
-    $crate::BlockState {
-      block: $crate::block_kind![$b1 $(:$b2)?],
-      state: $crate::StateOrProps::Props($crate::PropMap::new(&[
+    $crate::BlockState::new(
+      $crate::block_kind![$b1 $(:$b2)?],
+      $crate::StateOrProps::Props($crate::PropMap::new(&[
         $(($crate::prop_name![$key], $crate::PropValue::from($value)),)*
       ])),
-    }
+    )
   };
 
   // block![minecraft:stone[2]]
