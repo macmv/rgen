@@ -157,13 +157,50 @@ impl WorldBiomes {
 
       sub_layer_map: OctavedNoise::new(seed, 1.0 / 20.0),
 
-      global_chunk_placers: vec![Box::new(chunk_placer::Ore {
-        ore:           block![coal_ore],
-        avg_per_chunk: 2.0,
-        size:          4..=12,
-        height:        0..=128,
-        width:         1.5,
-      })],
+      global_chunk_placers: vec![
+        Box::new(chunk_placer::Ore {
+          ore:           block![coal_ore],
+          avg_per_chunk: 4.0,
+          size:          4..=12,
+          height:        0..=128,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![iron_ore],
+          avg_per_chunk: 3.0,
+          size:          4..=8,
+          height:        0..=64,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![gold_ore],
+          avg_per_chunk: 2.0,
+          size:          4..=8,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![redstone_ore],
+          avg_per_chunk: 1.0,
+          size:          4..=12,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![lapis_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![diamond_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+      ],
     }
   }
 
