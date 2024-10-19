@@ -153,15 +153,14 @@ impl PropMap {
     Self { entries }
   }
 
-  pub fn len(&self) -> usize { self.entries().count() }
+  pub fn len(&self) -> usize { self.entries.partition_point(|(e, _)| e.is_some()) }
   pub fn is_empty(&self) -> bool { self.len() == 0 }
 
   pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue)> + '_ {
-    self
-      .entries
+    self.entries[0..self.len()]
       .iter()
       .copied()
-      .filter_map(|(key, value)| key.map(|key| (key.name(), value.as_value())))
+      .map(|(key, value)| (key.unwrap().name(), value.as_value()))
   }
 
   fn partition_point(&self, name: &PropName) -> usize {
