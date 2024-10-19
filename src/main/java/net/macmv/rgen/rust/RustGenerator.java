@@ -17,6 +17,8 @@ import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
@@ -123,6 +125,7 @@ public class RustGenerator {
     init_generator(seed);
   }
 
+  @SideOnly(Side.CLIENT)
   public static void reload() {
     int res = reload_generator();
     if (res == 0) {

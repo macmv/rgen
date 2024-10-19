@@ -106,7 +106,11 @@ public class RGen {
 
       Minecraft minecraft = Minecraft.getMinecraft();
       IntegratedServer server = minecraft.getIntegratedServer();
-      server.addScheduledTask(RustGenerator::reload);
+      if (server == null) {
+        System.out.println("Not in singleplayer, skipping.");
+      } else {
+        server.addScheduledTask(RustGenerator::reload);
+      }
     }
   }
 }

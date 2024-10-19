@@ -18,7 +18,9 @@ public class DebugStickItem extends Item {
   @Override
   public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
     cycleBlock(player.world, pos, player.isSneaking() ? 15 : 1);
-    showBlockName(pos, player);
+    if (player.getEntityWorld().isRemote) {
+      showBlockName(pos, player);
+    }
 
     return false;
   }
