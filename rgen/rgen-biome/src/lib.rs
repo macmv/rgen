@@ -1,11 +1,12 @@
 use cave::CaveCarver;
 use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
+  chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
     ShiftedNoise, VoronoiNoise,
   },
-  BiomeCachedChunk, Rng, TemporaryBiome,
+  BiomeCachedChunk, ChunkPlacer, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
@@ -75,6 +76,8 @@ pub struct WorldBiomes {
 
   /// Controlls the depth of the sub layer (usually dirt).
   sub_layer_map: OctavedNoise<OpenSimplexNoise, 3>,
+
+  global_chunk_placers: Vec<Box<dyn ChunkPlacer>>,
 }
 
 lazy_static::lazy_static! {
@@ -153,6 +156,51 @@ impl WorldBiomes {
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
       sub_layer_map: OctavedNoise::new(seed, 1.0 / 20.0),
+
+      global_chunk_placers: vec![
+        Box::new(chunk_placer::Ore {
+          ore:           block![coal_ore],
+          avg_per_chunk: 4.0,
+          size:          4..=12,
+          height:        0..=128,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![iron_ore],
+          avg_per_chunk: 3.0,
+          size:          4..=8,
+          height:        0..=64,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![gold_ore],
+          avg_per_chunk: 2.0,
+          size:          4..=8,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![redstone_ore],
+          avg_per_chunk: 1.0,
+          size:          4..=12,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![lapis_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![diamond_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+      ],
     }
   }
 
@@ -198,6 +246,10 @@ impl WorldBiomes {
 
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    if (0..=8).contains(&chunk_pos.x()) {
+      return;
+    }
+
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -250,6 +302,10 @@ impl Generator for WorldBiomes {
   }
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    if (-1..=9).contains(&chunk_pos.x()) {
+      return;
+    }
+
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
 
@@ -434,6 +490,10 @@ impl WorldBiomes {
       let mut rng = Rng::new(self.seed);
       chunk.set_active(id);
       biome.generate(&mut rng, &mut chunk, chunk_pos);
+    }
+
+    for placer in &self.global_chunk_placers {
+      placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
     }
   }
 

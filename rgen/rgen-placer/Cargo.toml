@@ -9,5 +9,7 @@ rgen-llama.workspace = true
 rgen-world.workspace = true
 rgen-spline.workspace = true
 
+log = "0.4.22"
+
 [[bench]]
 name = "noise"
