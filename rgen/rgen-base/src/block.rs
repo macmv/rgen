@@ -181,7 +181,7 @@ macro_rules! block {
 macro_rules! blocks {
   (
     $default_id:ident => $default_namespace:ident:$default_name:ident,
-    $($id:ident => $namespace:ident:$name:ident,)*
+    $($id:ident => $namespace:ident:$name:ident $([$($prop_key:ident: $prop_value:expr),* $(,)?])?,)*
   ) => {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum BlockKind {
@@ -229,70 +229,165 @@ macro_rules! blocks {
         Self::$default_id,
         $(Self::$id,)*
       ];
+
+      pub fn expected_props(&self) -> HashMap<String, PropType> {
+        match self {
+          $(
+            Self::$id => HashMap::from_iter([$($(
+              (String::from(stringify!($prop_key)), $crate::PropType::from($prop_value)),
+            )*)?]),
+          )*
+          _ => HashMap::new(),
+        }
+      }
     }
   };
 }
 
+const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
+const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
+
+const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "sakura", "cedar"];
+const RGEN_WOOD_4_2_LOG: [&str; 2] = ["mangrove", "dead"];
+const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender", "seasonal"];
+const RGEN_WOOD_4_3: [&str; 1] = ["aspen"];
+
+const COLOR: [&str; 16] = [
+  "white",
+  "orange",
+  "magenta",
+  "lightblue",
+  "yellow",
+  "lime",
+  "pink",
+  "gray",
+  "silver",
+  "cyan",
+  "purple",
+  "blue",
+  "brown",
+  "green",
+  "red",
+  "black",
+];
+
 blocks! {
   Air => minecraft:air,
 
-  Stone => minecraft:stone,
-  Dirt => minecraft:dirt,
+  Stone => minecraft:stone[
+    variant: ["stone", "granite", "smooth_granite", "diorite", "smooth_diorite", "andesite", "smooth_andesite"],
+  ],
+  Dirt => minecraft:dirt[
+    snowy: PropType::Bool,
+    variant: ["dirt", "coarse_dirt", "podzol"],
+  ],
   Clay => minecraft:clay,
-  Grass => minecraft:grass,
+  Grass => minecraft:grass[snowy: PropType::Bool],
   Snow => minecraft:snow,
-  SnowLayer => minecraft:snow_layer,
-  Sand => minecraft:sand,
+  SnowLayer => minecraft:snow_layer[layers: 1..=8],
+  Sand => minecraft:sand[variant: ["sand", "red_sand"]],
   Gravel => minecraft:gravel,
-  Log => minecraft:log,
-  Leaves => minecraft:leaves,
-  Water => minecraft:water,
-  Concrete => minecraft:concrete,
+  Log => minecraft:log[axis: ["x", "y", "z", "none"], variant: WOOD_4],
+  Leaves => minecraft:leaves[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: WOOD_4,
+  ],
+  Water => minecraft:water[level: 0..=15],
+  Concrete => minecraft:concrete[color: COLOR],
   Cobblestone => minecraft:cobblestone,
   MossyCobblestone => minecraft:mossy_cobblestone,
   Ice => minecraft:ice,
   PackedIce => minecraft:packed_ice,
-  Tallgrass => minecraft:tallgrass,
-  DoublePlant => minecraft:double_plant,
-  RedFlower => minecraft:red_flower,
-  YellowFlower => minecraft:yellow_flower,
-  // 0 - normal    1 - chiseled     2 - smooth
-  Sandstone => minecraft:sandstone,
-  // 0 - normal    1 - chiseled     2 - smooth (?)
-  RedSandstone => minecraft:red_sandstone,
+  Tallgrass => minecraft:tallgrass[type: ["dead_bush", "tall_grass", "fern"]],
+  DoublePlant => minecraft:double_plant[
+    facing: ["north", "south", "west", "east"],
+    half: ["upper", "lower"],
+    variant: ["sunflower", "syringa", "double_grass", "double_fern", "double_rose", "paeonia"],
+  ],
+  RedFlower => minecraft:red_flower[
+    type: ["poppy", "blue_orchid", "allium", "houstonia", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip", "oxeye_daisy"],
+  ],
+  YellowFlower => minecraft:yellow_flower[type: ["dandelion"]],
+  Sandstone => minecraft:sandstone[
+    type: ["sandstone", "chiseled_sandstone", "smooth_sandstone"],
+  ],
+  RedSandstone => minecraft:red_sandstone[
+    type: ["red_sandstone", "chiseled_red_sandstone", "smooth_red_sandstone"],
+  ],
   GoldBlock => minecraft:gold_block,
   HardenedClay => minecraft:hardened_clay,
-  StainedHardenedClay => minecraft:stained_hardened_clay,
-  Planks => minecraft:planks,
-  GlassPane => minecraft:glass_pane,
-  Wool => minecraft:wool,
-  Lava => minecraft:lava,
+  StainedHardenedClay => minecraft:stained_hardened_clay[color: COLOR],
+  Planks => minecraft:planks[variant: WOOD_6],
+  GlassPane => minecraft:glass_pane[
+    east: PropType::Bool,
+    north: PropType::Bool,
+    south: PropType::Bool,
+    west: PropType::Bool,
+  ],
+  Wool => minecraft:wool[color: COLOR],
+  Lava => minecraft:lava[level: 0..=15],
   IronOre => minecraft:iron_ore,
   BrownMushroom => minecraft:brown_mushroom,
-  Cocoa => minecraft:cocoa,
+  Cocoa => minecraft:cocoa[
+    age: 0..=2,
+    facing: ["north", "south", "west", "east"],
+  ],
   GrassPath => minecraft:grass_path,
 
-  RgenLog => rgen:log,
-  RgenLog2 => rgen:log2,
-  RgenLeaves => rgen:leaves,
-  RgenLeaves2 => rgen:leaves2,
-  RgenLeaves3 => rgen:leaves3,
-  RgenMossyStump => rgen:mossy_stump,
-  RgenPolypore => rgen:polypore,
+  RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
+  RgenLog2 => rgen:log2[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_2_LOG],
+  RgenLeaves => rgen:leaves[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_1,
+  ],
+  RgenLeaves2 => rgen:leaves2[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_2_LEAVES,
+  ],
+  RgenLeaves3 => rgen:leaves3[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_3,
+  ],
+  RgenMossyStump => rgen:mossy_stump[
+    axis: ["x", "y", "z", "none"],
+    variant: ["oak", "birch"],
+  ],
+  RgenPolypore => rgen:polypore[
+    facing: ["north", "south", "west", "east"],
+    type: ["one", "two", "three"],
+  ],
   RgenMossyCarpet => rgen:mossy_carpet,
-  RgenFlower => rgen:flower,
-  RgenBamboo => rgen:bamboo,
-  RgenGlowVine => rgen:glow_vine,
+  RgenFlower => rgen:flower[type: ["forget_me_not"]],
+  RgenBamboo => rgen:bamboo[has_leaves: PropType::Bool, placement: ["standard", "x", "z", "xz"]],
+  RgenGlowVine => rgen:glow_vine[
+    east: PropType::Bool,
+    west: PropType::Bool,
+    north: PropType::Bool,
+    south: PropType::Bool,
+    up: PropType::Bool,
+  ],
   RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
   RgenMossyStone => rgen:mossy_stone,
   RgenPlant => rgen:plant,
   RgenMoss => rgen:mossy_block,
-  RgenLavender => rgen:lavender_plant,
-  RgenTallLavender => rgen:double_tall_lavender_plant,
-  RgenJuvenileCactus => rgen:juvenile_cactus,
-  RgenCactus => rgen:cactus,
-  RgenCactusArm => rgen:cactus_arm,
-  RgenBasalt => rgen:basalt,
+  RgenLavender => rgen:lavender_plant[
+    variant: ["variant_1", "variant_2", "variant_3", "variant_4"],
+  ],
+  RgenTallLavender => rgen:double_tall_lavender_plant[
+    half: ["upper", "lower"],
+    variant: ["variant_1", "variant_2", "variant_3", "variant_4"],
+  ],
+  RgenJuvenileCactus => rgen:juvenile_cactus[
+    age: ["zero", "one", "two", "three"],
+    color: ["green", "blue", "yellow", "orange"],
+  ],
+  RgenCactus => rgen:cactus[color: ["green", "blue", "yellow", "orange"]],
+  RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
+  RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],
 }
 
 #[cfg(test)]

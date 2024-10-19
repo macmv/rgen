@@ -58,6 +58,17 @@ fn read_blocks(info: &mut BlockInfoSupplier, env: &mut JNIEnv) {
         prop_values: call_lookup_prop_values(env, id),
       },
     );
+
+    if let Some(b) = block {
+      let info = &info.info[&BlockId(id as u16)];
+      let expected = b.expected_props();
+      if info.prop_types != expected {
+        panic!(
+          "block {} has unexpected prop types.\njava: {:?}\nrust: {:?}",
+          info.name, info.prop_types, expected
+        );
+      }
+    }
   }
 }
 
@@ -175,7 +186,9 @@ fn call_lookup_prop_types(env: &mut JNIEnv, id: i32) -> HashMap<String, PropType
 
         for i in 0..len {
           let jname = env.get_object_array_element(&array, i).unwrap().into();
-          variants[i as usize] = env.get_string(&jname).unwrap().into();
+          let name: String = env.get_string(&jname).unwrap().into();
+
+          variants[i as usize] = name.to_lowercase();
         }
 
         out.insert(name, PropType::Enum(variants));

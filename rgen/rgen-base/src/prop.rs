@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, ops::RangeInclusive};
 
 #[derive(Clone, Copy, Eq)]
 pub struct PropMap {
@@ -52,6 +52,15 @@ impl From<i32> for PropValue<'_> {
 }
 impl From<&'static str> for PropValue<'_> {
   fn from(value: &'static str) -> Self { PropValue::Enum(value) }
+}
+
+impl From<RangeInclusive<i32>> for PropType {
+  fn from(range: RangeInclusive<i32>) -> Self { PropType::Int(*range.start(), *range.end()) }
+}
+impl<const N: usize> From<[&str; N]> for PropType {
+  fn from(values: [&str; N]) -> Self {
+    PropType::Enum(values.into_iter().map(|s| s.to_string()).collect())
+  }
 }
 
 impl fmt::Debug for PropMap {
