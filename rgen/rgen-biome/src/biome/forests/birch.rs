@@ -16,8 +16,8 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[2]],
-      moss_log:       block![rgen:mossy_stump[1]],
+      log:            block![log[variant = "birch"]],
+      moss_log:       block![rgen:mossy_stump[variant = "birch"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  1.75,
@@ -30,12 +30,12 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
-      trunk:            block![log[2]],
-      leaves:           block![leaves[2]],
+      trunk:            block![log[variant = "birch"]],
+      leaves:           block![leaves[variant = "birch"]],
       avg_per_chunk:    5.0,
       is_shrooms:       true,
       chance_of_shroom: 100.0,
-      shroom:           block![rgen:polypore[0]],
+      shroom:           block![rgen:polypore[type = "one"]],
       ground:           block![grass],
     },
   );
@@ -46,7 +46,7 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
   gen.place(
@@ -55,7 +55,7 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 }
@@ -69,8 +69,8 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[2]],
-      moss_log:       block![rgen:mossy_stump[1]],
+      log:            block![log[variant = "birch"]],
+      moss_log:       block![rgen:mossy_stump[variant = "birch"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  1.75,
@@ -83,12 +83,12 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
-      trunk:            block![log[2]],
-      leaves:           block![leaves[2]],
+      trunk:            block![log[variant = "birch"]],
+      leaves:           block![leaves[variant = "birch"]],
       avg_per_chunk:    12.0,
       is_shrooms:       true,
       chance_of_shroom: 100.0,
-      shroom:           block![rgen:polypore[0]],
+      shroom:           block![rgen:polypore[type = "one"]],
       ground:           block![grass],
     },
   );
@@ -109,7 +109,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
   gen.place(
@@ -118,7 +118,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -126,7 +126,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     "forget me not",
     PlacerStage::Sand2,
     placer::Spread {
-      place:         block![rgen:flower[0]],
+      place:         block![rgen:flower[type = "forget_me_not"]],
       replace:       block![grass].into(),
       radius:        1..=3,
       avg_per_chunk: 0.6,
@@ -145,8 +145,9 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[2]],
-      moss_log:       block![log[2]], //block![rgen_mossy_stump[1]], //
+      log:            block![log[variant = "birch"]],
+      // block![rgen_mossy_stump[variant = "birch"]],
+      moss_log:       block![log[variant = "birch"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  1.75,
@@ -163,7 +164,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
       avg_in_chunk: 13_f64,
       leaves:       block![rgen:leaves3],
       place_above:  block![grass].into(),
-      trunk:        block![log[2]],
+      trunk:        block![log[variant = "birch"]],
     },
   );
 
@@ -173,7 +174,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    600,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
   gen.place(
@@ -181,9 +182,9 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        6..=10,
       attempts:      300,
@@ -197,7 +198,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    2300,
       place_above: [block![grass]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 }

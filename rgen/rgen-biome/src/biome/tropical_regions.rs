@@ -39,7 +39,7 @@ pub fn plains(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Clumps {
       place_above: gen.top_block().into(),
-      place:       block![red_flower[8]],
+      place:       block![red_flower[type = "oxeye_daisy"]],
 
       radius:        2..=4,
       attempts:      20,
@@ -52,9 +52,9 @@ pub fn plains(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
       attempts:      20,

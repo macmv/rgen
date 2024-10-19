@@ -16,8 +16,8 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[0]],
-      moss_log:       block![rgen:mossy_stump[0]],
+      log:            block![log[variant = "oak"]],
+      moss_log:       block![rgen:mossy_stump[variant = "oak"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  0.5,
@@ -33,7 +33,7 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -43,7 +43,7 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 }
@@ -59,8 +59,8 @@ pub fn woodland(gen: &mut BiomeBuilder) {
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[0]],
-      moss_log:       block![rgen:mossy_stump[0]],
+      log:            block![log[variant = "oak"]],
+      moss_log:       block![rgen:mossy_stump[variant = "oak"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  0.5,
@@ -76,7 +76,7 @@ pub fn woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -86,7 +86,7 @@ pub fn woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 }
@@ -103,8 +103,8 @@ pub fn windswept_woodland(gen: &mut BiomeBuilder) {
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
-      log:            block![log[0]],
-      moss_log:       block![rgen:mossy_stump[0]],
+      log:            block![log[variant = "oak"]],
+      moss_log:       block![rgen:mossy_stump[variant = "oak"]],
       ground:         block![grass],
       plants:         block![stone].into(),
       avg_per_chunk:  0.5,
@@ -120,7 +120,7 @@ pub fn windswept_woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -130,7 +130,7 @@ pub fn windswept_woodland(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    160,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 }

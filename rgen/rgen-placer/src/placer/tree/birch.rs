@@ -81,36 +81,25 @@ impl Placer for BasicBirch {
         for rel_x in -1..=1_i32 {
           for rel_z in -1..=1_i32 {
             if rng.rand_exclusive(0, 9) < 3 {
-              // Set mushroom variants (this is exclusive so state 0, 1, or 2)
-              let mushroom_variant = rng.rand_exclusive(0, 3);
-              let mut mushroom_state = mushroom_variant as u8;
-
-              // Clears the rotation rotation -> 00, block kind -> 11 // no longer nessesary
-              mushroom_state &= 0b0011;
+              let mut state = self.shroom.with_prop("type", *rng.choose(&["one", "two", "three"]));
 
               // This removes the coners and the center
               if (rel_x == 0 && rel_z == 0) || (rel_x.abs() == rel_z.abs()) {
                 continue;
               }
 
-              // 0-3 +Z   4-7 -Z   8-11 -X   12-15 +X
               if rel_x == 1 {
-                // 8
-                mushroom_state |= 0b1000;
+                state.set_prop("facing", "east");
               } else if rel_x == -1 {
-                // 12
-                mushroom_state |= 0b1100;
+                state.set_prop("facing", "west");
               } else if rel_z == 1 {
-                // 4
-                mushroom_state |= 0b0100;
+                state.set_prop("facing", "south");
               } else if rel_z == -1 {
-                // 0
-                mushroom_state |= 0b0000;
+                state.set_prop("facing", "north");
               }
 
-              world.set(pos + Pos::new(rel_x, rel_y, rel_z), self.shroom.with_data(mushroom_state))
+              world.set(pos + Pos::new(rel_x, rel_y, rel_z), state)
             }
-            // ()
           }
         }
       }

@@ -165,7 +165,7 @@ impl PropMap {
 
   fn partition_point(&self, name: &PropName) -> usize {
     self.entries.partition_point(|(e, _)| match e {
-      Some(e) => e < &name,
+      Some(e) => e < name,
       None => false, // Empty entries at the end.
     })
   }

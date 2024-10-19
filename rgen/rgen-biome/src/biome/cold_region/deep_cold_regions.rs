@@ -5,7 +5,6 @@ use rgen_placer::{
   placer,
 };
 
-use super::super::color;
 use crate::builder::{BiomeBuilder, PlacerStage};
 
 pub fn ice_spikes(gen: &mut BiomeBuilder) {
@@ -118,7 +117,7 @@ pub fn boulder_field(gen: &mut BiomeBuilder) {
 pub fn hard_frozen_river(gen: &mut BiomeBuilder) {
   gen.id = biome![ice_flats];
   gen.color = "#B2DBEF";
-  gen.set_top_block(block![concrete[color::GRAY]]);
+  gen.set_top_block(block![concrete[color = "gray"]]);
 
   gen.place(
     "stone_patches",
@@ -131,7 +130,7 @@ pub fn alps(gen: &mut BiomeBuilder) {
   gen.id = biome![taiga_cold];
   gen.color = "#4E9BB7";
 
-  gen.set_top_block(block![snow_layer[7]]);
+  gen.set_top_block(block![snow_layer[layers = 8]]);
   gen.add_layer(block![snow], 1, 2);
   gen.add_layer(block![stone], 4, 5);
 

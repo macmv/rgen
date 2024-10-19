@@ -34,7 +34,7 @@ pub fn cherry_blossom_grove(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    800,
       place_above: [block![grass]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -43,9 +43,9 @@ pub fn cherry_blossom_grove(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
       attempts:      100,
@@ -58,9 +58,9 @@ pub fn cherry_blossom_grove(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[1]],  // lilac bottom
-      place_tall_upper: block![double_plant[10]], // double plant top
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
       attempts:      40,
@@ -119,7 +119,7 @@ pub fn volcano_growth(gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         block![rgen:basalt[0]],
+      place:         block![rgen:basalt],
       radius:        2..=4,
       avg_per_chunk: 1.0,
     },
@@ -146,7 +146,7 @@ pub fn volcano_growth(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    800,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -155,9 +155,9 @@ pub fn volcano_growth(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
       attempts:      200,
@@ -171,7 +171,7 @@ pub fn volcano_growth(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    100,
       place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 }

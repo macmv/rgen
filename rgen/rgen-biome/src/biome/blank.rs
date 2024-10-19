@@ -1,7 +1,7 @@
 use rgen_base::{biome, block};
 use rgen_placer::chunk_placer;
 
-use super::{color, BiomeBuilder};
+use super::BiomeBuilder;
 
 pub fn blank(gen: &mut BiomeBuilder) {
   gen.id = biome![plains];
@@ -12,7 +12,7 @@ pub fn blank(gen: &mut BiomeBuilder) {
 
   gen.place_chunk(chunk_placer::CheckerboardSurface {
     replace: block![stone].into(),
-    a:       block![concrete[color::MAGENTA]],
-    b:       block![concrete[color::BLACK]],
+    a:       block![concrete[color = "magenta"]],
+    b:       block![concrete[color = "black"]],
   });
 }
