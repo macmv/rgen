@@ -159,9 +159,10 @@ impl WorldBiomes {
 
       global_chunk_placers: vec![Box::new(chunk_placer::Ore {
         ore:           block![coal_ore],
-        avg_per_chunk: 20.0,
-        size:          8..=16,
+        avg_per_chunk: 2.0,
+        size:          4..=12,
         height:        0..=128,
+        width:         1.5,
       })],
     }
   }

@@ -9,6 +9,7 @@ pub struct Ore {
 
   pub size:   RangeInclusive<i32>,
   pub height: RangeInclusive<i32>,
+  pub width:  f64,
 }
 
 impl ChunkPlacer for Ore {
@@ -18,8 +19,8 @@ impl ChunkPlacer for Ore {
     rng: &mut crate::Rng,
     chunk_pos: rgen_base::ChunkPos,
   ) {
-    let radius = self.size.end() / 2;
-    let scale = 16.0;
+    let radius = self.size.end();
+    let scale = 16.0 / self.avg_per_chunk;
 
     let min_pos = chunk_pos.min_block_pos();
     let ore_min_x = ((min_pos.x - radius) as f64) / scale;
@@ -34,26 +35,43 @@ impl ChunkPlacer for Ore {
     let points = PointGrid.points_in_area(seed, ore_min_x, ore_min_z, ore_max_x, ore_max_z);
 
     for point in points {
-      let mut pos = Pos::new((point.0 * scale) as i32, 0, (point.1 * scale) as i32);
-      let vein_seed = seed ^ (((pos.x() * 2048) as u64) << 8) ^ (((pos.z() * 2048) as u64) << 16);
+      let mut pos = (point.0 * scale, 0.0, point.1 * scale);
+      let vein_seed = seed ^ (((pos.0 * 2048.0) as u64) << 8) ^ (((pos.2 * 2048.0) as u64) << 16);
       let mut rng = Rng::new(vein_seed);
 
-      pos.y = rng.rand_inclusive(*self.height.start(), *self.height.end());
+      pos.1 = rng.rand_inclusive(*self.height.start(), *self.height.end()) as f64;
 
-      info!("placing ore at {:?}", pos);
+      let mut vx = rng.rand_inclusive(-100, 100) as f64 / 100.0;
+      let mut vy = rng.rand_inclusive(-100, 100) as f64 / 100.0;
+      let mut vz = rng.rand_inclusive(-100, 100) as f64 / 100.0;
 
       let size = rng.rand_inclusive(*self.size.start(), *self.size.end());
       for _ in 0..size {
-        if pos.in_chunk(chunk_pos) {
-          let rel = pos.chunk_rel();
-          chunk.set(rel, self.ore);
+        for dx in -self.width.ceil() as i32..=self.width.ceil() as i32 {
+          for dy in -self.width.ceil() as i32..=self.width.ceil() as i32 {
+            for dz in -self.width.ceil() as i32..=self.width.ceil() as i32 {
+              let dist = (dx * dx + dy * dy + dz * dz) as f64;
+              if dist > self.width * self.width {
+                continue;
+              }
+
+              let p = Pos::new(pos.0 as i32 + dx, pos.1 as i32 + dy, pos.2 as i32 + dz);
+
+              if p.in_chunk(chunk_pos) {
+                let rel = p.chunk_rel();
+                chunk.set(rel, self.ore);
+              }
+            }
+          }
         }
 
-        match rng.rand_inclusive(0, 2) {
-          0 => pos.x += rng.rand_inclusive(-1, 1),
-          1 => pos.y += rng.rand_inclusive(-1, 1),
-          _ => pos.z += rng.rand_inclusive(-1, 1),
-        }
+        vx += rng.rand_inclusive(-50, 50) as f64 / 100.0;
+        vy += rng.rand_inclusive(-50, 50) as f64 / 100.0;
+        vz += rng.rand_inclusive(-50, 50) as f64 / 100.0;
+
+        pos.0 += vx;
+        pos.1 += vy;
+        pos.2 += vz;
       }
     }
   }
