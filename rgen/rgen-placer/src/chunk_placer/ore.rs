@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Pos};
+use rgen_base::{block, BlockState, Pos};
 use std::ops::RangeInclusive;
 
 use crate::{grid::PointGrid, ChunkPlacer, Random, Rng};
@@ -20,7 +20,7 @@ impl ChunkPlacer for Ore {
     chunk_pos: rgen_base::ChunkPos,
   ) {
     let radius = self.size.end();
-    let scale = 16.0 / self.avg_per_chunk;
+    let scale = 16.0 / self.avg_per_chunk.sqrt();
 
     let min_pos = chunk_pos.min_block_pos();
     let ore_min_x = ((min_pos.x - radius) as f64) / scale;
@@ -59,7 +59,9 @@ impl ChunkPlacer for Ore {
 
               if p.in_chunk(chunk_pos) {
                 let rel = p.chunk_rel();
-                chunk.set(rel, self.ore);
+                if chunk.get(rel) == block![stone] {
+                  chunk.set(rel, self.ore);
+                }
               }
             }
           }
