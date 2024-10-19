@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct LogAndStump {
   pub log:            BlockState,
@@ -23,12 +23,12 @@ impl Placer for LogAndStump {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // Checks to make sure is in open space
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
-          return;
+          return Err(UndoError);
         }
       }
     }
@@ -36,12 +36,14 @@ impl Placer for LogAndStump {
     // Checks if on ground
     let below_pos = pos + Pos::new(0, -1, 0);
     if world.get(below_pos) != self.ground {
-      return;
+      return Err(UndoError);
     }
 
     if self.place_stump(world, rng, pos) {
       self.place_log(world, rng, pos);
     }
+
+    Ok(())
   }
 }
 

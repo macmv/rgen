@@ -1,7 +1,7 @@
 use rgen_base::{BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct LongLog {
   pub log:           BlockState,
@@ -18,14 +18,14 @@ impl Placer for LongLog {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let pos = pos + Pos::new(rng.rand_inclusive(-4, 4), 0, rng.rand_inclusive(-4, 4));
 
     // Checks to make sure is in open space from other woods
     for rel_x in -2..=2_i32 {
       for rel_z in -2..=2_i32 {
         if world.get(pos + Pos::new(rel_x, 0, rel_z)) == self.log.block {
-          return;
+          return Err(UndoError);
         }
         //world.set(pos + Pos::new(rel_x, 0, rel_z), self.log);
       }
@@ -35,7 +35,7 @@ impl Placer for LongLog {
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if self.ground.contains(world.get(pos + Pos::new(rel_x, 0, rel_z))) {
-          return;
+          return Err(UndoError);
         }
       }
     }
@@ -43,7 +43,7 @@ impl Placer for LongLog {
     // Checks if on ground
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.ground.contains(world.get(below_pos)) {
-      return;
+      return Err(UndoError);
     }
 
     // Builds log
@@ -58,7 +58,7 @@ impl Placer for LongLog {
         None
       }
     }) else {
-      return;
+      return Err(UndoError);
     };
 
     for i in 2..=length {
@@ -80,6 +80,8 @@ impl Placer for LongLog {
     }
 
     world.set(pos, self.log);
+
+    Ok(())
   }
 }
 

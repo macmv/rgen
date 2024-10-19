@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 macro_rules! bool {
   (x) => {
@@ -87,9 +87,9 @@ impl Placer for Sequoia {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
-      return;
+      return Err(UndoError);
     }
 
     // Creates lower trunk.
@@ -158,6 +158,8 @@ impl Placer for Sequoia {
         world.set(pos + Pos::new(rel_x, height + 1, rel_z), self.leaves);
       }
     }
+
+    Ok(())
   }
 }
 

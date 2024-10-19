@@ -140,7 +140,7 @@ impl BiomeBuilder {
           // This builds a unique seed for each placer. This gives the placer the same
           // seed if it crosses chunk boundaries.
           let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
-          placer.placer.place(world, &mut Rng::new(seed), pos);
+          world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
         }
       }
     }

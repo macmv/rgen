@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct BasicBirch {
   pub trunk:            BlockState,
@@ -18,26 +18,26 @@ impl Placer for BasicBirch {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(8, 9);
 
     // Checks if outside world boundry
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     // Checks to make sure is in open space
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
-          return;
+          return Err(UndoError);
         }
       }
     }
 
     // Checks if on ground
     if world.get(pos + Pos::new(0, -1, 0)) != self.ground {
-      return;
+      return Err(UndoError);
     }
 
     // Builds the bottom of the canopy
@@ -104,5 +104,7 @@ impl Placer for BasicBirch {
         }
       }
     }
+
+    Ok(())
   }
 }

@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 macro_rules! bool {
   (w) => {
@@ -48,7 +48,7 @@ impl Placer for Pool {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // w = Water
     // b = Border
     // . = Neither
@@ -63,7 +63,7 @@ impl Placer for Pool {
     ];
 
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let level_pos = pos + Pos::new(0, -1, 0);
@@ -75,24 +75,24 @@ impl Placer for Pool {
         //
         if *cell == 0 {
           if world.get(level_pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR {
-            return;
+            return Err(UndoError);
           }
           if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, -1, z as i32))) {
-            return;
+            return Err(UndoError);
           }
           //water
         } else if *cell == 1 {
           //land
           if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, 0, z as i32))) {
-            return;
+            return Err(UndoError);
           }
           if !self.border_types.contains(world.get(level_pos + Pos::new(x as i32, -1, z as i32))) {
-            return;
+            return Err(UndoError);
           }
           if world.get(level_pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR
             && rng.rand_inclusive(0, 8) == 0
           {
-            return;
+            return Err(UndoError);
           }
         }
       }
@@ -132,6 +132,8 @@ impl Placer for Pool {
         }
       }
     }
+
+    Ok(())
   }
 }
 

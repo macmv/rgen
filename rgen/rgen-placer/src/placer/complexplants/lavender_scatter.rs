@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Rng};
+use crate::{rng::Random, Placer, Result, Rng};
 
 pub struct LavenderScatter {
   pub place_above: BlockFilter,
@@ -13,7 +13,7 @@ pub struct LavenderScatter {
 impl Placer for LavenderScatter {
   fn radius(&self) -> u8 { 8 }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     //8  9    10   11
     //0  1    2    3
     let lav_options = [[0, 8], [1, 9], [2, 10], [3, 11]];
@@ -41,5 +41,7 @@ impl Placer for LavenderScatter {
         }
       }
     }
+
+    Ok(())
   }
 }

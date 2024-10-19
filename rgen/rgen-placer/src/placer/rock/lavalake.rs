@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct LavaLake {
   pub ground:       BlockFilter,
@@ -26,12 +26,14 @@ impl Placer for LavaLake {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     self.build_base(rng, pos + Pos::new(0, -1, 0), world);
+
+    Ok(())
   }
 }
 

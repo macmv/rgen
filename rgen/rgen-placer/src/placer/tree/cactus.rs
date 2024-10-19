@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Cactus {
   pub place_above:  BlockFilter,
@@ -15,16 +15,16 @@ impl Placer for Cactus {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(2, 3);
 
     if pos.y + height >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return;
+      return Err(UndoError);
     }
 
     // Builds the main body.
@@ -68,5 +68,7 @@ impl Placer for Cactus {
     for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.body);
     }
+
+    Ok(())
   }
 }

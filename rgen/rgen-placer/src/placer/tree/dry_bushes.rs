@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Rng};
+use crate::{Placer, Result, Rng};
 
 pub struct BasicDryBush {
   pub place_above:  BlockFilter,
@@ -15,15 +15,15 @@ impl Placer for BasicDryBush {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, _rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, _rng: &mut Rng, pos: Pos) -> Result {
     // Checks if outside world boundry.
     if pos.y + 2 + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     // Checks if on ground.
     if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
-      return;
+      return Err(UndoError);
     }
 
     // Creates the core.
@@ -44,5 +44,7 @@ impl Placer for BasicDryBush {
         }
       }
     }
+
+    Ok(())
   }
 }

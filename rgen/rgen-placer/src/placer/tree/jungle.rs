@@ -1,7 +1,7 @@
 use rgen_base::{block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct JungleTree {
   place_above: BlockFilter,
@@ -29,16 +29,16 @@ impl Placer for JungleTree {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(15, 20);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return;
+      return Err(UndoError);
     }
 
     // First block of the trunk. This adds a bit of horizontal variation at the
@@ -57,6 +57,8 @@ impl Placer for JungleTree {
         }
       }
     }
+
+    Ok(())
   }
 }
 
