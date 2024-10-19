@@ -74,7 +74,7 @@ impl BlockInfoSupplier {
       StateOrProps::Props(mut props) => {
         let data = self.get(id);
 
-        let default_props = data.prop_values[data.default_meta as usize].clone();
+        let default_props = &data.prop_values[data.default_meta as usize];
         for (k, v) in default_props.entries() {
           props.insert_if_unset(k, v);
         }
