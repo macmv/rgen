@@ -29,15 +29,6 @@ impl BlockId {
   pub const AIR: BlockId = BlockId(0);
 }
 
-/// A realized biome ID.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(transparent)]
-pub struct BiomeId(pub u8);
-
-impl BiomeId {
-  pub const VOID: BiomeId = BiomeId(127);
-}
-
 /// A block state represents a block with a specific data value (like wool
 /// color).
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -136,11 +127,6 @@ impl BlockState {
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
 }
 
-#[allow(clippy::derivable_impls)]
-impl Default for Biome {
-  fn default() -> Biome { Biome::Void }
-}
-
 impl PartialEq<BlockKind> for BlockState {
   fn eq(&self, other: &BlockKind) -> bool { self.block == *other }
 }
@@ -192,30 +178,28 @@ macro_rules! block {
   };
 }
 
-// Block Identification Guide
-macro_rules! big {
+macro_rules! blocks {
   (
-    $enum_name:ident, $macro_name:ident
     $default_id:ident => $default_namespace:ident:$default_name:ident,
     $($id:ident => $namespace:ident:$name:ident,)*
   ) => {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    pub enum $enum_name {
+    pub enum BlockKind {
       $default_id,
       $($id,)*
     }
 
     #[macro_export]
-    macro_rules! $macro_name {
+    macro_rules! block_kind {
       // block_kind![air]
-      ($default_name) => { $crate::$enum_name::$default_id };
+      ($default_name) => { $crate::BlockKind::$default_id };
       // block_kind![minecraft:air]
-      ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
+      ($default_namespace:$default_name) => { $crate::BlockKind::$default_id };
       // block_kind![stone] -> block_kind![minecraft:stone]
-      ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
+      ($block_name:ident) => { $crate::block_kind![$default_namespace:$block_name] };
       $(
         // block_kind![rgen:log]
-        ($namespace:$name) => { $crate::$enum_name::$id };
+        ($namespace:$name) => { $crate::BlockKind::$id };
       )*
 
       ($other_namespace:ident:$other:ident) => {
@@ -223,7 +207,7 @@ macro_rules! big {
       };
     }
 
-    impl $enum_name {
+    impl BlockKind {
       pub fn name(&self) -> &'static str {
         match self {
           $(
@@ -249,7 +233,7 @@ macro_rules! big {
   };
 }
 
-big! { BlockKind, block_kind
+blocks! {
   Air => minecraft:air,
 
   Stone => minecraft:stone,
@@ -309,26 +293,6 @@ big! { BlockKind, block_kind
   RgenCactus => rgen:cactus,
   RgenCactusArm => rgen:cactus_arm,
   RgenBasalt => rgen:basalt,
-}
-
-big! { Biome, biome
-  Void => minecraft:void,
-
-  ColdTaiga => minecraft:taiga_cold,
-  Taiga => minecraft:taiga,
-  ExtremeHills => minecraft:extreme_hills,
-  IcePlains => minecraft:ice_flats,
-  Plains => minecraft:plains,
-  Beaches => minecraft:beaches,
-  RoofedForest => minecraft:roofed_forest,
-  Savanna => minecraft:savanna,
-  Swamp => minecraft:swampland,
-  StoneBeach => minecraft:stone_beach,
-  Jungle => minecraft:jungle,
-  BirchForest => minecraft:birch_forest_hills,
-  River => minecraft:river,
-  Mesa => minecraft:mesa,
-  Desert => minecraft:desert,
 }
 
 #[cfg(test)]
