@@ -148,7 +148,7 @@ impl PropMap {
       entries[i] = (Some(*key), PropValueCompact::for_value_or_panic(*value));
     }
 
-    entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
+    entries[0..values.len()].sort_unstable_by(|a, b| a.0.cmp(&b.0));
 
     Self { entries }
   }
@@ -614,6 +614,14 @@ mod tests {
   }
 
   #[test]
+  fn prop_map_new() {
+    let map = PropMap::new(&[(prop_name![age], true.into()), (prop_name![axis], "x".into())]);
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", true.into()), ("axis", "x".into())]);
+  }
+
+  #[test]
   fn prop_map_insert() {
     let mut map = PropMap::empty();
 
@@ -632,5 +640,21 @@ mod tests {
 
     assert_eq!(map.len(), 2);
     assert_eq!(map.entries().collect::<Vec<_>>(), [("age", false.into()), ("axis", "x".into())]);
+  }
+
+  #[test]
+  fn prop_map_insert_if_unset() {
+    let mut map = PropMap::empty();
+
+    map.insert_if_unset("age", true.into());
+    map.insert_if_unset("axis", "x".into());
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", true.into()), ("axis", "x".into())]);
+
+    map.insert_if_unset("age", false.into());
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", true.into()), ("axis", "x".into())]);
   }
 }
