@@ -58,7 +58,7 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    30,
       place_above: [block![sand]].into(),
-      place:       block![rgen:cactus[1]],
+      place:       block![rgen:cactus[color = "blue"]],
     },
   );
 
@@ -68,7 +68,7 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    20,
       place_above: [block![sand]].into(),
-      place:       block![rgen:cactus[3]],
+      place:       block![rgen:cactus[color = "orange"]],
     },
   );
 }

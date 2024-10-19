@@ -1,7 +1,6 @@
 use rgen_base::{biome, block};
 use rgen_placer::{chunk_placer, placer};
 
-use super::super::color;
 use crate::builder::{BiomeBuilder, PlacerStage};
 
 // SPRUCE CAT
@@ -21,7 +20,7 @@ pub fn spruce_grove(gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         block![dirt[2]],
+      place:         block![dirt[variant = "podzol"]],
       radius:        2..=3,
       avg_per_chunk: 0.6,
     },
@@ -48,12 +47,12 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -65,12 +64,12 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -82,12 +81,12 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -110,12 +109,12 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -127,12 +126,12 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -144,12 +143,12 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -190,7 +189,7 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
         block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           block![log[1]],
+      log:           block![log[variant = "spruce"]],
     },
   );
 }
@@ -204,12 +203,12 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -221,12 +220,12 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -238,12 +237,12 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -317,12 +316,12 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -334,12 +333,12 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -351,12 +350,12 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -377,12 +376,12 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -394,12 +393,12 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -411,12 +410,12 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -457,7 +456,7 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
         block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           block![rgen:log[0]],
+      log:           block![rgen:log[variant = "fir"]],
     },
   );
 }
@@ -471,12 +470,12 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -488,12 +487,12 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -505,12 +504,12 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -556,8 +555,8 @@ pub fn snowy_peak(gen: &mut BiomeBuilder) {
   gen.set_underwater_block(block![stone]);
   gen.place_chunk(chunk_placer::CheckerboardSurface {
     replace: block![stone].into(),
-    a:       block![concrete[color::MAGENTA]],
-    b:       block![concrete[color::BLACK]],
+    a:       block![concrete[color = "magenta"]],
+    b:       block![concrete[color = "black"]],
   });
 }
 
@@ -618,7 +617,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -634,7 +633,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -646,12 +645,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -663,12 +662,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -680,12 +679,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    true,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[1]],
-      trunk:        block![log[1]],
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -698,12 +697,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -715,12 +714,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -732,12 +731,12 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       is_spruce:    false,
       place_above:  [
         block![grass],
-        block![concrete[color::MAGENTA]],
-        block![concrete[color::BLACK]],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[0]],
-      trunk:        block![rgen:log[0]],
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -756,7 +755,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
         block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           block![rgen:log[0]],
+      log:           block![rgen:log[variant = "fir"]],
     },
   );
 
@@ -774,7 +773,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
         block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           block![log[1]],
+      log:           block![log[variant = "spruce"]],
     },
   );
 }
@@ -875,7 +874,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -891,7 +890,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -938,7 +937,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
     placer::BushClumps {
       place_above: gen.top_block().into(),
       log:         block![log],
-      leaves:      block![leaves[4]],
+      leaves:      block![leaves[variant = "oak", decayable = false]],
 
       radius:        10..=20,
       avg_per_chunk: 5.3,
@@ -966,7 +965,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -982,7 +981,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -997,9 +996,9 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=6,
       attempts:      10,
@@ -1018,9 +1017,9 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      block![tallgrass[2]],     // Grass
-      place_tall_lower: block![double_plant[3]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "fern"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_fern"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=6,
       attempts:      13,
@@ -1032,7 +1031,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    200,
-      place_above: [block![dirt[2]]].into(),
+      place_above: [block![dirt[variant = "podzol"]]].into(),
       place:       block![brown_mushroom],
     },
   );
@@ -1051,7 +1050,7 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[2]],
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -1067,7 +1066,7 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[1]],
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -1082,9 +1081,9 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      block![tallgrass[1]],     // Grass
-      place_tall_lower: block![double_plant[2]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        2..=4,
       attempts:      18,
@@ -1103,9 +1102,9 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
         block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      block![tallgrass[2]],     // Grass
-      place_tall_lower: block![double_plant[3]],  // Tall grass lower
-      place_tall_upper: block![double_plant[10]], // Tall grass upper
+      place_short:      block![tallgrass[type = "fern"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_fern"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        2..=4,
       attempts:      27,
