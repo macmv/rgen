@@ -164,10 +164,16 @@ impl PropMap {
       .filter_map(|(key, value)| key.map(|key| (key.name(), value.as_value())))
   }
 
-  #[track_caller]
-  pub fn set(&mut self, key: &str, value: PropValue) {
-    let name = PropName::for_name_or_panic(key);
+  fn partition_point(&self, name: &PropName) -> usize {
+    self.entries.partition_point(|(e, _)| match e {
+      Some(e) => e < &name,
+      None => false, // Empty entries at the end.
+    })
+  }
 
+  // Precondition: `key` must be in the map.
+  #[track_caller]
+  fn set(&mut self, name: PropName, value: PropValue) {
     for entry in self.entries.iter_mut() {
       if entry.0 == Some(name) {
         entry.1 = PropValueCompact::for_value_or_panic(value);
@@ -175,37 +181,52 @@ impl PropMap {
       }
     }
 
-    panic!("key '{key}' not found");
+    panic!("property '{name}' not found");
   }
 
+  // Precondition: `key` must not be in the map.
+  #[track_caller]
+  fn add(&mut self, name: PropName, value: PropValue) {
+    if self.len() == 8 {
+      panic!("no more space for key '{name}'");
+    }
+
+    let index = self.partition_point(&name);
+
+    // Given:
+    // A A B B _ _ _ _
+    //
+    // We want to insert our element between `A` and `B`. So we have a quick and
+    // dirty `sort` impl here.
+    self.entries[index..].rotate_right(1); // A A _ B B _ _ _
+    self.entries[index] = (Some(name), PropValueCompact::for_value_or_panic(value));
+  }
+
+  #[track_caller]
   pub fn insert(&mut self, key: &str, value: PropValue) {
     let name = PropName::for_name_or_panic(key);
 
-    for entry in self.entries.iter_mut() {
-      if entry.0 == Some(name) || entry.0.is_none() {
-        *entry = (Some(name), PropValueCompact::for_value_or_panic(value));
-        // FIXME: Insert this key in the right spot, instead of just sorting. This is a
-        // somewhat hot path, so probably with optimizing at some point.
-        self.entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-        return;
-      }
+    if self.contains_key(&name) {
+      self.set(name, value);
+    } else {
+      self.add(name, value);
     }
-
-    panic!("no more space for key '{key}'");
   }
 
+  #[track_caller]
   pub fn insert_if_unset(&mut self, key: &str, value: PropValue) {
-    if self.contains_key(key) {
+    let name = PropName::for_name_or_panic(key);
+
+    if self.contains_key(&name) {
       return;
     }
 
-    self.insert(key, value);
+    self.add(name, value);
   }
 
-  pub fn contains_key(&self, key: &str) -> bool {
-    let name = PropName::for_name_or_panic(key);
-
-    self.entries.iter().any(|&(entry, _)| entry == Some(name))
+  fn contains_key(&self, name: &PropName) -> bool {
+    let index = self.partition_point(name);
+    index != 8 && self.entries[index].0 == Some(*name)
   }
 }
 
@@ -551,6 +572,10 @@ impl PropName {
   }
 }
 
+impl fmt::Display for PropName {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}", self.name()) }
+}
+
 impl PropValueCompact {
   pub fn for_value_or_panic(value: PropValue) -> Self {
     match value {
@@ -586,5 +611,26 @@ mod tests {
   #[test]
   fn size_of_prop_map() {
     assert_eq!(std::mem::size_of::<PropMap>(), 16);
+  }
+
+  #[test]
+  fn prop_map_insert() {
+    let mut map = PropMap::empty();
+
+    map.insert("age", true.into());
+    map.insert("axis", "x".into());
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", true.into()), ("axis", "x".into())]);
+
+    map.insert("age", true.into());
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", true.into()), ("axis", "x".into())]);
+
+    map.insert("age", false.into());
+
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.entries().collect::<Vec<_>>(), [("age", false.into()), ("axis", "x".into())]);
   }
 }

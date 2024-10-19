@@ -48,6 +48,7 @@ impl BlockState {
   }
 
   /// Validates `self.state` against the properties defined for `self.block`.
+  #[track_caller]
   fn check(&self) {
     match self.state {
       StateOrProps::Default => {}
@@ -81,6 +82,7 @@ impl BlockState {
   ///
   /// If the property is not defined on this block, this will panic. If the
   /// value is not allowed for this block, this will panic.
+  #[track_caller]
   pub fn set_prop<'a>(&mut self, key: &str, value: impl Into<PropValue<'a>>) {
     match self.state {
       StateOrProps::Default => {
@@ -103,6 +105,7 @@ impl BlockState {
   ///
   /// If the property is not defined on this block, this will panic. If the
   /// value is not allowed for this block, this will panic.
+  #[track_caller]
   pub fn with_prop<'a>(mut self, key: &str, value: impl Into<PropValue<'a>>) -> BlockState {
     self.set_prop(key, value);
     self
