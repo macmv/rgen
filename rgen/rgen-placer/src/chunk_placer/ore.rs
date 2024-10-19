@@ -1,4 +1,4 @@
-use rgen_base::{block, BlockState, Pos};
+use rgen_base::{BlockState, Pos};
 use std::ops::RangeInclusive;
 
 use crate::{grid::PointGrid, ChunkPlacer, Random, Rng};

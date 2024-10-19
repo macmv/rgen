@@ -1,4 +1,4 @@
-use rgen_base::{block, BlockFilter, BlockState, ChunkRelPos, Pos};
+use rgen_base::{BlockFilter, BlockState, ChunkRelPos, Pos};
 use rgen_spline::{Cosine, Spline};
 
 use crate::{

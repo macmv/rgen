@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{block, BlockFilter, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
 use crate::{rng::Random, Placer, Result, Rng};

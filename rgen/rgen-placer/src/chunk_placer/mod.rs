@@ -12,7 +12,7 @@ pub use ore::Ore;
 pub use snow_snow::SnowOnSnowSurface;
 pub use snow_stone::SnowOnStoneSurface;
 
-use rgen_base::{block, BlockState, ChunkRelPos, Pos};
+use rgen_base::{BlockState, ChunkRelPos, Pos};
 
 use crate::{BiomeCachedChunk, ChunkPlacer, Random};
 

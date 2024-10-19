@@ -1,4 +1,4 @@
-use rgen_base::{block, BlockState, ChunkRelPos, Pos};
+use rgen_base::{BlockState, ChunkRelPos, Pos};
 
 use crate::{BiomeCachedChunk, ChunkPlacer, Random};
 
