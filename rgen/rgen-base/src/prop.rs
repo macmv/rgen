@@ -178,17 +178,11 @@ impl PropMap {
     panic!("key '{key}' not found");
   }
 
-  pub fn insert_if_unset(&mut self, key: &str, value: PropValue) {
+  pub fn insert(&mut self, key: &str, value: PropValue) {
     let name = PropName::for_name_or_panic(key);
 
-    for entry in self.entries() {
-      if entry.0 == key {
-        return;
-      }
-    }
-
     for entry in self.entries.iter_mut() {
-      if entry.0.is_none() {
+      if entry.0 == Some(name) || entry.0.is_none() {
         *entry = (Some(name), PropValueCompact::for_value_or_panic(value));
         // FIXME: Insert this key in the right spot, instead of just sorting. This is a
         // somewhat hot path, so probably with optimizing at some point.
@@ -198,6 +192,20 @@ impl PropMap {
     }
 
     panic!("no more space for key '{key}'");
+  }
+
+  pub fn insert_if_unset(&mut self, key: &str, value: PropValue) {
+    if self.contains_key(key) {
+      return;
+    }
+
+    self.insert(key, value);
+  }
+
+  pub fn contains_key(&self, key: &str) -> bool {
+    let name = PropName::for_name_or_panic(key);
+
+    self.entries.iter().any(|&(entry, _)| entry == Some(name))
   }
 }
 

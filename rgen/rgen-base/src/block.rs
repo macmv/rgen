@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{PropMap, PropMapOwned, PropType};
+use crate::{PropMap, PropMapOwned, PropType, PropValue};
 
 /// A realized block state. The least significant 4 bits are the data value, and
 /// the most significant 12 bits are the block id.
@@ -42,23 +42,30 @@ impl BlockState {
   #[doc(hidden)]
   #[track_caller]
   pub fn new(block: BlockKind, state: StateOrProps) -> Self {
-    match state {
+    let state = BlockState { block, state };
+    state.check();
+    state
+  }
+
+  /// Validates `self.state` against the properties defined for `self.block`.
+  fn check(&self) {
+    match self.state {
       StateOrProps::Default => {}
       StateOrProps::Meta(m) => assert!(m < 16),
       StateOrProps::Props(p) => {
-        let expected = block.expected_props();
+        let expected = self.block.expected_props();
 
         for (k, v) in p.entries() {
           assert!(
             expected.contains_key(k),
             "unexpected property for block {}: {}",
-            block.name(),
+            self.block.name(),
             k
           );
           assert!(
             expected[k].matches(&v),
             "invalid property value for block {}: {} = {:?} (expected: {:?})",
-            block.name(),
+            self.block.name(),
             k,
             v,
             expected[k]
@@ -66,8 +73,39 @@ impl BlockState {
         }
       }
     }
+  }
 
-    BlockState { block, state }
+  /// Sets the property `key` to `value`.
+  ///
+  /// # Panics
+  ///
+  /// If the property is not defined on this block, this will panic. If the
+  /// value is not allowed for this block, this will panic.
+  pub fn set_prop<'a>(&mut self, key: &str, value: impl Into<PropValue<'a>>) {
+    match self.state {
+      StateOrProps::Default => {
+        let mut m = PropMap::new(&[]);
+        m.insert(key, value.into());
+        self.state = StateOrProps::Props(m);
+      }
+      StateOrProps::Meta(_) => panic!("cannot set properties on a block with a data value"),
+      StateOrProps::Props(ref mut props) => {
+        props.insert(key, value.into());
+      }
+    }
+
+    self.check();
+  }
+
+  /// Sets the property `key` to `value`, returning the updated block state.
+  ///
+  /// # Panics
+  ///
+  /// If the property is not defined on this block, this will panic. If the
+  /// value is not allowed for this block, this will panic.
+  pub fn with_prop<'a>(mut self, key: &str, value: impl Into<PropValue<'a>>) -> BlockState {
+    self.set_prop(key, value);
+    self
   }
 }
 
