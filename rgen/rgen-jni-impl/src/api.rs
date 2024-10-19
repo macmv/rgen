@@ -4,7 +4,7 @@ use std::cell::RefCell;
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
-  sys::{jbyte, jint, jlong, jobjectArray, jstring},
+  sys::{jbyte, jint, jlong, jobject, jobjectArray, jstring},
   JNIEnv,
 };
 use rgen_world::PartialWorldStorage;
@@ -54,8 +54,17 @@ impl PartialWorldStorage for JniWorldStorage<'_, '_> {
   }
 }
 
+/// Initializes the terrain generator for a specific seed. Call this function on
+/// each world load.
 #[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv, _class: JClass) {
+  crate::logger::init();
+}
+
+/// Initializes the terrain generator for a specific seed. Call this function on
+/// each world load.
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1world(
   mut env: JNIEnv,
   _class: JClass,
   seed: jlong,
@@ -63,6 +72,25 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
   let blocks = lookup_block_info(&mut env);
   let biomes = lookup_biome_info(&mut env);
   Context::init(blocks, biomes, seed);
+}
+
+#[no_mangle]
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_wait_1for_1log(
+  mut env: JNIEnv,
+  _class: JClass,
+) -> jobject {
+  match crate::logger::poll() {
+    Some(log) => {
+      let jmessage = env.new_string(log.message).unwrap();
+      let obj = env.new_object("net/macmv/rgen/rust/OwnedLog", "()V", &[]).unwrap();
+
+      env.set_field(&obj, "level", "B", (log.level as i8).into()).unwrap();
+      env.set_field(&obj, "message", "Ljava/lang/String;", (&jmessage).into()).unwrap();
+
+      obj.into_raw()
+    }
+    None => std::ptr::null_mut(),
+  }
 }
 
 #[no_mangle]

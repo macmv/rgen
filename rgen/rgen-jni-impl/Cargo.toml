@@ -16,6 +16,9 @@ rgen-world.workspace = true
 rgen-spline.workspace = true
 
 jni = "0.21.1"
+fern = "0.6.2"
+log = "0.4.22"
+crossbeam-channel = "0.5.13"
 
 [features]
 # Links to obfuscated names. Used for release builds.
