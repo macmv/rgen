@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fmt, time::Duration};
 
 use crossbeam_channel::{Receiver, Sender};
 
@@ -33,7 +33,20 @@ pub fn init() {
   }
 
   fern::Dispatch::new()
-    .format(|out, message, record| out.finish(format_args!("{}: {}", record.target(), message)))
+    .format(|out, message, record| {
+      struct LineOpt(Option<u32>);
+      impl fmt::Display for LineOpt {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+          if let Some(line) = self.0 {
+            write!(f, ":{}", line)
+          } else {
+            Ok(())
+          }
+        }
+      }
+
+      out.finish(format_args!("{}{}: {}", record.target(), LineOpt(record.line()), message))
+    })
     .level(log::LevelFilter::Debug)
     .chain(Box::new(RecordSender(tx)) as Box<dyn Log>)
     .apply()
