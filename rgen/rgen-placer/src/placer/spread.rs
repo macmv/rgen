@@ -18,7 +18,8 @@ impl Placer for Spread {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.rand_inclusive((*self.radius.start()).into(), (*self.radius.end()).into());
+    let radius =
+      rng.rand_inclusive::<i32>((*self.radius.start()).into(), (*self.radius.end()).into());
 
     let r2 = radius.pow(2);
 
