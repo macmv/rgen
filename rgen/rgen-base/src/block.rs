@@ -29,21 +29,46 @@ impl BlockId {
   pub const AIR: BlockId = BlockId(0);
 }
 
-/// A realized biome ID.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(transparent)]
-pub struct BiomeId(pub u8);
-
-impl BiomeId {
-  pub const VOID: BiomeId = BiomeId(127);
-}
-
 /// A block state represents a block with a specific data value (like wool
 /// color).
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct BlockState {
   pub block: BlockKind,
   pub state: StateOrProps,
+}
+
+impl BlockState {
+  // Use `block![]` instead.
+  #[doc(hidden)]
+  #[track_caller]
+  pub fn new(block: BlockKind, state: StateOrProps) -> Self {
+    match state {
+      StateOrProps::Default => {}
+      StateOrProps::Meta(m) => assert!(m < 16),
+      StateOrProps::Props(p) => {
+        let expected = block.expected_props();
+
+        for (k, v) in p.entries() {
+          assert!(
+            expected.contains_key(k),
+            "unexpected property for block {}: {}",
+            block.name(),
+            k
+          );
+          assert!(
+            expected[k].matches(&v),
+            "invalid property value for block {}: {} = {:?} (expected: {:?})",
+            block.name(),
+            k,
+            v,
+            expected[k]
+          );
+        }
+      }
+    }
+
+    BlockState { block, state }
+  }
 }
 
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
@@ -136,11 +161,6 @@ impl BlockState {
   pub fn with_data(&self, data: u8) -> BlockState { self.block.with_data(data) }
 }
 
-#[allow(clippy::derivable_impls)]
-impl Default for Biome {
-  fn default() -> Biome { Biome::Void }
-}
-
 impl PartialEq<BlockKind> for BlockState {
   fn eq(&self, other: &BlockKind) -> bool { self.block == *other }
 }
@@ -167,12 +187,12 @@ impl PartialEq<BlockState> for BlockInfo<'_> {
 macro_rules! block {
   // block![stone[variant = andesite]]
   ($b1:ident $(:$b2:ident)? [$($key:ident = $value:expr),*]) => {
-    $crate::BlockState {
-      block: $crate::block_kind![$b1 $(:$b2)?],
-      state: $crate::StateOrProps::Props($crate::PropMap::new(&[
+    $crate::BlockState::new(
+      $crate::block_kind![$b1 $(:$b2)?],
+      $crate::StateOrProps::Props($crate::PropMap::new(&[
         $(($crate::prop_name![$key], $crate::PropValue::from($value)),)*
       ])),
-    }
+    )
   };
 
   // block![minecraft:stone[2]]
@@ -192,30 +212,28 @@ macro_rules! block {
   };
 }
 
-// Block Identification Guide
-macro_rules! big {
+macro_rules! blocks {
   (
-    $enum_name:ident, $macro_name:ident
     $default_id:ident => $default_namespace:ident:$default_name:ident,
-    $($id:ident => $namespace:ident:$name:ident,)*
+    $($id:ident => $namespace:ident:$name:ident $([$($prop_key:ident: $prop_value:expr),* $(,)?])?,)*
   ) => {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    pub enum $enum_name {
+    pub enum BlockKind {
       $default_id,
       $($id,)*
     }
 
     #[macro_export]
-    macro_rules! $macro_name {
+    macro_rules! block_kind {
       // block_kind![air]
-      ($default_name) => { $crate::$enum_name::$default_id };
+      ($default_name) => { $crate::BlockKind::$default_id };
       // block_kind![minecraft:air]
-      ($default_namespace:$default_name) => { $crate::$enum_name::$default_id };
+      ($default_namespace:$default_name) => { $crate::BlockKind::$default_id };
       // block_kind![stone] -> block_kind![minecraft:stone]
-      ($block_name:ident) => { $crate::$macro_name![$default_namespace:$block_name] };
+      ($block_name:ident) => { $crate::block_kind![$default_namespace:$block_name] };
       $(
         // block_kind![rgen:log]
-        ($namespace:$name) => { $crate::$enum_name::$id };
+        ($namespace:$name) => { $crate::BlockKind::$id };
       )*
 
       ($other_namespace:ident:$other:ident) => {
@@ -223,7 +241,7 @@ macro_rules! big {
       };
     }
 
-    impl $enum_name {
+    impl BlockKind {
       pub fn name(&self) -> &'static str {
         match self {
           $(
@@ -245,90 +263,165 @@ macro_rules! big {
         Self::$default_id,
         $(Self::$id,)*
       ];
+
+      pub fn expected_props(&self) -> HashMap<String, PropType> {
+        match self {
+          $(
+            Self::$id => HashMap::from_iter([$($(
+              (String::from(stringify!($prop_key)), $crate::PropType::from($prop_value)),
+            )*)?]),
+          )*
+          _ => HashMap::new(),
+        }
+      }
     }
   };
 }
 
-big! { BlockKind, block_kind
+const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
+const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
+
+const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "sakura", "cedar"];
+const RGEN_WOOD_4_2_LOG: [&str; 2] = ["mangrove", "dead"];
+const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender", "seasonal"];
+const RGEN_WOOD_4_3: [&str; 1] = ["aspen"];
+
+const COLOR: [&str; 16] = [
+  "white",
+  "orange",
+  "magenta",
+  "lightblue",
+  "yellow",
+  "lime",
+  "pink",
+  "gray",
+  "silver",
+  "cyan",
+  "purple",
+  "blue",
+  "brown",
+  "green",
+  "red",
+  "black",
+];
+
+blocks! {
   Air => minecraft:air,
 
-  Stone => minecraft:stone,
-  Dirt => minecraft:dirt,
+  Stone => minecraft:stone[
+    variant: ["stone", "granite", "smooth_granite", "diorite", "smooth_diorite", "andesite", "smooth_andesite"],
+  ],
+  Dirt => minecraft:dirt[
+    snowy: PropType::Bool,
+    variant: ["dirt", "coarse_dirt", "podzol"],
+  ],
   Clay => minecraft:clay,
-  Grass => minecraft:grass,
+  Grass => minecraft:grass[snowy: PropType::Bool],
   Snow => minecraft:snow,
-  SnowLayer => minecraft:snow_layer,
-  Sand => minecraft:sand,
+  SnowLayer => minecraft:snow_layer[layers: 1..=8],
+  Sand => minecraft:sand[variant: ["sand", "red_sand"]],
   Gravel => minecraft:gravel,
-  Log => minecraft:log,
-  Leaves => minecraft:leaves,
-  Water => minecraft:water,
-  Concrete => minecraft:concrete,
+  Log => minecraft:log[axis: ["x", "y", "z", "none"], variant: WOOD_4],
+  Leaves => minecraft:leaves[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: WOOD_4,
+  ],
+  Water => minecraft:water[level: 0..=15],
+  Concrete => minecraft:concrete[color: COLOR],
   Cobblestone => minecraft:cobblestone,
   MossyCobblestone => minecraft:mossy_cobblestone,
   Ice => minecraft:ice,
   PackedIce => minecraft:packed_ice,
-  Tallgrass => minecraft:tallgrass,
-  DoublePlant => minecraft:double_plant,
-  RedFlower => minecraft:red_flower,
-  YellowFlower => minecraft:yellow_flower,
-  // 0 - normal    1 - chiseled     2 - smooth
-  Sandstone => minecraft:sandstone,
-  // 0 - normal    1 - chiseled     2 - smooth (?)
-  RedSandstone => minecraft:red_sandstone,
+  Tallgrass => minecraft:tallgrass[type: ["dead_bush", "tall_grass", "fern"]],
+  DoublePlant => minecraft:double_plant[
+    facing: ["north", "south", "west", "east"],
+    half: ["upper", "lower"],
+    variant: ["sunflower", "syringa", "double_grass", "double_fern", "double_rose", "paeonia"],
+  ],
+  RedFlower => minecraft:red_flower[
+    type: ["poppy", "blue_orchid", "allium", "houstonia", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip", "oxeye_daisy"],
+  ],
+  YellowFlower => minecraft:yellow_flower[type: ["dandelion"]],
+  Sandstone => minecraft:sandstone[
+    type: ["sandstone", "chiseled_sandstone", "smooth_sandstone"],
+  ],
+  RedSandstone => minecraft:red_sandstone[
+    type: ["red_sandstone", "chiseled_red_sandstone", "smooth_red_sandstone"],
+  ],
   GoldBlock => minecraft:gold_block,
   HardenedClay => minecraft:hardened_clay,
-  StainedHardenedClay => minecraft:stained_hardened_clay,
-  Planks => minecraft:planks,
-  GlassPane => minecraft:glass_pane,
-  Wool => minecraft:wool,
-  Lava => minecraft:lava,
+  StainedHardenedClay => minecraft:stained_hardened_clay[color: COLOR],
+  Planks => minecraft:planks[variant: WOOD_6],
+  GlassPane => minecraft:glass_pane[
+    east: PropType::Bool,
+    north: PropType::Bool,
+    south: PropType::Bool,
+    west: PropType::Bool,
+  ],
+  Wool => minecraft:wool[color: COLOR],
+  Lava => minecraft:lava[level: 0..=15],
   IronOre => minecraft:iron_ore,
   BrownMushroom => minecraft:brown_mushroom,
-  Cocoa => minecraft:cocoa,
+  Cocoa => minecraft:cocoa[
+    age: 0..=2,
+    facing: ["north", "south", "west", "east"],
+  ],
   GrassPath => minecraft:grass_path,
 
-  RgenLog => rgen:log,
-  RgenLog2 => rgen:log2,
-  RgenLeaves => rgen:leaves,
-  RgenLeaves2 => rgen:leaves2,
-  RgenLeaves3 => rgen:leaves3,
-  RgenMossyStump => rgen:mossy_stump,
-  RgenPolypore => rgen:polypore,
+  RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
+  RgenLog2 => rgen:log2[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_2_LOG],
+  RgenLeaves => rgen:leaves[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_1,
+  ],
+  RgenLeaves2 => rgen:leaves2[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_2_LEAVES,
+  ],
+  RgenLeaves3 => rgen:leaves3[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: RGEN_WOOD_4_3,
+  ],
+  RgenMossyStump => rgen:mossy_stump[
+    axis: ["x", "y", "z", "none"],
+    variant: ["oak", "birch"],
+  ],
+  RgenPolypore => rgen:polypore[
+    facing: ["north", "south", "west", "east"],
+    type: ["one", "two", "three"],
+  ],
   RgenMossyCarpet => rgen:mossy_carpet,
-  RgenFlower => rgen:flower,
-  RgenBamboo => rgen:bamboo,
-  RgenGlowVine => rgen:glow_vine,
+  RgenFlower => rgen:flower[type: ["forget_me_not"]],
+  RgenBamboo => rgen:bamboo[has_leaves: PropType::Bool, placement: ["standard", "x", "z", "xz"]],
+  RgenGlowVine => rgen:glow_vine[
+    east: PropType::Bool,
+    west: PropType::Bool,
+    north: PropType::Bool,
+    south: PropType::Bool,
+    up: PropType::Bool,
+  ],
   RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
   RgenMossyStone => rgen:mossy_stone,
   RgenPlant => rgen:plant,
   RgenMoss => rgen:mossy_block,
-  RgenLavender => rgen:lavender_plant,
-  RgenTallLavender => rgen:double_tall_lavender_plant,
-  RgenJuvenileCactus => rgen:juvenile_cactus,
-  RgenCactus => rgen:cactus,
-  RgenCactusArm => rgen:cactus_arm,
-  RgenBasalt => rgen:basalt,
-}
-
-big! { Biome, biome
-  Void => minecraft:void,
-
-  ColdTaiga => minecraft:taiga_cold,
-  Taiga => minecraft:taiga,
-  ExtremeHills => minecraft:extreme_hills,
-  IcePlains => minecraft:ice_flats,
-  Plains => minecraft:plains,
-  Beaches => minecraft:beaches,
-  RoofedForest => minecraft:roofed_forest,
-  Savanna => minecraft:savanna,
-  Swamp => minecraft:swampland,
-  StoneBeach => minecraft:stone_beach,
-  Jungle => minecraft:jungle,
-  BirchForest => minecraft:birch_forest_hills,
-  River => minecraft:river,
-  Mesa => minecraft:mesa,
-  Desert => minecraft:desert,
+  RgenLavender => rgen:lavender_plant[
+    variant: ["variant_1", "variant_2", "variant_3", "variant_4"],
+  ],
+  RgenTallLavender => rgen:double_tall_lavender_plant[
+    half: ["upper", "lower"],
+    variant: ["variant_1", "variant_2", "variant_3", "variant_4"],
+  ],
+  RgenJuvenileCactus => rgen:juvenile_cactus[
+    age: ["zero", "one", "two", "three"],
+    color: ["green", "blue", "yellow", "orange"],
+  ],
+  RgenCactus => rgen:cactus[color: ["green", "blue", "yellow", "orange"]],
+  RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
+  RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],
 }
 
 #[cfg(test)]
