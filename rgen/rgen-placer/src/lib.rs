@@ -14,6 +14,9 @@ pub use rng::{Random, Rng};
 
 pub type Result = std::result::Result<(), UndoError>;
 
+#[macro_use]
+extern crate log;
+
 /// A Placer places a set of blocks at a position in the world.
 ///
 /// Placers are chunk-agnostic, and they will be called multiple times for a

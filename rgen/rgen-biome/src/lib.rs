@@ -1,11 +1,12 @@
 use cave::CaveCarver;
 use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
+  chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
     ShiftedNoise, VoronoiNoise,
   },
-  BiomeCachedChunk, Rng, TemporaryBiome,
+  BiomeCachedChunk, ChunkPlacer, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
@@ -75,6 +76,8 @@ pub struct WorldBiomes {
 
   /// Controlls the depth of the sub layer (usually dirt).
   sub_layer_map: OctavedNoise<OpenSimplexNoise, 3>,
+
+  global_chunk_placers: Vec<Box<dyn ChunkPlacer>>,
 }
 
 lazy_static::lazy_static! {
@@ -153,6 +156,13 @@ impl WorldBiomes {
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
       sub_layer_map: OctavedNoise::new(seed, 1.0 / 20.0),
+
+      global_chunk_placers: vec![Box::new(chunk_placer::Ore {
+        ore:           block![coal_ore],
+        avg_per_chunk: 20.0,
+        size:          8..=16,
+        height:        0..=128,
+      })],
     }
   }
 
@@ -442,6 +452,10 @@ impl WorldBiomes {
       let mut rng = Rng::new(self.seed);
       chunk.set_active(id);
       biome.generate(&mut rng, &mut chunk, chunk_pos);
+    }
+
+    for placer in &self.global_chunk_placers {
+      placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
     }
   }
 

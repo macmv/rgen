@@ -1,12 +1,14 @@
 mod checkerboard;
 mod crevasse;
 mod lush_cave;
+mod ore;
 mod snow_snow;
 mod snow_stone;
 
 pub use checkerboard::CheckerboardSurface;
 pub use crevasse::*;
 pub use lush_cave::LushCaveMoss;
+pub use ore::Ore;
 pub use snow_snow::SnowOnSnowSurface;
 pub use snow_stone::SnowOnStoneSurface;
 
