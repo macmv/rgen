@@ -14,6 +14,9 @@ mod info;
 
 pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
 
+#[macro_use]
+extern crate log;
+
 pub struct Context {
   pub seed:   u64,
   pub blocks: BlockInfoSupplier,

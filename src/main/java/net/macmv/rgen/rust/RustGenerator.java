@@ -1,5 +1,6 @@
 package net.macmv.rgen.rust;
 
+import net.macmv.rgen.RGen;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,7 @@ import net.minecraftforge.registries.GameData;
 import java.io.File;
 
 public class RustGenerator {
-  private static native void init_generator(long seed);
+  private static native void init_world(long seed);
   private static native void init();
   private static native int reload_generator();
   private static native void build_chunk(char[] data, int x, int z);
@@ -33,6 +34,7 @@ public class RustGenerator {
   private static native String[] debug_info(int x, int y, int z);
   private static native String get_biome_name_at(int x, int y, int z);
   private static native byte get_biome_at(int x, int z);
+  private static native OwnedLog wait_for_log();
 
   // Helpers for the rust code.
 
@@ -120,9 +122,26 @@ public class RustGenerator {
     if (!active) {
       System.loadLibrary("rgen_jni");
       init();
+      spawn_logging_thread();
     }
     active = true;
-    init_generator(seed);
+    init_world(seed);
+  }
+
+  // Spawn this thread in java, so that we can actually call out to log4j once we get a message.
+  // Then, we rely on rust to block before getting messages in a loop.
+  private static void spawn_logging_thread() {
+    Thread t = new Thread(() -> {
+      while (true) {
+        OwnedLog msg = wait_for_log();
+        if (msg != null) {
+          RGen.LOG.log(msg.getLevel(), msg.message);
+        }
+      }
+    });
+    t.setName("RGen");
+    t.setDaemon(true);
+    t.start();
   }
 
   @SideOnly(Side.CLIENT)
