@@ -14,6 +14,7 @@ pub use rng::{Random, Rng};
 
 pub type Result = std::result::Result<(), UndoError>;
 
+#[allow(unused_imports)]
 #[macro_use]
 extern crate log;
 
