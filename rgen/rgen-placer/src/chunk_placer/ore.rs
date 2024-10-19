@@ -41,9 +41,9 @@ impl ChunkPlacer for Ore {
 
       pos.1 = rng.rand_inclusive(*self.height.start(), *self.height.end()) as f64;
 
-      let mut vx = rng.rand_inclusive(-100, 100) as f64 / 100.0;
-      let mut vy = rng.rand_inclusive(-100, 100) as f64 / 100.0;
-      let mut vz = rng.rand_inclusive(-100, 100) as f64 / 100.0;
+      let mut vx = rng.rand_inclusive(-1.0, 1.0);
+      let mut vy = rng.rand_inclusive(-1.0, 1.0);
+      let mut vz = rng.rand_inclusive(-1.0, 1.0);
 
       let size = rng.rand_inclusive(*self.size.start(), *self.size.end());
       for _ in 0..size {
@@ -67,9 +67,9 @@ impl ChunkPlacer for Ore {
           }
         }
 
-        vx += rng.rand_inclusive(-50, 50) as f64 / 100.0;
-        vy += rng.rand_inclusive(-50, 50) as f64 / 100.0;
-        vz += rng.rand_inclusive(-50, 50) as f64 / 100.0;
+        vx += rng.rand_inclusive(-0.5, 0.5);
+        vy += rng.rand_inclusive(-0.5, 0.5);
+        vz += rng.rand_inclusive(-0.5, 0.5);
 
         pos.0 += vx;
         pos.1 += vy;

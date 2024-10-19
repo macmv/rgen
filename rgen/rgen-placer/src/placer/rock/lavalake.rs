@@ -40,8 +40,8 @@ impl Placer for LavaLake {
 impl LavaLake {
   fn build_base(&self, rng: &mut Rng, pos: Pos, world: &mut PartialWorld) {
     let poolsize: [i32; 4] = [4, 5, 6, 7];
-    let x_shift = rng.rand_inclusive(8, 12) as f64 / 10.0;
-    let z_shift = rng.rand_inclusive(8, 12) as f64 / 10.0;
+    let x_shift = rng.rand_inclusive(0.8, 1.2);
+    let z_shift = rng.rand_inclusive(0.8, 1.2);
 
     for rel_x in -8..=8_i32 {
       for rel_z in -8..=8_i32 {
@@ -60,8 +60,8 @@ impl LavaLake {
           self.feature_add(rng, pos, world, rel_x, rel_z);
         }
 
-        noise_x += rng.rand_inclusive(-1, 1) as f64;
-        noise_z += rng.rand_inclusive(-1, 1) as f64;
+        noise_x += rng.rand_inclusive(-1.0, 1.0);
+        noise_z += rng.rand_inclusive(-1.0, 1.0);
 
         let distance_from_center = noise_x.powi(2) + noise_z.powi(2);
 

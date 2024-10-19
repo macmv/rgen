@@ -64,16 +64,16 @@ impl Placer for JungleTree {
 
 impl JungleTree {
   fn place_trunk(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos, height: i32) {
-    let sway_x = rng.rand_inclusive(-80, 80) as f64 / 100.0;
-    let sway_z = rng.rand_inclusive(-80, 80) as f64 / 100.0;
+    let sway_x = rng.rand_inclusive(-0.8, 0.8);
+    let sway_z = rng.rand_inclusive(-0.8, 0.8);
 
     // Trunk.
     let mut x = pos.x as f64;
     let mut z = pos.z as f64;
     let mut next_leaves = rng.rand_inclusive(4, 7);
     for i in 0..height {
-      let mut dx = sway_x * rng.rand_inclusive(-10, 20) as f64 / 10.0;
-      let mut dz = sway_z * rng.rand_inclusive(-10, 20) as f64 / 10.0;
+      let mut dx = sway_x * rng.rand_inclusive(-1.0, 2.0);
+      let mut dz = sway_z * rng.rand_inclusive(-1.0, 2.0);
 
       while dx.abs() > 1.0 || dz.abs() > 1.0 {
         world.set(pos + Pos::new((x + dx) as i32, 0, (z + dz) as i32), self.trunk);

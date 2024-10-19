@@ -42,8 +42,8 @@ impl Placer for PalmTree {
     // start, which is nice to have.
     world.set(pos, self.trunk);
 
-    let sway_x = rng.rand_inclusive(-10, 10) as f64 / 10.0;
-    let sway_z = rng.rand_inclusive(-10, 10) as f64 / 10.0;
+    let sway_x = rng.rand_inclusive(-1.0, 1.0);
+    let sway_z = rng.rand_inclusive(-1.0, 1.0);
 
     // Trunk.
     let mut x = pos.x as f64;
