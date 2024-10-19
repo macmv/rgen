@@ -126,7 +126,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     "forget me not",
     PlacerStage::Sand2,
     placer::Spread {
-      place:         block![rgen:flower[type = "forget_me_not"]],
+      place:         block![rgen:flower[type = "forgetmenot"]],
       replace:       block![grass].into(),
       radius:        1..=3,
       avg_per_chunk: 0.6,

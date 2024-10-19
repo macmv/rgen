@@ -436,7 +436,7 @@ blocks! {
     type: ["one", "two", "three"],
   ],
   RgenMossyCarpet => rgen:mossy_carpet,
-  RgenFlower => rgen:flower[type: ["forget_me_not"]],
+  RgenFlower => rgen:flower[type: ["forgetmenot"]],
   RgenBamboo => rgen:bamboo[has_leaves: PropType::Bool, placement: ["standard", "x", "z", "xz"]],
   RgenGlowVine => rgen:glow_vine[
     east: PropType::Bool,

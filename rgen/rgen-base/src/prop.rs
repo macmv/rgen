@@ -464,7 +464,7 @@ intern! { PropEnum, prop_enum
   Fern                 => fern,
   Fir                  => fir,
   Foot                 => foot,
-  ForgetMeNot          => forget_me_not,
+  ForgetMeNot          => forgetmenot,
   Granite              => granite,
   Gray                 => gray,
   Green                => green,
