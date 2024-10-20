@@ -127,8 +127,6 @@ impl WorldBiomes {
   }
 
   pub fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
-    profile_function!();
-
     let key = self.choose_surface_biome_cached(pos);
     self.choose_surface_biome_from_key(key)
   }
