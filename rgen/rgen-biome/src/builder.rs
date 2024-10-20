@@ -37,11 +37,14 @@ pub struct Layer {
 
 struct PlacerBuilder {
   placer: Box<dyn Placer>,
+  name:   &'static str,
   grid:   PointGrid,
 }
 
 impl PlacerBuilder {
-  fn new(placer: Box<dyn Placer>) -> Self { Self { placer, grid: PointGrid::new() } }
+  fn new(placer: Box<dyn Placer>, name: &'static str) -> Self {
+    Self { placer, name, grid: PointGrid::new() }
+  }
 }
 
 impl BiomeBuilder {
@@ -85,18 +88,14 @@ impl BiomeBuilder {
 
   pub fn top_block(&self) -> BlockState { self.layers[0].state }
 
-  pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
-    // TODO: Do we even need name? Its a pain to add them later, so I'm keeping them
-    // for now.
-    let _ = name;
-
-    self.place0(stage, Box::new(placer));
+  pub fn place(&mut self, name: &'static str, stage: PlacerStage, placer: impl Placer + 'static) {
+    self.place0(stage, name, Box::new(placer));
   }
 
   // Don't monomorphise this.
-  fn place0(&mut self, _stage: PlacerStage, placer: Box<dyn Placer>) {
+  fn place0(&mut self, _stage: PlacerStage, name: &'static str, placer: Box<dyn Placer>) {
     // TODO: Using the stage, insert this at the right spot.
-    self.placers.push(PlacerBuilder::new(placer));
+    self.placers.push(PlacerBuilder::new(placer, name));
   }
 
   pub fn place_chunk(&mut self, placer: impl ChunkPlacer + 'static) {
@@ -104,7 +103,7 @@ impl BiomeBuilder {
   }
 
   pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
-    profile_scope!(self.name);
+    profile_scope!("generate biome", self.name);
 
     for placer in self.chunk_placers.iter() {
       placer.place(chunk, rng, chunk_pos);
@@ -120,9 +119,11 @@ impl BiomeBuilder {
     world: &mut PartialWorld,
     is_in_chunk: impl Fn(Pos) -> bool,
   ) {
-    profile_scope!(self.name);
+    profile_scope!("decorate biome", self.name);
 
     for placer in self.placers.iter() {
+      profile_scope!("placer", placer.name);
+
       let seed = rng.next();
 
       const SCALE: f64 = 1.0 / 16.0;
