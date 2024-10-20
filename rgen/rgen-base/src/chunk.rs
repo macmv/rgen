@@ -7,7 +7,7 @@ use crate::{ChunkRelPos, StateId};
 pub struct Chunk {
   data: Box<[u16]>,
 
-  surfaces: Box<[SmallVec<[u8; 2]>; 256]>,
+  surfaces: Box<[[SmallVec<[u8; 2]>; 16]; 16]>,
 }
 
 fn pos_in_world(pos: ChunkRelPos) -> bool { pos.y() >= 0 && pos.y() < 256 }
@@ -35,7 +35,7 @@ impl Chunk {
       Box::from_raw(slice_ptr)
     };
 
-    Chunk { data, surfaces: Box::new([const { SmallVec::new_const() }; 256]) }
+    Chunk { data, surfaces: Box::new([const { [const { SmallVec::new_const() }; 16] }; 16]) }
   }
 
   pub fn set(&mut self, pos: ChunkRelPos, block: StateId) {
@@ -55,9 +55,9 @@ impl Chunk {
   pub fn data(&self) -> &[u16] { &self.data }
 
   pub fn add_surface(&mut self, pos: ChunkRelPos) {
-    let surfaces = &mut self.surfaces[((pos.z() << 4) | pos.x()) as usize];
+    let surfaces = &mut self.surfaces[pos.z() as usize][pos.x() as usize];
     let y = pos.y() as u8;
-    let i = surfaces.partition_point(|p| *p < y);
+    let i = surfaces.partition_point(|p| *p > y);
     surfaces.insert(i, y);
   }
 
@@ -68,5 +68,7 @@ impl Chunk {
   ///
   /// This list is sorted by highest to lowest, so the first element will be the
   /// highest block.
-  pub fn surfaces(&self, column: ChunkRelPos) -> &[u8] { &self.surfaces[column.y() as usize] }
+  pub fn surfaces(&self, column: ChunkRelPos) -> &[u8] {
+    &self.surfaces[column.z() as usize][column.x() as usize]
+  }
 }

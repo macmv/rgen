@@ -52,6 +52,8 @@ impl PartialWorldStorage for JniWorldStorage<'_, '_> {
       )
       .unwrap();
   }
+
+  fn surfaces(&self, _: Pos) -> &[u8] { &[] }
 }
 
 /// Initializes the terrain generator for a specific seed. Call this function on

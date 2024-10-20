@@ -444,7 +444,7 @@ impl WorldBiomes {
           }
 
           if block_info.decode(chunk.get(rel_pos)) == block![stone] {
-            if depth == 0 && layer == 0 {
+            if depth == 1 && layer == 0 {
               chunk.add_surface(rel_pos);
             }
 

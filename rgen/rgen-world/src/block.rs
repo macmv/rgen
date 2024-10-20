@@ -31,6 +31,14 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
       // TODO: Log a warning when writing outside the world.
     }
   }
+
+  fn surfaces(&self, pos: Pos) -> &[u8] {
+    if let Some(chunk) = self.chunk(pos.chunk()) {
+      chunk.surfaces(pos.chunk_rel())
+    } else {
+      &[]
+    }
+  }
 }
 
 /// An error that will cause the current placement to be undone.
@@ -82,7 +90,7 @@ impl PartialWorld<'_> {
 
   /// Returns the highest block that is not air and not in the `exclude` list.
   pub fn top_block_excluding(&mut self, pos: Pos, exclude: &[BlockKind]) -> Pos {
-    let mut y = 255;
+    let mut y = self.storage.surfaces(pos).last().copied().unwrap_or(255) as i32;
     while y > 0 {
       let block = self.get(pos.with_y(y));
       if block != BlockKind::Air && !exclude.contains(&block.block_kind()) {

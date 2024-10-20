@@ -102,6 +102,7 @@ struct UndoFrame {
 pub trait PartialWorldStorage {
   fn get(&self, pos: Pos) -> StateId;
   fn set(&mut self, pos: Pos, block: StateId);
+  fn surfaces(&self, pos: Pos) -> &[u8];
 }
 
 impl<'a> PartialWorld<'a> {
