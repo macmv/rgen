@@ -346,7 +346,11 @@ impl WorldBiomes {
             }
           }
         } else {
-          for y in 0..=255 {
+          for y in 0..info.min_height as i32 {
+            chunk.set(pos.chunk_rel().with_y(y), stone);
+          }
+
+          for y in info.min_height as i32..info.max_height as i32 {
             let pos = pos.with_y(y);
 
             info.move_to(pos);
