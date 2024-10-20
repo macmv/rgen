@@ -1,3 +1,6 @@
+use std::{cell::RefCell, num::NonZero};
+
+use lru::LruCache;
 use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
@@ -24,6 +27,15 @@ pub enum PeaksValleysCategory {
   MidSlice,
   HighSlice,
   Peak,
+}
+
+// This is a key to lookup any biome quickly. This key is generated from all the
+// noise maps and composition tables.
+#[derive(Clone, Copy)]
+pub struct BiomeKey {
+  geographic: GeographicType,
+  climate:    ClimateType,
+  variance:   u32,
 }
 
 impl WorldBiomes {
@@ -115,24 +127,54 @@ impl WorldBiomes {
   }
 
   fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
+    let key = self.choose_surface_biome_cached(pos);
+    self.choose_surface_biome_from_key(key)
+  }
+
+  fn choose_surface_biome_from_key(&self, key: BiomeKey) -> &BiomeBuilder {
     if self.biome_override {
       return &self.composition_lookup.blank[0];
     }
 
-    let geographic_type = self.geographic_type(pos);
-    let _climate_type = self.climate_type(pos);
-
-    let biomes = self.composition_lookup.choose(geographic_type, ClimateType::WarmTemperate); // climate_type_set
+    let biomes = self.composition_lookup.choose(key.geographic, key.climate);
 
     let total = biomes.iter().map(|b| b.rarity).sum::<u32>();
-    let mut variance = self.variance(pos) % total;
+    let mut variance = key.variance % total;
     for biome in biomes {
       variance = match variance.checked_sub(biome.rarity) {
         Some(v) => v,
         None => return biome,
       };
     }
+
     &biomes[0]
+  }
+
+  fn choose_surface_biome_cached(&self, pos: Pos) -> BiomeKey {
+    thread_local! {
+      static CACHE: RefCell<LruCache<(i32, i32), BiomeKey>> = RefCell::new(LruCache::new(NonZero::new(256).unwrap()));
+    }
+
+    CACHE.with(|cache| {
+      let mut cache = cache.borrow_mut();
+      let key = (pos.x, pos.z);
+
+      if let Some(biome) = cache.get(&key) {
+        return *biome;
+      }
+
+      let biome = self.choose_surface_biome_uncached(pos);
+      cache.put(key, biome);
+      biome
+    })
+  }
+
+  fn choose_surface_biome_uncached(&self, pos: Pos) -> BiomeKey {
+    BiomeKey {
+      geographic: self.geographic_type(pos),
+      climate:    /* self.climate_type(pos) */ ClimateType::WarmTemperate,
+      variance:   self.variance(pos),
+    }
   }
 
   pub fn continentalness_category(&self, pos: Pos) -> ContinentalnessCategory {

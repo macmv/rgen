@@ -11,3 +11,4 @@ rgen-llama.workspace = true
 rgen-placer.workspace = true
 rgen-world.workspace = true
 smallvec = "1.13.2"
+lru = "0.12.5"

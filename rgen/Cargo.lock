@@ -2435,6 +2435,7 @@ name = "rgen-biome"
 version = "0.1.0"
 dependencies = [
  "lazy_static",
+ "lru",
  "rgen-base",
  "rgen-llama",
  "rgen-placer",
