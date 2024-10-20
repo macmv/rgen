@@ -25,6 +25,7 @@ macro_rules! functions {
       handle: *mut c_void,
 
       rgen_get_seed: fn() -> u64,
+      rgen_deinit: fn(),
 
       Java_net_macmv_rgen_rust_RustGenerator_init: fn(JNIEnv, JClass),
 
@@ -49,6 +50,8 @@ macro_rules! functions {
 
           #[allow(clippy::missing_transmute_annotations)]
           rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
+          #[allow(clippy::missing_transmute_annotations)]
+          rgen_deinit: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_deinit\0"))),
 
           #[allow(clippy::missing_transmute_annotations)]
           Java_net_macmv_rgen_rust_RustGenerator_init: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"Java_net_macmv_rgen_rust_RustGenerator_init\0"))),
@@ -155,6 +158,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
   let mut s = SYMBOLS.write();
   if let Some(s) = s.as_mut() {
     let seed = (s.rgen_get_seed)();
+    (s.rgen_deinit)();
 
     // We're holding onto the symbols lock, so nothing can access those symbols
     // while we're messing with the file. Still, best practice is to unload them

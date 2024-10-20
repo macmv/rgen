@@ -51,6 +51,8 @@ impl NoodleCarver {
   }
 
   pub fn carve(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
     let scale = 48.0;
 
     let min_pos = chunk_pos.min_block_pos();

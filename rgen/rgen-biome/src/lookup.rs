@@ -127,6 +127,8 @@ impl WorldBiomes {
   }
 
   pub fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
+    profile_function!();
+
     let key = self.choose_surface_biome_cached(pos);
     self.choose_surface_biome_from_key(key)
   }
@@ -170,6 +172,8 @@ impl WorldBiomes {
   }
 
   fn choose_surface_biome_uncached(&self, pos: Pos) -> BiomeKey {
+    profile_function!();
+
     BiomeKey {
       geographic: self.geographic_type(pos),
       climate:    /* self.climate_type(pos) */ ClimateType::WarmTemperate,

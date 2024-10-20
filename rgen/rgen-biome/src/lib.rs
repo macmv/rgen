@@ -22,6 +22,9 @@ mod table;
 
 pub use builder::BiomeBuilder;
 
+#[macro_use]
+extern crate puffin;
+
 pub struct WorldBiomes {
   seed: u64,
 
@@ -246,6 +249,8 @@ impl WorldBiomes {
 
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
     if (0..=8).contains(&chunk_pos.x()) {
       return;
     }
@@ -302,6 +307,8 @@ impl Generator for WorldBiomes {
   }
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    profile_function!();
+
     if (-1..=9).contains(&chunk_pos.x()) {
       return;
     }
@@ -358,6 +365,8 @@ impl WorldBiomes {
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {
+    profile_function!();
+
     // FIXME: Remove this and use a chunk placer instead.
 
     const SEA_LEVEL: i32 = 64;
@@ -435,6 +444,8 @@ impl WorldBiomes {
     chunk: &mut Chunk,
     chunk_pos: ChunkPos,
   ) {
+    profile_function!();
+
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
     // decorated. This is an optimization to avoid allocating here.

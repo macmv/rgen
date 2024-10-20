@@ -59,6 +59,23 @@ impl PartialWorldStorage for JniWorldStorage<'_, '_> {
 #[no_mangle]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv, _class: JClass) {
   crate::logger::init();
+
+  let server_addr = format!("127.0.0.1:{}", puffin_http::DEFAULT_PORT);
+  let puffin_server = puffin_http::Server::new(&server_addr).unwrap();
+  unsafe {
+    PUFFIN_SERVER = Some(puffin_server);
+  }
+  puffin::set_scopes_on(true);
+}
+
+static mut PUFFIN_SERVER: Option<puffin_http::Server> = None;
+
+#[no_mangle]
+pub extern "system" fn rgen_deinit() {
+  // Drop the server, to unbind from the port.
+  unsafe {
+    PUFFIN_SERVER = None;
+  }
 }
 
 /// Initializes the terrain generator for a specific seed. Call this function on
@@ -105,6 +122,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   assert_eq!(len, 65536, "data array must be 65536 elements long");
 
   Context::run(|ctx| {
+    puffin::GlobalProfiler::lock().new_frame();
+
     ctx.world.generate(ChunkPos::new(chunk_x, chunk_z), |chunk| {
       env.set_char_array_region(data, 0, chunk.data()).unwrap();
     });

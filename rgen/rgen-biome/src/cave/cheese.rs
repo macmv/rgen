@@ -21,6 +21,8 @@ impl CheeseCarver {
   }
 
   pub fn carve(&self, world: &WorldBiomes, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
