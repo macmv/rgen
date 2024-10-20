@@ -134,17 +134,21 @@ impl BiomeBuilder {
       let max_y = (chunk_pos.min_block_pos().z + 15) as f64 * scale;
 
       for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
-        let pos = world.top_block_excluding(
-          Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32),
-          &[block![leaves].block],
-        );
-        let pos = pos.with_y(pos.y + 1);
+        let pos = Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32);
+        // NB: Assume the surfaces won't change in `world.attempt`, and that re-fetching
+        // the surfaces is effectively free (which it should be).
+        let mut i = 0;
+        while let Some(surface) = world.surfaces(pos).get(i) {
+          let pos = pos.with_y(*surface as i32 + 1);
 
-        if is_in_chunk(pos) {
-          // This builds a unique seed for each placer. This gives the placer the same
-          // seed if it crosses chunk boundaries.
-          let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
-          world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
+          if is_in_chunk(pos) {
+            // This builds a unique seed for each placer. This gives the placer the same
+            // seed if it crosses chunk boundaries.
+            let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
+            world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
+          }
+
+          i += 1;
         }
       }
     }
