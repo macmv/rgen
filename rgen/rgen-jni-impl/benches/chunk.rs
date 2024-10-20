@@ -36,6 +36,19 @@ fn bench_base(b: &mut Bencher) {
 
   let mut chunk_pos = ChunkPos::new(0, 0);
 
+  // The first couple chunks are the slowest, so warm up a bit before calling
+  // `b.iter()`, so that it won't run way too many samples.
+  for _ in 0..5 * 20 {
+    chunk_pos.x += 1;
+    if chunk_pos.x > 20 {
+      chunk_pos.x = 0;
+      chunk_pos.z += 1;
+    }
+
+    let mut chunk = Chunk::new();
+    generator.generate_base(&context, &mut chunk, chunk_pos);
+  }
+
   b.iter(|| {
     chunk_pos.x += 1;
     if chunk_pos.x > 20 {
