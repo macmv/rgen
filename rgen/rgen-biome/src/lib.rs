@@ -255,46 +255,7 @@ impl Generator for WorldBiomes {
       return;
     }
 
-    for rel_x in 0..16_u8 {
-      for rel_z in 0..16_u8 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
-
-        // let height = self.height_at(pos) as i32;
-        // let biome = self.choose_biome(seed, pos);
-        let mut info = self.height_info(pos);
-
-        if info.max_height() < 64.0 {
-          for y in 0..=63 {
-            let pos = pos.with_y(y);
-
-            info.move_to(pos);
-            if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
-            } else {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![water]));
-            }
-          }
-        } else {
-          for y in 0..=255 {
-            let pos = pos.with_y(y);
-
-            info.move_to(pos);
-            if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
-            }
-          }
-        }
-
-        /*
-        for y in 0..height as u8 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
-        }
-        for y in height as u8..64 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
-        }
-        */
-      }
-    }
+    self.generate_stone(ctx, chunk, chunk_pos);
 
     self.cave.carve(self, chunk, chunk_pos);
 
@@ -359,6 +320,51 @@ impl Generator for WorldBiomes {
 }
 
 impl WorldBiomes {
+  fn generate_stone(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
+    for rel_x in 0..16_u8 {
+      for rel_z in 0..16_u8 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
+
+        // let height = self.height_at(pos) as i32;
+        // let biome = self.choose_biome(seed, pos);
+        let mut info = self.height_info(pos);
+
+        if info.max_height() < 64.0 {
+          for y in 0..=63 {
+            let pos = pos.with_y(y);
+
+            info.move_to(pos);
+            if info.underground() {
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
+            } else {
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![water]));
+            }
+          }
+        } else {
+          for y in 0..=255 {
+            let pos = pos.with_y(y);
+
+            info.move_to(pos);
+            if info.underground() {
+              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
+            }
+          }
+        }
+
+        /*
+        for y in 0..height as u8 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
+        }
+        for y in height as u8..64 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
+        }
+        */
+      }
+    }
+  }
+
   fn generate_top_layer(
     &self,
     block_info: &BlockInfoSupplier,
