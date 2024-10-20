@@ -444,6 +444,10 @@ impl WorldBiomes {
           }
 
           if block_info.decode(chunk.get(rel_pos)) == block![stone] {
+            if depth == 0 && layer == 0 {
+              chunk.add_surface(rel_pos);
+            }
+
             // Special case: if the top layer is grass, always place grass if there is air
             // above (this makes cave entrances look nice.)
             if biome.top_block().block == block![grass]
