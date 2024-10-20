@@ -544,7 +544,12 @@ impl HeightInfo<'_> {
   pub fn underground(&mut self) -> bool {
     *self.underground.get_or_insert_with(|| {
       if self.min_height > self.max_height {
+        // Special case for oceans.
         self.pos.y < self.max_height as i32
+      } else if self.pos.y < self.min_height as i32 {
+        true
+      } else if self.pos.y >= self.max_height as i32 {
+        false
       } else {
         let noise = self.world.density_map.generate_3d(
           self.pos.x as f64,
