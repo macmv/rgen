@@ -454,41 +454,45 @@ impl WorldBiomes {
 
     let mut chunk = BiomeCachedChunk::new(info, chunk);
 
-    for x in 0..16 {
-      for z in 0..16 {
-        // This is kinda restrictive, but helps performance a _lot_. We also don't
-        // really want biomes to change on the Y axis, as that causes weirdness when
-        // building with grass and such. So we can limit ourselves to a single surface
-        // biome and a single cave biome per column.
-        let surface_biome =
-          self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
-        let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+    {
+      profile_scope!("biome cached chunk setup");
 
-        let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+      for x in 0..16 {
+        for z in 0..16 {
+          // This is kinda restrictive, but helps performance a _lot_. We also don't
+          // really want biomes to change on the Y axis, as that causes weirdness when
+          // building with grass and such. So we can limit ourselves to a single surface
+          // biome and a single cave biome per column.
+          let surface_biome =
+            self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+          let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-        for y in 0..256 {
-          let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
-          info.move_to(pos);
+          let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-          let biome = if info.underground() { cave_biome } else { surface_biome };
+          for y in 0..256 {
+            let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
+            info.move_to(pos);
 
-          match biome_set[..biome_index]
-            .iter()
-            .find(|b| b.is_some_and(|(b, _)| b.name == biome.name))
-          {
-            Some(Some((_, id))) => {
-              chunk.set_biome(pos.chunk_rel(), *id);
-            }
-            Some(None) => unreachable!(),
-            None => {
-              if biome_index < 15 {
-                let id = TemporaryBiome(biome_index as u8);
-                chunk.set_biome(pos.chunk_rel(), id);
-                biome_set[biome_index] = Some((biome, id));
-                biome_index += 1;
-              } else {
-                // if there would be too many biomes, set it to the max ID, which won't be used.
-                chunk.set_biome(pos.chunk_rel(), TemporaryBiome(15));
+            let biome = if info.underground() { cave_biome } else { surface_biome };
+
+            match biome_set[..biome_index]
+              .iter()
+              .find(|b| b.is_some_and(|(b, _)| b.name == biome.name))
+            {
+              Some(Some((_, id))) => {
+                chunk.set_biome(pos.chunk_rel(), *id);
+              }
+              Some(None) => unreachable!(),
+              None => {
+                if biome_index < 15 {
+                  let id = TemporaryBiome(biome_index as u8);
+                  chunk.set_biome(pos.chunk_rel(), id);
+                  biome_set[biome_index] = Some((biome, id));
+                  biome_index += 1;
+                } else {
+                  // if there would be too many biomes, set it to the max ID, which won't be used.
+                  chunk.set_biome(pos.chunk_rel(), TemporaryBiome(15));
+                }
               }
             }
           }
@@ -496,14 +500,20 @@ impl WorldBiomes {
       }
     }
 
-    for (biome, id) in biome_set.into_iter().flatten() {
-      let mut rng = Rng::new(self.seed);
-      chunk.set_active(id);
-      biome.generate(&mut rng, &mut chunk, chunk_pos);
+    {
+      profile_scope!("biome chunk placers");
+      for (biome, id) in biome_set.into_iter().flatten() {
+        let mut rng = Rng::new(self.seed);
+        chunk.set_active(id);
+        biome.generate(&mut rng, &mut chunk, chunk_pos);
+      }
     }
 
-    for placer in &self.global_chunk_placers {
-      placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
+    {
+      profile_scope!("global chunk placers");
+      for placer in &self.global_chunk_placers {
+        placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
+      }
     }
   }
 

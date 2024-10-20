@@ -104,6 +104,8 @@ impl BiomeBuilder {
   }
 
   pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
+    profile_scope!(self.name);
+
     for placer in self.chunk_placers.iter() {
       placer.place(chunk, rng, chunk_pos);
     }
@@ -118,6 +120,8 @@ impl BiomeBuilder {
     world: &mut PartialWorld,
     is_in_chunk: impl Fn(Pos) -> bool,
   ) {
+    profile_scope!(self.name);
+
     for placer in self.placers.iter() {
       let seed = rng.next();
 
