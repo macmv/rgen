@@ -394,7 +394,9 @@ impl WorldBiomes {
 
         let mut depth = 0;
         let mut layer = 0;
+        let mut air_above: u8 = 255;
 
+        // TODO: Fix.
         let mut underwater = false;
 
         let biome = self.choose_surface_biome(pos);
@@ -408,14 +410,25 @@ impl WorldBiomes {
           if info.underground() {
             depth += 1;
           } else {
-            depth = 0;
-          }
+            if depth > 0 {
+              // On the boundry from stone to air, reset `air_above`.
+              air_above = 0;
+            }
 
-          if y < SEA_LEVEL && layer == 0 && depth == 0 {
-            underwater = true;
+            depth = 0;
+            layer = 0;
+            air_above = air_above.saturating_add(1);
+
+            if y < SEA_LEVEL {
+              underwater = true;
+            }
+            continue;
           }
 
           let layers = if underwater { &biome.underwater_layers } else { &biome.layers };
+          if layer >= layers.len() || air_above < 5 {
+            continue;
+          }
           let mut current_layer = &layers[layer];
           let current_layer_depth = current_layer.sample_depth(sub_layer_depth);
 
@@ -424,7 +437,7 @@ impl WorldBiomes {
             depth = 0;
 
             if layer >= layers.len() {
-              break;
+              continue;
             }
 
             current_layer = &layers[layer];
