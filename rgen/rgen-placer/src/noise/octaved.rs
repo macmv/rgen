@@ -1,5 +1,3 @@
-use std::f64::consts::E;
-
 use super::{NoiseGenerator, NoiseGenerator3D, SeededNoise};
 
 #[derive(Debug, Copy, Clone)]
@@ -82,7 +80,7 @@ impl<Noise: NoiseGenerator3D, const O: usize> NoiseGenerator3D for OctavedNoise<
 fn smooth(t: f64) -> f64 {
   // Pass the result through a sigmoid function, to smooth out the values beyond
   // [-1, 1].
-  let res = 2.0 / (1.0 + E.powf(-3.0 * t)) - 1.0;
+  let res = (4.0 * t) / (1.0 + (4.0 * t).abs());
 
   // Clamp the result so that we _never_ return a value outside [-1, 1].
   res.clamp(-1.0, 1.0)
