@@ -323,6 +323,9 @@ impl WorldBiomes {
   fn generate_stone(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     profile_function!();
 
+    let stone = ctx.blocks.encode(block![stone]);
+    let water = ctx.blocks.encode(block![water]);
+
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -337,9 +340,9 @@ impl WorldBiomes {
 
             info.move_to(pos);
             if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
+              chunk.set(pos.chunk_rel(), stone);
             } else {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![water]));
+              chunk.set(pos.chunk_rel(), water);
             }
           }
         } else {
@@ -348,7 +351,7 @@ impl WorldBiomes {
 
             info.move_to(pos);
             if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.encode(block![stone]));
+              chunk.set(pos.chunk_rel(), stone);
             }
           }
         }
