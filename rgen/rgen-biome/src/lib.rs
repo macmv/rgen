@@ -449,8 +449,9 @@ impl WorldBiomes {
         // really want biomes to change on the Y axis, as that causes weirdness when
         // building with grass and such. So we can limit ourselves to a single surface
         // biome and a single cave biome per column.
-        let surface_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 255, z));
-        let cave_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+        let surface_biome =
+          self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+        let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
         let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 

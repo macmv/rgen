@@ -48,7 +48,7 @@ impl WorldBiomes {
     }
   }
 
-  fn choose_cave_biome(&self, _pos: Pos) -> &BiomeBuilder {
+  pub fn choose_cave_biome(&self, _pos: Pos) -> &BiomeBuilder {
     // FIXME: This needs rewriting.
     /*
     let biomes = &self.old_table[(temperature * self.old_table.len() as f64) as usize]   [(humidity * self.old_table[0].len() as f64) as usize];
