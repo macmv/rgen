@@ -126,7 +126,7 @@ impl WorldBiomes {
       [(humidity * CLIMATE_TABLE[0].len() as f64) as usize]
   }
 
-  fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
+  pub fn choose_surface_biome(&self, pos: Pos) -> &BiomeBuilder {
     let key = self.choose_surface_biome_cached(pos);
     self.choose_surface_biome_from_key(key)
   }

@@ -375,6 +375,8 @@ impl WorldBiomes {
 
         let mut underwater = false;
 
+        let biome = self.choose_surface_biome(pos);
+
         let min_height = (info.min_height as i32).min(40);
         for y in (min_height..=info.max_height as i32).rev() {
           let pos = pos.with_y(y);
@@ -386,10 +388,6 @@ impl WorldBiomes {
           } else {
             depth = 0;
           }
-
-          // The addition of 255 prevents the underground biome from interfering with the
-          // sublayer selection.
-          let biome = self.choose_biome(pos.with_y(255));
 
           if y < SEA_LEVEL && layer == 0 && depth == 0 {
             underwater = true;
