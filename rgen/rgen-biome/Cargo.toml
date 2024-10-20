@@ -13,3 +13,4 @@ rgen-world.workspace = true
 smallvec = "1.13.2"
 lru = "0.12.5"
 puffin = "0.19.1"
+log = "0.4.22"

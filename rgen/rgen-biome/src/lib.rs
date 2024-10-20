@@ -25,6 +25,10 @@ pub use builder::BiomeBuilder;
 #[macro_use]
 extern crate puffin;
 
+#[allow(unused_imports)]
+#[macro_use]
+extern crate log;
+
 pub struct WorldBiomes {
   seed: u64,
 
