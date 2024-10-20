@@ -1,12 +1,12 @@
 use cave::CaveCarver;
-use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{block, Chunk, ChunkPos, ChunkRelPos, Pos, StateId};
 use rgen_placer::{
   chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
     ShiftedNoise, VoronoiNoise,
   },
-  BiomeCachedChunk, ChunkPlacer, Rng, TemporaryBiome,
+  BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
@@ -449,8 +449,7 @@ impl WorldBiomes {
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
     // decorated. This is an optimization to avoid allocating here.
-    let mut biome_index = 0;
-    let mut biome_set = [Option::<(&BiomeBuilder, TemporaryBiome)>::None; 16];
+    let mut biome_set = TemporaryBiomeSet::new();
 
     let mut chunk = BiomeCachedChunk::new(info, chunk);
 
@@ -467,42 +466,22 @@ impl WorldBiomes {
             self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
           let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-          let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+          let info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-          for y in 0..256 {
-            let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
-            info.move_to(pos);
+          let column = BiomeColumn {
+            surface:    biome_set.add(surface_biome),
+            cave:       biome_set.add(cave_biome),
+            min_height: info.min_height as i32,
+          };
 
-            let biome = if info.underground() { cave_biome } else { surface_biome };
-
-            match biome_set[..biome_index]
-              .iter()
-              .find(|b| b.is_some_and(|(b, _)| b.name == biome.name))
-            {
-              Some(Some((_, id))) => {
-                chunk.set_biome(pos.chunk_rel(), *id);
-              }
-              Some(None) => unreachable!(),
-              None => {
-                if biome_index < 15 {
-                  let id = TemporaryBiome(biome_index as u8);
-                  chunk.set_biome(pos.chunk_rel(), id);
-                  biome_set[biome_index] = Some((biome, id));
-                  biome_index += 1;
-                } else {
-                  // if there would be too many biomes, set it to the max ID, which won't be used.
-                  chunk.set_biome(pos.chunk_rel(), TemporaryBiome(15));
-                }
-              }
-            }
-          }
+          chunk.set_column(ChunkRelPos::new(x as u8, 0, z as u8), column);
         }
       }
     }
 
     {
       profile_scope!("biome chunk placers");
-      for (biome, id) in biome_set.into_iter().flatten() {
+      for (biome, id) in biome_set.set.into_iter().flatten() {
         let mut rng = Rng::new(self.seed);
         chunk.set_active(id);
         biome.generate(&mut rng, &mut chunk, chunk_pos);
@@ -582,5 +561,31 @@ impl HeightInfo<'_> {
         noise > limit
       }
     })
+  }
+}
+
+struct TemporaryBiomeSet<'a> {
+  set:   [Option<(&'a BiomeBuilder, TemporaryBiome)>; 16],
+  index: usize,
+}
+
+impl<'a> TemporaryBiomeSet<'a> {
+  pub fn new() -> Self { TemporaryBiomeSet { set: [None; 16], index: 0 } }
+
+  pub fn add(&mut self, biome: &'a BiomeBuilder) -> TemporaryBiome {
+    match self.set[..self.index].iter().find(|b| b.is_some_and(|(b, _)| b.name == biome.name)) {
+      Some(Some((_, id))) => *id,
+      Some(None) => unreachable!(),
+      None => {
+        if self.index < 15 {
+          let id = TemporaryBiome(self.index as u8);
+          self.set[self.index] = Some((biome, id));
+          self.index += 1;
+          id
+        } else {
+          TemporaryBiome(15)
+        }
+      }
+    }
   }
 }
