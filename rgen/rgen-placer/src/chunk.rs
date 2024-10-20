@@ -61,9 +61,9 @@ impl<'a> BiomeCachedChunk<'a> {
   pub fn is_active(&self, pos: ChunkRelPos) -> bool {
     let column = self.biomes[pos.z() as usize][pos.x() as usize];
     if pos.y() < column.min_height {
-      return self.active == column.cave;
+      self.active == column.cave
     } else {
-      return self.active == column.surface;
+      self.active == column.surface
     }
   }
 
