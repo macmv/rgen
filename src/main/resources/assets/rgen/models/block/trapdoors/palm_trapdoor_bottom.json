@@ -1,6 +1,6 @@
 {   "parent": "block/thin_block",
     "textures": {
-        "texture": "rgen:blocks/wood/cactus/blue_cactus",
+        "texture": "rgen:blocks/trapdoors/palm_trapdoor",
         "particle": "#texture"
     },
     "elements": [
