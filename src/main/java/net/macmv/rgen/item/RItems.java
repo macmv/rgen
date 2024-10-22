@@ -67,6 +67,13 @@ public class RItems {
   public static final Item FIR_STAIRS = registerItem("fir_stairs", new ItemBlock(RBlocks.FIR_STAIRS));
   public static final Item PALM_STAIRS = registerItem("palm_stairs", new ItemBlock(RBlocks.PALM_STAIRS));
 
+  public static final Item DEAD_TRAPDOOR = registerItem("dead_trapdoor", new ItemBlock(RBlocks.DEAD_TRAPDOOR));
+  public static final Item MANGROVE_TRAPDOOR = registerItem("mangrove_trapdoor", new ItemBlock(RBlocks.MANGROVE_TRAPDOOR));
+  //public static final Item BAMBOO_TRAPDOOR = registerItem("bamboo_trapdoor", new ItemBlock(RBlocks.BAMBOO_TRAPDOOR));
+  public static final Item CEDAR_TRAPDOOR = registerItem("cedar_trapdoor", new ItemBlock(RBlocks.CEDAR_TRAPDOOR));
+  public static final Item CHERRY_TRAPDOOR = registerItem("cherry_trapdoor", new ItemBlock(RBlocks.CHERRY_TRAPDOOR));
+  public static final Item FIR_TRAPDOOR = registerItem("fir_trapdoor", new ItemBlock(RBlocks.FIR_TRAPDOOR));
+  public static final Item PALM_TRAPDOOR = registerItem("palm_trapdoor", new ItemBlock(RBlocks.PALM_TRAPDOOR));
 
 
 
