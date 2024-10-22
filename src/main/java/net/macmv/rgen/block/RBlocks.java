@@ -52,6 +52,8 @@ public final class RBlocks {
   public static final Block FIR_DOOR = register("fir_door", new FirDoor());
   public static final Block PALM_DOOR = register("palm_door", new PalmDoor());
 
+  //TrapDoors
+  public static final Block PALM_TRAPDOOR = register("palm_trapdoor", new RgenTrapDoors());
 
   public static final Block MOSSY_STUMP = register("mossy_stump", new MossyLogBlock());
   public static final Block BAMBOO = register("bamboo", new Bamboo());
