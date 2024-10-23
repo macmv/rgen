@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north,type=1": { "model": "rgen:red_polypore_big" },
+    "facing=south,type=1": { "model": "rgen:red_polypore_big", "y": 180 },
+    "facing=east,type=1": { "model": "rgen:red_polypore_big", "y": 90 },
+    "facing=west,type=1": { "model": "rgen:red_polypore_big", "y": 270 },
+    "facing=north,type=2": { "model": "rgen:red_polypore_small" },
+    "facing=south,type=2": { "model": "rgen:red_polypore_small", "y": 180 },
+    "facing=east,type=2": { "model": "rgen:red_polypore_small", "y": 90 },
+    "facing=west,type=2": { "model": "rgen:red_polypore_small", "y": 270 },
+    "facing=north,type=3": { "model": "rgen:red_polypore_multiple" },
+    "facing=south,type=3": { "model": "rgen:red_polypore_multiple", "y": 180 },
+    "facing=east,type=3": { "model": "rgen:red_polypore_multiple", "y": 90 },
+    "facing=west,type=3": { "model": "rgen:red_polypore_multiple", "y": 270 }
+  }
+}
