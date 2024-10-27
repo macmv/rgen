@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 
 public class DebugStickItem extends Item {
   @Override
@@ -37,7 +38,7 @@ public class DebugStickItem extends Item {
   @Override
   public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
     if (world.isRemote) {
-      if (player.isSneaking()) {
+      if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
         if (Minecraft.getMinecraft().player.capabilities.getFlySpeed() >= 1.0f) {
           // Default speed
           Minecraft.getMinecraft().player.capabilities.setFlySpeed(0.05f);
