@@ -51,6 +51,7 @@ public class RGen {
   @Mod.EventHandler
   public void init(FMLInitializationEvent e) {
     proxy.init();
+    RItems.registerOreDictionary();
   }
 
   @SubscribeEvent

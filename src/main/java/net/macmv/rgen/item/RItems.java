@@ -8,12 +8,19 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMultiTexture;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.HashSet;
 import java.util.Set;
+
+
+
 
 public class RItems {
   private static final Set<Item> items = new HashSet<>();
@@ -30,8 +37,9 @@ public class RItems {
 
   public static final Item SAPLING = registerBlockItem(RBlocks.SAPLING, new ItemMultiTexture(RBlocks.SAPLING, RBlocks.SAPLING, it -> LogType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item SAPLING2 = registerBlockItem(RBlocks.SAPLING2, new ItemMultiTexture(RBlocks.SAPLING2, RBlocks.SAPLING2, it -> LogType.fromMeta(it.getMetadata() + 8).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Item RED_POLYPORE = registerBlockItem(RBlocks.RED_POLYPORE);
 
+  public static final Item RED_POLYPORE = registerBlockItem(RBlocks.RED_POLYPORE);
+  //OreDictionary.registerOre("listAllmushroom", RED_POLYPORE);
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
@@ -139,4 +147,11 @@ public class RItems {
     ModelResourceLocation location = new ModelResourceLocation(name, "inventory");
     ModelLoader.setCustomModelResourceLocation(item, meta, location);
   }
+
+  public static void registerOreDictionary() {
+    OreDictionary.registerOre("listAllmushroom", new ItemStack(RED_POLYPORE));
+    OreDictionary.registerOre("listAllmushroom", new ItemStack(RED_POLYPORE));
+    OreDictionary.registerOre("listAllmushroom", new ItemStack(RED_POLYPORE));
+  }
+
 }
