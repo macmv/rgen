@@ -7,12 +7,15 @@ import org.lwjgl.input.Keyboard;
 public class RKeyBindings {
   public static KeyBinding toggleFlySpeed;
 
+  private static final String CATEGORY = "Rgen";
+
+
   public static void init() {
-    // Define the key binding
+
     toggleFlySpeed = new KeyBinding(
-        "key.toggleFlySpeed", // Description (shown in controls menu)
-        Keyboard.KEY_V,       // Default key (V)
-        "key.categories.movement" // Category
+        "Toggle Fast Flight", // sets the type name
+        Keyboard.KEY_V,
+        CATEGORY
     );
     // Register the key binding
     ClientRegistry.registerKeyBinding(toggleFlySpeed);
