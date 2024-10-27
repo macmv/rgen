@@ -1,6 +1,8 @@
 package net.macmv.rgen;
 
 import net.macmv.rgen.block.RBlocks;
+import net.macmv.rgen.client.FlySpeedKeyHandler;
+import net.macmv.rgen.client.RKeyBindings;
 import net.macmv.rgen.entity.REntities;
 import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.rust.RustGenerator;
@@ -51,6 +53,10 @@ public class RGen {
   @Mod.EventHandler
   public void init(FMLInitializationEvent e) {
     proxy.init();
+    RKeyBindings.init();
+    MinecraftForge.EVENT_BUS.register(new FlySpeedKeyHandler());
+
+
   }
 
   @SubscribeEvent
