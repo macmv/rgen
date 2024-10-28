@@ -20,7 +20,7 @@ jobs:
           cargo clippy --lib -- -D warnings
 
   unit:
-    name: test
+    name: unit
     runs-on: ubuntu-latest
 
     steps:
