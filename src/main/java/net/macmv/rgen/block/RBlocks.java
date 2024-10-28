@@ -44,13 +44,13 @@ public final class RBlocks {
   public static final Block PALM_STAIRS = register("palm_stairs", new RgenStairs(LogType.PALM));
 
   //Doors
-  public static final Block DEAD_DOOR = register("dead_door", new DeadDoor());
-  public static final Block MANGROVE_DOOR = register("mangrove_door", new MangroveDoor());
-  public static final Block BAMBOO_DOOR = register("bamboo_door", new BambooDoor());
-  public static final Block CEDAR_DOOR = register("cedar_door", new CedarDoor());
-  public static final Block CHERRY_DOOR = register("cherry_door", new CherryDoor());
-  public static final Block FIR_DOOR = register("fir_door", new FirDoor());
-  public static final Block PALM_DOOR = register("palm_door", new PalmDoor());
+  public static final Block DEAD_DOOR = register("dead_door", new RDoor());
+  public static final Block MANGROVE_DOOR = register("mangrove_door", new RDoor());
+  public static final Block BAMBOO_DOOR = register("bamboo_door", new RDoor());
+  public static final Block CEDAR_DOOR = register("cedar_door", new RDoor());
+  public static final Block CHERRY_DOOR = register("cherry_door", new RDoor());
+  public static final Block FIR_DOOR = register("fir_door", new RDoor());
+  public static final Block PALM_DOOR = register("palm_door", new RDoor());
 
   //TrapDoors
   public static final Block DEAD_TRAPDOOR = register("dead_trapdoor", new RgenTrapDoors());

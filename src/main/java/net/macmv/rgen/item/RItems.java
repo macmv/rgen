@@ -59,22 +59,21 @@ public class RItems {
   public static final Item FIR_DOOR = registerItem("fir_door", new ItemDoor(RBlocks.FIR_DOOR));
   public static final Item PALM_DOOR = registerItem("palm_door", new ItemDoor(RBlocks.PALM_DOOR));
 
-  public static final Item DEAD_STAIRS = registerItem("dead_stairs", new ItemBlock(RBlocks.DEAD_STAIRS));
-  public static final Item MANGROVE_STAIRS = registerItem("mangrove_stairs", new ItemBlock(RBlocks.MANGROVE_STAIRS));
+  public static final Item DEAD_STAIRS = registerBlockItem(RBlocks.DEAD_STAIRS);
+  public static final Item MANGROVE_STAIRS = registerBlockItem(RBlocks.MANGROVE_STAIRS);
   //public static final Item BAMBOO_STAIRS = registerItem("bamboo_stairs", new ItemBlock(RBlocks.BAMBOO_STAIRS));
-  public static final Item CEDAR_STAIRS = registerItem("cedar_stairs", new ItemBlock(RBlocks.CEDAR_STAIRS));
-  public static final Item CHERRY_STAIRS = registerItem("cherry_stairs", new ItemBlock(RBlocks.CHERRY_STAIRS));
-  public static final Item FIR_STAIRS = registerItem("fir_stairs", new ItemBlock(RBlocks.FIR_STAIRS));
-  public static final Item PALM_STAIRS = registerItem("palm_stairs", new ItemBlock(RBlocks.PALM_STAIRS));
+  public static final Item CEDAR_STAIRS = registerBlockItem(RBlocks.CEDAR_STAIRS);
+  public static final Item CHERRY_STAIRS = registerBlockItem(RBlocks.CHERRY_STAIRS);
+  public static final Item FIR_STAIRS = registerBlockItem(RBlocks.FIR_STAIRS);
+  public static final Item PALM_STAIRS = registerBlockItem(RBlocks.PALM_STAIRS);
 
-  public static final Item DEAD_TRAPDOOR = registerItem("dead_trapdoor", new ItemBlock(RBlocks.DEAD_TRAPDOOR));
-  public static final Item MANGROVE_TRAPDOOR = registerItem("mangrove_trapdoor", new ItemBlock(RBlocks.MANGROVE_TRAPDOOR));
-  //public static final Item BAMBOO_TRAPDOOR = registerItem("bamboo_trapdoor", new ItemBlock(RBlocks.BAMBOO_TRAPDOOR));
-  public static final Item CEDAR_TRAPDOOR = registerItem("cedar_trapdoor", new ItemBlock(RBlocks.CEDAR_TRAPDOOR));
-  public static final Item CHERRY_TRAPDOOR = registerItem("cherry_trapdoor", new ItemBlock(RBlocks.CHERRY_TRAPDOOR));
-  public static final Item FIR_TRAPDOOR = registerItem("fir_trapdoor", new ItemBlock(RBlocks.FIR_TRAPDOOR));
-  public static final Item PALM_TRAPDOOR = registerItem("palm_trapdoor", new ItemBlock(RBlocks.PALM_TRAPDOOR));
-
+  public static final Item DEAD_TRAPDOOR = registerBlockItem(RBlocks.DEAD_TRAPDOOR);
+  public static final Item MANGROVE_TRAPDOOR = registerBlockItem(RBlocks.MANGROVE_TRAPDOOR);
+  // public static final Item BAMBOO_TRAPDOOR = registerBlockItem(RBlocks.BAMBOO_TRAPDOOR);
+  public static final Item CEDAR_TRAPDOOR = registerBlockItem(RBlocks.CEDAR_TRAPDOOR);
+  public static final Item CHERRY_TRAPDOOR = registerBlockItem(RBlocks.CHERRY_TRAPDOOR);
+  public static final Item FIR_TRAPDOOR = registerBlockItem(RBlocks.FIR_TRAPDOOR);
+  public static final Item PALM_TRAPDOOR = registerBlockItem(RBlocks.PALM_TRAPDOOR);
 
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
