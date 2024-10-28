@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Rng};
+use crate::{Placer, Result, Rng};
 
 pub struct BetterTallerSnow {
   pub block:        BlockFilter,
@@ -12,12 +12,12 @@ pub struct BetterTallerSnow {
 }
 
 impl BetterTallerSnow {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     BetterTallerSnow {
-      block:        [blocks.snow_layer.block].into(),
-      snow:         blocks.snow_layer.default_state,
-      ice:          blocks.packed_ice.default_state,
-      debug:        blocks.concrete.with_data(5),
+      block:        [block![snow_layer]].into(),
+      snow:         block![snow_layer],
+      ice:          block![packed_ice],
+      debug:        block![concrete[5]],
       avg_in_chunk: 2.0,
     }
   }
@@ -28,10 +28,11 @@ impl Placer for BetterTallerSnow {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     let chunk_pos = pos.chunk();
     for z in 0..16 {
       for x in 0..16 {
@@ -46,6 +47,8 @@ impl Placer for BetterTallerSnow {
         }
       }
     }
+
+    Ok(())
   }
 }
 
@@ -58,7 +61,7 @@ impl BetterTallerSnow {
         {
           let block_check = world.get(pos + Pos::new(rel_x, 0, rel_z));
           if !self.block.contains(block_check)
-            && block_check.block != Block::AIR
+            && block_check != block![air]
             && block_check != self.ice
           {
             return true;
@@ -78,7 +81,7 @@ impl BetterTallerSnow {
           // Check if the block is a snow layer
           let local_pos = pos + Pos::new(rel_x, 0, rel_z);
           if self.block.contains(world.get(local_pos)) {
-            let height = world.get(local_pos).state;
+            let height = world.get(local_pos).meta();
             // Check if the snow is low enough if it is it needs to be made taller
             if height < 4 {
               //world.set()

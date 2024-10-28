@@ -42,6 +42,6 @@ public class RClientProxy extends RCommonProxy {
     };
 
     // Register block color handler for the LavenderPlant block
-    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED);
+    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER);
   }
 }

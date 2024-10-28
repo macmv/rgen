@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Cactus {
   pub place_above:  BlockFilter,
@@ -15,16 +15,16 @@ impl Placer for Cactus {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(2, 3);
 
     if pos.y + height >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     // Builds the main body.
@@ -46,20 +46,18 @@ impl Placer for Cactus {
           arm_pos = arm_pos + Pos::new(0, height + y_chance, unit);
         }
 
-        if world.get(arm_pos) == BlockState::AIR {
-          let mut an_arm = self.arms;
-
-          if !x_or_y && unit == -1 {
-            an_arm.state = 2;
+        if world.get(arm_pos) == block![air] {
+          let arm_state = if !x_or_y && unit == -1 {
+            2
           } else if !x_or_y && unit == 1 {
-            an_arm.state = 0;
+            0
           } else if unit == -1 {
-            an_arm.state = 1;
+            1
           } else {
-            an_arm.state = 3;
-          }
+            3
+          };
 
-          world.set(arm_pos, an_arm);
+          world.set(arm_pos, self.arms.with_data(arm_state));
         }
       } else {
         continue;
@@ -70,5 +68,7 @@ impl Placer for Cactus {
     for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.body);
     }
+
+    Ok(())
   }
 }

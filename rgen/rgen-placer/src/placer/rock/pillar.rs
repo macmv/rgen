@@ -1,7 +1,7 @@
-use rgen_base::{BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Pillar {
   pub ground:                  BlockFilter,
@@ -12,13 +12,13 @@ pub struct Pillar {
 }
 
 impl Pillar {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Pillar {
-      ground:                      [blocks.stone.block, blocks.dirt.block, blocks.grass.block]
-        .into(),
-      material:                    blocks.rgen_basalt.with_data(0),
-      avg_in_chunk:                0.8,
-      fluid:                       blocks.lava.default_state,
+      ground:       [block![stone], block![dirt], block![grass]].into(),
+      material:     block![rgen:basalt[0]],
+      avg_in_chunk: 0.8,
+      fluid:        block![lava],
+
       chance_of_secondary_pillars: 11,
     }
   }
@@ -29,10 +29,11 @@ impl Placer for Pillar {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     self.build_base(rng, pos + Pos::new(0, 0, 0), world);
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
@@ -41,6 +42,8 @@ impl Placer for Pillar {
         }
       }
     }
+
+    Ok(())
   }
 }
 

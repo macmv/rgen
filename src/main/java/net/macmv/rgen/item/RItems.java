@@ -32,6 +32,7 @@ public class RItems {
 
   public static final Item SAPLING = registerBlockItem(RBlocks.SAPLING, new ItemMultiTexture(RBlocks.SAPLING, RBlocks.SAPLING, it -> LogType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item SAPLING2 = registerBlockItem(RBlocks.SAPLING2, new ItemMultiTexture(RBlocks.SAPLING2, RBlocks.SAPLING2, it -> LogType.fromMeta(it.getMetadata() + 8).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item RED_POLYPORE = registerBlockItem(RBlocks.RED_POLYPORE);
 
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
@@ -145,7 +146,7 @@ public class RItems {
         registerModel(i, LogType.CEDAR.meta, "rgen:cedar_planks");
         registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_planks");
       } else if (i.getRegistryName().toString().equals("rgen:flower")) {
-        registerModel(i, FlowerBlock.FlowerType.FORGET_ME_NOT.meta, "rgen:forget_me_not");
+        registerModel(i, FlowerBlock.FlowerType.FORGETMENOT.meta, "rgen:forgetmenot");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {
         registerModel(i, 0, "rgen:mossy_oak_stump");
         registerModel(i, 1, "rgen:mossy_birch_stump");

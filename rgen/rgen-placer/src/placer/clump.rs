@@ -1,9 +1,9 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{block, BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Rng};
+use crate::{rng::Random, Placer, Result, Rng};
 
 pub struct Clumps {
   pub place_above: BlockFilter,
@@ -45,7 +45,7 @@ impl Placer for Clumps {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
 
     for _ in 0..self.attempts {
@@ -56,20 +56,22 @@ impl Placer for Clumps {
 
       let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
         world.set(pos, self.place);
       }
     }
+
+    Ok(())
   }
 }
 
 impl GrassClumps {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     GrassClumps {
-      place_above:      blocks.grass.default_state.into(),
-      place_short:      blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: blocks.double_plant.with_data(10), // Tall grass upper
+      place_above:      block![grass].into(),
+      place_short:      block![tallgrass[1]],     // Grass
+      place_tall_lower: block![double_plant[2]],  // Tall grass lower
+      place_tall_upper: block![double_plant[10]], // Tall grass upper
 
       radius:        4..=10,
       attempts:      60,
@@ -82,7 +84,7 @@ impl Placer for GrassClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
 
     for _ in 0..self.attempts {
@@ -93,7 +95,7 @@ impl Placer for GrassClumps {
 
       let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
         let height = *rng.choose(&[1, 1, 1, 1, 1, 1, 2]);
 
         if height == 1 {
@@ -104,6 +106,8 @@ impl Placer for GrassClumps {
         }
       }
     }
+
+    Ok(())
   }
 }
 
@@ -111,9 +115,9 @@ impl Placer for BushClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if self.place_above.contains(world.get(pos + Pos::new(0, -1, 0)))
-      && world.get(pos).block == Block::AIR
+      && world.get(pos) == block![air]
     {
       world.set(pos, self.log);
 
@@ -127,7 +131,7 @@ impl Placer for BushClumps {
         Pos::new(0, 1, 0),
       ] {
         let side = pos + offset;
-        if world.get(side).block == Block::AIR {
+        if world.get(side) == block![air] {
           world.set(side, self.leaves);
         }
       }
@@ -141,11 +145,13 @@ impl Placer for BushClumps {
             rng.rand_inclusive(-2, 2),
           );
         let side = side_below + Pos::new(0, 1, 0);
-        if world.get(side_below).block != Block::AIR && world.get(side).block == Block::AIR {
+        if world.get(side_below) != block![air] && world.get(side) == block![air] {
           world.set(side, self.leaves);
         }
       }
     }
+
+    Ok(())
   }
 }
 
@@ -153,7 +159,7 @@ impl Placer for PlantClumps {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { 3.0 }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
 
     for _ in 0..self.attempts {
@@ -164,11 +170,13 @@ impl Placer for PlantClumps {
 
       let above_pos = pos + Pos::new(0, 1, 0);
 
-      if self.place_above.contains(world.get(pos)) && world.get(above_pos).block == Block::AIR {
+      if self.place_above.contains(world.get(pos)) && world.get(above_pos) == block![air] {
         //let block = *rng.choose(self.place_plants);
 
         //world.set(above_pos, self.place_plants);
       }
     }
+
+    Ok(())
   }
 }

@@ -1,3 +1,5 @@
+#![allow(clippy::new_without_default)]
+
 mod chunk;
 pub mod chunk_placer;
 pub mod grid;
@@ -7,8 +9,17 @@ mod rng;
 
 pub use chunk::*;
 use rgen_base::{ChunkPos, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 pub use rng::{Random, Rng};
+
+pub type Result = std::result::Result<(), UndoError>;
+
+#[macro_use]
+extern crate rgen_base;
+
+#[allow(unused_imports)]
+#[macro_use]
+extern crate log;
 
 /// A Placer places a set of blocks at a position in the world.
 ///
@@ -24,7 +35,7 @@ pub trait Placer: Send + Sync {
   fn avg_per_chunk(&self) -> f64 { 1.0 }
 
   /// Places the blocks in the world at the given position.
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos);
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result;
 }
 
 /// A ChunkPlacer places a set of decorations on a single chunk.

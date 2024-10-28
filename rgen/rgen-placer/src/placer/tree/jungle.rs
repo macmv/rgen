@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct JungleTree {
   place_above: BlockFilter,
@@ -13,13 +13,13 @@ pub struct JungleTree {
 }
 
 impl JungleTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     Self {
       avg_in_chunk: 8.0,
-      place_above:  [blocks.grass.block].into(),
-      trunk:        blocks.log.with_data(3),
-      leaves:       blocks.leaves.with_data(3),
-      cocoa:        blocks.cocoa.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[3]],
+      leaves:       block![leaves[3]],
+      cocoa:        block![cocoa[0]],
     }
   }
 }
@@ -29,16 +29,16 @@ impl Placer for JungleTree {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(15, 20);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     // First block of the trunk. This adds a bit of horizontal variation at the
@@ -52,26 +52,28 @@ impl Placer for JungleTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 0..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, i, dz);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
     }
+
+    Ok(())
   }
 }
 
 impl JungleTree {
   fn place_trunk(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos, height: i32) {
-    let sway_x = rng.rand_inclusive(-80, 80) as f64 / 100.0;
-    let sway_z = rng.rand_inclusive(-80, 80) as f64 / 100.0;
+    let sway_x = rng.rand_inclusive(-0.8, 0.8);
+    let sway_z = rng.rand_inclusive(-0.8, 0.8);
 
     // Trunk.
     let mut x = pos.x as f64;
     let mut z = pos.z as f64;
     let mut next_leaves = rng.rand_inclusive(4, 7);
     for i in 0..height {
-      let mut dx = sway_x * rng.rand_inclusive(-10, 20) as f64 / 10.0;
-      let mut dz = sway_z * rng.rand_inclusive(-10, 20) as f64 / 10.0;
+      let mut dx = sway_x * rng.rand_inclusive(-1.0, 2.0);
+      let mut dz = sway_z * rng.rand_inclusive(-1.0, 2.0);
 
       while dx.abs() > 1.0 || dz.abs() > 1.0 {
         world.set(pos + Pos::new((x + dx) as i32, 0, (z + dz) as i32), self.trunk);
@@ -113,7 +115,7 @@ impl JungleTree {
 
         if dist <= radius.pow(2) {
           let pos = pos + Pos::new(x, 0, z);
-          if world.get(pos).block == Block::AIR {
+          if world.get(pos) == block![air] {
             world.set(pos, self.leaves);
           }
         }
@@ -124,7 +126,7 @@ impl JungleTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 1..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, -i, dz);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
@@ -139,7 +141,7 @@ impl JungleTree {
         }
 
         let pos = pos + Pos::new(x, 0, z);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
@@ -160,7 +162,7 @@ impl JungleTree {
     rng.shuffle(&mut dirs);
 
     for (dir, data) in dirs {
-      if world.get(pos + dir).block == Block::AIR {
+      if world.get(pos + dir) == block![air] {
         // Place fully grown.
         world.set(pos + dir, self.cocoa.with_data(data | 8));
         return;

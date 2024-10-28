@@ -1,43 +1,43 @@
+use rgen_base::{biome, block};
 use rgen_placer::{chunk_placer, placer};
 
-use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
 
 // SPRUCE CAT
 
-pub fn spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn spruce_grove(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
+  ground(gen);
+  gen.set_underwater_block(block![stone]);
 
-  spruce_rainbow_mix(ctx, gen);
-  evergreen_grass(ctx, gen);
+  spruce_rainbow_mix(gen);
+  evergreen_grass(gen);
 
   gen.place(
     "podzel",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.dirt.with_data(2),
+      place:         block![dirt[variant = "podzol"]],
       radius:        2..=3,
       avg_per_chunk: 0.6,
     },
   );
 }
 
-pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn spruce_river(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  gen.set_underwater_block(ctx.blocks.gravel.default_state);
+  ground(gen);
+  gen.set_underwater_block(block![gravel]);
 
-  river_mass_placer(ctx, gen);
+  river_mass_placer(gen);
 
-  evergreen_grass(ctx, gen);
-  evergreen_grass(ctx, gen);
+  evergreen_grass(gen);
+  evergreen_grass(gen);
 
   gen.place(
     "standard",
@@ -46,13 +46,13 @@ pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 3.0,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -63,13 +63,13 @@ pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.8,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -80,26 +80,26 @@ pub fn spruce_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.3,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
 }
 
-pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  windswept_evergreen_grass(ctx, gen);
+  ground(gen);
+  windswept_evergreen_grass(gen);
 
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
+  gen.set_underwater_block(block![stone]);
 
   gen.place(
     "standard",
@@ -108,13 +108,13 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.2,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -125,13 +125,13 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.4,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -142,13 +142,13 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.1,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -158,7 +158,7 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.1,
     },
@@ -169,7 +169,7 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.4,
     },
@@ -181,20 +181,20 @@ pub fn windswept_spruce_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::LongLog {
       avg_per_chunk: 2.0,
       ground:        [
-        ctx.blocks.dirt.block,
-        ctx.blocks.grass.block,
-        ctx.blocks.gravel.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.cobblestone.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
+        block![dirt],
+        block![grass],
+        block![gravel],
+        block![stone],
+        block![cobblestone],
+        block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           ctx.blocks.log.with_data(1),
+      log:           block![log[variant = "spruce"]],
     },
   );
 }
 
-fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
+fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
   gen.place(
     "standard",
     PlacerStage::Tree,
@@ -202,13 +202,13 @@ fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 8.0,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -219,13 +219,13 @@ fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 2.0,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -236,13 +236,13 @@ fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 1.0,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -250,20 +250,20 @@ fn spruce_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
 
 // FIR CAT
 
-pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn fir_grove(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  fir_rainbow_mix(ctx, gen);
-  evergreen_grass(ctx, gen);
+  ground(gen);
+  fir_rainbow_mix(gen);
+  evergreen_grass(gen);
 
   gen.place(
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      place:         block![rgen:mossy_cobblestone_rgen],
       radius:        2..=2,
       avg_per_chunk: 0.7,
     },
@@ -274,7 +274,7 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        2..=2,
       avg_per_chunk: 1.2,
     },
@@ -285,7 +285,7 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.cobblestone.default_state,
+      place:         block![cobblestone],
       radius:        1..=2,
       avg_per_chunk: 0.9,
     },
@@ -296,17 +296,17 @@ pub fn fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
   // Rainbow
 }
 
-pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn fir_river(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
-  ground(ctx, gen);
+  gen.set_underwater_block(block![stone]);
+  ground(gen);
 
-  river_mass_placer(ctx, gen);
+  river_mass_placer(gen);
 
-  evergreen_grass(ctx, gen);
-  evergreen_grass(ctx, gen);
+  evergreen_grass(gen);
+  evergreen_grass(gen);
 
   gen.place(
     "standard",
@@ -315,13 +315,13 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 3.0,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -332,13 +332,13 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.8,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -349,24 +349,24 @@ pub fn fir_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.3,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
 }
 
-pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  windswept_evergreen_grass(ctx, gen);
+  ground(gen);
+  windswept_evergreen_grass(gen);
 
   gen.place(
     "standard",
@@ -375,13 +375,13 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.2,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -392,13 +392,13 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.2,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -409,13 +409,13 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.3,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -425,7 +425,7 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.1,
     },
@@ -436,7 +436,7 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.4,
     },
@@ -448,20 +448,20 @@ pub fn windswept_fir_grove(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::LongLog {
       avg_per_chunk: 2.0,
       ground:        [
-        ctx.blocks.dirt.block,
-        ctx.blocks.grass.block,
-        ctx.blocks.gravel.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.cobblestone.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
+        block![dirt],
+        block![grass],
+        block![gravel],
+        block![stone],
+        block![cobblestone],
+        block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           ctx.blocks.rgen_log.with_data(0),
+      log:           block![rgen:log[variant = "fir"]],
     },
   );
 }
 
-fn fir_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
+fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
   gen.place(
     "standard",
     PlacerStage::Tree,
@@ -469,13 +469,13 @@ fn fir_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 8.0,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -486,13 +486,13 @@ fn fir_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 2.0,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -503,32 +503,32 @@ fn fir_rainbow_mix(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 1.0,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
 }
 // OTHER
 
-pub fn windswept_hill(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn windswept_hill(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  ground(ctx, gen);
-  windswept_evergreen_grass(ctx, gen);
+  ground(gen);
+  windswept_evergreen_grass(gen);
 
   gen.place(
     "gravel",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.9,
     },
@@ -539,7 +539,7 @@ pub fn windswept_hill(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.5,
     },
@@ -547,35 +547,35 @@ pub fn windswept_hill(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 #[allow(dead_code)]
-pub fn snowy_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn snowy_peak(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
+  gen.set_underwater_block(block![stone]);
   gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
+    replace: block![stone].into(),
+    a:       block![concrete[color = "magenta"]],
+    b:       block![concrete[color = "black"]],
   });
 }
 
 #[allow(dead_code)]
-pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.taiga;
+pub fn tiaga_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga];
   gen.color = "#ffffff";
 
-  gen.set_underwater_block(ctx.blocks.dirt.default_state);
-  ground(ctx, gen);
+  gen.set_underwater_block(block![dirt]);
+  ground(gen);
 
   gen.place(
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
       avg_in_chunk:       2.0, //2.4,
-      placement:          ctx.blocks.clay.default_state,
-      tool_placement:     ctx.blocks.gold_block.default_state,
-      tool_placement_two: ctx.blocks.iron_ore.default_state,
+      placement:          block![clay],
+      tool_placement:     block![gold_block],
+      tool_placement_two: block![iron_ore],
       size:               3..=5,
       multiplyer:         2,
     },
@@ -586,9 +586,9 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::WaterResources {
       avg_in_chunk:       1.5, //1.0,
-      placement:          ctx.blocks.sand.default_state,
-      tool_placement:     ctx.blocks.gold_block.default_state,
-      tool_placement_two: ctx.blocks.iron_ore.default_state,
+      placement:          block![sand],
+      tool_placement:     block![gold_block],
+      tool_placement_two: block![iron_ore],
       size:               2..=4,
       multiplyer:         3,
     },
@@ -599,7 +599,7 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.9,
     },
@@ -611,13 +611,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    130,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -627,13 +627,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    430,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -644,13 +644,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 3.0,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -661,13 +661,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.8,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -678,13 +678,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.3,
       is_spruce:    true,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.leaves.with_data(1),
-      trunk:        ctx.blocks.log.with_data(1),
+      leaves:       block![leaves[variant = "spruce"]],
+      trunk:        block![log[variant = "spruce"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -696,13 +696,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 3.0,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Standard,
     },
   );
@@ -713,13 +713,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.8,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Tall,
     },
   );
@@ -730,13 +730,13 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
       avg_in_chunk: 0.3,
       is_spruce:    false,
       place_above:  [
-        ctx.blocks.grass.default_state,
-        ctx.blocks.concrete.with_data(color::MAGENTA),
-        ctx.blocks.concrete.with_data(color::BLACK),
+        block![grass],
+        block![concrete[color = "magenta"]],
+        block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       ctx.blocks.rgen_leaves.with_data(0),
-      trunk:        ctx.blocks.rgen_log.with_data(0),
+      leaves:       block![rgen:leaves[variant = "fir"]],
+      trunk:        block![rgen:log[variant = "fir"]],
       size:         placer::EvergreenSize::Fat,
     },
   );
@@ -747,15 +747,15 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::LongLog {
       avg_per_chunk: 1.0,
       ground:        [
-        ctx.blocks.dirt.block,
-        ctx.blocks.grass.block,
-        ctx.blocks.gravel.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.cobblestone.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
+        block![dirt],
+        block![grass],
+        block![gravel],
+        block![stone],
+        block![cobblestone],
+        block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           ctx.blocks.rgen_log.with_data(0),
+      log:           block![rgen:log[variant = "fir"]],
     },
   );
 
@@ -765,33 +765,33 @@ pub fn tiaga_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::LongLog {
       avg_per_chunk: 1.0,
       ground:        [
-        ctx.blocks.dirt.block,
-        ctx.blocks.grass.block,
-        ctx.blocks.gravel.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.cobblestone.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
+        block![dirt],
+        block![grass],
+        block![gravel],
+        block![stone],
+        block![cobblestone],
+        block![rgen:mossy_cobblestone_rgen],
       ]
       .into(),
-      log:           ctx.blocks.log.with_data(1),
+      log:           block![log[variant = "spruce"]],
     },
   );
 }
 
-pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.stone_beach;
+pub fn mossy_shores(gen: &mut BiomeBuilder) {
+  gen.id = biome![stone_beach];
   gen.color = "#ffffff";
-  gen.set_top_block(ctx.blocks.gravel.default_state);
-  gen.add_layer(ctx.blocks.gravel.default_state, 2, 4);
+  gen.set_top_block(block![gravel]);
+  gen.add_layer(block![gravel], 2, 4);
 
-  gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new(ctx.blocks));
+  gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new());
 
   gen.place(
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.rgen_mossy_cobblestone.default_state,
+      place_above: block![stone].into(),
+      place:       block![rgen:mossy_cobblestone_rgen],
       attempts:    40,
     },
   );
@@ -800,7 +800,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.cobblestone.default_state,
+      place:         block![cobblestone],
       radius:        1..=2,
       avg_per_chunk: 3.0,
     },
@@ -811,20 +811,20 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.clay.default_state,
+      place:         block![clay],
       radius:        2..=2,
       avg_per_chunk: 0.3,
     },
   );
 
-  gen.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new(ctx.blocks));
+  gen.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new());
 
   gen.place(
     "mossystone_patches",
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.rgen_mossy_stone.default_state,
+      place:         block![rgen:mossy_stone],
       radius:        1..=2,
       avg_per_chunk: 4.3,
     },
@@ -835,7 +835,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.stone.default_state,
+      place:         block![stone],
       radius:        1..=3,
       avg_per_chunk: 5.4,
     },
@@ -845,7 +845,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      place:         block![rgen:mossy_cobblestone_rgen],
       radius:        1..=4,
       avg_per_chunk: 1.0,
     },
@@ -856,7 +856,7 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.rgen_mossy_cobblestone.default_state,
+      place:         block![rgen:mossy_cobblestone_rgen],
       radius:        1..=2,
       avg_per_chunk: 4.0,
     },
@@ -868,13 +868,13 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    130,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -884,13 +884,13 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    430,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -898,13 +898,9 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
-      place:         ctx.blocks.rgen_mossy_carpet.default_state,
-      replace:       [
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.rgen_mossy_stone.block,
-      ]
-      .into(),
+      place:         block![rgen:mossy_carpet],
+      replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
+        .into(),
       radius:        2..=4,
       avg_per_chunk: 2.4,
     },
@@ -913,13 +909,9 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "large mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
-      place:         ctx.blocks.rgen_mossy_carpet.default_state,
-      replace:       [
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.stone.block,
-        ctx.blocks.rgen_mossy_stone.block,
-      ]
-      .into(),
+      place:         block![rgen:mossy_carpet],
+      replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
+        .into(),
       radius:        4..=5,
       avg_per_chunk: 0.4,
     },
@@ -930,12 +922,12 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Scatter {
       place_above: [
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
-        ctx.blocks.rgen_mossy_stump.block,
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
+        block![rgen:mossy_stump],
       ]
       .into(),
-      place:       ctx.blocks.rgen_plant.default_state,
+      place:       block![rgen:plant],
       attempts:    150,
     },
   );
@@ -944,8 +936,8 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BushClumps {
       place_above: gen.top_block().into(),
-      log:         ctx.blocks.log.default_state,
-      leaves:      ctx.blocks.leaves.with_data(4),
+      log:         block![log],
+      leaves:      block![leaves[variant = "oak", decayable = false]],
 
       radius:        10..=20,
       avg_per_chunk: 5.3,
@@ -954,26 +946,26 @@ pub fn mossy_shores(ctx: &IdContext, gen: &mut BiomeBuilder) {
 }
 
 // EFFECTS
-fn ground(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.set_top_block(ctx.blocks.grass.default_state);
-  gen.add_layer(ctx.blocks.dirt.default_state, 2, 5);
-  gen.set_underwater_block(ctx.blocks.gravel.default_state);
+fn ground(gen: &mut BiomeBuilder) {
+  gen.set_top_block(block![grass]);
+  gen.add_layer(block![dirt], 2, 5);
+  gen.set_underwater_block(block![gravel]);
 }
 
-fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
+fn evergreen_grass(gen: &mut BiomeBuilder) {
   gen.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    3,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -983,13 +975,13 @@ fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    7,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -998,15 +990,15 @@ fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=6,
       attempts:      10,
@@ -1019,15 +1011,15 @@ fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      ctx.blocks.tallgrass.with_data(2), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(3), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+      place_short:      block![tallgrass[type = "fern"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_fern"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=6,
       attempts:      13,
@@ -1039,26 +1031,26 @@ fn evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    200,
-      place_above: [ctx.blocks.dirt.with_data(2)].into(),
-      place:       ctx.blocks.brown_mushroom.default_state,
+      place_above: [block![dirt[variant = "podzol"]]].into(),
+      place:       block![brown_mushroom],
     },
   );
 }
 
-fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
+fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
   gen.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
       attempts:    20,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(2),
+      place:       block![tallgrass[type = "fern"]],
     },
   );
 
@@ -1068,13 +1060,13 @@ fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     placer::Scatter {
       attempts:    20,
       place_above: [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place:       ctx.blocks.tallgrass.with_data(1),
+      place:       block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -1083,15 +1075,15 @@ fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      ctx.blocks.tallgrass.with_data(1), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(2), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        2..=4,
       attempts:      18,
@@ -1104,15 +1096,15 @@ fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      [
-        ctx.blocks.grass.block,
-        ctx.blocks.rgen_mossy_stump.block,
-        ctx.blocks.rgen_mossy_cobblestone.block,
-        ctx.blocks.rgen_mossy_stone.block,
+        block![grass],
+        block![rgen:mossy_stump],
+        block![rgen:mossy_cobblestone_rgen],
+        block![rgen:mossy_stone],
       ]
       .into(),
-      place_short:      ctx.blocks.tallgrass.with_data(2), // Grass
-      place_tall_lower: ctx.blocks.double_plant.with_data(3), // Tall grass lower
-      place_tall_upper: ctx.blocks.double_plant.with_data(10), // Tall grass upper
+      place_short:      block![tallgrass[type = "fern"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_fern"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        2..=4,
       attempts:      27,
@@ -1121,15 +1113,15 @@ fn windswept_evergreen_grass(ctx: &IdContext, gen: &mut BiomeBuilder) {
   );
 }
 
-fn river_mass_placer(ctx: &IdContext, gen: &mut BiomeBuilder) {
+fn river_mass_placer(gen: &mut BiomeBuilder) {
   gen.place(
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
       avg_in_chunk:       8.0, //2.4,
-      placement:          ctx.blocks.clay.default_state,
-      tool_placement:     ctx.blocks.gold_block.default_state,
-      tool_placement_two: ctx.blocks.iron_ore.default_state,
+      placement:          block![clay],
+      tool_placement:     block![gold_block],
+      tool_placement_two: block![iron_ore],
       size:               1..=2,
       multiplyer:         3,
     },
@@ -1140,9 +1132,9 @@ fn river_mass_placer(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::WaterResources {
       avg_in_chunk:       5.0, //1.0,
-      placement:          ctx.blocks.sand.default_state,
-      tool_placement:     ctx.blocks.gold_block.default_state,
-      tool_placement_two: ctx.blocks.iron_ore.default_state,
+      placement:          block![sand],
+      tool_placement:     block![gold_block],
+      tool_placement_two: block![iron_ore],
       size:               1..=2,
       multiplyer:         1,
     },

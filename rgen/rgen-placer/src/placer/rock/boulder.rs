@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 macro_rules! bool {
   (x) => {
@@ -28,16 +28,16 @@ pub struct MossBoulder {
 }
 
 impl MossBoulder {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     MossBoulder {
-      place_above:      [blocks.stone.block, blocks.dirt.block].into(),
-      phobic:           blocks.grass.default_state.into(),
-      material:         /*blocks.wool.with_data(6), */ blocks.rgen_mossy_cobblestone.default_state,
+      place_above:      [block![stone], block![dirt]].into(),
+      phobic:           block![grass].into(),
+      material:         /*blocks.wool.with_data(6), */ block![rgen:mossy_cobblestone_rgen],
       avg_in_chunk:     2.0,
-      plant_a:          blocks.tallgrass.with_data(2),
-      plant_b:          blocks.tallgrass.with_data(1),
+      plant_a:          block![tallgrass[2]],
+      plant_b:          block![tallgrass[1]],
       use_large_plants: false,
-      large_plants:     [blocks.double_plant.with_data(3), blocks.double_plant.with_data(2)].into(),
+      large_plants:     [block![double_plant[3]], block![double_plant[2]]].into(),
     }
   }
 }
@@ -47,7 +47,7 @@ impl Placer for MossBoulder {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // Checks if tree will breach build height
     let mut bolder_map = [
       [bools!(. . .), bools!(. . .), bools!(. . .)],
@@ -56,13 +56,13 @@ impl Placer for MossBoulder {
     ];
 
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     // Checks if tree will be built on air
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     //let min_y = rng.rand_inclusive(4, 6);
@@ -82,7 +82,7 @@ impl Placer for MossBoulder {
                 // The block below the bottom block is not in the list of place above i.e. the
                 // boulder is floating and cannot be built thus the build is canceled
 
-                return;
+                return Err(UndoError);
               }
 
               *cell = true;
@@ -144,6 +144,8 @@ impl Placer for MossBoulder {
         }
       }
     }
+
+    Ok(())
   }
 }
 

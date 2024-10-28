@@ -1,4 +1,4 @@
-use rgen_base::{Biome, BlockState, Blocks, ChunkPos, Pos};
+use rgen_base::{block, Biome, BlockState, ChunkPos, Pos};
 use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
 use rgen_world::PartialWorld;
 use smallvec::{smallvec, SmallVec};
@@ -37,30 +37,25 @@ pub struct Layer {
 
 struct PlacerBuilder {
   placer: Box<dyn Placer>,
+  name:   &'static str,
   grid:   PointGrid,
 }
 
 impl PlacerBuilder {
-  fn new(placer: Box<dyn Placer>) -> Self { Self { placer, grid: PointGrid::new() } }
+  fn new(placer: Box<dyn Placer>, name: &'static str) -> Self {
+    Self { placer, name, grid: PointGrid::new() }
+  }
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, blocks: &Blocks, rarity: u32) -> Self {
+  pub fn new(name: &'static str, rarity: u32) -> Self {
     Self {
       name,
       rarity,
-      id: Biome::VOID,
+      id: Biome::Void,
       color: "",
-      layers: smallvec![Layer {
-        state:     blocks.grass.default_state,
-        min_depth: 1,
-        max_depth: 1,
-      }],
-      underwater_layers: smallvec![Layer {
-        state:     blocks.gravel.default_state,
-        min_depth: 1,
-        max_depth: 1,
-      }],
+      layers: smallvec![Layer { state: block![grass], min_depth: 1, max_depth: 1 }],
+      underwater_layers: smallvec![Layer { state: block![gravel], min_depth: 1, max_depth: 1 }],
       min_height: 64,
       max_height: 128,
       placers: vec![],
@@ -68,9 +63,9 @@ impl BiomeBuilder {
     }
   }
 
-  pub fn finish(&mut self, blocks: &Blocks) {
-    if self.layers.len() == 1 && self.top_block().block == blocks.grass.block {
-      self.add_layer(blocks.dirt.default_state, 3, 5);
+  pub fn finish(&mut self) {
+    if self.layers.len() == 1 && self.top_block().block == block![grass] {
+      self.add_layer(block![dirt], 3, 5);
     }
 
     // Default underwater layers to being a bit thicker.
@@ -93,18 +88,14 @@ impl BiomeBuilder {
 
   pub fn top_block(&self) -> BlockState { self.layers[0].state }
 
-  pub fn place(&mut self, name: &str, stage: PlacerStage, placer: impl Placer + 'static) {
-    // TODO: Do we even need name? Its a pain to add them later, so I'm keeping them
-    // for now.
-    let _ = name;
-
-    self.place0(stage, Box::new(placer));
+  pub fn place(&mut self, name: &'static str, stage: PlacerStage, placer: impl Placer + 'static) {
+    self.place0(stage, name, Box::new(placer));
   }
 
   // Don't monomorphise this.
-  fn place0(&mut self, _stage: PlacerStage, placer: Box<dyn Placer>) {
+  fn place0(&mut self, _stage: PlacerStage, name: &'static str, placer: Box<dyn Placer>) {
     // TODO: Using the stage, insert this at the right spot.
-    self.placers.push(PlacerBuilder::new(placer));
+    self.placers.push(PlacerBuilder::new(placer, name));
   }
 
   pub fn place_chunk(&mut self, placer: impl ChunkPlacer + 'static) {
@@ -112,6 +103,8 @@ impl BiomeBuilder {
   }
 
   pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
+    profile_scope!("generate biome", self.name);
+
     for placer in self.chunk_placers.iter() {
       placer.place(chunk, rng, chunk_pos);
     }
@@ -121,13 +114,16 @@ impl BiomeBuilder {
   /// the world seed.
   pub fn decorate(
     &self,
-    blocks: &Blocks,
     rng: &mut Rng,
     chunk_pos: ChunkPos,
     world: &mut PartialWorld,
     is_in_chunk: impl Fn(Pos) -> bool,
   ) {
+    profile_scope!("decorate biome", self.name);
+
     for placer in self.placers.iter() {
+      profile_scope!("placer", placer.name);
+
       let seed = rng.next();
 
       const SCALE: f64 = 1.0 / 16.0;
@@ -139,17 +135,21 @@ impl BiomeBuilder {
       let max_y = (chunk_pos.min_block_pos().z + 15) as f64 * scale;
 
       for point in placer.grid.points_in_area(seed, min_x, min_y, max_x, max_y) {
-        let pos = world.top_block_excluding(
-          Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32),
-          &[blocks.leaves.block],
-        );
-        let pos = pos.with_y(pos.y + 1);
+        let pos = Pos::new((point.0 / scale) as i32, 0, (point.1 / scale) as i32);
+        // NB: Assume the surfaces won't change in `world.attempt`, and that re-fetching
+        // the surfaces is effectively free (which it should be).
+        let mut i = 0;
+        while let Some(surface) = world.surfaces(pos).get(i) {
+          let pos = pos.with_y(*surface as i32 + 1);
 
-        if is_in_chunk(pos) {
-          // This builds a unique seed for each placer. This gives the placer the same
-          // seed if it crosses chunk boundaries.
-          let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
-          placer.placer.place(world, &mut Rng::new(seed), pos);
+          if is_in_chunk(pos) {
+            // This builds a unique seed for each placer. This gives the placer the same
+            // seed if it crosses chunk boundaries.
+            let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
+            world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
+          }
+
+          i += 1;
         }
       }
     }

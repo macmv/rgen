@@ -7,7 +7,7 @@ use std::{ffi::CStr, process::Command};
 
 use jni::{
   objects::{JByteArray, JCharArray, JClass, JValue},
-  sys::{jbyte, jint, jlong, jobjectArray, jstring},
+  sys::{jbyte, jint, jlong, jobject, jobjectArray, jstring},
   JNIEnv,
 };
 use libc::{c_void, dlclose, dlerror, dlmopen, dlsym, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW};
@@ -25,6 +25,9 @@ macro_rules! functions {
       handle: *mut c_void,
 
       rgen_get_seed: fn() -> u64,
+      rgen_deinit: fn(),
+
+      Java_net_macmv_rgen_rust_RustGenerator_init: fn(JNIEnv, JClass),
 
       $(
         $name: fn($($arg_ty),*) -> $ret,
@@ -47,6 +50,11 @@ macro_rules! functions {
 
           #[allow(clippy::missing_transmute_annotations)]
           rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
+          #[allow(clippy::missing_transmute_annotations)]
+          rgen_deinit: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_deinit\0"))),
+
+          #[allow(clippy::missing_transmute_annotations)]
+          Java_net_macmv_rgen_rust_RustGenerator_init: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"Java_net_macmv_rgen_rust_RustGenerator_init\0"))),
 
           $(
             #[allow(clippy::missing_transmute_annotations)]
@@ -62,11 +70,16 @@ unsafe impl Send for Symbols {}
 unsafe impl Sync for Symbols {}
 
 functions! {
-  fn Java_net_macmv_rgen_rust_RustGenerator_init_1generator(
+  fn Java_net_macmv_rgen_rust_RustGenerator_init_1world(
     env: JNIEnv,
     class: JClass,
     seed: jlong,
   ) -> ();
+
+  fn Java_net_macmv_rgen_rust_RustGenerator_wait_1for_1log(
+    env: JNIEnv,
+    class: JClass,
+  ) -> jobject;
 
   fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
     env: JNIEnv,
@@ -119,12 +132,14 @@ functions! {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv, _class: JClass) {
+pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(env: JNIEnv, class: JClass) {
   let mut s = SYMBOLS.write();
   if s.is_some() {
     panic!("Library already initialized");
   }
   *s = Some(load());
+
+  (s.as_ref().unwrap().Java_net_macmv_rgen_rust_RustGenerator_init)(env, class);
 }
 
 #[no_mangle]
@@ -143,6 +158,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
   let mut s = SYMBOLS.write();
   if let Some(s) = s.as_mut() {
     let seed = (s.rgen_get_seed)();
+    (s.rgen_deinit)();
 
     // We're holding onto the symbols lock, so nothing can access those symbols
     // while we're messing with the file. Still, best practice is to unload them
@@ -152,7 +168,11 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
     *s = load();
 
     // And re-initialize the new generator.
-    (s.Java_net_macmv_rgen_rust_RustGenerator_init_1generator)(env, class, seed as i64);
+    (s.Java_net_macmv_rgen_rust_RustGenerator_init)(
+      unsafe { JNIEnv::from_raw(env.get_raw()).unwrap() },
+      unsafe { JClass::from_raw(class.as_raw()) },
+    );
+    (s.Java_net_macmv_rgen_rust_RustGenerator_init_1world)(env, class, seed as i64);
   } else {
     panic!("Library not initialized");
   }

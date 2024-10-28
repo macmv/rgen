@@ -1,7 +1,7 @@
 use rgen_base::{BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Monument {
   pub material:       BlockState,
@@ -14,11 +14,11 @@ impl Placer for Monument {
 
   fn avg_per_chunk(&self) -> f64 { 0.2 }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(4, 9);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     //sets base
@@ -51,6 +51,9 @@ impl Placer for Monument {
         }
       }
     }
-    world.set(pos, self.reward)
+
+    world.set(pos, self.reward);
+
+    Ok(())
   }
 }

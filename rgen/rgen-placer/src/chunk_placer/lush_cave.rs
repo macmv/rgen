@@ -1,4 +1,4 @@
-use rgen_base::{BlockState, Blocks, ChunkRelPos, Pos};
+use rgen_base::{BlockState, ChunkRelPos, Pos};
 
 use crate::{BiomeCachedChunk, ChunkPlacer, Random};
 
@@ -7,9 +7,7 @@ pub struct LushCaveMoss {
 }
 
 impl LushCaveMoss {
-  pub fn new(blocks: &Blocks) -> Self {
-    LushCaveMoss { moss: blocks.rgen_mossy_carpet.default_state }
-  }
+  pub fn new() -> Self { LushCaveMoss { moss: block![rgen:mossy_carpet] } }
 }
 
 impl ChunkPlacer for LushCaveMoss {
@@ -29,13 +27,10 @@ impl ChunkPlacer for LushCaveMoss {
 
           let pos = chunk_pos.min_block_pos() + Pos::new(x as i32, y, z as i32);
 
-          let below = chunk.chunk.get((pos - Pos::new(0, 1, 0)).chunk_rel());
-          let block = chunk.chunk.get(pos.chunk_rel());
-          if below != rgen_base::Block::AIR
-            && block == rgen_base::Block::AIR
-            && rng.rand_exclusive(0, 10) == 0
-          {
-            chunk.chunk.set(pos.chunk_rel(), self.moss);
+          let below = chunk.get((pos - Pos::new(0, 1, 0)).chunk_rel());
+          let block = chunk.get(pos.chunk_rel());
+          if below != block![air] && block == block![air] && rng.rand_exclusive(0, 10) == 0 {
+            chunk.set(pos.chunk_rel(), self.moss);
           }
         }
       }

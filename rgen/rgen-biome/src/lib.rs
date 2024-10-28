@@ -1,15 +1,15 @@
-use biome::IdContext;
 use cave::CaveCarver;
-use rgen_base::{Block, Blocks, Chunk, ChunkPos, Pos};
+use rgen_base::{block, Chunk, ChunkPos, ChunkRelPos, Pos, StateId};
 use rgen_placer::{
+  chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
     ShiftedNoise, VoronoiNoise,
   },
-  BiomeCachedChunk, Rng, TemporaryBiome,
+  BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
-use rgen_world::{Context, Generator, PartialWorld};
+use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
 use structure::StructureGenerator;
 use table::CompositionLookup;
 
@@ -21,6 +21,13 @@ mod structure;
 mod table;
 
 pub use builder::BiomeBuilder;
+
+#[macro_use]
+extern crate puffin;
+
+#[allow(unused_imports)]
+#[macro_use]
+extern crate log;
 
 pub struct WorldBiomes {
   seed: u64,
@@ -76,6 +83,8 @@ pub struct WorldBiomes {
 
   /// Controlls the depth of the sub layer (usually dirt).
   sub_layer_map: OctavedNoise<OpenSimplexNoise, 3>,
+
+  global_chunk_placers: Vec<Box<dyn ChunkPlacer>>,
 }
 
 lazy_static::lazy_static! {
@@ -124,19 +133,19 @@ lazy_static::lazy_static! {
   ]);
 }
 
-impl WorldBiomes {
-  pub fn new(blocks: &Blocks, biome_ids: &rgen_base::Biomes, seed: u64) -> Self {
-    let ctx = IdContext { biomes: biome_ids, blocks };
+const VILLAGES: bool = false;
 
+impl WorldBiomes {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed,
 
-      composition_lookup: CompositionLookup::new(&ctx),
+      composition_lookup: CompositionLookup::new(),
       biome_override: false,
 
-      cave: CaveCarver::new(&ctx, seed),
-      structure: StructureGenerator::new(&ctx, seed),
+      cave: CaveCarver::new(info, seed),
+      structure: StructureGenerator::new(seed),
 
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
       humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
@@ -154,6 +163,51 @@ impl WorldBiomes {
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
       sub_layer_map: OctavedNoise::new(seed, 1.0 / 20.0),
+
+      global_chunk_placers: vec![
+        Box::new(chunk_placer::Ore {
+          ore:           block![coal_ore],
+          avg_per_chunk: 4.0,
+          size:          4..=12,
+          height:        0..=128,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![iron_ore],
+          avg_per_chunk: 3.0,
+          size:          4..=8,
+          height:        0..=64,
+          width:         1.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![gold_ore],
+          avg_per_chunk: 2.0,
+          size:          4..=8,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![redstone_ore],
+          avg_per_chunk: 1.0,
+          size:          4..=12,
+          height:        0..=32,
+          width:         1.0,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![lapis_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+        Box::new(chunk_placer::Ore {
+          ore:           block![diamond_ore],
+          avg_per_chunk: 1.0,
+          size:          2..=6,
+          height:        0..=16,
+          width:         0.5,
+        }),
+      ],
     }
   }
 
@@ -199,62 +253,37 @@ impl WorldBiomes {
 
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
-    for rel_x in 0..16_u8 {
-      for rel_z in 0..16_u8 {
-        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
+    profile_function!();
 
-        // let height = self.height_at(pos) as i32;
-        // let biome = self.choose_biome(seed, pos);
-        let mut info = self.height_info(pos);
-
-        if info.max_height() < 64.0 {
-          for y in 0..=63 {
-            let pos = pos.with_y(y);
-
-            info.move_to(pos);
-            if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
-            } else {
-              chunk.set(pos.chunk_rel(), ctx.blocks.water.block);
-            }
-          }
-        } else {
-          for y in 0..=255 {
-            let pos = pos.with_y(y);
-
-            info.move_to(pos);
-            if info.underground() {
-              chunk.set(pos.chunk_rel(), ctx.blocks.stone.block);
-            }
-          }
-        }
-
-        /*
-        for y in 0..height as u8 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
-        }
-        for y in height as u8..64 {
-          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
-        }
-        */
-      }
+    if (0..=8).contains(&chunk_pos.x()) {
+      return;
     }
+
+    self.generate_stone(ctx, chunk, chunk_pos);
 
     self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
+    self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
-    self.generate_chunk_placers(chunk, chunk_pos);
-
-    // TODO: Generate villages!
-    if false {
-      self.structure.generate(chunk, chunk_pos);
+    if VILLAGES {
+      self.structure.generate(&ctx.blocks, chunk, chunk_pos);
     }
   }
 
-  fn decorate(&self, ctx: &Context, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+  fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
+    profile_function!();
+
+    if (-1..=9).contains(&chunk_pos.x()) {
+      return;
+    }
+
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
+
+    if VILLAGES {
+      self.structure.decorate(world, chunk_pos);
+    }
 
     let mut biome_names = [[""; 16]; 16];
     // The length of this list is how many total biomes we support in a single
@@ -283,19 +312,78 @@ impl Generator for WorldBiomes {
 
     for biome in biome_set.into_iter().flatten() {
       let mut rng = Rng::new(self.seed);
-      biome.decorate(&ctx.blocks, &mut rng, chunk_pos, world, |pos| {
+      biome.decorate(&mut rng, chunk_pos, world, |pos| {
         let rel_x = pos.x - chunk_pos.min_block_pos().x;
         let rel_z = pos.z - chunk_pos.min_block_pos().z;
         biome_names[rel_x as usize][rel_z as usize] == biome.name
       });
     }
 
-    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), ctx.blocks.dirt.block);
+    world.set(chunk_pos.min_block_pos() + Pos::new(0, 6, 0), block![dirt]);
   }
 }
 
 impl WorldBiomes {
-  fn generate_top_layer(&self, blocks: &Blocks, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn generate_stone(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
+    let stone = ctx.blocks.encode(block![stone]);
+    let water = ctx.blocks.encode(block![water]);
+
+    for rel_x in 0..16_u8 {
+      for rel_z in 0..16_u8 {
+        let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
+
+        // let height = self.height_at(pos) as i32;
+        // let biome = self.choose_biome(seed, pos);
+        let mut info = self.height_info(pos);
+
+        if info.max_height() < 64.0 {
+          for y in 0..=63 {
+            let pos = pos.with_y(y);
+
+            info.move_to(pos);
+            if info.underground() {
+              chunk.set(pos.chunk_rel(), stone);
+            } else {
+              chunk.set(pos.chunk_rel(), water);
+            }
+          }
+        } else {
+          for y in 0..info.min_height as i32 {
+            chunk.set(pos.chunk_rel().with_y(y), stone);
+          }
+
+          for y in info.min_height as i32..info.max_height as i32 {
+            let pos = pos.with_y(y);
+
+            info.move_to(pos);
+            if info.underground() {
+              chunk.set(pos.chunk_rel(), stone);
+            }
+          }
+        }
+
+        /*
+        for y in 0..height as u8 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.stone.block);
+        }
+        for y in height as u8..64 {
+          chunk.set(ChunkRelPos::new(rel_x, y, rel_z), ctx.blocks.water.block);
+        }
+        */
+      }
+    }
+  }
+
+  fn generate_top_layer(
+    &self,
+    block_info: &BlockInfoSupplier,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+  ) {
+    profile_function!();
+
     // FIXME: Remove this and use a chunk placer instead.
 
     const SEA_LEVEL: i32 = 64;
@@ -310,8 +398,12 @@ impl WorldBiomes {
 
         let mut depth = 0;
         let mut layer = 0;
+        let mut air_above: u8 = 255;
 
+        // TODO: Fix.
         let mut underwater = false;
+
+        let biome = self.choose_surface_biome(pos);
 
         let min_height = (info.min_height as i32).min(40);
         for y in (min_height..=info.max_height as i32).rev() {
@@ -322,18 +414,25 @@ impl WorldBiomes {
           if info.underground() {
             depth += 1;
           } else {
+            if depth > 0 {
+              // On the boundry from stone to air, reset `air_above`.
+              air_above = 0;
+            }
+
             depth = 0;
-          }
+            layer = 0;
+            air_above = air_above.saturating_add(1);
 
-          // The addition of 255 prevents the underground biome from interfering with the
-          // sublayer selection.
-          let biome = self.choose_biome(pos.with_y(255));
-
-          if y < SEA_LEVEL && layer == 0 && depth == 0 {
-            underwater = true;
+            if y < SEA_LEVEL {
+              underwater = true;
+            }
+            continue;
           }
 
           let layers = if underwater { &biome.underwater_layers } else { &biome.layers };
+          if layer >= layers.len() || air_above < 5 {
+            continue;
+          }
           let mut current_layer = &layers[layer];
           let current_layer_depth = current_layer.sample_depth(sub_layer_depth);
 
@@ -342,22 +441,26 @@ impl WorldBiomes {
             depth = 0;
 
             if layer >= layers.len() {
-              break;
+              continue;
             }
 
             current_layer = &layers[layer];
           }
 
-          if chunk.get(rel_pos) == blocks.stone.block {
+          if block_info.decode(chunk.get(rel_pos)) == block![stone] {
+            if depth == 1 && layer == 0 {
+              chunk.add_surface(rel_pos);
+            }
+
             // Special case: if the top layer is grass, always place grass if there is air
             // above (this makes cave entrances look nice.)
-            if biome.top_block().block == blocks.grass.block
-              && chunk.get(rel_pos.with_y(y + 1)) == Block::AIR
+            if biome.top_block().block == block![grass]
+              && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
             {
-              chunk.set(rel_pos, blocks.grass.default_state);
+              chunk.set(rel_pos, block_info.encode(block![grass]));
             } else {
-              chunk.set(rel_pos, current_layer.state);
+              chunk.set(rel_pos, block_info.encode(current_layer.state));
             }
           }
         }
@@ -369,60 +472,61 @@ impl WorldBiomes {
     self.sub_layer_map.generate(pos.x as f64, pos.z as f64)
   }
 
-  fn generate_chunk_placers(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+  fn generate_chunk_placers(
+    &self,
+    info: &BlockInfoSupplier,
+    chunk: &mut Chunk,
+    chunk_pos: ChunkPos,
+  ) {
+    profile_function!();
+
     // The length of this list is how many total biomes we support in a single
     // chunk. If there are more biomes than this, the extra ones will not be
     // decorated. This is an optimization to avoid allocating here.
-    let mut biome_index = 0;
-    let mut biome_set = [Option::<(&BiomeBuilder, TemporaryBiome)>::None; 16];
+    let mut biome_set = TemporaryBiomeSet::new();
 
-    let mut chunk = BiomeCachedChunk::new(chunk);
+    let mut chunk = BiomeCachedChunk::new(info, chunk);
 
-    for x in 0..16 {
-      for z in 0..16 {
-        // This is kinda restrictive, but helps performance a _lot_. We also don't
-        // really want biomes to change on the Y axis, as that causes weirdness when
-        // building with grass and such. So we can limit ourselves to a single surface
-        // biome and a single cave biome per column.
-        let surface_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 255, z));
-        let cave_biome = self.choose_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+    {
+      profile_scope!("biome cached chunk setup");
 
-        let mut info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+      for x in 0..16 {
+        for z in 0..16 {
+          // This is kinda restrictive, but helps performance a _lot_. We also don't
+          // really want biomes to change on the Y axis, as that causes weirdness when
+          // building with grass and such. So we can limit ourselves to a single surface
+          // biome and a single cave biome per column.
+          let surface_biome =
+            self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+          let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-        for y in 0..256 {
-          let pos = chunk_pos.min_block_pos() + Pos::new(x, y, z);
-          info.move_to(pos);
+          let info = self.height_info(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
 
-          let biome = if info.underground() { cave_biome } else { surface_biome };
+          let column = BiomeColumn {
+            surface:    biome_set.add(surface_biome),
+            cave:       biome_set.add(cave_biome),
+            min_height: info.min_height as i32,
+          };
 
-          match biome_set[..biome_index]
-            .iter()
-            .find(|b| b.is_some_and(|(b, _)| b.name == biome.name))
-          {
-            Some(Some((_, id))) => {
-              chunk.set_biome(pos.chunk_rel(), *id);
-            }
-            Some(None) => unreachable!(),
-            None => {
-              if biome_index < 15 {
-                let id = TemporaryBiome(biome_index as u8);
-                chunk.set_biome(pos.chunk_rel(), id);
-                biome_set[biome_index] = Some((biome, id));
-                biome_index += 1;
-              } else {
-                // if there would be too many biomes, set it to the max ID, which won't be used.
-                chunk.set_biome(pos.chunk_rel(), TemporaryBiome(15));
-              }
-            }
-          }
+          chunk.set_column(ChunkRelPos::new(x as u8, 0, z as u8), column);
         }
       }
     }
 
-    for (biome, id) in biome_set.into_iter().flatten() {
-      let mut rng = Rng::new(self.seed);
-      chunk.set_active(id);
-      biome.generate(&mut rng, &mut chunk, chunk_pos);
+    {
+      profile_scope!("biome chunk placers");
+      for (biome, id) in biome_set.set.into_iter().flatten() {
+        let mut rng = Rng::new(self.seed);
+        chunk.set_active(id);
+        biome.generate(&mut rng, &mut chunk, chunk_pos);
+      }
+    }
+
+    {
+      profile_scope!("global chunk placers");
+      for placer in &self.global_chunk_placers {
+        placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
+      }
     }
   }
 
@@ -473,7 +577,12 @@ impl HeightInfo<'_> {
   pub fn underground(&mut self) -> bool {
     *self.underground.get_or_insert_with(|| {
       if self.min_height > self.max_height {
+        // Special case for oceans.
         self.pos.y < self.max_height as i32
+      } else if self.pos.y < self.min_height as i32 {
+        true
+      } else if self.pos.y >= self.max_height as i32 {
+        false
       } else {
         let noise = self.world.density_map.generate_3d(
           self.pos.x as f64,
@@ -486,5 +595,31 @@ impl HeightInfo<'_> {
         noise > limit
       }
     })
+  }
+}
+
+struct TemporaryBiomeSet<'a> {
+  set:   [Option<(&'a BiomeBuilder, TemporaryBiome)>; 16],
+  index: usize,
+}
+
+impl<'a> TemporaryBiomeSet<'a> {
+  pub fn new() -> Self { TemporaryBiomeSet { set: [None; 16], index: 0 } }
+
+  pub fn add(&mut self, biome: &'a BiomeBuilder) -> TemporaryBiome {
+    match self.set[..self.index].iter().find(|b| b.is_some_and(|(b, _)| b.name == biome.name)) {
+      Some(Some((_, id))) => *id,
+      Some(None) => unreachable!(),
+      None => {
+        if self.index < 15 {
+          let id = TemporaryBiome(self.index as u8);
+          self.set[self.index] = Some((biome, id));
+          self.index += 1;
+          id
+        } else {
+          TemporaryBiome(15)
+        }
+      }
+    }
   }
 }

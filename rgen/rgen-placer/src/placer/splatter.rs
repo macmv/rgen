@@ -1,7 +1,7 @@
 use rgen_base::{BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Rng};
+use crate::{rng::Random, Placer, Result, Rng};
 
 pub struct Splatter {
   pub replace: BlockState,
@@ -13,7 +13,7 @@ pub struct Splatter {
 impl Placer for Splatter {
   fn radius(&self) -> u8 { 8 }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     for _ in 0..self.attempts {
       let pos = pos
         + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
@@ -23,5 +23,7 @@ impl Placer for Splatter {
         world.set(below_pos, self.place);
       }
     }
+
+    Ok(())
   }
 }

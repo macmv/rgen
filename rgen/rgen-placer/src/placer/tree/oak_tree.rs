@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 enum SplitTree {
@@ -17,12 +17,12 @@ pub struct OakTree {
 }
 
 impl OakTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     OakTree {
       avg_in_chunk: 6.5, //40.0,
-      place_above:  blocks.grass.default_state.into(),
-      trunk:        blocks.log.with_data(0),
-      leaves:       blocks.leaves.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[0]],
+      leaves:       block![leaves[0]],
     }
   }
 }
@@ -32,7 +32,7 @@ impl Placer for OakTree {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let mut tree_choices = vec![SplitTree::Simple, SplitTree::Square, SplitTree::Big];
     for _ in 0..10 {
       tree_choices.push(SplitTree::Simple);
@@ -49,16 +49,16 @@ impl Placer for OakTree {
 }
 
 impl OakTree {
-  fn build_simple(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
+  fn build_simple(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) -> Result {
     let height = rng.rand_inclusive(3, 5);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     // Builds the main body.
@@ -99,5 +99,7 @@ impl OakTree {
     for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
+
+    Ok(())
   }
 }

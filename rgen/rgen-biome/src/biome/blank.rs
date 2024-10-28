@@ -1,17 +1,18 @@
+use rgen_base::{biome, block};
 use rgen_placer::chunk_placer;
 
-use super::{color, BiomeBuilder, IdContext};
+use super::BiomeBuilder;
 
-pub fn blank(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+pub fn blank(gen: &mut BiomeBuilder) {
+  gen.id = biome![plains];
   gen.color = "#000000";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
-  gen.set_underwater_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
+  gen.set_underwater_block(block![stone]);
 
   gen.place_chunk(chunk_placer::CheckerboardSurface {
-    replace: ctx.blocks.stone.block.into(),
-    a:       ctx.blocks.concrete.with_data(color::MAGENTA),
-    b:       ctx.blocks.concrete.with_data(color::BLACK),
+    replace: block![stone].into(),
+    a:       block![concrete[color = "magenta"]],
+    b:       block![concrete[color = "black"]],
   });
 }

@@ -1,10 +1,9 @@
-use rgen_base::{Block, Chunk, ChunkPos, Pos};
+use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::{
   grid::PointGrid,
   noise::{NoiseGenerator3D, OctavedNoise, PerlinNoise},
 };
-
-use crate::biome::IdContext;
+use rgen_world::BlockInfoSupplier;
 
 /// Noodle caves are the long thin tunnels, the "normal" caves.
 pub struct NoodleCarver {
@@ -13,7 +12,7 @@ pub struct NoodleCarver {
 
   density_map: OctavedNoise<PerlinNoise, 2>,
 
-  water: Block,
+  water: StateId,
 }
 
 #[derive(Clone)]
@@ -40,18 +39,20 @@ const CAVE_RADIUS: i32 = 96;
 const MAX_CAVE_AREA: f64 = CAVE_RADIUS as f64 - 4.0;
 
 impl NoodleCarver {
-  pub fn new(ctx: &IdContext, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     NoodleCarver {
       seed,
 
       grid: PointGrid::new(),
       density_map: OctavedNoise::new(seed, 1.0 / 16.0),
 
-      water: ctx.blocks.water.block,
+      water: info.encode(block![water]),
     }
   }
 
   pub fn carve(&self, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
     let scale = 48.0;
 
     let min_pos = chunk_pos.min_block_pos();
@@ -143,6 +144,15 @@ impl NoodleCave<'_> {
 
       let pos = self.block_pos();
 
+      let min = chunk_pos.min_block_pos() - Pos::new(max_radius, 0, max_radius);
+      let max = chunk_pos.min_block_pos() + Pos::new(max_radius + 15, 0, max_radius + 15);
+
+      if pos.x < min.x || pos.x > max.x || pos.z < min.z || pos.z > max.z {
+        // Skip this iteration. We're far enough away from the chunk that we don't need
+        // to bother looping below.
+        return false;
+      }
+
       let mut hit_water = false;
       for y in -max_radius..=max_radius {
         for z in -max_radius..=max_radius {
@@ -192,7 +202,7 @@ impl NoodleCave<'_> {
                 if near_water {
                   hit_water = true;
                 } else {
-                  chunk.set(pos.chunk_rel(), Block::AIR);
+                  chunk.set(pos.chunk_rel(), StateId::AIR);
                 }
               }
             }

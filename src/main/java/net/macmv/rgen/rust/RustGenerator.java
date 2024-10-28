@@ -1,8 +1,9 @@
 package net.macmv.rgen.rust;
 
+import net.macmv.rgen.RGen;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketPlayerAbilities;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -10,20 +11,21 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.GameData;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 public class RustGenerator {
-  private static native void init_generator(long seed);
+  private static native void init_world(long seed);
   private static native void init();
   private static native int reload_generator();
   private static native void build_chunk(char[] data, int x, int z);
@@ -32,16 +34,54 @@ public class RustGenerator {
   private static native String[] debug_info(int x, int y, int z);
   private static native String get_biome_name_at(int x, int y, int z);
   private static native byte get_biome_at(int x, int z);
+  private static native OwnedLog wait_for_log();
 
   // Helpers for the rust code.
 
+  // Block name to block ID. This does not include the 4 metadata bits.
   private static int block_name_to_id(String name) {
     Block block = Block.getBlockFromName(name);
     if (block == null) {
       return 0;
     }
 
-    return GameData.getBlockStateIDMap().get(block.getDefaultState());
+    return GameData.getBlockStateIDMap().get(block.getDefaultState()) >> 4;
+  }
+
+  // Block name to block ID. This does not include the 4 metadata bits.
+  private static String block_id_to_name(int id) {
+    return Block.REGISTRY.getObjectById(id).getRegistryName().toString();
+  }
+
+  // Returns the maximum block ID (not state ID).
+  private static int max_block_id() {
+    // This is real dumb, but this is only called once on load.
+    int max = 0;
+    for (Block block : Block.REGISTRY) {
+      int id = Block.getIdFromBlock(block);
+      if (id > max) {
+        max = id;
+      }
+    }
+    return max;
+  }
+
+  // Default metadata of a block.
+  private static int lookup_default_meta(int id) {
+    Block block = Block.getBlockById(id);
+    return GameData.getBlockStateIDMap().get(block.getDefaultState()) & 0x0f;
+  }
+
+  // The properties of a block.
+  private static PropType[] lookup_block_prop_types(int id) {
+    Block block = Block.getBlockById(id);
+    return PropType.lookup(block);
+  }
+
+  // A mapping from metadatas to property maps.
+  private static PropMap[] lookup_block_prop_values(int id) {
+    Block block = Block.getBlockById(id);
+    return PropMap.lookup(block);
   }
 
   private static int biome_name_to_id(String name) {
@@ -61,17 +101,50 @@ public class RustGenerator {
     Minecraft.getMinecraft().player.sendMessage(new TextComponentString(name + "\n\n" + TextFormatting.RED + "Failed to reload."));
   }
 
+  private static short get_block(int dim, int x, int y, int z) {
+    BlockPos pos = new BlockPos(x, y, z);
+    World world = Minecraft.getMinecraft().getIntegratedServer().getWorld(dim);
+    IBlockState state = world.getBlockState(pos);
+    int meta = state.getBlock().getMetaFromState(state);
+    int id = Block.getIdFromBlock(state.getBlock());
+    return (short) ((id << 4) | meta);
+  }
+
+  private static void set_block(int dim, int x, int y, int z, short block) {
+    BlockPos pos = new BlockPos(x, y, z);
+    World world = Minecraft.getMinecraft().getIntegratedServer().getWorld(dim);
+    world.setBlockState(pos, Block.getBlockById(block >> 4).getStateFromMeta(block & 15));
+  }
+
   private static boolean active = false;
 
   public static void init(long seed) {
     if (!active) {
       System.loadLibrary("rgen_jni");
       init();
+      spawn_logging_thread();
     }
     active = true;
-    init_generator(seed);
+    init_world(seed);
   }
 
+  // Spawn this thread in java, so that we can actually call out to log4j once we get a message.
+  // Then, we rely on rust to block before getting messages in a loop.
+  private static void spawn_logging_thread() {
+    Thread t = new Thread(() -> {
+      while (true) {
+        OwnedLog msg = wait_for_log();
+        if (msg != null) {
+          RGen.LOG.log(msg.getLevel(), msg.message);
+        }
+      }
+    });
+    t.setName("RGen");
+    t.setDaemon(true);
+    t.start();
+  }
+
+  @SideOnly(Side.CLIENT)
   public static void reload() {
     int res = reload_generator();
     if (res == 0) {

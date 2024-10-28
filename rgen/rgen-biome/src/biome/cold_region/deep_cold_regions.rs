@@ -1,36 +1,36 @@
+use rgen_base::{biome, block};
 use rgen_placer::{
   chunk_placer,
   noise::{OpenSimplexNoise, SeededNoise},
   placer,
 };
 
-use super::super::{color, IdContext};
 use crate::builder::{BiomeBuilder, PlacerStage};
 
-pub fn ice_spikes(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn ice_spikes(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#E3F5FC";
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
 
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
 
-pub fn deep_snow_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn deep_snow_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#E3F5FC";
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
 
   gen.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(0),
-    a:           ctx.blocks.snow_layer.default_state,
+    a:           block![snow_layer],
     add_snow:    2.25,
     min_snow:    0,
-    place_above: [ctx.blocks.stone.block].into(),
+    place_above: block![stone].into(),
   });
 
   gen.place(
@@ -38,7 +38,7 @@ pub fn deep_snow_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        2..=5,
       avg_per_chunk: 1.0,
     },
@@ -47,25 +47,25 @@ pub fn deep_snow_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.stone.default_state,
+      place_above: block![stone].into(),
+      place:       block![stone],
       attempts:    30,
     },
   );
 }
 
-pub fn ice_spike_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn ice_spike_beach(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#E3F5FC";
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new(ctx.blocks));
+  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
   gen.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(0),
-    a:           ctx.blocks.snow_layer.default_state,
+    a:           block![snow_layer],
     add_snow:    0.75,
     min_snow:    1,
-    place_above: [ctx.blocks.stone.block].into(),
+    place_above: [block![stone]].into(),
   });
 
   gen.place(
@@ -73,7 +73,7 @@ pub fn ice_spike_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     PlacerStage::Sand,
     placer::Splotch {
       replace:       gen.top_block().into(),
-      place:         ctx.blocks.gravel.default_state,
+      place:         block![gravel],
       radius:        2..=5,
       avg_per_chunk: 1.0,
     },
@@ -82,76 +82,68 @@ pub fn ice_spike_beach(ctx: &IdContext, gen: &mut BiomeBuilder) {
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: ctx.blocks.stone.default_state.into(),
-      place:       ctx.blocks.stone.default_state,
+      place_above: block![stone].into(),
+      place:       block![stone],
       attempts:    30,
     },
   );
 }
 
-pub fn glacier(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn glacier(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#82C5E1";
-  gen.set_top_block(ctx.blocks.packed_ice.default_state);
-  gen.add_layer(ctx.blocks.packed_ice.default_state, 20, 25);
+  gen.set_top_block(block![packed_ice]);
+  gen.add_layer(block![packed_ice], 20, 25);
 
-  gen.place_chunk(chunk_placer::Crevasse::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::Crevasse::new());
 }
 
-pub fn boulder_field(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn boulder_field(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#6FAFCE";
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 
   gen.place(
     "ice_patches",
     PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block(),
-      place:    ctx.blocks.ice.default_state,
-      attempts: 100,
-    },
+    placer::Splatter { replace: gen.top_block(), place: block![ice], attempts: 100 },
   );
 }
 
 #[allow(dead_code)]
-pub fn hard_frozen_river(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.ice_plains;
+pub fn hard_frozen_river(gen: &mut BiomeBuilder) {
+  gen.id = biome![ice_flats];
   gen.color = "#B2DBEF";
-  gen.set_top_block(ctx.blocks.concrete.with_data(color::GRAY));
+  gen.set_top_block(block![concrete[color = "gray"]]);
 
   gen.place(
     "stone_patches",
     PlacerStage::Sand,
-    placer::Splatter {
-      replace:  gen.top_block(),
-      place:    ctx.blocks.cobblestone.default_state,
-      attempts: 100,
-    },
+    placer::Splatter { replace: gen.top_block(), place: block![cobblestone], attempts: 100 },
   );
 }
 
-pub fn alps(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.cold_taiga;
+pub fn alps(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga_cold];
   gen.color = "#4E9BB7";
 
-  gen.set_top_block(ctx.blocks.snow_layer.with_data(7));
-  gen.add_layer(ctx.blocks.snow.default_state, 1, 2);
-  gen.add_layer(ctx.blocks.stone.default_state, 4, 5);
+  gen.set_top_block(block![snow_layer[layers = 8]]);
+  gen.add_layer(block![snow], 1, 2);
+  gen.add_layer(block![stone], 4, 5);
 
-  gen.place_chunk(chunk_placer::SnowOnSnowSurface::new(ctx.blocks));
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::SnowOnSnowSurface::new());
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
 
-pub fn frozen_peak(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.cold_taiga;
+pub fn frozen_peak(gen: &mut BiomeBuilder) {
+  gen.id = biome![taiga_cold];
   gen.color = "#4E9BB7";
 
-  gen.set_top_block(ctx.blocks.stone.default_state);
+  gen.set_top_block(block![stone]);
 
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new(ctx.blocks));
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }

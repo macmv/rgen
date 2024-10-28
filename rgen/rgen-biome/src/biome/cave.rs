@@ -1,20 +1,21 @@
+use rgen_base::biome;
 use rgen_placer::chunk_placer;
 
-use super::{BiomeBuilder, IdContext};
+use super::BiomeBuilder;
 
 #[allow(dead_code)]
-pub fn cave(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+pub fn cave(gen: &mut BiomeBuilder) {
+  gen.id = biome![plains];
   gen.color = "#ffffff";
 
-  gen.place_chunk(chunk_placer::GlowVine::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::GlowVine::new());
 }
 
 #[allow(dead_code)]
-pub fn lush_cave(ctx: &IdContext, gen: &mut BiomeBuilder) {
-  gen.id = ctx.biomes.plains;
+pub fn lush_cave(gen: &mut BiomeBuilder) {
+  gen.id = biome![plains];
   gen.color = "#ffffff";
 
-  gen.place_chunk(chunk_placer::LushCaveMoss::new(ctx.blocks));
-  gen.place_chunk(chunk_placer::GlowVine::new(ctx.blocks));
+  gen.place_chunk(chunk_placer::LushCaveMoss::new());
+  gen.place_chunk(chunk_placer::GlowVine::new());
 }

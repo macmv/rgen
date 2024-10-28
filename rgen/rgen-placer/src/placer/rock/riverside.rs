@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct RiverSide {
   pub ground:       BlockFilter,
@@ -11,17 +11,17 @@ pub struct RiverSide {
 }
 
 impl RiverSide {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     RiverSide {
-      ground:       [blocks.dirt.block, blocks.grass.block].into(),
+      ground:       [block![dirt], block![grass]].into(),
       material:     vec![
-        blocks.gravel.default_state,
-        blocks.gravel.default_state,
-        blocks.rgen_mossy_cobblestone.default_state,
-        blocks.cobblestone.default_state,
+        block![gravel],
+        block![gravel],
+        block![rgen:mossy_cobblestone_rgen],
+        block![cobblestone],
       ],
       avg_in_chunk: 3.0,
-      fluid:        blocks.lava.default_state,
+      fluid:        block![lava],
     }
   }
 }
@@ -31,16 +31,19 @@ impl Placer for RiverSide {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
     pos = pos + Pos::new(0, -1, 0);
     if pos.y + 20 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
+
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
         self.build_siding(rng, pos + Pos::new(rel_x, 0, rel_z), world);
       }
     }
+
+    Ok(())
   }
 }
 
@@ -50,7 +53,7 @@ impl RiverSide {
       for rel_z in -1..=1_i32 {
         if !(rel_x == 0 && rel_z == 0) {
           let rel_pos = pos + Pos::new(rel_x, 0, rel_z);
-          if world.get(rel_pos).block == Block::WATER && self.ground.contains(world.get(pos)) {
+          if world.get(rel_pos) == block![water] && self.ground.contains(world.get(pos)) {
             world.set(pos, *rng.choose(&self.material));
           }
         }

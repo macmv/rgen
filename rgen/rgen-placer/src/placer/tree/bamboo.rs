@@ -1,9 +1,9 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{Block, BlockFilter, BlockState, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct Bamboo {
   pub place_above:  BlockFilter,
@@ -26,53 +26,55 @@ impl Placer for Bamboo {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height =
       if self.pint_size { rng.rand_inclusive(8, 14) } else { rng.rand_inclusive(15, 20) };
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     rng.rand_inclusive(15, 20);
-    let mut shoot = self.stalk;
+    let mut shoot = 0;
 
     // Sets rotation
-    shoot.state &= 0b1100;
+    shoot &= 0b1100;
     let rand = rng.rand_inclusive(0, 3);
     if rand == 0 {
       // 0
-      shoot.state |= 0b0000;
+      shoot |= 0b0000;
     } else if rand == 1 {
       // 1
-      shoot.state |= 0b0001;
+      shoot |= 0b0001;
     } else if rand == 2 {
       // 2
-      shoot.state |= 0b0010;
+      shoot |= 0b0010;
     } else if rand == 3 {
       // 3
-      shoot.state |= 0b0011;
+      shoot |= 0b0011;
     }
 
     let mut leaf = shoot;
-    // Sets leaft type
-    leaf.state &= 0b0011;
-    leaf.state |= 0b0100;
+    // Sets leaf type
+    leaf &= 0b0011;
+    leaf |= 0b0100;
 
     for y in 0..=height {
       let pos = pos + Pos::new(0, y, 0);
 
-      if world.get(pos) == BlockState::AIR {
-        world.set(pos, if y > height - 3 { leaf } else { shoot });
+      if world.get(pos) == block![air] {
+        world.set(pos, self.stalk.with_data(if y > height - 3 { leaf } else { shoot }));
       } else {
-        return;
+        return Ok(());
       }
     }
+
+    Ok(())
   }
 }
 
@@ -80,7 +82,7 @@ impl Placer for BambooClump {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
 
     for _ in 0..self.attempts {
@@ -91,9 +93,11 @@ impl Placer for BambooClump {
 
       let below_pos = pos + Pos::new(0, -1, 0);
 
-      if self.place_above.contains(world.get(below_pos)) && world.get(pos).block == Block::AIR {
-        self.bamboo.place(world, rng, pos);
+      if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
+        world.attempt(|world| self.bamboo.place(world, rng, pos));
       }
     }
+
+    Ok(())
   }
 }

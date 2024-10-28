@@ -1,25 +1,28 @@
-use rgen_base::{Block, Chunk, ChunkPos, Pos};
+use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
 use rgen_placer::noise::{NoiseGenerator3D, OctavedNoise, PerlinNoise};
+use rgen_world::BlockInfoSupplier;
 
-use crate::{biome::IdContext, WorldBiomes};
+use crate::WorldBiomes;
 
 /// Cheese caves are the big caverns.
 pub struct CheeseCarver {
   cave_map: OctavedNoise<PerlinNoise, 3>,
 
-  water: Block,
+  water: StateId,
 }
 
 impl CheeseCarver {
-  pub fn new(ctx: &IdContext, seed: u64) -> Self {
+  pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     CheeseCarver {
       cave_map: OctavedNoise::new(seed, 1.0 / 64.0),
 
-      water: ctx.blocks.water.block,
+      water: info.encode(block![water]),
     }
   }
 
   pub fn carve(&self, world: &WorldBiomes, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
     for rel_x in 0..16_u8 {
       for rel_z in 0..16_u8 {
         let pos = chunk_pos.min_block_pos() + Pos::new(rel_x.into(), 0, rel_z.into());
@@ -82,7 +85,7 @@ impl CheeseCarver {
             }
 
             if !near_water {
-              chunk.set(pos.chunk_rel(), Block::AIR);
+              chunk.set(pos.chunk_rel(), StateId::AIR);
             }
           }
         }

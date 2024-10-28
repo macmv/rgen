@@ -1,7 +1,7 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
-use rgen_world::PartialWorld;
+use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct PalmTree {
   pub place_above:  BlockFilter,
@@ -11,12 +11,12 @@ pub struct PalmTree {
 }
 
 impl PalmTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     PalmTree {
       avg_in_chunk: 2.0,
-      place_above:  blocks.sand.block.into(),
-      trunk:        blocks.rgen_log.with_data(1),
-      leaves:       blocks.rgen_leaves.with_data(1),
+      place_above:  block![sand].into(),
+      trunk:        block![rgen:log[1]],
+      leaves:       block![rgen:leaves[1]],
     }
   }
 }
@@ -26,24 +26,24 @@ impl Placer for PalmTree {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
     let height = rng.rand_inclusive(8, 13);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     // First block of the trunk. This adds a bit of horizontal variation at the
     // start, which is nice to have.
     world.set(pos, self.trunk);
 
-    let sway_x = rng.rand_inclusive(-10, 10) as f64 / 10.0;
-    let sway_z = rng.rand_inclusive(-10, 10) as f64 / 10.0;
+    let sway_x = rng.rand_inclusive(-1.0, 1.0);
+    let sway_z = rng.rand_inclusive(-1.0, 1.0);
 
     // Trunk.
     let mut x = pos.x as f64;
@@ -89,7 +89,7 @@ impl Placer for PalmTree {
             && rng.rand_inclusive(0, 10) < chance
           {
             let pos = pos + Pos::new(x, y_offset, z);
-            if world.get(pos).block == Block::AIR {
+            if world.get(pos) == block![air] {
               world.set(pos, self.leaves);
             }
           }
@@ -101,10 +101,12 @@ impl Placer for PalmTree {
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
       for i in 1..rng.rand_inclusive(1, 3) {
         let pos = pos + Pos::new(dx, -i, dz);
-        if world.get(pos).block == Block::AIR {
+        if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
         }
       }
     }
+
+    Ok(())
   }
 }

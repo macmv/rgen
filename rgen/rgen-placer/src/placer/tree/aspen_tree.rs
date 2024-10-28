@@ -1,8 +1,8 @@
-use rgen_base::{Block, BlockFilter, BlockState, Blocks, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_llama::Structure;
-use rgen_world::PartialWorld;
+use rgen_world::{PartialWorld, UndoError};
 
-use crate::{Placer, Random, Rng};
+use crate::{Placer, Random, Result, Rng};
 
 pub struct AspenTree {
   pub place_above:  BlockFilter,
@@ -14,21 +14,21 @@ pub struct AspenTree {
 }
 
 impl AspenTree {
-  pub fn new(blocks: &Blocks) -> Self {
+  pub fn new() -> Self {
     AspenTree {
       avg_in_chunk: 13.0, //40.0,
-      place_above:  blocks.grass.default_state.into(),
-      trunk:        blocks.log.with_data(2),
-      leaves:       blocks.rgen_leaves3.with_data(0),
+      place_above:  block![grass].into(),
+      trunk:        block![log[2]],
+      leaves:       block![rgen:leaves3[0]],
       drapes_short: vec![
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_s_0.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_s_1.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_s_2.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_s_0.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_s_1.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_s_2.ll")),
       ],
       drapes_long:  vec![
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_l_0.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_l_1.ll")),
-        rgen_llama::parse(blocks, include_str!("structure/drape_aspen_l_2.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_l_0.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_l_1.ll")),
+        rgen_llama::parse(include_str!("structure/drape_aspen_l_2.ll")),
       ],
     }
   }
@@ -39,16 +39,16 @@ impl Placer for AspenTree {
 
   fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(9, 11);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
-      return;
+      return Err(UndoError);
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos).block != Block::AIR {
-      return;
+    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
     }
 
     // Builds the main body.
@@ -61,7 +61,7 @@ impl Placer for AspenTree {
           }
 
           let pos = pos + Pos::new(x, y + height, z);
-          if world.get(pos) == BlockState::AIR {
+          if world.get(pos) == block![air] {
             world.set(pos, self.leaves);
           }
         }
@@ -78,7 +78,7 @@ impl Placer for AspenTree {
           }
 
           let pos = pos + Pos::new(x, y + height, z);
-          if world.get(pos) == BlockState::AIR {
+          if world.get(pos) == block![air] {
             world.set(pos, self.leaves);
           }
         }
@@ -104,6 +104,8 @@ impl Placer for AspenTree {
     for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.trunk);
     }
+
+    Ok(())
   }
 }
 
