@@ -18,7 +18,6 @@ public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
 
   // FIXME: Need block items.
-  public static final Block THATCH_ROOF = register("thatch_roof", new ThatchRoofBlock(Material.ROCK));
   public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
   public static final Block LOOSE_ROCK = register("loose_rock", new LooseRockBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", new PlantBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
