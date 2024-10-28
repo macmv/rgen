@@ -36,12 +36,12 @@ public final class RBlocks {
   public static final Block PLANKS = register("planks", new PlanksBlock());
   //Stairs
   //public static final Block BAMBOO_STAIRS = register("bamboo_stairs", new BambooStairs());
-  public static final Block DEAD_STAIRS = register("dead_stairs", new RgenStairs(LogType.DEAD));
-  public static final Block MANGROVE_STAIRS = register("mangrove_stairs", new RgenStairs(LogType.MANGROVE));
-  public static final Block CEDAR_STAIRS = register("cedar_stairs", new RgenStairs(LogType.CEDAR));
-  public static final Block CHERRY_STAIRS = register("cherry_stairs", new RgenStairs(LogType.SAKURA));
-  public static final Block FIR_STAIRS = register("fir_stairs", new RgenStairs(LogType.FIR));
-  public static final Block PALM_STAIRS = register("palm_stairs", new RgenStairs(LogType.PALM));
+  public static final Block DEAD_STAIRS = register("dead_stairs", new RStairs(LogType.DEAD));
+  public static final Block MANGROVE_STAIRS = register("mangrove_stairs", new RStairs(LogType.MANGROVE));
+  public static final Block CEDAR_STAIRS = register("cedar_stairs", new RStairs(LogType.CEDAR));
+  public static final Block CHERRY_STAIRS = register("cherry_stairs", new RStairs(LogType.SAKURA));
+  public static final Block FIR_STAIRS = register("fir_stairs", new RStairs(LogType.FIR));
+  public static final Block PALM_STAIRS = register("palm_stairs", new RStairs(LogType.PALM));
 
   //Doors
   public static final Block DEAD_DOOR = register("dead_door", new RDoor());
@@ -53,12 +53,12 @@ public final class RBlocks {
   public static final Block PALM_DOOR = register("palm_door", new RDoor());
 
   //TrapDoors
-  public static final Block DEAD_TRAPDOOR = register("dead_trapdoor", new RgenTrapDoors());
-  public static final Block MANGROVE_TRAPDOOR = register("mangrove_trapdoor", new RgenTrapDoors());
-  public static final Block CEDAR_TRAPDOOR = register("cedar_trapdoor", new RgenTrapDoors());
-  public static final Block CHERRY_TRAPDOOR = register("cherry_trapdoor", new RgenTrapDoors());
-  public static final Block FIR_TRAPDOOR = register("fir_trapdoor", new RgenTrapDoors());
-  public static final Block PALM_TRAPDOOR = register("palm_trapdoor", new RgenTrapDoors());
+  public static final Block DEAD_TRAPDOOR = register("dead_trapdoor", new RTrapDoor());
+  public static final Block MANGROVE_TRAPDOOR = register("mangrove_trapdoor", new RTrapDoor());
+  public static final Block CEDAR_TRAPDOOR = register("cedar_trapdoor", new RTrapDoor());
+  public static final Block CHERRY_TRAPDOOR = register("cherry_trapdoor", new RTrapDoor());
+  public static final Block FIR_TRAPDOOR = register("fir_trapdoor", new RTrapDoor());
+  public static final Block PALM_TRAPDOOR = register("palm_trapdoor", new RTrapDoor());
 
   public static final Block MOSSY_STUMP = register("mossy_stump", new MossyLogBlock());
   public static final Block BAMBOO = register("bamboo", new Bamboo());
