@@ -28,3 +28,5 @@ forge*changelog.txt
 /.keys
 
 .DS_Store
+
+/server
