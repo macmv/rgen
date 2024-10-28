@@ -17,7 +17,6 @@ import java.util.Set;
 public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
 
-  // FIXME: Need block items.
   public static final Block DERP_DOG = register("derp_dog", new Block(Material.CLOTH));
   public static final Block LOOSE_ROCK = register("loose_rock", new LooseRockBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", new PlantBlock().setCreativeTab(RCreativeTabs.DECORATIONS));
@@ -33,8 +32,8 @@ public final class RBlocks {
   public static final Block LOG2 = register("log2", new LogBlockTwo());
 
   public static final Block PLANKS = register("planks", new PlanksBlock());
-  //Stairs
-  //public static final Block BAMBOO_STAIRS = register("bamboo_stairs", new BambooStairs());
+  // Stairs
+  // public static final Block BAMBOO_STAIRS = register("bamboo_stairs", new BambooStairs());
   public static final Block DEAD_STAIRS = register("dead_stairs", new RStairs(LogType.DEAD));
   public static final Block MANGROVE_STAIRS = register("mangrove_stairs", new RStairs(LogType.MANGROVE));
   public static final Block CEDAR_STAIRS = register("cedar_stairs", new RStairs(LogType.CEDAR));
@@ -42,7 +41,7 @@ public final class RBlocks {
   public static final Block FIR_STAIRS = register("fir_stairs", new RStairs(LogType.FIR));
   public static final Block PALM_STAIRS = register("palm_stairs", new RStairs(LogType.PALM));
 
-  //Doors
+  // Doors
   public static final Block DEAD_DOOR = register("dead_door", new RDoor());
   public static final Block MANGROVE_DOOR = register("mangrove_door", new RDoor());
   public static final Block BAMBOO_DOOR = register("bamboo_door", new RDoor());
@@ -51,7 +50,7 @@ public final class RBlocks {
   public static final Block FIR_DOOR = register("fir_door", new RDoor());
   public static final Block PALM_DOOR = register("palm_door", new RDoor());
 
-  //TrapDoors
+  // TrapDoors
   public static final Block DEAD_TRAPDOOR = register("dead_trapdoor", new RTrapDoor());
   public static final Block MANGROVE_TRAPDOOR = register("mangrove_trapdoor", new RTrapDoor());
   public static final Block CEDAR_TRAPDOOR = register("cedar_trapdoor", new RTrapDoor());
@@ -85,10 +84,6 @@ public final class RBlocks {
 
 
   private static Block register(String name, Block block) {
-    if (block.getCreativeTabToDisplayOn() == null) {
-      block.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    }
-
     block.setRegistryName(RGen.MODID, name);
     block.setUnlocalizedName(name);
     blocks.add(block);
