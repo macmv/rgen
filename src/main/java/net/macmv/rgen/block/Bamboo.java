@@ -2,15 +2,11 @@ package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.BlockLog;
-import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -20,13 +16,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class Bamboo extends Block {
-
-
   public static final PropertyEnum<Bamboo.Placement> PLACEMENT = PropertyEnum.create("placement", Bamboo.Placement.class);
   public static final PropertyBool HAS_LEAVES = PropertyBool.create("has_leaves");
 
@@ -39,8 +32,6 @@ public class Bamboo extends Block {
     super(Material.PLANTS);
     this.setDefaultState(this.blockState.getBaseState().withProperty(PLACEMENT, Placement.STANDARD).withProperty(HAS_LEAVES, false));
   }
-
-
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
@@ -104,7 +95,6 @@ public class Bamboo extends Block {
     Z(2),
     XZ(3);
 
-
     public final int meta;
 
     Placement(int meta) {
@@ -130,5 +120,4 @@ public class Bamboo extends Block {
       }
     }
   }
-
 }
