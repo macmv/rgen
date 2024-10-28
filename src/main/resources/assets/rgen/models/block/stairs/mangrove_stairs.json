@@ -1,0 +1,8 @@
+{
+  "parent": "block/stairs",
+  "textures": {
+      "bottom": "rgen:blocks/wood/mangrove/mangrove_planks",
+      "top": "rgen:blocks/wood/mangrove/mangrove_planks",
+      "side": "rgen:blocks/wood/mangrove/mangrove_planks"
+  }
+}

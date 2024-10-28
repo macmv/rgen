@@ -7,10 +7,12 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IRegistryDelegate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,6 +51,30 @@ public class RItems {
   public static final Item DOUBLE_TALL_LAVENDER_PLANT = registerBlockItem(RBlocks.DOUBLE_TALL_LAVENDER_PLANT, new ItemBlock(RBlocks.DOUBLE_TALL_LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item BASALT = registerBlockItem(RBlocks.BASALT);
   public static final Item PINK_FLOWERBED = registerBlockItem(RBlocks.PINK_FLOWERBED);
+
+  public static final Item DEAD_DOOR = registerItem("dead_door", new ItemDoor(RBlocks.DEAD_DOOR));
+  public static final Item MANGROVE_DOOR = registerItem("mangrove_door", new ItemDoor(RBlocks.MANGROVE_DOOR));
+  public static final Item BAMBOO_DOOR = registerItem("bamboo_door", new ItemDoor(RBlocks.BAMBOO_DOOR));
+  public static final Item CEDAR_DOOR = registerItem("cedar_door", new ItemDoor(RBlocks.CEDAR_DOOR));
+  public static final Item CHERRY_DOOR = registerItem("cherry_door", new ItemDoor(RBlocks.CHERRY_DOOR));
+  public static final Item FIR_DOOR = registerItem("fir_door", new ItemDoor(RBlocks.FIR_DOOR));
+  public static final Item PALM_DOOR = registerItem("palm_door", new ItemDoor(RBlocks.PALM_DOOR));
+
+  public static final Item DEAD_STAIRS = registerBlockItem(RBlocks.DEAD_STAIRS);
+  public static final Item MANGROVE_STAIRS = registerBlockItem(RBlocks.MANGROVE_STAIRS);
+  //public static final Item BAMBOO_STAIRS = registerItem("bamboo_stairs", new ItemBlock(RBlocks.BAMBOO_STAIRS));
+  public static final Item CEDAR_STAIRS = registerBlockItem(RBlocks.CEDAR_STAIRS);
+  public static final Item CHERRY_STAIRS = registerBlockItem(RBlocks.CHERRY_STAIRS);
+  public static final Item FIR_STAIRS = registerBlockItem(RBlocks.FIR_STAIRS);
+  public static final Item PALM_STAIRS = registerBlockItem(RBlocks.PALM_STAIRS);
+
+  public static final Item DEAD_TRAPDOOR = registerBlockItem(RBlocks.DEAD_TRAPDOOR);
+  public static final Item MANGROVE_TRAPDOOR = registerBlockItem(RBlocks.MANGROVE_TRAPDOOR);
+  // public static final Item BAMBOO_TRAPDOOR = registerBlockItem(RBlocks.BAMBOO_TRAPDOOR);
+  public static final Item CEDAR_TRAPDOOR = registerBlockItem(RBlocks.CEDAR_TRAPDOOR);
+  public static final Item CHERRY_TRAPDOOR = registerBlockItem(RBlocks.CHERRY_TRAPDOOR);
+  public static final Item FIR_TRAPDOOR = registerBlockItem(RBlocks.FIR_TRAPDOOR);
+  public static final Item PALM_TRAPDOOR = registerBlockItem(RBlocks.PALM_TRAPDOOR);
 
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);

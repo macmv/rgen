@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanksBlock extends Block {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta <= LogType.MANGROVE.meta);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta <= LogType.DEAD.meta);
 
   public PlanksBlock() {
     super(Material.WOOD);
@@ -34,7 +34,7 @@ public class PlanksBlock extends Block {
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     for (LogType ty : LogType.values()) {
-      if (ty.meta <= LogType.MANGROVE.meta) {
+      if (ty.meta <= LogType.DEAD.meta) {
         items.add(new ItemStack(this, 1, ty.meta));
       }
     }
