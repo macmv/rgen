@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "type=bottom": {"model": "rgen:plants/hanging_vines/hanging_vines_ends"},
+    "type=standard": {"model": "rgen:plants/hanging_vines/hanging_vines"}
+  }
+}
