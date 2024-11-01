@@ -11,6 +11,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -23,21 +24,27 @@ public class HangingVines extends Block {
   }
 
 
+  // LOOK
   @Override
   public boolean isOpaqueCube(IBlockState state) {
     return false;
   }
-
   @Override
   public boolean isFullCube(IBlockState state) {
     return false;
   }
-
-
   @SideOnly(Side.CLIENT)
   @Override
   public BlockRenderLayer getBlockLayer() {
     return BlockRenderLayer.CUTOUT_MIPPED;
+  }
+
+
+
+  // CAN WALK THROUGH
+  @Override
+  public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+    return NULL_AABB; // No collision box
   }
 
   @Override
@@ -45,16 +52,29 @@ public class HangingVines extends Block {
     return true; // Makes the block passable
   }
 
+  // BREAKS WHEN IT'S MISSING THE STUFF ABOVE
   @Override
-  public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-    return NULL_AABB; // No collision box
+  public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+    super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
+
+    // Check if the block above is a log, leaf, or another HangingVines
+    BlockPos abovePos = pos.up();
+    IBlockState aboveState = worldIn.getBlockState(abovePos);
+    Block aboveBlock = aboveState.getBlock();
+
+    if (!(aboveBlock == this ||
+        aboveBlock.isLeaves(aboveState, worldIn, abovePos) ||
+        aboveBlock.isWood(worldIn, abovePos))) {
+      // Drop the block as an item and set the position to air if not supported
+      worldIn.destroyBlock(pos, true);
+    }
   }
 
+  // SETS THE STATE WORK
   @Override
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, TYPE);
   }
-
   @Override
   public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
     IBlockState belowState = world.getBlockState(pos.down());
@@ -64,17 +84,14 @@ public class HangingVines extends Block {
       return state.withProperty(TYPE, Type.BOTTOM);
     }
   }
-
   @Override
   public int getMetaFromState(IBlockState state) {
     return state.getValue(TYPE) == Type.STANDARD ? 1 : 0;
   }
-
   @Override
   public IBlockState getStateFromMeta(int meta) {
     return this.getDefaultState().withProperty(TYPE, meta == 1 ? Type.STANDARD : Type.BOTTOM);
   }
-
   public enum Type implements IStringSerializable {
     BOTTOM("bottom"),
     STANDARD("standard");
@@ -90,4 +107,5 @@ public class HangingVines extends Block {
       return this.name;
     }
   }
+
 }
