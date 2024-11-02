@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "axis=y,variant=oak": { "model": "rgen:wood/covered/covered_log_y" },
+    "axis=z,variant=oak": { "model": "rgen:wood/covered/covered_log_xz" },
+    "axis=x,variant=oak": { "model": "rgen:wood/covered/covered_log_xz", "y": 90 }
+  }
+}
