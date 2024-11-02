@@ -108,3 +108,26 @@ public class MossyLogBlock extends BlockLog {
     }
   }
 }
+
+/*
+LOG 1
+- Oak
+- Spruce
+- Birch
+- Jungle
+
+LOG 2
+- Acacia
+- Dark Oak
+
+
+Rgen 1
+- Fir
+- Palm
+- Sakura
+- Cedar
+
+Rgen 2
+- Mangrove
+- Lavendar
+ */

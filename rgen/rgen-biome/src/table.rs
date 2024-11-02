@@ -49,6 +49,8 @@ impl CompositionLookup {
 // === Biome categories ===
 biome_categories!(
   fn build() {
+    // IceCap vvv
+
     let (GeographicType::Standard, ClimateType::IceCap) =
       &[b!(7, ice_spikes), b!(5, boulder_field), b!(8, glacier)];
 
@@ -62,6 +64,8 @@ biome_categories!(
 
     let (GeographicType::Beach, ClimateType::IceCap) =
       &[b!(7, ice_spike_beach), b!(13, deep_snow_beach)];
+
+    // SubArtic vvv
 
     let (GeographicType::Standard, ClimateType::SubArctic) =
       &[b!(10, fir_grove), b!(10, spruce_grove)];
@@ -80,6 +84,8 @@ biome_categories!(
 
     let (GeographicType::Beach, ClimateType::SubArctic) = &[b!(2, fir_grove), b!(3, mossy_shores)];
 
+    // WarmTemperate vvv
+
     let (GeographicType::Standard, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
 
@@ -97,6 +103,20 @@ biome_categories!(
 
     let (GeographicType::Beach, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
+
+    // Tropical vvv
+
+    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+
+    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+
+    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+
+    let (GeographicType::Hills, ClimateType::Tropical) = &[b!(20, blank)];
+
+    let (GeographicType::Mountains, ClimateType::Tropical) = &[b!(20, blank)];
+
+    let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
   }
 );
 
