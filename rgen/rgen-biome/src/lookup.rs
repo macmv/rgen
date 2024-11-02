@@ -174,7 +174,7 @@ impl WorldBiomes {
 
     BiomeKey {
       geographic: self.geographic_type(pos),
-      climate:    /* self.climate_type(pos) */ ClimateType::Tropical, /* ClimateType option */
+      climate:    /* self.climate_type(pos) */ ClimateType::WarmTemperate,
       variance:   self.variance(pos),
     }
   }

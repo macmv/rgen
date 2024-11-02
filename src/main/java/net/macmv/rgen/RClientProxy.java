@@ -7,7 +7,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ColorizerFoliage;
 import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeColorHelper;
@@ -35,8 +34,6 @@ public class RClientProxy extends RCommonProxy {
         if (tintIndex == 0) {
           // Use vanilla grass biome color
           return world != null && pos != null ? BiomeColorHelper.getGrassColorAtPos(world, pos) : ColorizerGrass.getGrassColor(0.5D, 1.0D);
-        } else if (tintIndex == 1){
-          return world != null && pos != null ? BiomeColorHelper.getFoliageColorAtPos(world, pos) : ColorizerFoliage.getFoliageColor(0.5D, 1.0D);
         }
 
 
@@ -45,6 +42,6 @@ public class RClientProxy extends RCommonProxy {
     };
 
     // Register block color handler for the LavenderPlant block
-    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER, RBlocks.HANGING_VINES, RBlocks.COVERED_JUNGLE_LOG);
+    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER);
   }
 }
