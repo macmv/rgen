@@ -58,6 +58,12 @@ public final class RBlocks {
   public static final Block FIR_TRAPDOOR = register("fir_trapdoor", new RTrapDoor());
   public static final Block PALM_TRAPDOOR = register("palm_trapdoor", new RTrapDoor());
 
+  // CoveredLogs
+  public static final Block COVERED_OAK_LOG = register("covered_oak_log", new RCoveredLog(true));
+  public static final Block COVERED_SPRUCE_LOG = register("covered_spruce_log", new RCoveredLog(false));
+  public static final Block COVERED_BIRCH_LOG = register("covered_birch_log", new RCoveredLog(true));
+  public static final Block COVERED_JUNGLE_LOG = register("covered_jungle_log", new RCoveredLog(true));
+
   public static final Block MOSSY_STUMP = register("mossy_stump", new MossyLogBlock());
   public static final Block BAMBOO = register("bamboo", new Bamboo());
 

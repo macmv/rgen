@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "axis=y": { "model": "rgen:wood/covered/covered_log_y_spruce" },
+    "axis=z": { "model": "rgen:wood/covered/covered_log_xz_spruce" },
+    "axis=x": { "model": "rgen:wood/covered/covered_log_xz_spruce", "y": 90 }
+  }
+}

@@ -79,6 +79,12 @@ public class RItems {
   public static final Item PALM_TRAPDOOR = registerBlockItem(RBlocks.PALM_TRAPDOOR);
 
 
+  public static final Item COVERED_OAK_LOG = registerBlockItem(RBlocks.COVERED_OAK_LOG);
+  public static final Item COVERED_SPRUCE_LOG = registerBlockItem(RBlocks.COVERED_SPRUCE_LOG);
+  public static final Item COVERED_BIRCH_LOG = registerBlockItem(RBlocks.COVERED_BIRCH_LOG);
+  public static final Item COVERED_JUNGLE_LOG = registerBlockItem(RBlocks.COVERED_JUNGLE_LOG);
+
+
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);

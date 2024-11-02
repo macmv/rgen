@@ -1,0 +1,9 @@
+{   "parent": "rgen:block/wood/covered/covered_log_y_oak",
+    "textures": {
+        "particle": "blocks/log_spruce",
+        "bottom": "blocks/log_spruce",
+        "top": "blocks/snow",
+        "side": "blocks/log_spruce",
+        "overlay": "rgen:blocks/wood/covered/snow_side"
+    }
+}
