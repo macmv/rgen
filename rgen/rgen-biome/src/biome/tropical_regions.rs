@@ -2,53 +2,28 @@ use super::{BiomeBuilder, PlacerStage};
 use rgen_base::{biome, block};
 use rgen_placer::placer;
 
-#[allow(dead_code)]
-pub fn plains(gen: &mut BiomeBuilder) {
-  gen.id = biome![plains];
-  gen.color = "#ffffff";
+pub fn deep_jungle(gen: &mut BiomeBuilder) {
+  gen.id = biome![jungle];
+  gen.color = "#E0705F";
   gen.set_top_block(block![grass]);
+  gen.add_layer(block![dirt], 5, 8);
+
+  gen.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::new());
 
   gen.place(
-    "poppy",
+    "Jungle bushes",
     PlacerStage::Tree,
-    placer::Clumps {
-      place_above: gen.top_block().into(),
-      place:       block![red_flower],
-
-      radius:        3..=6,
-      attempts:      20,
-      avg_per_chunk: 0.08,
+    placer::BushClumps {
+      place_above:   [block![grass]].into(),
+      log:           block![log[variant = "jungle"]],
+      leaves:        block![leaves[variant = "jungle"]],
+      avg_per_chunk: 0.01, //6.0,
+      radius:        3..=5,
     },
   );
 
   gen.place(
-    "dandelion",
-    PlacerStage::Tree,
-    placer::Clumps {
-      place_above: gen.top_block().into(),
-      place:       block![yellow_flower],
-
-      radius:        2..=3,
-      attempts:      20,
-      avg_per_chunk: 0.08,
-    },
-  );
-
-  gen.place(
-    "oxeye_daisy",
-    PlacerStage::Tree,
-    placer::Clumps {
-      place_above: gen.top_block().into(),
-      place:       block![red_flower[type = "oxeye_daisy"]],
-
-      radius:        2..=4,
-      attempts:      20,
-      avg_per_chunk: 0.08,
-    },
-  );
-
-  gen.place(
-    "grass",
+    "Grass",
     PlacerStage::Tree,
     placer::GrassClumps {
       place_above:      gen.top_block().into(),
@@ -57,21 +32,8 @@ pub fn plains(gen: &mut BiomeBuilder) {
       place_tall_upper: block![double_plant[half = "upper"]],
 
       radius:        4..=10,
-      attempts:      20,
-      avg_per_chunk: 3.0,
-    },
-  );
-
-  gen.place(
-    "bushes",
-    PlacerStage::Tree,
-    placer::BushClumps {
-      place_above: gen.top_block().into(),
-      log:         block![log],
-      leaves:      block![leaves],
-
-      radius:        10..=20,
-      avg_per_chunk: 0.2,
+      attempts:      50,
+      avg_per_chunk: 8.0,
     },
   );
 }

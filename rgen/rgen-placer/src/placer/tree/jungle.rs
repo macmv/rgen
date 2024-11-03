@@ -15,7 +15,7 @@ pub struct JungleTree {
 impl JungleTree {
   pub fn new() -> Self {
     Self {
-      avg_in_chunk: 8.0,
+      avg_in_chunk: 1.0, //8.0,
       place_above:  block![grass].into(),
       trunk:        block![log[3]],
       leaves:       block![leaves[3]],
