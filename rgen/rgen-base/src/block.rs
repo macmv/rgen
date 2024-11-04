@@ -415,6 +415,7 @@ blocks! {
   RedstoneOre => minecraft:redstone_ore,
   DiamondOre => minecraft:diamond_ore,
   EmeraldOre => minecraft:emerald_ore,
+  IronBlock => minecraft:iron_block,
 
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
   RgenLog2 => rgen:log2[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_2_LOG],
@@ -437,6 +438,9 @@ blocks! {
     axis: ["x", "y", "z", "none"],
     variant: ["oak", "birch"],
   ],
+  RgenCoveredJungleLog => rgen:covered_jungle_log[
+    axis:["x", "y", "z", "none"],
+  ],
   RgenPolypore => rgen:polypore[
     facing: ["north", "south", "west", "east"],
     type: ["one", "two", "three"],
@@ -450,6 +454,9 @@ blocks! {
     north: PropType::Bool,
     south: PropType::Bool,
     up: PropType::Bool,
+  ],
+  RgenHangingVines => rgen:hanging_vines[
+    type:["bottom","standard"],
   ],
   RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
   RgenMossyStone => rgen:mossy_stone,

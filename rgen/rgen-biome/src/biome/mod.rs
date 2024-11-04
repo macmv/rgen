@@ -7,7 +7,6 @@ mod cold_region;
 
 mod forests;
 mod hot_regions;
-mod jungle;
 mod river;
 mod temperate_river;
 mod tropical_regions;
@@ -23,8 +22,6 @@ pub use cold_region::*;
 pub use forests::*;
 #[allow(unused_imports)]
 pub use hot_regions::*;
-#[allow(unused_imports)]
-pub use jungle::*;
 #[allow(unused_imports)]
 pub use river::*;
 #[allow(unused_imports)]
