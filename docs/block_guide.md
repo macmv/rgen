@@ -12,7 +12,7 @@ Minecraft blocks have three parts to them: a texture, a model, and a block state
 |---------------------------------------|---------------------------------------|---------------------------------------|
 | <div style="text-align: center;"><img src="../art/example_block.png" alt="example block image" width="100"><br> The **Texture** represents the visual appearance of the block. It is the image that gets applied to the surface of the block to give it its look, such as the `dirt.png` being on the dirt block.</div> | <div style="text-align: center;"><img src="../art/example_model.png" alt="Model" width="100"><br> The **Model** defines the 3D shape of the block. It specifies how the texture is wrapped around the block. Think of this as the structure and the texture as the paint.</div> | <div style="text-align: center;"><img src="../art/example_blockstate.png" alt="Blockstate" width="100"><br> **Blockstates** determine the variations of a block. For example, they manage the orientation, controlling how the block behaves in different states.</div> |
 
-<img src="../art/example_pathway_blocks.png" alt="example block image" width="200">
+<img src="../art/example_pathway_blocks.png" alt="example block image" width="600">
 
 ```sh
 src/main/resources/assets/rgen/textures/blocks/ # The location of the block textures (note the 's' at the end)
