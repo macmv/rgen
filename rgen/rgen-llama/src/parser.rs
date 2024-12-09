@@ -8,7 +8,7 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-  pub fn new(input: &'a str) -> Parser { Parser { input, pos: 0, seen_orientation: false } }
+  pub fn new(input: &'a str) -> Self { Parser { input, pos: 0, seen_orientation: false } }
 
   pub fn parse(&mut self, ast: &mut Ast) {
     loop {
