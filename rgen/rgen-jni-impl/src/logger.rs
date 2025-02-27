@@ -25,6 +25,7 @@ pub fn init() {
   let (tx, rx) = crossbeam_channel::unbounded();
 
   unsafe {
+    #[allow(static_mut_refs)]
     if LOGGER.is_some() {
       panic!("Logger already initialized");
     }
@@ -55,6 +56,7 @@ pub fn init() {
 
 pub fn poll() -> Option<OwnedRecord> {
   let logger = unsafe {
+    #[allow(static_mut_refs)]
     LOGGER.as_ref().unwrap_or_else(|| {
       panic!("Logger not initialized");
     })
