@@ -35,7 +35,7 @@ macro_rules! functions {
     }
 
     $(
-      #[no_mangle]
+      #[unsafe(no_mangle)]
       pub extern "system" fn $name($($arg: $arg_ty),*) -> $ret {
         symbols(|s| {
           (s.$name)($($arg),*)
@@ -131,7 +131,7 @@ functions! {
   ) -> jstring;
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(env: JNIEnv, class: JClass) {
   let mut s = SYMBOLS.write();
   if s.is_some() {
@@ -142,7 +142,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(env: JNIEnv, 
   (s.as_ref().unwrap().Java_net_macmv_rgen_rust_RustGenerator_init)(env, class);
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
   mut env: JNIEnv,
   class: JClass,

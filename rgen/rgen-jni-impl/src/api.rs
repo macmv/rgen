@@ -58,7 +58,7 @@ impl PartialWorldStorage for JniWorldStorage<'_, '_> {
 
 /// Initializes the terrain generator for a specific seed. Call this function on
 /// each world load.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv, _class: JClass) {
   crate::logger::init();
 
@@ -72,7 +72,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init(_env: JNIEnv,
 
 static mut PUFFIN_SERVER: Option<puffin_http::Server> = None;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn rgen_deinit() {
   // Drop the server, to unbind from the port.
   unsafe {
@@ -82,7 +82,7 @@ pub extern "system" fn rgen_deinit() {
 
 /// Initializes the terrain generator for a specific seed. Call this function on
 /// each world load.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1world(
   mut env: JNIEnv,
   _class: JClass,
@@ -93,7 +93,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_init_1world(
   Context::init(blocks, biomes, seed);
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_wait_1for_1log(
   mut env: JNIEnv,
   _class: JClass,
@@ -112,7 +112,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_wait_1for_1log(
   }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   env: JNIEnv,
   _class: JClass,
@@ -132,7 +132,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1chunk(
   });
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
   env: JNIEnv,
   _class: JClass,
@@ -166,7 +166,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes(
   env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1region(
   env: JNIEnv,
   _class: JClass,
@@ -199,7 +199,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_build_1biomes_1reg
   env.set_byte_array_region(biomes, 0, &biome_out).unwrap();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   mut env: JNIEnv,
   _class: JClass,
@@ -247,7 +247,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_debug_1info(
   arr.as_raw()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
   _env: JNIEnv,
   _class: JClass,
@@ -262,7 +262,7 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1at(
   })
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1at(
   env: JNIEnv,
   _class: JClass,
@@ -282,5 +282,5 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_get_1biome_1name_1
 }
 
 // This is for re-loading the generator.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn rgen_get_seed() -> u64 { Context::run(|ctx| ctx.context.seed) }
