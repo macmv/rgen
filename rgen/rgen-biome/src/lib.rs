@@ -246,11 +246,13 @@ impl WorldBiomes {
   }
 }
 
+const DEBUG_ORES: bool = false;
+
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     profile_function!();
 
-    if (0..=8).contains(&chunk_pos.x()) {
+    if DEBUG_ORES && (0..=8).contains(&chunk_pos.x()) {
       return;
     }
 
@@ -269,7 +271,7 @@ impl Generator for WorldBiomes {
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     profile_function!();
 
-    if (-1..=9).contains(&chunk_pos.x()) {
+    if DEBUG_ORES && (-1..=9).contains(&chunk_pos.x()) {
       return;
     }
 
