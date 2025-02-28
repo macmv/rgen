@@ -11,6 +11,7 @@ pub enum PlacerStage {
 }
 
 pub struct BiomeBuilder {
+  pub seed:   u64,
   pub name:   &'static str,
   pub rarity: u32,
   pub id:     rgen_base::Biome,
@@ -48,8 +49,9 @@ impl PlacerBuilder {
 }
 
 impl BiomeBuilder {
-  pub fn new(name: &'static str, rarity: u32) -> Self {
+  pub fn new(seed: u64, name: &'static str, rarity: u32) -> Self {
     Self {
+      seed,
       name,
       rarity,
       id: Biome::Void,

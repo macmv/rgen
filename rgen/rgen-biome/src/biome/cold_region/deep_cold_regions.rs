@@ -13,7 +13,7 @@ pub fn ice_spikes(g: &mut BiomeBuilder) {
   g.set_top_block(block![stone]);
 
   g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
-  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
 
   g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
@@ -26,7 +26,7 @@ pub fn deep_snow_beach(g: &mut BiomeBuilder) {
   g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
 
   g.place_chunk(chunk_placer::SnowOnStoneSurface {
-    noise:       OpenSimplexNoise::new(0),
+    noise:       OpenSimplexNoise::new(g.seed),
     a:           block![snow_layer],
     add_snow:    2.25,
     min_snow:    0,
@@ -103,7 +103,7 @@ pub fn boulder_field(g: &mut BiomeBuilder) {
   g.color = "#6FAFCE";
   g.set_top_block(block![stone]);
 
-  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
   g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 
   g.place(
@@ -134,7 +134,7 @@ pub fn alps(g: &mut BiomeBuilder) {
   g.add_layer(block![snow], 1, 2);
   g.add_layer(block![stone], 4, 5);
 
-  g.place_chunk(chunk_placer::SnowOnSnowSurface::new());
+  g.place_chunk(chunk_placer::SnowOnSnowSurface::new(g.seed));
   g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
 
@@ -144,6 +144,6 @@ pub fn frozen_peak(g: &mut BiomeBuilder) {
 
   g.set_top_block(block![stone]);
 
-  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
   g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }

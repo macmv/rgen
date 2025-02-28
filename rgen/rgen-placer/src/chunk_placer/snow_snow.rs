@@ -15,15 +15,13 @@ pub struct SnowOnSnowSurface {
 }
 
 impl SnowOnSnowSurface {
-  pub fn new() -> Self {
-    let noise = OpenSimplexNoise::new(0);
-    //noise.generate(pos.x as f64, pos.z as f64);
+  pub fn new(seed: u64) -> Self {
     SnowOnSnowSurface {
-      noise,
-      a: block![snow_layer],
+      noise:       OpenSimplexNoise::new(seed),
+      a:           block![snow_layer],
       place_above: block![snow_layer].into(),
-      min_snow: 3,
-      add_snow: 3.0,
+      min_snow:    3,
+      add_snow:    3.0,
     }
   }
 }

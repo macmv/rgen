@@ -27,14 +27,14 @@ macro_rules! biome_categories {
     }
   ) => {
     impl CompositionLookup {
-      pub fn new() -> CompositionLookup {
+      pub fn new(seed: u64) -> CompositionLookup {
         let mut lookup = HashMap::new();
         $(
-          if lookup.insert(($geographic, $climate), composition(&[$($biome),*])).is_some() {
+          if lookup.insert(($geographic, $climate), composition(seed, &[$($biome),*])).is_some() {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(&[b!(1, blank)]), lookup }
+        CompositionLookup { blank: composition(seed, &[b!(1, blank)]), lookup }
       }
     }
   };
@@ -166,8 +166,8 @@ pub const CLIMATE_TABLE: ClimateTable = &[
   &[Tundra, SubArctic, CoolTemperate, WetTemperate, WetTemperate, Monsoon, Tropical, Tropical],
 ];
 
-fn composition(biome: BiomeFnCategory) -> BiomeComposition {
-  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(name, *rarity, *f)).collect()
+fn composition(seed: u64, biome: BiomeFnCategory) -> BiomeComposition {
+  biome.iter().map(|(rarity, name, f)| BiomeBuilder::build(seed, name, *rarity, *f)).collect()
 }
 
 #[cfg(test)]
@@ -175,5 +175,5 @@ mod tests {
   use super::*;
 
   #[test]
-  fn composition() { CompositionLookup::new(); }
+  fn composition() { CompositionLookup::new(0); }
 }

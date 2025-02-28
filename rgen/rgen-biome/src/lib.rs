@@ -138,7 +138,7 @@ impl WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
       seed,
 
-      composition_lookup: CompositionLookup::new(),
+      composition_lookup: CompositionLookup::new(seed),
       biome_override: false,
 
       cave: CaveCarver::new(info, seed),

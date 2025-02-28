@@ -14,14 +14,13 @@ pub struct SnowOnStoneSurface {
 }
 
 impl SnowOnStoneSurface {
-  pub fn new() -> Self {
-    let noise = OpenSimplexNoise::new(0);
+  pub fn new(seed: u64) -> Self {
     SnowOnStoneSurface {
-      noise,
-      a: block![snow_layer],
+      noise:       OpenSimplexNoise::new(seed),
+      a:           block![snow_layer],
       place_above: block![stone].into(),
-      min_snow: 1,
-      add_snow: 2.0,
+      min_snow:    1,
+      add_snow:    2.0,
     }
   }
 }
