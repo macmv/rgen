@@ -5,14 +5,14 @@ use crate::builder::PlacerStage;
 
 use super::super::BiomeBuilder;
 
-pub fn woodland_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#899781";
-  gen.set_top_block(block![grass]);
+pub fn woodland_river(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#899781";
+  g.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
-  gen.place(
+  g.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -27,7 +27,7 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -37,7 +37,7 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -48,14 +48,14 @@ pub fn woodland_river(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn woodland(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#899781";
-  gen.set_top_block(block![grass]);
+pub fn woodland(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#899781";
+  g.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
-  gen.place(
+  g.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -70,7 +70,7 @@ pub fn woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -80,7 +80,7 @@ pub fn woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -92,14 +92,14 @@ pub fn woodland(gen: &mut BiomeBuilder) {
 }
 
 #[allow(dead_code)]
-pub fn windswept_woodland(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#899781";
-  gen.set_top_block(block![grass]);
+pub fn windswept_woodland(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#899781";
+  g.set_top_block(block![grass]);
 
-  gen.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
 
-  gen.place(
+  g.place(
     "oak log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -114,7 +114,7 @@ pub fn windswept_woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -124,7 +124,7 @@ pub fn windswept_woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {

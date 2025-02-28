@@ -5,21 +5,21 @@ use crate::builder::{BiomeBuilder, PlacerStage};
 
 // SPRUCE CAT
 
-pub fn spruce_grove(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn spruce_grove(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  gen.set_underwater_block(block![stone]);
+  ground(g);
+  g.set_underwater_block(block![stone]);
 
-  spruce_rainbow_mix(gen);
-  evergreen_grass(gen);
+  spruce_rainbow_mix(g);
+  evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "podzel",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![dirt[variant = "podzol"]],
       radius:        2..=3,
       avg_per_chunk: 0.6,
@@ -27,19 +27,19 @@ pub fn spruce_grove(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn spruce_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn spruce_river(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  gen.set_underwater_block(block![gravel]);
+  ground(g);
+  g.set_underwater_block(block![gravel]);
 
-  river_mass_placer(gen);
+  river_mass_placer(g);
 
-  evergreen_grass(gen);
-  evergreen_grass(gen);
+  evergreen_grass(g);
+  evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -56,7 +56,7 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -73,7 +73,7 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -92,16 +92,16 @@ pub fn spruce_river(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn windswept_spruce_grove(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  windswept_evergreen_grass(gen);
+  ground(g);
+  windswept_evergreen_grass(g);
 
-  gen.set_underwater_block(block![stone]);
+  g.set_underwater_block(block![stone]);
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -118,7 +118,7 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -135,7 +135,7 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -153,29 +153,29 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "gravel big",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.1,
     },
   );
 
-  gen.place(
+  g.place(
     "gravel",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.4,
     },
   );
 
-  gen.place(
+  g.place(
     "fir log",
     PlacerStage::Tree,
     placer::LongLog {
@@ -194,8 +194,8 @@ pub fn windswept_spruce_grove(gen: &mut BiomeBuilder) {
   );
 }
 
-fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
-  gen.place(
+fn spruce_rainbow_mix(g: &mut BiomeBuilder) {
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -212,7 +212,7 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -229,7 +229,7 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -250,41 +250,41 @@ fn spruce_rainbow_mix(gen: &mut BiomeBuilder) {
 
 // FIR CAT
 
-pub fn fir_grove(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn fir_grove(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  fir_rainbow_mix(gen);
-  evergreen_grass(gen);
+  ground(g);
+  fir_rainbow_mix(g);
+  evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![rgen:mossy_cobblestone_rgen],
       radius:        2..=2,
       avg_per_chunk: 0.7,
     },
   );
 
-  gen.place(
+  g.place(
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        2..=2,
       avg_per_chunk: 1.2,
     },
   );
 
-  gen.place(
+  g.place(
     "cobble_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![cobblestone],
       radius:        1..=2,
       avg_per_chunk: 0.9,
@@ -296,19 +296,19 @@ pub fn fir_grove(gen: &mut BiomeBuilder) {
   // Rainbow
 }
 
-pub fn fir_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn fir_river(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  gen.set_underwater_block(block![stone]);
-  ground(gen);
+  g.set_underwater_block(block![stone]);
+  ground(g);
 
-  river_mass_placer(gen);
+  river_mass_placer(g);
 
-  evergreen_grass(gen);
-  evergreen_grass(gen);
+  evergreen_grass(g);
+  evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -325,7 +325,7 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -342,7 +342,7 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -361,14 +361,14 @@ pub fn fir_river(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn windswept_fir_grove(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  windswept_evergreen_grass(gen);
+  ground(g);
+  windswept_evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -385,7 +385,7 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -402,7 +402,7 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -420,29 +420,29 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "gravel big",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.1,
     },
   );
 
-  gen.place(
+  g.place(
     "gravel",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.4,
     },
   );
 
-  gen.place(
+  g.place(
     "fir log",
     PlacerStage::Tree,
     placer::LongLog {
@@ -461,8 +461,8 @@ pub fn windswept_fir_grove(gen: &mut BiomeBuilder) {
   );
 }
 
-fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
-  gen.place(
+fn fir_rainbow_mix(g: &mut BiomeBuilder) {
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -479,7 +479,7 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -496,7 +496,7 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -516,29 +516,29 @@ fn fir_rainbow_mix(gen: &mut BiomeBuilder) {
 }
 // OTHER
 
-pub fn windswept_hill(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn windswept_hill(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  ground(gen);
-  windswept_evergreen_grass(gen);
+  ground(g);
+  windswept_evergreen_grass(g);
 
-  gen.place(
+  g.place(
     "gravel",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.9,
     },
   );
 
-  gen.place(
+  g.place(
     "gravel big",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        3..=4,
       avg_per_chunk: 0.5,
@@ -547,13 +547,13 @@ pub fn windswept_hill(gen: &mut BiomeBuilder) {
 }
 
 #[allow(dead_code)]
-pub fn snowy_peak(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn snowy_peak(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  gen.set_top_block(block![stone]);
-  gen.set_underwater_block(block![stone]);
-  gen.place_chunk(chunk_placer::CheckerboardSurface {
+  g.set_top_block(block![stone]);
+  g.set_underwater_block(block![stone]);
+  g.place_chunk(chunk_placer::CheckerboardSurface {
     replace: block![stone].into(),
     a:       block![concrete[color = "magenta"]],
     b:       block![concrete[color = "black"]],
@@ -561,14 +561,14 @@ pub fn snowy_peak(gen: &mut BiomeBuilder) {
 }
 
 #[allow(dead_code)]
-pub fn tiaga_beach(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga];
-  gen.color = "#ffffff";
+pub fn tiaga_beach(g: &mut BiomeBuilder) {
+  g.id = biome![taiga];
+  g.color = "#ffffff";
 
-  gen.set_underwater_block(block![dirt]);
-  ground(gen);
+  g.set_underwater_block(block![dirt]);
+  ground(g);
 
-  gen.place(
+  g.place(
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
@@ -581,7 +581,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "underwater sand",
     PlacerStage::Sand,
     placer::WaterResources {
@@ -594,18 +594,18 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "gravel",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        1..=4,
       avg_per_chunk: 0.9,
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -621,7 +621,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -637,7 +637,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -654,7 +654,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -671,7 +671,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -689,7 +689,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -706,7 +706,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Standard,
     },
   );
-  gen.place(
+  g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -723,7 +723,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
       size:         placer::EvergreenSize::Tall,
     },
   );
-  gen.place(
+  g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
@@ -741,7 +741,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "fir log",
     PlacerStage::Tree,
     placer::LongLog {
@@ -759,7 +759,7 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "spruce log",
     PlacerStage::Tree,
     placer::LongLog {
@@ -778,15 +778,15 @@ pub fn tiaga_beach(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn mossy_shores(gen: &mut BiomeBuilder) {
-  gen.id = biome![stone_beach];
-  gen.color = "#ffffff";
-  gen.set_top_block(block![gravel]);
-  gen.add_layer(block![gravel], 2, 4);
+pub fn mossy_shores(g: &mut BiomeBuilder) {
+  g.id = biome![stone_beach];
+  g.color = "#ffffff";
+  g.set_top_block(block![gravel]);
+  g.add_layer(block![gravel], 2, 4);
 
-  gen.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new());
+  g.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new());
 
-  gen.place(
+  g.place(
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
@@ -795,74 +795,74 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
       attempts:    40,
     },
   );
-  gen.place(
+  g.place(
     "cobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![cobblestone],
       radius:        1..=2,
       avg_per_chunk: 3.0,
     },
   );
 
-  gen.place(
+  g.place(
     "clay",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![clay],
       radius:        2..=2,
       avg_per_chunk: 0.3,
     },
   );
 
-  gen.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new());
+  g.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new());
 
-  gen.place(
+  g.place(
     "mossystone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![rgen:mossy_stone],
       radius:        1..=2,
       avg_per_chunk: 4.3,
     },
   );
 
-  gen.place(
+  g.place(
     "stone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![stone],
       radius:        1..=3,
       avg_per_chunk: 5.4,
     },
   );
-  gen.place(
+  g.place(
     "mossycobblestone_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![rgen:mossy_cobblestone_rgen],
       radius:        1..=4,
       avg_per_chunk: 1.0,
     },
   );
 
-  gen.place(
+  g.place(
     "mossycobblestone_smaller_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![rgen:mossy_cobblestone_rgen],
       radius:        1..=2,
       avg_per_chunk: 4.0,
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -878,7 +878,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -894,7 +894,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
@@ -905,7 +905,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
       avg_per_chunk: 2.4,
     },
   );
-  gen.place(
+  g.place(
     "large mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
@@ -917,7 +917,7 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "mossy_bush",
     PlacerStage::Sand,
     placer::Scatter {
@@ -931,11 +931,11 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
       attempts:    150,
     },
   );
-  gen.place(
+  g.place(
     "bushes",
     PlacerStage::Tree,
     placer::BushClumps {
-      place_above: gen.top_block().into(),
+      place_above: g.top_block().into(),
       log:         block![log],
       leaves:      block![leaves[variant = "oak", decayable = false]],
 
@@ -946,14 +946,14 @@ pub fn mossy_shores(gen: &mut BiomeBuilder) {
 }
 
 // EFFECTS
-fn ground(gen: &mut BiomeBuilder) {
-  gen.set_top_block(block![grass]);
-  gen.add_layer(block![dirt], 2, 5);
-  gen.set_underwater_block(block![gravel]);
+fn ground(g: &mut BiomeBuilder) {
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 2, 5);
+  g.set_underwater_block(block![gravel]);
 }
 
-fn evergreen_grass(gen: &mut BiomeBuilder) {
-  gen.place(
+fn evergreen_grass(g: &mut BiomeBuilder) {
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -969,7 +969,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -985,7 +985,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
@@ -1006,7 +1006,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall ferns",
     PlacerStage::Tree,
     placer::GrassClumps {
@@ -1026,7 +1026,7 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
       avg_per_chunk: 3.0,
     },
   );
-  gen.place(
+  g.place(
     "little brown mushrooms",
     PlacerStage::Tree,
     placer::Scatter {
@@ -1037,8 +1037,8 @@ fn evergreen_grass(gen: &mut BiomeBuilder) {
   );
 }
 
-fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
-  gen.place(
+fn windswept_evergreen_grass(g: &mut BiomeBuilder) {
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -1054,7 +1054,7 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -1070,7 +1070,7 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
@@ -1091,7 +1091,7 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall ferns",
     PlacerStage::Tree,
     placer::GrassClumps {
@@ -1113,8 +1113,8 @@ fn windswept_evergreen_grass(gen: &mut BiomeBuilder) {
   );
 }
 
-fn river_mass_placer(gen: &mut BiomeBuilder) {
-  gen.place(
+fn river_mass_placer(g: &mut BiomeBuilder) {
+  g.place(
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
@@ -1127,7 +1127,7 @@ fn river_mass_placer(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "underwater sand",
     PlacerStage::Sand,
     placer::WaterResources {

@@ -6,13 +6,13 @@ use crate::builder::PlacerStage;
 
 use super::BiomeBuilder;
 
-pub fn flat_desert(gen: &mut BiomeBuilder) {
-  gen.id = biome![desert];
-  gen.color = "#E0705F";
-  gen.set_top_block(block![sand]);
-  gen.add_layer(block![sandstone], 5, 8);
+pub fn flat_desert(g: &mut BiomeBuilder) {
+  g.id = biome![desert];
+  g.color = "#E0705F";
+  g.set_top_block(block![sand]);
+  g.add_layer(block![sandstone], 5, 8);
 
-  gen.place(
+  g.place(
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
@@ -24,13 +24,13 @@ pub fn flat_desert(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn lush_desert(gen: &mut BiomeBuilder) {
-  gen.id = biome![desert];
-  gen.color = "#D14A3F";
-  gen.set_top_block(block![sand]);
-  gen.add_layer(block![sandstone], 5, 8);
+pub fn lush_desert(g: &mut BiomeBuilder) {
+  g.id = biome![desert];
+  g.color = "#D14A3F";
+  g.set_top_block(block![sand]);
+  g.add_layer(block![sandstone], 5, 8);
 
-  gen.place(
+  g.place(
     "trees",
     PlacerStage::Tree,
     placer::BasicDryBush {
@@ -41,7 +41,7 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
@@ -52,7 +52,7 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "cactus blue",
     PlacerStage::Tree,
     placer::Scatter {
@@ -62,7 +62,7 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "cactus red",
     PlacerStage::Tree,
     placer::Scatter {
@@ -73,14 +73,14 @@ pub fn lush_desert(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn bad_lands(gen: &mut BiomeBuilder) {
-  gen.id = biome![mesa];
-  gen.color = "#C74538";
-  gen.set_top_block(block![hardened_clay]);
+pub fn bad_lands(g: &mut BiomeBuilder) {
+  g.id = biome![mesa];
+  g.color = "#C74538";
+  g.set_top_block(block![hardened_clay]);
 }
 
-pub fn dune_sea(gen: &mut BiomeBuilder) {
-  gen.id = biome![desert];
-  gen.color = "#EA7468";
-  gen.set_top_block(block![sand]);
+pub fn dune_sea(g: &mut BiomeBuilder) {
+  g.id = biome![desert];
+  g.color = "#EA7468";
+  g.set_top_block(block![sand]);
 }

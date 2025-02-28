@@ -7,23 +7,23 @@ use crate::builder::PlacerStage;
 
 use super::BiomeBuilder;
 
-pub fn cherry_blossom_river(gen: &mut BiomeBuilder) {
+pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
   println!("hey neil, hey neil, how you doing?");
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#A3B5A0";
-  gen.set_top_block(block![grass]);
+  g.id = biome![birch_forest_hills];
+  g.color = "#A3B5A0";
+  g.set_top_block(block![grass]);
 
-  gen.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new());
-  gen.place(
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new());
+  g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
     placer::BambooClump {
       attempts:      10,
       avg_per_chunk: 3.0,
-      place_above:   gen.top_block().into(),
+      place_above:   g.top_block().into(),
       radius:        1..=4,
       bamboo:        placer::Bamboo {
-        place_above:  gen.top_block().into(),
+        place_above:  g.top_block().into(),
         stalk:        block![rgen:bamboo],
         pint_size:    true,
         avg_in_chunk: 0.0,
@@ -31,7 +31,7 @@ pub fn cherry_blossom_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -41,11 +41,11 @@ pub fn cherry_blossom_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
       place_tall_upper: block![double_plant[half = "upper"]],
@@ -56,11 +56,11 @@ pub fn cherry_blossom_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "Lilac",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "syringa"]],
       place_tall_upper: block![double_plant[half = "upper"]],
@@ -72,12 +72,12 @@ pub fn cherry_blossom_river(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn lavender_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#899781";
-  gen.set_top_block(block![grass]);
+pub fn lavender_river(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#899781";
+  g.set_top_block(block![grass]);
 
-  gen.place(
+  g.place(
     "SmallLavenderScatter",
     PlacerStage::Tree,
     placer::LavenderScatter {
@@ -87,7 +87,7 @@ pub fn lavender_river(gen: &mut BiomeBuilder) {
       place:       block![rgen:lavender_plant],
     },
   );
-  gen.place(
+  g.place(
     "LargeLavenderScatter",
     PlacerStage::Tree,
     placer::LavenderScatter {
@@ -98,41 +98,41 @@ pub fn lavender_river(gen: &mut BiomeBuilder) {
     },
   );
 }
-pub fn volcano_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![plains];
-  gen.color = "#899781";
-  gen.set_top_block(block![grass]);
-  gen.add_layer(block![rgen:basalt], 5, 8);
-  gen.add_underwater_layer(block![rgen:basalt], 3, 4);
+pub fn volcano_river(g: &mut BiomeBuilder) {
+  g.id = biome![plains];
+  g.color = "#899781";
+  g.set_top_block(block![grass]);
+  g.add_layer(block![rgen:basalt], 5, 8);
+  g.add_underwater_layer(block![rgen:basalt], 3, 4);
 
-  gen.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new());
-  gen.place(
+  g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new());
+  g.place(
     "basalt_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![rgen:basalt],
       radius:        2..=4,
       avg_per_chunk: 1.0,
     },
   );
-  gen.place(
+  g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
     placer::BambooClump {
       attempts:      1,
       avg_per_chunk: 1.0,
-      place_above:   gen.top_block().into(),
+      place_above:   g.top_block().into(),
       radius:        1..=2,
       bamboo:        placer::Bamboo {
-        place_above:  gen.top_block().into(),
+        place_above:  g.top_block().into(),
         stalk:        block![rgen:bamboo],
         pint_size:    true,
         avg_in_chunk: 0.0,
       },
     },
   );
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -142,11 +142,11 @@ pub fn volcano_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
       place_tall_upper: block![double_plant[half = "upper"]],
@@ -157,7 +157,7 @@ pub fn volcano_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {

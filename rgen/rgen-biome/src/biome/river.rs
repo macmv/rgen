@@ -3,8 +3,8 @@ use rgen_base::{biome, block};
 use super::BiomeBuilder;
 
 #[allow(dead_code)]
-pub fn river(gen: &mut BiomeBuilder) {
-  gen.id = biome![river];
-  gen.color = "#76B49C";
-  gen.set_top_block(block![grass]);
+pub fn river(g: &mut BiomeBuilder) {
+  g.id = biome![river];
+  g.color = "#76B49C";
+  g.set_top_block(block![grass]);
 }

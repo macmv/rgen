@@ -5,14 +5,14 @@ use crate::builder::PlacerStage;
 
 use super::super::BiomeBuilder;
 
-pub fn birch_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#768A6A";
-  gen.set_top_block(block![grass]);
+pub fn birch_river(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#768A6A";
+  g.set_top_block(block![grass]);
 
-  gen.place("Basalt Pillar", PlacerStage::Tree, placer::RiverSide::new());
+  g.place("Basalt Pillar", PlacerStage::Tree, placer::RiverSide::new());
 
-  gen.place(
+  g.place(
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -26,7 +26,7 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
       shroom:         block![rgen:polypore],
     },
   );
-  gen.place(
+  g.place(
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
@@ -40,7 +40,7 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -49,7 +49,7 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
       place:       block![tallgrass[type = "fern"]],
     },
   );
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -60,12 +60,12 @@ pub fn birch_river(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn birch_woodland(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.color = "#768A6A";
-  gen.set_top_block(block![grass]);
+pub fn birch_woodland(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.color = "#768A6A";
+  g.set_top_block(block![grass]);
 
-  gen.place(
+  g.place(
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -79,7 +79,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
       shroom:         block![rgen:polypore],
     },
   );
-  gen.place(
+  g.place(
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
@@ -93,7 +93,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "mossy carpet",
     PlacerStage::Sand2,
     placer::Spread {
@@ -103,7 +103,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
       avg_per_chunk: 1.0,
     },
   );
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
@@ -112,7 +112,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
       place:       block![tallgrass[type = "fern"]],
     },
   );
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -122,7 +122,7 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "forget me not",
     PlacerStage::Sand2,
     placer::Spread {
@@ -134,14 +134,14 @@ pub fn birch_woodland(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn aspen_wood(gen: &mut BiomeBuilder) {
-  gen.id = biome![birch_forest_hills];
-  gen.set_top_block(block![grass]);
-  gen.color = "#B0C2A5";
+pub fn aspen_wood(g: &mut BiomeBuilder) {
+  g.id = biome![birch_forest_hills];
+  g.set_top_block(block![grass]);
+  g.color = "#B0C2A5";
 
-  gen.place("Aspen Tree", PlacerStage::Tree, placer::AspenTree::new());
+  g.place("Aspen Tree", PlacerStage::Tree, placer::AspenTree::new());
 
-  gen.place(
+  g.place(
     "birch log",
     PlacerStage::Tree,
     placer::LogAndStump {
@@ -157,7 +157,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "bushes",
     PlacerStage::Tree,
     placer::BasicDryBush {
@@ -168,7 +168,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
@@ -177,11 +177,11 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
       place:       block![tallgrass[type = "fern"]],
     },
   );
-  gen.place(
+  g.place(
     "tall grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
       place_tall_upper: block![double_plant[half = "upper"]],
@@ -192,7 +192,7 @@ pub fn aspen_wood(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::Scatter {

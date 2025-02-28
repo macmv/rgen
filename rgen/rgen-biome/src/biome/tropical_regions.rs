@@ -3,16 +3,16 @@ use rgen_base::{biome, block};
 use rgen_placer::placer;
 
 #[allow(dead_code)]
-pub fn plains(gen: &mut BiomeBuilder) {
-  gen.id = biome![plains];
-  gen.color = "#ffffff";
-  gen.set_top_block(block![grass]);
+pub fn plains(g: &mut BiomeBuilder) {
+  g.id = biome![plains];
+  g.color = "#ffffff";
+  g.set_top_block(block![grass]);
 
-  gen.place(
+  g.place(
     "poppy",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block().into(),
+      place_above: g.top_block().into(),
       place:       block![red_flower],
 
       radius:        3..=6,
@@ -21,11 +21,11 @@ pub fn plains(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "dandelion",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block().into(),
+      place_above: g.top_block().into(),
       place:       block![yellow_flower],
 
       radius:        2..=3,
@@ -34,11 +34,11 @@ pub fn plains(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "oxeye_daisy",
     PlacerStage::Tree,
     placer::Clumps {
-      place_above: gen.top_block().into(),
+      place_above: g.top_block().into(),
       place:       block![red_flower[type = "oxeye_daisy"]],
 
       radius:        2..=4,
@@ -47,11 +47,11 @@ pub fn plains(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
       place_tall_upper: block![double_plant[half = "upper"]],
@@ -62,11 +62,11 @@ pub fn plains(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "bushes",
     PlacerStage::Tree,
     placer::BushClumps {
-      place_above: gen.top_block().into(),
+      place_above: g.top_block().into(),
       log:         block![log],
       leaves:      block![leaves],
 

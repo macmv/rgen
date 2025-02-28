@@ -4,15 +4,15 @@ use rgen_placer::placer;
 use crate::{builder::PlacerStage, BiomeBuilder};
 
 #[allow(dead_code)]
-pub fn deep_jungle(gen: &mut BiomeBuilder) {
-  gen.id = biome![jungle];
-  gen.color = "#E0705F";
-  gen.set_top_block(block![grass]);
-  gen.add_layer(block![dirt], 5, 8);
+pub fn deep_jungle(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F";
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
 
-  gen.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::new());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::new());
 
-  gen.place(
+  g.place(
     "Jungle bushes",
     PlacerStage::Tree,
     placer::BushClumps {
@@ -24,11 +24,11 @@ pub fn deep_jungle(gen: &mut BiomeBuilder) {
     },
   );
 
-  gen.place(
+  g.place(
     "Grass",
     PlacerStage::Tree,
     placer::GrassClumps {
-      place_above:      gen.top_block().into(),
+      place_above:      g.top_block().into(),
       place_short:      block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
       place_tall_upper: block![double_plant[half = "upper"]],

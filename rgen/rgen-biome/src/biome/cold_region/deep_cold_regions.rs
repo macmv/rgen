@@ -7,25 +7,25 @@ use rgen_placer::{
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
-pub fn ice_spikes(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#E3F5FC";
-  gen.set_top_block(block![stone]);
+pub fn ice_spikes(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#E3F5FC";
+  g.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
 
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
 
-pub fn deep_snow_beach(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#E3F5FC";
-  gen.set_top_block(block![stone]);
+pub fn deep_snow_beach(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#E3F5FC";
+  g.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
 
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface {
+  g.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(0),
     a:           block![snow_layer],
     add_snow:    2.25,
@@ -33,17 +33,17 @@ pub fn deep_snow_beach(gen: &mut BiomeBuilder) {
     place_above: block![stone].into(),
   });
 
-  gen.place(
+  g.place(
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        2..=5,
       avg_per_chunk: 1.0,
     },
   );
-  gen.place(
+  g.place(
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
@@ -54,13 +54,13 @@ pub fn deep_snow_beach(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn ice_spike_beach(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#E3F5FC";
-  gen.set_top_block(block![stone]);
+pub fn ice_spike_beach(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#E3F5FC";
+  g.set_top_block(block![stone]);
 
-  gen.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface {
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(0),
     a:           block![snow_layer],
     add_snow:    0.75,
@@ -68,17 +68,17 @@ pub fn ice_spike_beach(gen: &mut BiomeBuilder) {
     place_above: [block![stone]].into(),
   });
 
-  gen.place(
+  g.place(
     "gravel_patches",
     PlacerStage::Sand,
     placer::Splotch {
-      replace:       gen.top_block().into(),
+      replace:       g.top_block().into(),
       place:         block![gravel],
       radius:        2..=5,
       avg_per_chunk: 1.0,
     },
   );
-  gen.place(
+  g.place(
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
@@ -89,61 +89,61 @@ pub fn ice_spike_beach(gen: &mut BiomeBuilder) {
   );
 }
 
-pub fn glacier(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#82C5E1";
-  gen.set_top_block(block![packed_ice]);
-  gen.add_layer(block![packed_ice], 20, 25);
+pub fn glacier(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#82C5E1";
+  g.set_top_block(block![packed_ice]);
+  g.add_layer(block![packed_ice], 20, 25);
 
-  gen.place_chunk(chunk_placer::Crevasse::new());
+  g.place_chunk(chunk_placer::Crevasse::new());
 }
 
-pub fn boulder_field(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#6FAFCE";
-  gen.set_top_block(block![stone]);
+pub fn boulder_field(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#6FAFCE";
+  g.set_top_block(block![stone]);
 
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 
-  gen.place(
+  g.place(
     "ice_patches",
     PlacerStage::Sand,
-    placer::Splatter { replace: gen.top_block(), place: block![ice], attempts: 100 },
+    placer::Splatter { replace: g.top_block(), place: block![ice], attempts: 100 },
   );
 }
 
 #[allow(dead_code)]
-pub fn hard_frozen_river(gen: &mut BiomeBuilder) {
-  gen.id = biome![ice_flats];
-  gen.color = "#B2DBEF";
-  gen.set_top_block(block![concrete[color = "gray"]]);
+pub fn hard_frozen_river(g: &mut BiomeBuilder) {
+  g.id = biome![ice_flats];
+  g.color = "#B2DBEF";
+  g.set_top_block(block![concrete[color = "gray"]]);
 
-  gen.place(
+  g.place(
     "stone_patches",
     PlacerStage::Sand,
-    placer::Splatter { replace: gen.top_block(), place: block![cobblestone], attempts: 100 },
+    placer::Splatter { replace: g.top_block(), place: block![cobblestone], attempts: 100 },
   );
 }
 
-pub fn alps(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga_cold];
-  gen.color = "#4E9BB7";
+pub fn alps(g: &mut BiomeBuilder) {
+  g.id = biome![taiga_cold];
+  g.color = "#4E9BB7";
 
-  gen.set_top_block(block![snow_layer[layers = 8]]);
-  gen.add_layer(block![snow], 1, 2);
-  gen.add_layer(block![stone], 4, 5);
+  g.set_top_block(block![snow_layer[layers = 8]]);
+  g.add_layer(block![snow], 1, 2);
+  g.add_layer(block![stone], 4, 5);
 
-  gen.place_chunk(chunk_placer::SnowOnSnowSurface::new());
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place_chunk(chunk_placer::SnowOnSnowSurface::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
 
-pub fn frozen_peak(gen: &mut BiomeBuilder) {
-  gen.id = biome![taiga_cold];
-  gen.color = "#4E9BB7";
+pub fn frozen_peak(g: &mut BiomeBuilder) {
+  g.id = biome![taiga_cold];
+  g.color = "#4E9BB7";
 
-  gen.set_top_block(block![stone]);
+  g.set_top_block(block![stone]);
 
-  gen.place_chunk(chunk_placer::SnowOnStoneSurface::new());
-  gen.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place_chunk(chunk_placer::SnowOnStoneSurface::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
 }
