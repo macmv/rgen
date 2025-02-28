@@ -38,11 +38,7 @@ pub fn init() {
       struct LineOpt(Option<u32>);
       impl fmt::Display for LineOpt {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-          if let Some(line) = self.0 {
-            write!(f, ":{}", line)
-          } else {
-            Ok(())
-          }
+          if let Some(line) = self.0 { write!(f, ":{}", line) } else { Ok(()) }
         }
       }
 

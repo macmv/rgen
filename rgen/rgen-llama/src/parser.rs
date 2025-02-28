@@ -194,11 +194,7 @@ impl<'a> Parser<'a> {
       self.next();
     }
 
-    if start == self.pos {
-      None
-    } else {
-      Some(self.input[start..self.pos].into())
-    }
+    if start == self.pos { None } else { Some(self.input[start..self.pos].into()) }
   }
 
   #[track_caller]

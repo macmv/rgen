@@ -1,4 +1,4 @@
-use rgen_base::{block, Pos};
+use rgen_base::{Pos, block};
 
 #[test]
 fn parse_house() {

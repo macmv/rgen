@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Result, Rng};
+use crate::{Placer, Result, Rng, rng::Random};
 
 /// Creates spreads(cirlcesish) of blocks 1 above the ground level.
 pub struct Spread {

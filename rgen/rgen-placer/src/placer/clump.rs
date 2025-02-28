@@ -1,9 +1,9 @@
 use std::ops::RangeInclusive;
 
-use rgen_base::{block, BlockFilter, BlockState, Pos};
+use rgen_base::{BlockFilter, BlockState, Pos, block};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Result, Rng};
+use crate::{Placer, Result, Rng, rng::Random};
 
 pub struct Clumps {
   pub place_above: BlockFilter,

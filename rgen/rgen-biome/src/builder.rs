@@ -1,7 +1,7 @@
-use rgen_base::{block, Biome, BlockState, ChunkPos, Pos};
-use rgen_placer::{grid::PointGrid, BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng};
+use rgen_base::{Biome, BlockState, ChunkPos, Pos, block};
+use rgen_placer::{BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng, grid::PointGrid};
 use rgen_world::PartialWorld;
-use smallvec::{smallvec, SmallVec};
+use smallvec::{SmallVec, smallvec};
 
 pub enum PlacerStage {
   Sand,

@@ -1,7 +1,7 @@
 use rgen_base::{BlockState, Pos};
 use std::ops::RangeInclusive;
 
-use crate::{grid::PointGrid, ChunkPlacer, Random, Rng};
+use crate::{ChunkPlacer, Random, Rng, grid::PointGrid};
 
 pub struct Ore {
   pub ore:           BlockState,

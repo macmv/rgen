@@ -52,11 +52,7 @@ impl Placer for LongLog {
 
     let Some((dx, dz, length)) = dirs.iter().find_map(|&(dx, dz)| {
       let length = rng.rand_inclusive(4, 5);
-      if self.is_buildable(world, pos, dx, dz, length) {
-        Some((dx, dz, length))
-      } else {
-        None
-      }
+      if self.is_buildable(world, pos, dx, dz, length) { Some((dx, dz, length)) } else { None }
     }) else {
       return Err(UndoError);
     };

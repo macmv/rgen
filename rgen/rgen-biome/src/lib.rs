@@ -1,12 +1,11 @@
 use cave::CaveCarver;
-use rgen_base::{block, Chunk, ChunkPos, ChunkRelPos, Pos, StateId};
+use rgen_base::{Chunk, ChunkPos, ChunkRelPos, Pos, StateId, block};
 use rgen_placer::{
-  chunk_placer,
+  BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome, chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
     ShiftedNoise, VoronoiNoise,
   },
-  BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome,
 };
 use rgen_spline::{Cosine, Spline};
 use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
@@ -230,11 +229,7 @@ impl WorldBiomes {
 
     // So, return a value from 0.0 to 1.0 for the range 0.0 to 0.16, so that
     // caves can smooth the transition over to rivers.
-    if distance_to_river > 0.16 {
-      1.0
-    } else {
-      distance_to_river / 0.16
-    }
+    if distance_to_river > 0.16 { 1.0 } else { distance_to_river / 0.16 }
   }
 
   pub fn sample_height(&self, pos: Pos) -> f64 {

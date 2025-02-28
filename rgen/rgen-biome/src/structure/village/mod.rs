@@ -1,7 +1,7 @@
 use math::Direction;
-use rgen_base::{block, block_kind, BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos};
+use rgen_base::{BlockFilter, BlockState, Chunk, ChunkPos, ChunkRelPos, Pos, block, block_kind};
 use rgen_llama::Structure;
-use rgen_placer::{grid::PointGrid, Random, Rng};
+use rgen_placer::{Random, Rng, grid::PointGrid};
 use rgen_world::PartialWorld;
 
 mod building;

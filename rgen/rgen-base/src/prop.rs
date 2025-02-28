@@ -236,11 +236,7 @@ impl PropMapOwned {
 
   pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue)> + '_ {
     self.entries.iter().filter_map(|(key, value)| {
-      if key.is_empty() {
-        None
-      } else {
-        Some((&**key, value.as_value()))
-      }
+      if key.is_empty() { None } else { Some((&**key, value.as_value())) }
     })
   }
 

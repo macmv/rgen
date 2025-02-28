@@ -22,7 +22,7 @@ use world::World;
 
 use crate::{
   queue::RenderQueue,
-  region::{RegionPos, REGION_SIZE},
+  region::{REGION_SIZE, RegionPos},
   render::{FontRender, Render},
   view::WorldViewer,
 };

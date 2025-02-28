@@ -2,8 +2,8 @@ use rgen_base::{BlockFilter, BlockState, ChunkRelPos, Pos};
 use rgen_spline::{Cosine, Spline};
 
 use crate::{
-  noise::{NoiseGenerator, OctavedNoise, OpenSimplexNoise},
   BiomeCachedChunk, ChunkPlacer,
+  noise::{NoiseGenerator, OctavedNoise, OpenSimplexNoise},
 };
 
 pub struct Crevasse {

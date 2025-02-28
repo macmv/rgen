@@ -41,11 +41,7 @@ impl PointGrid {
     (min_x.floor() as i32..=max_x.ceil() as i32).flat_map(move |x| {
       (min_y.floor() as i32..=max_y.ceil() as i32).filter_map(move |y| {
         let p = self.point_in_square(seed, x, y);
-        if p.0 >= min_x && p.0 <= max_x && p.1 >= min_y && p.1 <= max_y {
-          Some(p)
-        } else {
-          None
-        }
+        if p.0 >= min_x && p.0 <= max_x && p.1 >= min_y && p.1 <= max_y { Some(p) } else { None }
       })
     })
   }

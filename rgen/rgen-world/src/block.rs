@@ -33,11 +33,7 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
   }
 
   fn surfaces(&self, pos: Pos) -> &[u8] {
-    if let Some(chunk) = self.chunk(pos.chunk()) {
-      chunk.surfaces(pos.chunk_rel())
-    } else {
-      &[]
-    }
+    if let Some(chunk) = self.chunk(pos.chunk()) { chunk.surfaces(pos.chunk_rel()) } else { &[] }
   }
 }
 

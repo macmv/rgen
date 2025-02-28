@@ -1,7 +1,7 @@
 use rgen_base::{biome, block};
 use rgen_placer::placer;
 
-use crate::{builder::PlacerStage, BiomeBuilder};
+use crate::{BiomeBuilder, builder::PlacerStage};
 
 #[allow(dead_code)]
 pub fn deep_jungle(g: &mut BiomeBuilder) {

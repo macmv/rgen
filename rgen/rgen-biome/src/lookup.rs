@@ -5,9 +5,9 @@ use rgen_base::Pos;
 use rgen_placer::noise::NoiseGenerator;
 
 use crate::{
-  builder::BiomeBuilder,
-  table::{ClimateType, GeographicType, CLIMATE_TABLE},
   WorldBiomes,
+  builder::BiomeBuilder,
+  table::{CLIMATE_TABLE, ClimateType, GeographicType},
 };
 
 #[derive(Debug)]

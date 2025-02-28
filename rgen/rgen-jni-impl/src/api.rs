@@ -3,9 +3,9 @@
 use std::cell::RefCell;
 
 use jni::{
+  JNIEnv,
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobject, jobjectArray, jstring},
-  JNIEnv,
 };
 use rgen_world::PartialWorldStorage;
 

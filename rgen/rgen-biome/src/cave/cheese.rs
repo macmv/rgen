@@ -1,4 +1,4 @@
-use rgen_base::{block, Chunk, ChunkPos, Pos, StateId};
+use rgen_base::{Chunk, ChunkPos, Pos, StateId, block};
 use rgen_placer::noise::{NoiseGenerator3D, OctavedNoise, PerlinNoise};
 use rgen_world::BlockInfoSupplier;
 

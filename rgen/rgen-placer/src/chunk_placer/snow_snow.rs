@@ -1,8 +1,8 @@
 use rgen_base::{BlockFilter, BlockState, ChunkRelPos};
 
 use crate::{
-  noise::{NoiseGenerator, OpenSimplexNoise, SeededNoise},
   BiomeCachedChunk, ChunkPlacer, Random,
+  noise::{NoiseGenerator, OpenSimplexNoise, SeededNoise},
 };
 
 pub struct SnowOnSnowSurface {

@@ -22,7 +22,7 @@ impl Chunk {
     // vec![0; 65536].into_boxed_slice() does the same thing, but it builds the
     // whole thing on the stack first in debug mode.
     let data = unsafe {
-      use std::alloc::{alloc_zeroed, Layout};
+      use std::alloc::{Layout, alloc_zeroed};
 
       let layout = Layout::array::<u16>(65536).unwrap();
       // Pointer casts from a *mut u8 to a *mut u16. This is safe because the layout
@@ -45,11 +45,7 @@ impl Chunk {
   }
 
   pub fn get(&self, pos: ChunkRelPos) -> StateId {
-    if pos_in_world(pos) {
-      StateId(self.data[pos_to_index(pos)])
-    } else {
-      StateId::AIR
-    }
+    if pos_in_world(pos) { StateId(self.data[pos_to_index(pos)]) } else { StateId::AIR }
   }
 
   pub fn data(&self) -> &[u16] { &self.data }

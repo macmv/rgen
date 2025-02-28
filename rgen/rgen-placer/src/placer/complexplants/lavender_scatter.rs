@@ -1,7 +1,7 @@
 use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::PartialWorld;
 
-use crate::{rng::Random, Placer, Result, Rng};
+use crate::{Placer, Result, Rng, rng::Random};
 
 pub struct LavenderScatter {
   pub place_above: BlockFilter,

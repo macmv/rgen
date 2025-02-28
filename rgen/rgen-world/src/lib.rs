@@ -4,8 +4,8 @@ use std::{collections::HashMap, sync::Arc};
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock};
 use rgen_base::{
-  block_kind, Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMapOwned,
-  PropType, PropValueOwned, StateId,
+  Biome, BiomeId, BlockData, BlockId, BlockKind, Chunk, ChunkPos, Pos, PropMapOwned, PropType,
+  PropValueOwned, StateId, block_kind,
 };
 
 mod block;
@@ -175,16 +175,20 @@ impl CachedWorld {
       let ctx = ctx.clone();
       let generator = generator.clone();
 
-      std::thread::spawn(move || loop {
-        slf.work(&ctx, generator.as_ref());
+      std::thread::spawn(move || {
+        loop {
+          slf.work(&ctx, generator.as_ref());
+        }
       });
     }
 
     // spawn up a GC thread to run every 10 seconds.
     let slf = self.clone();
-    std::thread::spawn(move || loop {
-      std::thread::sleep(std::time::Duration::from_secs(10));
-      slf.gc();
+    std::thread::spawn(move || {
+      loop {
+        std::thread::sleep(std::time::Duration::from_secs(10));
+        slf.gc();
+      }
     });
   }
 

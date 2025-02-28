@@ -8,11 +8,11 @@ use rgen_placer::noise::{
 };
 
 use crate::{
+  RenderMode,
   color::Color,
-  region::{RegionPos, REGION_SIZE},
+  region::{REGION_SIZE, RegionPos},
   render::RenderBuffer,
   world::World,
-  RenderMode,
 };
 
 pub struct WorldViewer {

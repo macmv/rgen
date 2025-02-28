@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use jni::{
-  objects::{JObject, JObjectArray, JValue},
   JNIEnv,
+  objects::{JObject, JObjectArray, JValue},
 };
 use rgen_base::{
   Biome, BiomeId, BlockData, BlockId, BlockKind, PropMapOwned, PropType, PropValueOwned,

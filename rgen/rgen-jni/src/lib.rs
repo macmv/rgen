@@ -6,11 +6,11 @@
 use std::{ffi::CStr, process::Command};
 
 use jni::{
+  JNIEnv,
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobject, jobjectArray, jstring},
-  JNIEnv,
 };
-use libc::{c_void, dlclose, dlerror, dlmopen, dlsym, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW};
+use libc::{LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW, c_void, dlclose, dlerror, dlmopen, dlsym};
 use parking_lot::RwLock;
 
 const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/..");

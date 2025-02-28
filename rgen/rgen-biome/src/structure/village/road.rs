@@ -9,13 +9,7 @@ pub struct Road {
 }
 
 impl Road {
-  pub fn axis(&self) -> Axis {
-    if self.start.x == self.end.x {
-      Axis::Z
-    } else {
-      Axis::X
-    }
-  }
+  pub fn axis(&self) -> Axis { if self.start.x == self.end.x { Axis::Z } else { Axis::X } }
 
   /// Returns the minimum center of this road. Note that the bounding box
   /// extends beyond this position.
