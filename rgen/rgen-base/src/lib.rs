@@ -1,7 +1,6 @@
 mod biome;
 mod block;
 mod chunk;
-pub mod feature;
 mod filter;
 mod iter;
 mod pos;

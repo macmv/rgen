@@ -7,6 +7,7 @@ use rgen_placer::noise::NoiseGenerator;
 use crate::{
   WorldBiomes,
   builder::BiomeBuilder,
+  feature,
   table::{CLIMATE_TABLE, ClimateType, GeographicType},
 };
 
@@ -173,8 +174,8 @@ impl WorldBiomes {
     profile_function!();
 
     BiomeKey {
-      geographic: self.geographic_type(pos),
-      climate:    /* self.climate_type(pos) */ ClimateType::Tropical, /* ClimateType option */
+      geographic: feature::GEOGRAPHIC_TYPE_OVERRIDE.unwrap_or_else(|| self.geographic_type(pos)),
+      climate:    feature::CLIMATE_TYPE_OVERRIDE.unwrap_or_else(|| self.climate_type(pos)),
       variance:   self.variance(pos),
     }
   }

@@ -1,5 +1,5 @@
 use cave::CaveCarver;
-use rgen_base::{Chunk, ChunkPos, ChunkRelPos, Pos, StateId, block, feature};
+use rgen_base::{Chunk, ChunkPos, ChunkRelPos, Pos, StateId, block};
 use rgen_placer::{
   BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome, chunk_placer,
   noise::{
@@ -15,6 +15,7 @@ use table::CompositionLookup;
 mod biome;
 mod builder;
 mod cave;
+mod feature;
 mod lookup;
 mod structure;
 mod table;
