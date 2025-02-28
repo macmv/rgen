@@ -1,5 +1,5 @@
 use cave::CaveCarver;
-use rgen_base::{Chunk, ChunkPos, ChunkRelPos, Pos, StateId, block};
+use rgen_base::{Chunk, ChunkPos, ChunkRelPos, Pos, StateId, block, feature};
 use rgen_placer::{
   BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome, chunk_placer,
   noise::{
@@ -132,8 +132,6 @@ lazy_static::lazy_static! {
   ]);
 }
 
-const VILLAGES: bool = false;
-
 impl WorldBiomes {
   pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
@@ -246,13 +244,11 @@ impl WorldBiomes {
   }
 }
 
-const DEBUG_ORES: bool = false;
-
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     profile_function!();
 
-    if DEBUG_ORES && (0..=8).contains(&chunk_pos.x()) {
+    if feature::DEBUG_ORES && (0..=8).contains(&chunk_pos.x()) {
       return;
     }
 
@@ -263,7 +259,7 @@ impl Generator for WorldBiomes {
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
     self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
-    if VILLAGES {
+    if feature::VILLAGES {
       self.structure.generate(&ctx.blocks, chunk, chunk_pos);
     }
   }
@@ -271,14 +267,14 @@ impl Generator for WorldBiomes {
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     profile_function!();
 
-    if DEBUG_ORES && (-1..=9).contains(&chunk_pos.x()) {
+    if feature::DEBUG_ORES && (-1..=9).contains(&chunk_pos.x()) {
       return;
     }
 
     // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
     // anything.
 
-    if VILLAGES {
+    if feature::VILLAGES {
       self.structure.decorate(world, chunk_pos);
     }
 
