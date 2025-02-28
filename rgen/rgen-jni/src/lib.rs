@@ -45,21 +45,23 @@ macro_rules! functions {
 
     impl Symbols {
       unsafe fn load(handle: *mut c_void) -> Self {
-        Self {
-          handle,
+        unsafe {
+          Self {
+            handle,
 
-          #[allow(clippy::missing_transmute_annotations)]
-          rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
-          #[allow(clippy::missing_transmute_annotations)]
-          rgen_deinit: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_deinit\0"))),
-
-          #[allow(clippy::missing_transmute_annotations)]
-          Java_net_macmv_rgen_rust_RustGenerator_init: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"Java_net_macmv_rgen_rust_RustGenerator_init\0"))),
-
-          $(
             #[allow(clippy::missing_transmute_annotations)]
-            $name: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(concat!(stringify!($name), "\0").as_bytes()))),
-          )*
+            rgen_get_seed: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_get_seed\0"))),
+            #[allow(clippy::missing_transmute_annotations)]
+            rgen_deinit: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"rgen_deinit\0"))),
+
+            #[allow(clippy::missing_transmute_annotations)]
+            Java_net_macmv_rgen_rust_RustGenerator_init: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(b"Java_net_macmv_rgen_rust_RustGenerator_init\0"))),
+
+            $(
+              #[allow(clippy::missing_transmute_annotations)]
+              $name: std::mem::transmute(sym(handle, CStr::from_bytes_with_nul_unchecked(concat!(stringify!($name), "\0").as_bytes()))),
+            )*
+          }
         }
       }
     }
