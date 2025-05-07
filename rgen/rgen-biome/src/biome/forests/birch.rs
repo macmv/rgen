@@ -30,13 +30,12 @@ pub fn birch_river(g: &mut BiomeBuilder) {
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
-      trunk:            block![log[variant = "birch"]],
-      leaves:           block![leaves[variant = "birch"]],
-      avg_per_chunk:    5.0,
-      is_shrooms:       true,
-      chance_of_shroom: 100.0,
-      shroom:           block![rgen:polypore[type = "one"]],
-      ground:           block![grass],
+      trunk:         block![log[variant = "birch"]],
+      leaves:        block![leaves[variant = "birch"]],
+      avg_per_chunk: 5.0,
+      is_shrooms:    true,
+      shroom:        block![rgen:polypore[type = "one"]],
+      ground:        block![grass],
     },
   );
 
@@ -85,13 +84,12 @@ pub fn birch_woodland(g: &mut BiomeBuilder) {
     "basic birch tree",
     PlacerStage::Tree,
     placer::BasicBirch {
-      trunk:            block![log[variant = "birch"]],
-      leaves:           block![leaves[variant = "birch"]],
-      avg_per_chunk:    12.0,
-      is_shrooms:       true,
-      chance_of_shroom: 100.0,
-      shroom:           block![rgen:polypore[type = "one"]],
-      ground:           block![grass],
+      trunk:         block![log[variant = "birch"]],
+      leaves:        block![leaves[variant = "birch"]],
+      avg_per_chunk: 12.0,
+      is_shrooms:    true,
+      shroom:        block![rgen:polypore[type = "one"]],
+      ground:        block![grass],
     },
   );
 

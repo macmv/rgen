@@ -4,13 +4,12 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct BasicBirch {
-  pub trunk:            BlockState,
-  pub leaves:           BlockState,
-  pub avg_per_chunk:    f64,
-  pub is_shrooms:       bool,
-  pub chance_of_shroom: f64,
-  pub shroom:           BlockState,
-  pub ground:           BlockState,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
+  pub is_shrooms:    bool,
+  pub shroom:        BlockState,
+  pub ground:        BlockState,
 }
 
 impl Placer for BasicBirch {
