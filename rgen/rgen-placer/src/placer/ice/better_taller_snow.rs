@@ -7,7 +7,6 @@ pub struct BetterTallerSnow {
   pub block:         BlockFilter,
   pub snow:          BlockState,
   pub ice:           BlockState,
-  pub debug:         BlockState,
   pub avg_per_chunk: f64,
 }
 
@@ -17,7 +16,6 @@ impl BetterTallerSnow {
       block:         [block![snow_layer]].into(),
       snow:          block![snow_layer],
       ice:           block![packed_ice],
-      debug:         block![concrete[5]],
       avg_per_chunk: 2.0,
     }
   }
@@ -103,6 +101,5 @@ impl BetterTallerSnow {
       level += 1;
     }
     world.set(pos + Pos::new(0, level, 0), self.snow.with_data(height));
-    //rld.set(pos + Pos::new(0, 15, 0), self.debug);
   }
 }
