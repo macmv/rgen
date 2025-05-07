@@ -90,7 +90,7 @@ impl Placer for Pool {
             return Err(UndoError);
           }
           if world.get(level_pos + Pos::new(x as i32, 1, z as i32)) != BlockState::AIR
-            && rng.rand_inclusive(0, 8) == 0
+            && rng.range(0..=8) == 0
           {
             return Err(UndoError);
           }
@@ -106,14 +106,14 @@ impl Placer for Pool {
         //
         if *cell == 0 {
           world.set(level_pos + Pos::new(x as i32, 0, z as i32), block![water]);
-          if rng.rand_inclusive(0, 1) == 0 {
+          if rng.range(0..=1) == 0 {
             world.set(level_pos + Pos::new(x as i32, -1, z as i32), self.clay);
           }
           //water
         } else if *cell == 1 {
-          if rng.rand_inclusive(0, 5) == 0 {
+          if rng.range(0..=5) == 0 {
             world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.moss);
-            if rng.rand_inclusive(0, 2) == 0
+            if rng.range(0..=2) == 0
               && world.get(level_pos + Pos::new(x as i32, 1, z as i32)) == BlockState::AIR
             {
               world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);
@@ -121,7 +121,7 @@ impl Placer for Pool {
           } else {
             world.set(level_pos + Pos::new(x as i32, 0, z as i32), self.stone);
           }
-          if rng.rand_inclusive(0, 8) == 0
+          if rng.range(0..=8) == 0
             && world.get(level_pos + Pos::new(x as i32, 1, z as i32)) == BlockState::AIR
           {
             world.set(level_pos + Pos::new(x as i32, 1, z as i32), self.moss_carpet);

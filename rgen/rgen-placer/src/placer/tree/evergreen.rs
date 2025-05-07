@@ -37,7 +37,7 @@ impl Placer for EverGreen {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(9, 11);
+    let height = rng.range(9..=11);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -89,7 +89,7 @@ impl EverGreen {
     }
 
     // Adds a small bottom ring to the bottom of the standard spruce
-    if rng.rand_inclusive(1, 5) == 1 {
+    if rng.range(1..=5) == 1 {
       pos = pos + Pos::new(0, -1, 0);
       self.build_disk(world, &mut pos, rng, 1);
     }
@@ -108,13 +108,13 @@ impl EverGreen {
   }
 
   fn build_fat_spruce(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
-    for _ in 0..=rng.rand_inclusive(0, 1) {
+    for _ in 0..=rng.range(0..=1) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
 
     // Adds a small bottom ring to the bottom of the standard spruce
-    if rng.rand_inclusive(1, 5) == 1 {
+    if rng.range(1..=5) == 1 {
       self.build_disk(world, &mut pos, rng, 1);
     }
     // Builds the main standrd rings
@@ -134,7 +134,7 @@ impl EverGreen {
     rng: &mut Rng,
     is_tall: bool,
   ) {
-    for _ in 0..=rng.rand_inclusive(1, 2) {
+    for _ in 0..=rng.range(1..=2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -156,7 +156,7 @@ impl EverGreen {
   }
 
   fn build_tall_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
-    for _ in 0..=rng.rand_inclusive(1, 2) {
+    for _ in 0..=rng.range(1..=2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -171,7 +171,7 @@ impl EverGreen {
   }
 
   fn build_fat_fir(&self, world: &mut PartialWorld, mut pos: Pos, rng: &mut Rng) {
-    for _ in 0..=rng.rand_inclusive(1, 2) {
+    for _ in 0..=rng.range(1..=2) {
       world.set(pos, self.trunk);
       pos = pos + Pos::new(0, 1, 0);
     }
@@ -195,8 +195,7 @@ impl EverGreen {
           if world.get(pos + Pos::new(x, 0, z)) == block![air] {
             world.set(pos + Pos::new(x, 0, z), self.leaves);
           }
-        } else if rng.rand_inclusive(0, 7) == 0 && world.get(pos + Pos::new(x, 0, z)) == block![air]
-        {
+        } else if rng.range(0..=7) == 0 && world.get(pos + Pos::new(x, 0, z)) == block![air] {
           world.set(pos + Pos::new(x, 0, z), self.leaves);
         }
       }
@@ -206,7 +205,7 @@ impl EverGreen {
     for x in -1i32..=1 {
       for z in -1i32..=1 {
         if !(x.abs() == 1 && (z.abs() == 1))
-          && rng.rand_inclusive(0, 1) == 0
+          && rng.range(0..=1) == 0
           && world.get(pos + Pos::new(x, 0, z)) == block![air]
         {
           world.set(pos + Pos::new(x, 0, z), self.leaves);
@@ -309,7 +308,7 @@ impl EverGreen {
   fn build_fir_spacer(&self, world: &mut PartialWorld, pos: &mut Pos, rng: &mut Rng) {
     for x in -1..=1 {
       for z in -1..=1 {
-        if rng.rand_inclusive(0, 1) == 0 && world.get(*pos + Pos::new(x, 0, z)) == block![air] {
+        if rng.range(0..=1) == 0 && world.get(*pos + Pos::new(x, 0, z)) == block![air] {
           world.set(*pos + Pos::new(x, 0, z), self.leaves);
         }
       }

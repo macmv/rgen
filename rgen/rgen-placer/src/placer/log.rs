@@ -64,9 +64,9 @@ impl LogAndStump {
           if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
             continue;
           }
-          if rng.rand_exclusive(0, 9) < 3 {
+          if rng.range(0..9) < 3 {
             //sets mushroom varients (this is exclusive so state 0, 1, or 2)
-            let mut mushroom_state = rng.rand_exclusive(0, 3) as u8;
+            let mut mushroom_state = rng.range(0..3) as u8;
 
             // Clears the rotation rotation -> 00, block kind -> 11 // no longer nessesary
             mushroom_state &= 0b0011;
@@ -106,7 +106,7 @@ impl LogAndStump {
 
     for (dx, dz) in dirs {
       let mut buildable = true;
-      let length = rng.rand_inclusive(4, 6);
+      let length = rng.range(4..=6);
       let pos_st = pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2)));
       let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
       if (world.get(pos_st) != block![air])
@@ -132,7 +132,7 @@ impl LogAndStump {
           let i_pos = pos + Pos::new(i * dx, 0, i * dz);
 
           let log_block =
-            if self.chance_of_moss < rng.rand_inclusive(0, 10) { self.moss_log } else { self.log };
+            if self.chance_of_moss < rng.range(0..=10) { self.moss_log } else { self.log };
           let mut log_state = log_block.state.state().unwrap_or_default();
 
           log_state &= 0b0011; //reset

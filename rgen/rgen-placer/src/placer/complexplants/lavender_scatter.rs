@@ -18,8 +18,7 @@ impl Placer for LavenderScatter {
     //0  1    2    3
     let lav_options = [[0, 8], [1, 9], [2, 10], [3, 11]];
     for _ in 0..self.attempts {
-      let pos = pos
-        + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
+      let pos = pos + Pos::new(rng.range(-8..=8), rng.range(-4..=4), rng.range(-8..=8));
 
       let below_pos = pos + Pos::new(0, -1, 0);
 
@@ -28,7 +27,7 @@ impl Placer for LavenderScatter {
         && world.get(pos + Pos::new(0, 1, 0)) == block![air]
       {
         if self.is_large {
-          let bush_var = lav_options[rng.rand_exclusive(0, 4) as usize]; //0, 1, 2, & 3
+          let bush_var = lav_options[rng.range(0..4) as usize]; //0, 1, 2, & 3
 
           let bush_dw = self.place.with_data(bush_var[0] as u8);
           let bush_up = self.place.with_data(bush_var[1] as u8);
@@ -36,7 +35,7 @@ impl Placer for LavenderScatter {
           world.set(pos, bush_dw);
           world.set(pos + Pos::new(0, 1, 0), bush_up);
         } else {
-          let lav = self.place.with_data(rng.rand_exclusive(0, 4) as u8);
+          let lav = self.place.with_data(rng.range(0..4) as u8);
           world.set(pos, lav);
         }
       }

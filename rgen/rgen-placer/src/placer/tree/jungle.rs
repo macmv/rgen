@@ -30,7 +30,7 @@ impl Placer for JungleTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(15, 20);
+    let height = rng.range(15..=20);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -45,12 +45,12 @@ impl Placer for JungleTree {
     // start, which is nice to have.
     world.set(pos, self.trunk);
 
-    for _ in 0..rng.rand_inclusive(1, 3) {
+    for _ in 0..rng.range(1..=3) {
       self.place_trunk(world, rng, pos, height);
     }
 
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-      for i in 0..rng.rand_inclusive(1, 3) {
+      for i in 0..rng.range(1..=3) {
         let pos = pos + Pos::new(dx, i, dz);
         if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
@@ -64,16 +64,16 @@ impl Placer for JungleTree {
 
 impl JungleTree {
   fn place_trunk(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos, height: i32) {
-    let sway_x = rng.rand_inclusive(-0.8, 0.8);
-    let sway_z = rng.rand_inclusive(-0.8, 0.8);
+    let sway_x = rng.range(-0.8..=0.8);
+    let sway_z = rng.range(-0.8..=0.8);
 
     // Trunk.
     let mut x = pos.x as f64;
     let mut z = pos.z as f64;
-    let mut next_leaves = rng.rand_inclusive(4, 7);
+    let mut next_leaves = rng.range(4..=7);
     for i in 0..height {
-      let mut dx = sway_x * rng.rand_inclusive(-1.0, 2.0);
-      let mut dz = sway_z * rng.rand_inclusive(-1.0, 2.0);
+      let mut dx = sway_x * rng.range(-1.0..=2.0);
+      let mut dz = sway_z * rng.range(-1.0..=2.0);
 
       while dx.abs() > 1.0 || dz.abs() > 1.0 {
         world.set(pos + Pos::new((x + dx) as i32, 0, (z + dz) as i32), self.trunk);
@@ -97,7 +97,7 @@ impl JungleTree {
 
       if i == next_leaves {
         self.place_leaves(world, rng, pos);
-        next_leaves += rng.rand_inclusive(4, 7);
+        next_leaves += rng.range(4..=7);
       }
 
       self.place_cocoa_beans(world, rng, pos);
@@ -124,7 +124,7 @@ impl JungleTree {
 
     // Add a couple more leaves down the trunk.
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-      for i in 1..rng.rand_inclusive(1, 3) {
+      for i in 1..rng.range(1..=3) {
         let pos = pos + Pos::new(dx, -i, dz);
         if world.get(pos) == block![air] {
           world.set(pos, self.leaves);
@@ -136,7 +136,7 @@ impl JungleTree {
   fn place_top_leaves(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
     for x in -1..=1_i32 {
       for z in -1..=1_i32 {
-        if (x.abs() + z.abs()) >= 2 && rng.rand_inclusive(0, 1) == 0 {
+        if (x.abs() + z.abs()) >= 2 && rng.range(0..=1) == 0 {
           continue;
         }
 
@@ -149,7 +149,7 @@ impl JungleTree {
   }
 
   fn place_cocoa_beans(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    if rng.rand_exclusive(0, 16) != 0 {
+    if rng.range(0..16) != 0 {
       return;
     }
 

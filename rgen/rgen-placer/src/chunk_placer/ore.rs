@@ -39,13 +39,13 @@ impl ChunkPlacer for Ore {
       let vein_seed = seed ^ (((pos.0 * 2048.0) as u64) << 8) ^ (((pos.2 * 2048.0) as u64) << 16);
       let mut rng = Rng::new(vein_seed);
 
-      pos.1 = rng.rand_inclusive(*self.height.start(), *self.height.end()) as f64;
+      pos.1 = rng.range(*self.height.start()..=*self.height.end()) as f64;
 
-      let mut vx = rng.rand_inclusive(-1.0, 1.0);
-      let mut vy = rng.rand_inclusive(-1.0, 1.0);
-      let mut vz = rng.rand_inclusive(-1.0, 1.0);
+      let mut vx = rng.range(-1.0..=1.0);
+      let mut vy = rng.range(-1.0..=1.0);
+      let mut vz = rng.range(-1.0..=1.0);
 
-      let size = rng.rand_inclusive(*self.size.start(), *self.size.end());
+      let size = rng.range(*self.size.start()..=*self.size.end());
       for _ in 0..size {
         for dx in -self.width.ceil() as i32..=self.width.ceil() as i32 {
           for dy in -self.width.ceil() as i32..=self.width.ceil() as i32 {
@@ -67,9 +67,9 @@ impl ChunkPlacer for Ore {
           }
         }
 
-        vx += rng.rand_inclusive(-0.5, 0.5);
-        vy += rng.rand_inclusive(-0.5, 0.5);
-        vz += rng.rand_inclusive(-0.5, 0.5);
+        vx += rng.range(-0.5..=0.5);
+        vy += rng.range(-0.5..=0.5);
+        vz += rng.range(-0.5..=0.5);
 
         pos.0 += vx;
         pos.1 += vy;

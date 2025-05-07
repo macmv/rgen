@@ -15,7 +15,7 @@ impl Placer for Monument {
   fn avg_per_chunk(&self) -> f64 { 0.2 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(4, 9);
+    let height = rng.range(4..=9);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -36,7 +36,7 @@ impl Placer for Monument {
           if rel_x == 0 && rel_z == 0 {
             world.set(pos + Pos::new(rel_x, rel_y, rel_z), self.material);
           } else {
-            let chance = rng.rand_inclusive(0, 100);
+            let chance = rng.range(0..=100);
             if chance < 80 {
               world.set(pos + Pos::new(rel_x, rel_y, rel_z), self.material);
             } else if chance < 90 {

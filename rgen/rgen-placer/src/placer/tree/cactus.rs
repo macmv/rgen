@@ -16,7 +16,7 @@ impl Placer for Cactus {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(2, 3);
+    let height = rng.range(2..=3);
 
     if pos.y + height >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -29,14 +29,14 @@ impl Placer for Cactus {
 
     // Builds the main body.
 
-    let x_or_y = rng.rand_inclusive(0, 1) == 1;
+    let x_or_y = rng.range(0..=1) == 1;
 
     for unit in -1..=1_i32 {
       if unit == 0 {
         continue;
       }
 
-      let y_chance = rng.rand_inclusive(-1, 1);
+      let y_chance = rng.range(-1..=1);
       if y_chance != 1 {
         let mut arm_pos = pos;
 

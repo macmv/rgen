@@ -65,7 +65,7 @@ impl Placer for MossBoulder {
       return Err(UndoError);
     }
 
-    //let min_y = rng.rand_inclusive(4, 6);
+    //let min_y = rng.range(4..=6);
 
     // Check to see if the boulder can be built
     for (y, col) in bolder_map.iter_mut().enumerate() {
@@ -86,7 +86,7 @@ impl Placer for MossBoulder {
               }
 
               *cell = true;
-            } else if rng.rand_inclusive(0, 3) == 0 {
+            } else if rng.range(0..=3) == 0 {
               *cell = true;
             }
 
@@ -95,10 +95,10 @@ impl Placer for MossBoulder {
             if rel_x == 0 && rel_z == 0 {
               *cell = true;
             } else if rel_x == 0 || rel_z == 0 {
-              if rng.rand_inclusive(0, 15) != 0 {
+              if rng.range(0..=15) != 0 {
                 *cell = true;
               }
-            } else if rng.rand_inclusive(0, 6) != 0 {
+            } else if rng.range(0..=6) != 0 {
               *cell = true;
             }
 
@@ -107,10 +107,10 @@ impl Placer for MossBoulder {
             if rel_x == 0 && rel_z == 0 {
               *cell = true;
             } else if rel_x == 0 || rel_z == 0 {
-              if rng.rand_inclusive(0, 6) != 0 {
+              if rng.range(0..=6) != 0 {
                 *cell = true;
               }
-            } else if rng.rand_inclusive(0, 3) == 0 {
+            } else if rng.range(0..=3) == 0 {
               *cell = true;
             }
           }
@@ -134,7 +134,7 @@ impl Placer for MossBoulder {
           if world.get(pos + Pos::new(x, y, z)) == BlockState::AIR
             && world.get(pos + Pos::new(x, y - 1, z)) == self.material
           {
-            let ran = rng.rand_inclusive(0, 5);
+            let ran = rng.range(0..=5);
             if ran == 0 {
               world.set(pos + Pos::new(x, y, z), self.plant_a);
             } else if ran == 1 {

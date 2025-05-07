@@ -61,7 +61,7 @@ impl Placer for Sakura {
       let tree_choice = rng.choose(&[SplitTree::Tri, SplitTree::Duo, SplitTree::Uno]);
       self.split_build(world, pos, rng, *tree_choice);
     } else {
-      let height = rng.rand_inclusive(5, 8);
+      let height = rng.range(5..=8);
       for y in 0..=height {
         // Future options: split_duo_pint, duo, unod, uno_off_pint
         // Builds the trunk.
@@ -96,7 +96,7 @@ impl Sakura {
     for x in -1..=1_i32 {
       for z in -1..=1_i32 {
         // Remove the corners.
-        if (x.abs() == 1 && z.abs() == 1) && rng.rand_inclusive(0, 4) != 0 {
+        if (x.abs() == 1 && z.abs() == 1) && rng.range(0..=4) != 0 {
           continue;
         }
 
@@ -182,20 +182,20 @@ impl Sakura {
     let top = 8;
     let a_start: i32;
     let b_start: i32;
-    if 0 == rng.rand_inclusive(0, 1) {
+    if 0 == rng.range(0..=1) {
       a_start = 4;
       b_start = 5;
     } else {
       a_start = 5;
       b_start = 4;
     }
-    let a = rng.rand_inclusive(2, 4);
-    let b = rng.rand_inclusive(2, 6 - a);
+    let a = rng.range(2..=4);
+    let b = rng.range(2..=6 - a);
 
-    let a_height = top - rng.rand_inclusive(0, 1);
-    let b_height = top - rng.rand_inclusive(0, 1);
+    let a_height = top - rng.range(0..=1);
+    let b_height = top - rng.range(0..=1);
 
-    let x_axis = rng.rand_inclusive(0, 1) == 0;
+    let x_axis = rng.range(0..=1) == 0;
 
     let a_pos: Pos;
     let b_pos: Pos;
@@ -212,7 +212,7 @@ impl Sakura {
     //This is where uno tree decideds where what arm its doing
     let mut is_a = false;
     if SplitTree::Uno == split_tree {
-      is_a = rng.rand_inclusive(0, 1) == 1;
+      is_a = rng.range(0..=1) == 1;
     }
 
     // this decides how tall the trunk is

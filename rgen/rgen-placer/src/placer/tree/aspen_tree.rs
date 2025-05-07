@@ -40,7 +40,7 @@ impl Placer for AspenTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(9, 11);
+    let height = rng.range(9..=11);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -56,7 +56,7 @@ impl Placer for AspenTree {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
-          if x.abs() == 2 && z.abs() == 2 && (y == -3 || y == -1 || rng.rand_inclusive(0, 4) != 0) {
+          if x.abs() == 2 && z.abs() == 2 && (y == -3 || y == -1 || rng.range(0..=4) != 0) {
             continue;
           }
 
@@ -96,7 +96,7 @@ impl Placer for AspenTree {
       Pos::new(0, shoulder_caps_y, -2),
       Pos::new(0, shoulder_caps_y, 2),
     ];
-    for attempts in 0..=rng.rand_inclusive(0, 2) {
+    for attempts in 0..=rng.range(0..=2) {
       world.set(pos + shoulder_caps[attempts as usize], self.leaves);
     }
 
@@ -123,7 +123,7 @@ impl AspenTree {
       //let rotation = 2;
       let mut is_long_drape = false;
       let mut drape;
-      if rng.rand_inclusive(0, 2) == 0 {
+      if rng.range(0..=2) == 0 {
         drape = rng.choose(&self.drapes_long).clone();
         is_long_drape = true;
       } else {
@@ -133,7 +133,7 @@ impl AspenTree {
       drape.rotate(rotation);
       // Listen. I don't want to know why this works. I shouldn't need to know why
       // this works. But it does.
-      if is_long_drape && rng.rand_inclusive(0, 2) != 0 {
+      if is_long_drape && rng.range(0..=2) != 0 {
         world.set(pos + long_side_pos[rotation as usize] + Pos::new(0, -2, 0), self.leaves);
       }
 

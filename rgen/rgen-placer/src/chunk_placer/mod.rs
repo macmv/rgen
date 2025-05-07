@@ -49,7 +49,7 @@ impl ChunkPlacer for GlowVine {
           let pos = chunk_pos.min_block_pos() + Pos::new(x as i32, y, z as i32);
 
           let block = chunk.get(pos.chunk_rel());
-          if block == block![air] && rng.rand_exclusive(0, 24) == 0 {
+          if block == block![air] && rng.range(0..24) == 0 {
             let north = chunk.get((pos + Pos::new(0, 0, -1)).chunk_rel()) == self.stone;
             let south = chunk.get((pos + Pos::new(0, 0, 1)).chunk_rel()) == self.stone;
             let east = chunk.get((pos + Pos::new(-1, 0, 0)).chunk_rel()) == self.stone;

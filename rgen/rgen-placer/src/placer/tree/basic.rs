@@ -16,7 +16,7 @@ impl Placer for BasicTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(5, 8);
+    let height = rng.range(5..=8);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -32,7 +32,7 @@ impl Placer for BasicTree {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
-          if (x.abs() == 2 && z.abs() == 2) && rng.rand_inclusive(0, 1) == 0 {
+          if (x.abs() == 2 && z.abs() == 2) && rng.range(0..=1) == 0 {
             continue;
           }
 

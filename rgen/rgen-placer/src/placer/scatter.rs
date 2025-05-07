@@ -16,8 +16,7 @@ impl Placer for Scatter {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     for _ in 0..self.attempts {
-      let pos = pos
-        + Pos::new(rng.rand_inclusive(-8, 8), rng.rand_inclusive(-4, 4), rng.rand_inclusive(-8, 8));
+      let pos = pos + Pos::new(rng.range(-8..=8), rng.range(-4..=4), rng.range(-8..=8));
 
       let below_pos = pos + Pos::new(0, -1, 0);
 

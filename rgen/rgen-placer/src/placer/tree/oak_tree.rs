@@ -50,7 +50,7 @@ impl Placer for OakTree {
 
 impl OakTree {
   fn build_simple(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) -> Result {
-    let height = rng.rand_inclusive(3, 5);
+    let height = rng.range(3..=5);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -66,7 +66,7 @@ impl OakTree {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
-          if (x.abs() == 2 && z.abs() == 2) && rng.rand_inclusive(0, 1) == 0 {
+          if (x.abs() == 2 && z.abs() == 2) && rng.range(0..=1) == 0 {
             continue;
           }
 

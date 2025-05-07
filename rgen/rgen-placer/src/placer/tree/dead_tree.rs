@@ -17,7 +17,7 @@ impl Placer for DeadTree {
   fn avg_per_chunk(&self) -> f64 { 2.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(4, 7);
+    let height = rng.range(4..=7);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);

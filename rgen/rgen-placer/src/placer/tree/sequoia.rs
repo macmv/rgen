@@ -93,7 +93,7 @@ impl Placer for Sequoia {
     }
 
     // Creates lower trunk.
-    let min_y = rng.rand_inclusive(4, 6);
+    let min_y = rng.range(4..=6);
     for rel_y in -2..min_y {
       for rel_x in 0..=1_i32 {
         for rel_z in 0..=1_i32 {
@@ -110,7 +110,7 @@ impl Placer for Sequoia {
     self.place_trunk_slice(world, pos, height);
 
     // Creates the grade 'A's
-    for _ in 1..rng.rand_inclusive(2, 3) {
+    for _ in 1..rng.range(2..=3) {
       height += 1;
       self.place_leaf_slice(world, pos, LEVEL_A, height);
       self.place_wide_trunk_slice(world, pos, height);
@@ -121,7 +121,7 @@ impl Placer for Sequoia {
     }
 
     // Grade 'B's
-    for _ in 1..rng.rand_inclusive(3, 4) {
+    for _ in 1..rng.range(3..=4) {
       height += 1;
       self.place_leaf_slice(world, pos, LEVEL_B, height);
       self.place_trunk_slice(world, pos, height);
@@ -132,7 +132,7 @@ impl Placer for Sequoia {
     }
 
     // Grade 'C's
-    for _ in 1..rng.rand_inclusive(2, 3) {
+    for _ in 1..rng.range(2..=3) {
       height += 1;
       self.place_leaf_slice(world, pos, LEVEL_C, height);
       self.place_trunk_slice(world, pos, height);

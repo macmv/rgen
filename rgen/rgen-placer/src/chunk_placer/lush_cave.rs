@@ -29,7 +29,7 @@ impl ChunkPlacer for LushCaveMoss {
 
           let below = chunk.get((pos - Pos::new(0, 1, 0)).chunk_rel());
           let block = chunk.get(pos.chunk_rel());
-          if below != block![air] && block == block![air] && rng.rand_exclusive(0, 10) == 0 {
+          if below != block![air] && block == block![air] && rng.range(0..10) == 0 {
             chunk.set(pos.chunk_rel(), self.moss);
           }
         }

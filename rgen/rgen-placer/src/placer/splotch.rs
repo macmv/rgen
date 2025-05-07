@@ -17,8 +17,7 @@ impl Placer for Splotch {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius =
-      rng.rand_inclusive::<i32>((*self.radius.start()).into(), (*self.radius.end()).into());
+    let radius = rng.range::<i32>((*self.radius.start()).into()..=(*self.radius.end()).into());
 
     let r2 = radius.pow(2);
 
@@ -32,7 +31,7 @@ impl Placer for Splotch {
             continue;
           }
 
-          if dist2 > rng.rand_inclusive(r2 / 2, r2) {
+          if dist2 > rng.range(r2 / 2..=r2) {
             continue;
           }
 

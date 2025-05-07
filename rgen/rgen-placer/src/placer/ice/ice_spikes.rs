@@ -46,7 +46,7 @@ impl Placer for IceSpikes {
     self.build_base(rng, pos + Pos::new(0, 0, 0), world);
     for rel_x in -1..=1_i32 {
       for rel_z in -1..=1_i32 {
-        if rng.rand_inclusive(0, self.chance_of_secondary_pillars) == 0 {
+        if rng.range(0..=self.chance_of_secondary_pillars) == 0 {
           self.build_base(rng, pos + Pos::new(rel_x, 0, rel_z), world);
         }
       }
@@ -75,7 +75,7 @@ impl IceSpikes {
           max = 6;
         }
 
-        for pillar_height in -1..rng.rand_inclusive(min, max) {
+        for pillar_height in -1..rng.range(min..=max) {
           world.set(pos + Pos::new(rel_x, pillar_height, rel_z), self.material);
         }
         self.ground_placement(rng, pos + Pos::new(rel_x, 0, rel_z), world);

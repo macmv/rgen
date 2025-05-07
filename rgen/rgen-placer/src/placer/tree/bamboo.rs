@@ -27,8 +27,7 @@ impl Placer for Bamboo {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height =
-      if self.pint_size { rng.rand_inclusive(8, 14) } else { rng.rand_inclusive(15, 20) };
+    let height = if self.pint_size { rng.range(8..=14) } else { rng.range(15..=20) };
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -39,12 +38,12 @@ impl Placer for Bamboo {
       return Err(UndoError);
     }
 
-    rng.rand_inclusive(15, 20);
+    rng.range(15..=20);
     let mut shoot = 0;
 
     // Sets rotation
     shoot &= 0b1100;
-    let rand = rng.rand_inclusive(0, 3);
+    let rand = rng.range(0..=3);
     if rand == 0 {
       // 0
       shoot |= 0b0000;
@@ -83,12 +82,12 @@ impl Placer for BambooClump {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+    let radius = rng.range(*self.radius.start() as i32..=*self.radius.end() as i32);
 
     for _ in 0..self.attempts {
       let mut pos = pos;
       for _ in 0..radius {
-        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+        pos = pos + Pos::new(rng.range(-1..=1), 0, rng.range(-1..=1));
       }
 
       let below_pos = pos + Pos::new(0, -1, 0);

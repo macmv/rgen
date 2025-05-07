@@ -19,7 +19,7 @@ impl Placer for BasicBirch {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.rand_inclusive(8, 9);
+    let height = rng.range(8..=9);
 
     // Checks if outside world boundry
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
@@ -45,7 +45,7 @@ impl Placer for BasicBirch {
       for x in -2..=2_i32 {
         for z in -2..=2_i32 {
           // Remove the corners.
-          if rng.rand_inclusive(0, 4) == 1 && x.abs() == 2 && z.abs() == 2 {
+          if rng.range(0..=4) == 1 && x.abs() == 2 && z.abs() == 2 {
             continue;
           }
           //sets the leaves
@@ -62,7 +62,7 @@ impl Placer for BasicBirch {
             continue;
           }
           // Sometimes removes the lower level of the leaves on the corner
-          if rng.rand_inclusive(0, 4) == 1 && x.abs() == 1 && z.abs() == 1 {
+          if rng.range(0..=4) == 1 && x.abs() == 1 && z.abs() == 1 {
             continue;
           }
           world.set(pos + Pos::new(x, y - 1, z), self.leaves);
@@ -80,7 +80,7 @@ impl Placer for BasicBirch {
       for rel_y in 2..=4_i32 {
         for rel_x in -1..=1_i32 {
           for rel_z in -1..=1_i32 {
-            if rng.rand_exclusive(0, 9) < 3 {
+            if rng.range(0..9) < 3 {
               let mut state = self.shroom.with_prop("type", *rng.choose(&["one", "two", "three"]));
 
               // This removes the coners and the center

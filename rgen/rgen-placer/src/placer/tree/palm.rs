@@ -27,7 +27,7 @@ impl Placer for PalmTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
-    let height = rng.rand_inclusive(8, 13);
+    let height = rng.range(8..=13);
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);
@@ -42,8 +42,8 @@ impl Placer for PalmTree {
     // start, which is nice to have.
     world.set(pos, self.trunk);
 
-    let sway_x = rng.rand_inclusive(-1.0, 1.0);
-    let sway_z = rng.rand_inclusive(-1.0, 1.0);
+    let sway_x = rng.range(-1.0..=1.0);
+    let sway_z = rng.range(-1.0..=1.0);
 
     // Trunk.
     let mut x = pos.x as f64;
@@ -84,10 +84,7 @@ impl Placer for PalmTree {
         for z in -radius..=radius {
           let dist = x.pow(2) + z.pow(2);
 
-          if dist > radius.pow(2) - 4
-            && dist <= radius.pow(2) + 3
-            && rng.rand_inclusive(0, 10) < chance
-          {
+          if dist > radius.pow(2) - 4 && dist <= radius.pow(2) + 3 && rng.range(0..=10) < chance {
             let pos = pos + Pos::new(x, y_offset, z);
             if world.get(pos) == block![air] {
               world.set(pos, self.leaves);
@@ -99,7 +96,7 @@ impl Placer for PalmTree {
 
     // Add a couple more leaves down the trunk.
     for (dx, dz) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-      for i in 1..rng.rand_inclusive(1, 3) {
+      for i in 1..rng.range(1..=3) {
         let pos = pos + Pos::new(dx, -i, dz);
         if world.get(pos) == block![air] {
           world.set(pos, self.leaves);

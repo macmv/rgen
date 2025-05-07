@@ -46,9 +46,8 @@ impl ChunkPlacer for SnowOnStoneSurface {
           if self.place_above.contains(block) {
             let snow_addition = ((self.noise.generate(x as f64 / 4.0, z as f64 / 4.0) * 0.5 + 0.5)
               * self.add_snow) as i32;
-            let snow = self
-              .a
-              .with_data((rng.rand_inclusive(self.min_snow, self.min_snow + snow_addition)) as u8);
+            let snow =
+              self.a.with_data(rng.range(self.min_snow..=self.min_snow + snow_addition) as u8);
             chunk.set(pos.with_y(y + 1), snow);
             break;
           }

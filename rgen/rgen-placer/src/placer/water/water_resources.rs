@@ -41,11 +41,9 @@ impl Placer for WaterResources {
         world,
         pos
           + Pos::new(
-            (rng.rand_inclusive::<i32>((*self.size.start()).into(), (*self.size.end()).into()) / 2)
-              + 1,
+            (rng.range::<i32>((*self.size.start()).into()..=(*self.size.end()).into()) / 2) + 1,
             0,
-            (rng.rand_inclusive::<i32>((*self.size.start()).into(), (*self.size.end()).into()) / 2)
-              + 1,
+            (rng.range::<i32>((*self.size.start()).into()..=(*self.size.end()).into()) / 2) + 1,
           ),
         rng,
       );
@@ -79,7 +77,7 @@ impl WaterResources {
     self.build_clump(world, depth_pos, rng);
   }
   fn build_clump(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
-    let radius = rng.rand_inclusive::<i32>((*self.size.start()).into(), (*self.size.end()).into());
+    let radius = rng.range::<i32>((*self.size.start()).into()..=(*self.size.end()).into());
 
     let r2 = radius.pow(2);
 
@@ -93,7 +91,7 @@ impl WaterResources {
             continue;
           }
 
-          if dist2 > rng.rand_inclusive(r2 / 2, r2) {
+          if dist2 > rng.range(r2 / 2..=r2) {
             continue;
           }
 

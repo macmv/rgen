@@ -216,11 +216,11 @@ impl<'a> Village<'a> {
     rng.shuffle(&mut dirs);
 
     for (dx, dz) in dirs {
-      if rng.rand_inclusive(0, 2) < 1 {
+      if rng.range(0..=2) < 1 {
         continue;
       }
 
-      let length = rng.rand_inclusive(8, 32);
+      let length = rng.range(8..=32);
 
       let new_pos = pos + Pos::new(dx * length, 0, dz * length);
       if self.roads.iter().any(|road| {
@@ -260,7 +260,7 @@ impl<'a> Village<'a> {
             continue;
           }
 
-          let building_id = rng.rand_exclusive(0, self.generator.buildings.len() as i32) as u32;
+          let building_id = rng.range(0..self.generator.buildings.len() as i32) as u32;
           let building = &self.generator.buildings[building_id as usize];
 
           let forward = if side { off_axis.positive_dir() } else { off_axis.negative_dir() };

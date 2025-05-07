@@ -19,7 +19,7 @@ impl Placer for LongLog {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let pos = pos + Pos::new(rng.rand_inclusive(-4, 4), 0, rng.rand_inclusive(-4, 4));
+    let pos = pos + Pos::new(rng.range(-4..=4), 0, rng.range(-4..=4));
 
     // Checks to make sure is in open space from other woods
     for rel_x in -2..=2_i32 {
@@ -51,7 +51,7 @@ impl Placer for LongLog {
     rng.shuffle(&mut dirs);
 
     let Some((dx, dz, length)) = dirs.iter().find_map(|&(dx, dz)| {
-      let length = rng.rand_inclusive(4, 5);
+      let length = rng.range(4..=5);
       if self.is_buildable(world, pos, dx, dz, length) { Some((dx, dz, length)) } else { None }
     }) else {
       return Err(UndoError);

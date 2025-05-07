@@ -46,12 +46,12 @@ impl Placer for Clumps {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+    let radius = rng.range(*self.radius.start() as i32..=*self.radius.end() as i32);
 
     for _ in 0..self.attempts {
       let mut pos = pos;
       for _ in 0..radius {
-        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+        pos = pos + Pos::new(rng.range(-1..=1), 0, rng.range(-1..=1));
       }
 
       let below_pos = pos + Pos::new(0, -1, 0);
@@ -85,12 +85,12 @@ impl Placer for GrassClumps {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+    let radius = rng.range(*self.radius.start() as i32..=*self.radius.end() as i32);
 
     for _ in 0..self.attempts {
       let mut pos = pos;
       for _ in 0..radius {
-        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+        pos = pos + Pos::new(rng.range(-1..=1), 0, rng.range(-1..=1));
       }
 
       let below_pos = pos + Pos::new(0, -1, 0);
@@ -138,12 +138,7 @@ impl Placer for BushClumps {
 
       // now sprink a few more leaves around
       for _ in 0..10 {
-        let side_below = pos
-          + Pos::new(
-            rng.rand_inclusive(-2, 2),
-            rng.rand_inclusive(0, 1),
-            rng.rand_inclusive(-2, 2),
-          );
+        let side_below = pos + Pos::new(rng.range(-2..=2), rng.range(0..=1), rng.range(-2..=2));
         let side = side_below + Pos::new(0, 1, 0);
         if world.get(side_below) != block![air] && world.get(side) == block![air] {
           world.set(side, self.leaves);
@@ -160,12 +155,12 @@ impl Placer for PlantClumps {
   fn avg_per_chunk(&self) -> f64 { 3.0 }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.rand_inclusive(*self.radius.start() as i32, *self.radius.end() as i32);
+    let radius = rng.range(*self.radius.start() as i32..=*self.radius.end() as i32);
 
     for _ in 0..self.attempts {
       let mut pos = pos;
       for _ in 0..radius {
-        pos = pos + Pos::new(rng.rand_inclusive(-1, 1), 0, rng.rand_inclusive(-1, 1));
+        pos = pos + Pos::new(rng.range(-1..=1), 0, rng.range(-1..=1));
       }
 
       let above_pos = pos + Pos::new(0, 1, 0);
