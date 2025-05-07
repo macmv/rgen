@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt};
 
 use crate::{PropMap, PropMapOwned, PropType, PropValue};
 
@@ -31,10 +31,37 @@ impl BlockId {
 
 /// A block state represents a block with a specific data value (like wool
 /// color).
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub struct BlockState {
   pub block: BlockKind,
   pub state: StateOrProps,
+}
+
+impl fmt::Debug for BlockState {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{:?}[{:?}]", self.block, self.state)
+  }
+}
+
+impl fmt::Debug for StateOrProps {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      StateOrProps::Default => write!(f, "default"),
+      StateOrProps::Meta(m) => write!(f, "meta({})", m),
+      StateOrProps::Props(p) => {
+        let mut first = true;
+        for (k, v) in p.entries() {
+          if first {
+            first = false;
+          } else {
+            write!(f, ", ")?;
+          }
+          write!(f, "{} = {}", k, v)?;
+        }
+        Ok(())
+      }
+    }
+  }
 }
 
 impl BlockState {
@@ -114,7 +141,7 @@ impl BlockState {
 
 /// A compressed enum. The states 0-15 are for placing with an explicit data,
 /// whereas the state 16 is to place the default state.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum StateOrProps {
   Default,
   Meta(u8),
@@ -253,12 +280,16 @@ macro_rules! block {
   };
 }
 
+impl fmt::Debug for BlockKind {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}", self.name()) }
+}
+
 macro_rules! blocks {
   (
     $default_id:ident => $default_namespace:ident:$default_name:ident,
     $($id:ident => $namespace:ident:$name:ident $([$($prop_key:ident: $prop_value:expr),* $(,)?])?,)*
   ) => {
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash)]
     pub enum BlockKind {
       $default_id,
       $($id,)*
