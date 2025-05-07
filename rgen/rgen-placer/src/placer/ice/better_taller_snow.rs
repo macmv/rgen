@@ -4,21 +4,21 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Result, Rng};
 
 pub struct BetterTallerSnow {
-  pub block:        BlockFilter,
-  pub snow:         BlockState,
-  pub ice:          BlockState,
-  pub debug:        BlockState,
-  pub avg_in_chunk: f64,
+  pub block:         BlockFilter,
+  pub snow:          BlockState,
+  pub ice:           BlockState,
+  pub debug:         BlockState,
+  pub avg_per_chunk: f64,
 }
 
 impl BetterTallerSnow {
   pub fn new() -> Self {
     BetterTallerSnow {
-      block:        [block![snow_layer]].into(),
-      snow:         block![snow_layer],
-      ice:          block![packed_ice],
-      debug:        block![concrete[5]],
-      avg_in_chunk: 2.0,
+      block:         [block![snow_layer]].into(),
+      snow:          block![snow_layer],
+      ice:           block![packed_ice],
+      debug:         block![concrete[5]],
+      avg_per_chunk: 2.0,
     }
   }
 }
@@ -26,7 +26,7 @@ impl BetterTallerSnow {
 impl Placer for BetterTallerSnow {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {

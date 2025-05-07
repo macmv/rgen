@@ -8,7 +8,7 @@ pub struct WaterResources {
   pub placement:          BlockState,
   pub tool_placement:     BlockState,
   pub tool_placement_two: BlockState,
-  pub avg_in_chunk:       f64,
+  pub avg_per_chunk:      f64,
   pub size:               RangeInclusive<u8>,
   pub multiplyer:         i32,
 }
@@ -16,7 +16,7 @@ pub struct WaterResources {
 impl WaterResources {
   pub fn new() -> Self {
     WaterResources {
-      avg_in_chunk:       1.0,
+      avg_per_chunk:      1.0,
       placement:          block![clay[0]],
       tool_placement:     block![gold_block[0]],
       tool_placement_two: block![iron_ore[0]],
@@ -29,7 +29,7 @@ impl WaterResources {
 impl Placer for WaterResources {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {

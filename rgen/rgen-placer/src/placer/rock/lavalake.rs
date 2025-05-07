@@ -4,19 +4,19 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct LavaLake {
-  pub ground:       BlockFilter,
-  pub material:     BlockState,
-  pub avg_in_chunk: f64,
-  pub fluid:        BlockState,
+  pub ground:        BlockFilter,
+  pub material:      BlockState,
+  pub avg_per_chunk: f64,
+  pub fluid:         BlockState,
 }
 
 impl LavaLake {
   pub fn new() -> Self {
     LavaLake {
-      ground:       [block![stone], block![dirt], block![grass]].into(),
-      material:     block![rgen:basalt[0]],
-      avg_in_chunk: 0.1,
-      fluid:        block![lava],
+      ground:        [block![stone], block![dirt], block![grass]].into(),
+      material:      block![rgen:basalt[0]],
+      avg_per_chunk: 0.1,
+      fluid:         block![lava],
     }
   }
 }
@@ -24,7 +24,7 @@ impl LavaLake {
 impl Placer for LavaLake {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {

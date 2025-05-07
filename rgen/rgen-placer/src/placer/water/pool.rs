@@ -20,25 +20,25 @@ macro_rules! bools {
   };
 }
 pub struct Pool {
-  pub border_types: BlockFilter,
-  pub avg_in_chunk: f64,
-  pub moss:         BlockState,
-  pub moss_carpet:  BlockState,
-  pub temp_filer:   BlockState,
-  pub stone:        BlockState,
-  pub clay:         BlockState,
+  pub border_types:  BlockFilter,
+  pub avg_per_chunk: f64,
+  pub moss:          BlockState,
+  pub moss_carpet:   BlockState,
+  pub temp_filer:    BlockState,
+  pub stone:         BlockState,
+  pub clay:          BlockState,
 }
 
 impl Pool {
   pub fn new() -> Self {
     Pool {
-      border_types: [block![stone], block![dirt], block![rgen:mossy_cobblestone_rgen]].into(),
-      avg_in_chunk: 12.0,
-      moss:         block![rgen:mossy_block],
-      moss_carpet:  block![rgen:mossy_carpet],
-      temp_filer:   block![concrete[12]],
-      stone:        block![stone],
-      clay:         block![clay],
+      border_types:  [block![stone], block![dirt], block![rgen:mossy_cobblestone_rgen]].into(),
+      avg_per_chunk: 12.0,
+      moss:          block![rgen:mossy_block],
+      moss_carpet:   block![rgen:mossy_carpet],
+      temp_filer:    block![concrete[12]],
+      stone:         block![stone],
+      clay:          block![clay],
     }
   }
 }
@@ -46,7 +46,7 @@ impl Pool {
 impl Placer for Pool {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // w = Water

@@ -4,24 +4,24 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct RiverSide {
-  pub ground:       BlockFilter,
-  pub material:     Vec<BlockState>,
-  pub avg_in_chunk: f64,
-  pub fluid:        BlockState,
+  pub ground:        BlockFilter,
+  pub material:      Vec<BlockState>,
+  pub avg_per_chunk: f64,
+  pub fluid:         BlockState,
 }
 
 impl RiverSide {
   pub fn new() -> Self {
     RiverSide {
-      ground:       [block![dirt], block![grass]].into(),
-      material:     vec![
+      ground:        [block![dirt], block![grass]].into(),
+      material:      vec![
         block![gravel],
         block![gravel],
         block![rgen:mossy_cobblestone_rgen],
         block![cobblestone],
       ],
-      avg_in_chunk: 3.0,
-      fluid:        block![lava],
+      avg_per_chunk: 3.0,
+      fluid:         block![lava],
     }
   }
 }
@@ -29,7 +29,7 @@ impl RiverSide {
 impl Placer for RiverSide {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
     pos = pos + Pos::new(0, -1, 0);

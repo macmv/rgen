@@ -9,17 +9,17 @@ pub struct JungleTree {
   leaves:      BlockState,
   cocoa:       BlockState,
 
-  avg_in_chunk: f64,
+  avg_per_chunk: f64,
 }
 
 impl JungleTree {
   pub fn new() -> Self {
     Self {
-      avg_in_chunk: 8.0,
-      place_above:  block![grass].into(),
-      trunk:        block![log[3]],
-      leaves:       block![leaves[3]],
-      cocoa:        block![cocoa[0]],
+      avg_per_chunk: 8.0,
+      place_above:   block![grass].into(),
+      trunk:         block![log[3]],
+      leaves:        block![leaves[3]],
+      cocoa:         block![cocoa[0]],
     }
   }
 }
@@ -27,7 +27,7 @@ impl JungleTree {
 impl Placer for JungleTree {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(15, 20);

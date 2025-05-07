@@ -4,16 +4,16 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct Cactus {
-  pub place_above:  BlockFilter,
-  pub body:         BlockState,
-  pub arms:         BlockState,
-  pub avg_in_chunk: f64,
+  pub place_above:   BlockFilter,
+  pub body:          BlockState,
+  pub arms:          BlockState,
+  pub avg_per_chunk: f64,
 }
 
 impl Placer for Cactus {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(2, 3);

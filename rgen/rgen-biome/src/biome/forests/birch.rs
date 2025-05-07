@@ -161,10 +161,10 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
     "bushes",
     PlacerStage::Tree,
     placer::BasicDryBush {
-      avg_in_chunk: 13_f64,
-      leaves:       block![rgen:leaves3],
-      place_above:  block![grass].into(),
-      trunk:        block![log[variant = "birch"]],
+      avg_per_chunk: 13_f64,
+      leaves:        block![rgen:leaves3],
+      place_above:   block![grass].into(),
+      trunk:         block![log[variant = "birch"]],
     },
   );
 

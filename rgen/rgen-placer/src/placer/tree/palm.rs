@@ -4,19 +4,19 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct PalmTree {
-  pub place_above:  BlockFilter,
-  pub trunk:        BlockState,
-  pub leaves:       BlockState,
-  pub avg_in_chunk: f64,
+  pub place_above:   BlockFilter,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
 }
 
 impl PalmTree {
   pub fn new() -> Self {
     PalmTree {
-      avg_in_chunk: 2.0,
-      place_above:  block![sand].into(),
-      trunk:        block![rgen:log[1]],
-      leaves:       block![rgen:leaves[1]],
+      avg_per_chunk: 2.0,
+      place_above:   block![sand].into(),
+      trunk:         block![rgen:log[1]],
+      leaves:        block![rgen:leaves[1]],
     }
   }
 }
@@ -24,7 +24,7 @@ impl PalmTree {
 impl Placer for PalmTree {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos) -> Result {
     let height = rng.rand_inclusive(8, 13);

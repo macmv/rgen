@@ -6,10 +6,10 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct Bamboo {
-  pub place_above:  BlockFilter,
-  pub stalk:        BlockState,
-  pub pint_size:    bool,
-  pub avg_in_chunk: f64,
+  pub place_above:   BlockFilter,
+  pub stalk:         BlockState,
+  pub pint_size:     bool,
+  pub avg_per_chunk: f64,
 }
 
 pub struct BambooClump {
@@ -24,7 +24,7 @@ pub struct BambooClump {
 impl Placer for Bamboo {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height =

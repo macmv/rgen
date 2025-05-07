@@ -16,10 +16,10 @@ pub fn flat_desert(g: &mut BiomeBuilder) {
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
-      avg_in_chunk: 0.5_f64,
-      arms:         block![rgen:cactus_arm],
-      place_above:  block![sand].into(),
-      body:         block![rgen:cactus],
+      avg_per_chunk: 0.5_f64,
+      arms:          block![rgen:cactus_arm],
+      place_above:   block![sand].into(),
+      body:          block![rgen:cactus],
     },
   );
 }
@@ -34,10 +34,10 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     "trees",
     PlacerStage::Tree,
     placer::BasicDryBush {
-      place_above:  [block![sand]].into(),
-      trunk:        block![log],
-      leaves:       block![leaves],
-      avg_in_chunk: 1.0,
+      place_above:   [block![sand]].into(),
+      trunk:         block![log],
+      leaves:        block![leaves],
+      avg_per_chunk: 1.0,
     },
   );
 
@@ -45,10 +45,10 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     "Large Cactus",
     PlacerStage::Tree,
     placer::Cactus {
-      avg_in_chunk: 1_f64,
-      arms:         block![rgen:cactus_arm],
-      place_above:  block![sand].into(),
-      body:         block![rgen:cactus],
+      avg_per_chunk: 1_f64,
+      arms:          block![rgen:cactus_arm],
+      place_above:   block![sand].into(),
+      body:          block![rgen:cactus],
     },
   );
 

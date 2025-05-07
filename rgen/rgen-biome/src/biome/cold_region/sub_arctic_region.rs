@@ -43,51 +43,51 @@ pub fn spruce_river(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 3.0,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 3.0,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.8,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.8,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.3,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.3,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 }
@@ -105,51 +105,51 @@ pub fn windswept_spruce_grove(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.2,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.2,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.4,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.4,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.1,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.1,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 
@@ -199,51 +199,51 @@ fn spruce_rainbow_mix(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 8.0,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 8.0,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 2.0,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 2.0,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 1.0,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 1.0,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 }
@@ -312,51 +312,51 @@ pub fn fir_river(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 3.0,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 3.0,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.8,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.8,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.3,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.3,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 }
@@ -372,51 +372,51 @@ pub fn windswept_fir_grove(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.2,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.2,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.2,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.2,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.3,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.3,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 
@@ -466,51 +466,51 @@ fn fir_rainbow_mix(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 8.0,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 8.0,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 2.0,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 2.0,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 1.0,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 1.0,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 }
@@ -572,7 +572,7 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
-      avg_in_chunk:       2.0, //2.4,
+      avg_per_chunk:      2.0, //2.4,
       placement:          block![clay],
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
@@ -585,7 +585,7 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "underwater sand",
     PlacerStage::Sand,
     placer::WaterResources {
-      avg_in_chunk:       1.5, //1.0,
+      avg_per_chunk:      1.5, //1.0,
       placement:          block![sand],
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
@@ -641,51 +641,51 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 3.0,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 3.0,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.8,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.8,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.3,
-      is_spruce:    true,
-      place_above:  [
+      avg_per_chunk: 0.3,
+      is_spruce:     true,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![leaves[variant = "spruce"]],
-      trunk:        block![log[variant = "spruce"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![leaves[variant = "spruce"]],
+      trunk:         block![log[variant = "spruce"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 
@@ -693,51 +693,51 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "standard",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 3.0,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 3.0,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Standard,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Standard,
     },
   );
   g.place(
     "tall",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.8,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.8,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Tall,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Tall,
     },
   );
   g.place(
     "fat",
     PlacerStage::Tree,
     placer::EverGreen {
-      avg_in_chunk: 0.3,
-      is_spruce:    false,
-      place_above:  [
+      avg_per_chunk: 0.3,
+      is_spruce:     false,
+      place_above:   [
         block![grass],
         block![concrete[color = "magenta"]],
         block![concrete[color = "black"]],
       ]
       .into(),
-      leaves:       block![rgen:leaves[variant = "fir"]],
-      trunk:        block![rgen:log[variant = "fir"]],
-      size:         placer::EvergreenSize::Fat,
+      leaves:        block![rgen:leaves[variant = "fir"]],
+      trunk:         block![rgen:log[variant = "fir"]],
+      size:          placer::EvergreenSize::Fat,
     },
   );
 
@@ -1118,7 +1118,7 @@ fn river_mass_placer(g: &mut BiomeBuilder) {
     "underwater clay",
     PlacerStage::Sand,
     placer::WaterResources {
-      avg_in_chunk:       8.0, //2.4,
+      avg_per_chunk:      8.0, //2.4,
       placement:          block![clay],
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
@@ -1131,7 +1131,7 @@ fn river_mass_placer(g: &mut BiomeBuilder) {
     "underwater sand",
     PlacerStage::Sand,
     placer::WaterResources {
-      avg_in_chunk:       5.0, //1.0,
+      avg_per_chunk:      5.0, //1.0,
       placement:          block![sand],
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],

@@ -4,16 +4,16 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Result, Rng};
 
 pub struct BasicDryBush {
-  pub place_above:  BlockFilter,
-  pub trunk:        BlockState,
-  pub leaves:       BlockState,
-  pub avg_in_chunk: f64,
+  pub place_above:   BlockFilter,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
 }
 
 impl Placer for BasicDryBush {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, _rng: &mut Rng, pos: Pos) -> Result {
     // Checks if outside world boundry.

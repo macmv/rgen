@@ -65,19 +65,19 @@ const LEVEL_II: [[bool; 6]; 6] = [
 ];
 
 pub struct Sequoia {
-  pub place_above:  BlockFilter,
-  pub trunk:        BlockState,
-  pub leaves:       BlockState,
-  pub avg_in_chunk: f64,
+  pub place_above:   BlockFilter,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
 }
 
 impl Sequoia {
   pub fn new() -> Self {
     Sequoia {
-      avg_in_chunk: 3_f64,
-      place_above:  block![grass].into(),
-      leaves:       block![rgen:leaves[3]],
-      trunk:        block![rgen:log[3]],
+      avg_per_chunk: 3_f64,
+      place_above:   block![grass].into(),
+      leaves:        block![rgen:leaves[3]],
+      trunk:         block![rgen:log[3]],
     }
   }
 }
@@ -85,7 +85,7 @@ impl Sequoia {
 impl Placer for Sequoia {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {

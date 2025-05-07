@@ -5,27 +5,27 @@ use rgen_world::{PartialWorld, UndoError};
 use crate::{Placer, Random, Result, Rng};
 
 pub struct AspenTree {
-  pub place_above:  BlockFilter,
-  pub trunk:        BlockState,
-  pub leaves:       BlockState,
-  pub avg_in_chunk: f64,
-  pub drapes_short: Vec<Structure>,
-  pub drapes_long:  Vec<Structure>,
+  pub place_above:   BlockFilter,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
+  pub drapes_short:  Vec<Structure>,
+  pub drapes_long:   Vec<Structure>,
 }
 
 impl AspenTree {
   pub fn new() -> Self {
     AspenTree {
-      avg_in_chunk: 13.0, //40.0,
-      place_above:  block![grass].into(),
-      trunk:        block![log[2]],
-      leaves:       block![rgen:leaves3[0]],
-      drapes_short: vec![
+      avg_per_chunk: 13.0, //40.0,
+      place_above:   block![grass].into(),
+      trunk:         block![log[2]],
+      leaves:        block![rgen:leaves3[0]],
+      drapes_short:  vec![
         rgen_llama::parse(include_str!("structure/drape_aspen_s_0.ll")),
         rgen_llama::parse(include_str!("structure/drape_aspen_s_1.ll")),
         rgen_llama::parse(include_str!("structure/drape_aspen_s_2.ll")),
       ],
-      drapes_long:  vec![
+      drapes_long:   vec![
         rgen_llama::parse(include_str!("structure/drape_aspen_l_0.ll")),
         rgen_llama::parse(include_str!("structure/drape_aspen_l_1.ll")),
         rgen_llama::parse(include_str!("structure/drape_aspen_l_2.ll")),
@@ -37,7 +37,7 @@ impl AspenTree {
 impl Placer for AspenTree {
   fn radius(&self) -> u8 { 2 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let height = rng.rand_inclusive(9, 11);

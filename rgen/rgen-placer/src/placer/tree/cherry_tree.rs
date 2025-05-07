@@ -11,11 +11,11 @@ enum SplitTree {
   Uno,
 }
 pub struct Sakura {
-  pub place_above:  BlockFilter,
-  pub trunk:        BlockState,
-  pub leaves:       BlockState,
-  pub avg_in_chunk: f64,
-  pub large_size:   bool,
+  pub place_above:   BlockFilter,
+  pub trunk:         BlockState,
+  pub leaves:        BlockState,
+  pub avg_per_chunk: f64,
+  pub large_size:    bool,
 
   pub drapes: Vec<Structure>,
 }
@@ -23,11 +23,11 @@ pub struct Sakura {
 impl Sakura {
   pub fn new() -> Self {
     Sakura {
-      avg_in_chunk: 1.0,
-      place_above:  block![grass].into(),
-      trunk:        block![rgen:log[2]],
-      leaves:       block![rgen:leaves[2]],
-      large_size:   true,
+      avg_per_chunk: 1.0,
+      place_above:   block![grass].into(),
+      trunk:         block![rgen:log[2]],
+      leaves:        block![rgen:leaves[2]],
+      large_size:    true,
 
       drapes: vec![
         rgen_llama::parse(include_str!("structure/drape_1.ll")),
@@ -41,7 +41,7 @@ impl Sakura {
 impl Placer for Sakura {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // Checks if tree will breach build height

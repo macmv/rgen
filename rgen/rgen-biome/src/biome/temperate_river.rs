@@ -23,10 +23,10 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
       place_above:   g.top_block().into(),
       radius:        1..=4,
       bamboo:        placer::Bamboo {
-        place_above:  g.top_block().into(),
-        stalk:        block![rgen:bamboo],
-        pint_size:    true,
-        avg_in_chunk: 0.0,
+        place_above:   g.top_block().into(),
+        stalk:         block![rgen:bamboo],
+        pint_size:     true,
+        avg_per_chunk: 0.0,
       },
     },
   );
@@ -125,10 +125,10 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
       place_above:   g.top_block().into(),
       radius:        1..=2,
       bamboo:        placer::Bamboo {
-        place_above:  g.top_block().into(),
-        stalk:        block![rgen:bamboo],
-        pint_size:    true,
-        avg_in_chunk: 0.0,
+        place_above:   g.top_block().into(),
+        stalk:         block![rgen:bamboo],
+        pint_size:     true,
+        avg_per_chunk: 0.0,
       },
     },
   );

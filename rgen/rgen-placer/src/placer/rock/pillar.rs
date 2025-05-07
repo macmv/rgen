@@ -6,7 +6,7 @@ use crate::{Placer, Random, Result, Rng};
 pub struct Pillar {
   pub ground:                  BlockFilter,
   pub material:                BlockState,
-  pub avg_in_chunk:            f64,
+  pub avg_per_chunk:           f64,
   pub fluid:                   BlockState,
   chance_of_secondary_pillars: i32,
 }
@@ -14,10 +14,10 @@ pub struct Pillar {
 impl Pillar {
   pub fn new() -> Self {
     Pillar {
-      ground:       [block![stone], block![dirt], block![grass]].into(),
-      material:     block![rgen:basalt[0]],
-      avg_in_chunk: 0.8,
-      fluid:        block![lava],
+      ground:        [block![stone], block![dirt], block![grass]].into(),
+      material:      block![rgen:basalt[0]],
+      avg_per_chunk: 0.8,
+      fluid:         block![lava],
 
       chance_of_secondary_pillars: 11,
     }
@@ -27,7 +27,7 @@ impl Pillar {
 impl Placer for Pillar {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y + 20 >= 255 || pos.y <= 1 {

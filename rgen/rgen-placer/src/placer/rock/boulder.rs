@@ -20,7 +20,7 @@ pub struct MossBoulder {
   pub place_above:      BlockFilter,
   pub phobic:           BlockFilter,
   pub material:         BlockState,
-  pub avg_in_chunk:     f64,
+  pub avg_per_chunk:    f64,
   pub plant_a:          BlockState,
   pub plant_b:          BlockState,
   pub use_large_plants: bool,
@@ -33,7 +33,7 @@ impl MossBoulder {
       place_above:      [block![stone], block![dirt]].into(),
       phobic:           block![grass].into(),
       material:         /*blocks.wool.with_data(6), */ block![rgen:mossy_cobblestone_rgen],
-      avg_in_chunk:     2.0,
+      avg_per_chunk:    2.0,
       plant_a:          block![tallgrass[2]],
       plant_b:          block![tallgrass[1]],
       use_large_plants: false,
@@ -45,7 +45,7 @@ impl MossBoulder {
 impl Placer for MossBoulder {
   fn radius(&self) -> u8 { 16 }
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_in_chunk }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     // Checks if tree will breach build height
