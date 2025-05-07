@@ -10,8 +10,8 @@ pub struct BetterTallerSnow {
   pub avg_per_chunk: f64,
 }
 
-impl BetterTallerSnow {
-  pub fn new() -> Self {
+impl Default for BetterTallerSnow {
+  fn default() -> Self {
     BetterTallerSnow {
       block:         [block![snow_layer]].into(),
       snow:          block![snow_layer],

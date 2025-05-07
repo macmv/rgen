@@ -20,8 +20,8 @@ pub struct Sakura {
   pub drapes: Vec<Structure>,
 }
 
-impl Sakura {
-  pub fn new() -> Self {
+impl Default for Sakura {
+  fn default() -> Self {
     Sakura {
       avg_per_chunk: 1.0,
       place_above:   block![grass].into(),

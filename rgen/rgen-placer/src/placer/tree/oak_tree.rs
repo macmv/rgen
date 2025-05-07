@@ -16,8 +16,8 @@ pub struct OakTree {
   pub avg_per_chunk: f64,
 }
 
-impl OakTree {
-  pub fn new() -> Self {
+impl Default for OakTree {
+  fn default() -> Self {
     OakTree {
       avg_per_chunk: 6.5, //40.0,
       place_above:   block![grass].into(),

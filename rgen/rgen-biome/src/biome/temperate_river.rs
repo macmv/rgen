@@ -13,7 +13,7 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
   g.color = "#A3B5A0";
   g.set_top_block(block![grass]);
 
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
   g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
@@ -106,7 +106,7 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
   g.add_layer(block![rgen:basalt], 5, 8);
   g.add_underwater_layer(block![rgen:basalt], 3, 4);
 
-  g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new());
+  g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::default());
   g.place(
     "basalt_patches",
     PlacerStage::Sand,

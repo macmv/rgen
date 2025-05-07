@@ -13,6 +13,17 @@ pub struct Spread {
   pub avg_per_chunk: f64,
 }
 
+impl Default for Spread {
+  fn default() -> Self {
+    Spread {
+      replace:       block![grass].into(),
+      place:         block![gravel],
+      radius:        2..=5,
+      avg_per_chunk: 1.0,
+    }
+  }
+}
+
 impl Placer for Spread {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }

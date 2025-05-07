@@ -12,8 +12,8 @@ pub struct IceSpikes {
   chance_of_secondary_pillars: i32,
 }
 
-impl IceSpikes {
-  pub fn new() -> Self {
+impl Default for IceSpikes {
+  fn default() -> Self {
     IceSpikes {
       ground:                      [block![stone], block![dirt], block![grass]].into(),
       material:                    block![packed_ice],

@@ -10,6 +10,17 @@ pub struct BasicTree {
   pub avg_per_chunk: f64,
 }
 
+impl Default for BasicTree {
+  fn default() -> Self {
+    BasicTree {
+      place_above:   block![grass].into(),
+      trunk:         block![log[variant = "oak"]],
+      leaves:        block![leaves[variant = "oak"]],
+      avg_per_chunk: 0.8,
+    }
+  }
+}
+
 impl Placer for BasicTree {
   fn radius(&self) -> u8 { 2 }
 

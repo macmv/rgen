@@ -12,6 +12,19 @@ pub struct BasicBirch {
   pub ground:        BlockState,
 }
 
+impl Default for BasicBirch {
+  fn default() -> Self {
+    BasicBirch {
+      trunk:         block![log[variant = "birch"]],
+      leaves:        block![leaves[variant = "birch"]],
+      avg_per_chunk: 5.0,
+      is_shrooms:    true,
+      shroom:        block![rgen:polypore[type = "one"]],
+      ground:        block![grass],
+    }
+  }
+}
+
 impl Placer for BasicBirch {
   fn radius(&self) -> u8 { 2 }
 

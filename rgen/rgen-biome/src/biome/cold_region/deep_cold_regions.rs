@@ -12,10 +12,10 @@ pub fn ice_spikes(g: &mut BiomeBuilder) {
   g.color = "#E3F5FC";
   g.set_top_block(block![stone]);
 
-  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::default());
   g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
 
-  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::default());
 }
 
 pub fn deep_snow_beach(g: &mut BiomeBuilder) {
@@ -23,7 +23,7 @@ pub fn deep_snow_beach(g: &mut BiomeBuilder) {
   g.color = "#E3F5FC";
   g.set_top_block(block![stone]);
 
-  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::default());
 
   g.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(g.seed),
@@ -60,7 +60,7 @@ pub fn ice_spike_beach(g: &mut BiomeBuilder) {
   g.color = "#E3F5FC";
   g.set_top_block(block![stone]);
 
-  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::new());
+  g.place("Ice spikes", PlacerStage::Tree, placer::IceSpikes::default());
   g.place_chunk(chunk_placer::SnowOnStoneSurface {
     noise:       OpenSimplexNoise::new(0),
     a:           block![snow_layer],
@@ -106,7 +106,7 @@ pub fn boulder_field(g: &mut BiomeBuilder) {
   g.set_top_block(block![stone]);
 
   g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
-  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::default());
 
   g.place(
     "ice_patches",
@@ -137,7 +137,7 @@ pub fn alps(g: &mut BiomeBuilder) {
   g.add_layer(block![stone], 4, 5);
 
   g.place_chunk(chunk_placer::SnowOnSnowSurface::new(g.seed));
-  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::default());
 }
 
 pub fn frozen_peak(g: &mut BiomeBuilder) {
@@ -147,5 +147,5 @@ pub fn frozen_peak(g: &mut BiomeBuilder) {
   g.set_top_block(block![stone]);
 
   g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
-  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::new());
+  g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::default());
 }

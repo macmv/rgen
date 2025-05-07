@@ -29,8 +29,8 @@ pub struct Pool {
   pub clay:          BlockState,
 }
 
-impl Pool {
-  pub fn new() -> Self {
+impl Default for Pool {
+  fn default() -> Self {
     Pool {
       border_types:  [block![stone], block![dirt], block![rgen:mossy_cobblestone_rgen]].into(),
       avg_per_chunk: 12.0,

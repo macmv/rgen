@@ -12,6 +12,17 @@ pub struct Splotch {
   pub radius:        RangeInclusive<u8>,
 }
 
+impl Default for Splotch {
+  fn default() -> Self {
+    Splotch {
+      replace:       block![grass].into(),
+      place:         block![gravel],
+      radius:        2..=5,
+      avg_per_chunk: 1.0,
+    }
+  }
+}
+
 impl Placer for Splotch {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }

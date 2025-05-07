@@ -21,6 +21,29 @@ pub struct BambooClump {
   pub avg_per_chunk: f64,
 }
 
+impl Default for Bamboo {
+  fn default() -> Self {
+    Bamboo {
+      place_above:   block![grass].into(),
+      stalk:         block![rgen:bamboo],
+      pint_size:     true,
+      avg_per_chunk: 0.8,
+    }
+  }
+}
+
+impl Default for BambooClump {
+  fn default() -> Self {
+    BambooClump {
+      bamboo:        Bamboo::default(),
+      place_above:   block![grass].into(),
+      attempts:      10,
+      radius:        1..=4,
+      avg_per_chunk: 3.0,
+    }
+  }
+}
+
 impl Placer for Bamboo {
   fn radius(&self) -> u8 { 2 }
 

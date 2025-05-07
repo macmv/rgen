@@ -10,7 +10,7 @@ pub fn woodland_river(g: &mut BiomeBuilder) {
   g.color = "#899781";
   g.set_top_block(block![grass]);
 
-  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::default());
 
   g.place(
     "oak log",
@@ -55,7 +55,7 @@ pub fn woodland(g: &mut BiomeBuilder) {
   g.color = "#899781";
   g.set_top_block(block![grass]);
 
-  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::default());
 
   g.place(
     "oak log",
@@ -101,7 +101,7 @@ pub fn windswept_woodland(g: &mut BiomeBuilder) {
   g.color = "#899781";
   g.set_top_block(block![grass]);
 
-  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::new());
+  g.place("Oak tree", PlacerStage::Tree, placer::OakTree::default());
 
   g.place(
     "oak log",

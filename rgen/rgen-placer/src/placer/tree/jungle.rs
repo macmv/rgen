@@ -12,8 +12,8 @@ pub struct JungleTree {
   avg_per_chunk: f64,
 }
 
-impl JungleTree {
-  pub fn new() -> Self {
+impl Default for JungleTree {
+  fn default() -> Self {
     Self {
       avg_per_chunk: 8.0,
       place_above:   block![grass].into(),

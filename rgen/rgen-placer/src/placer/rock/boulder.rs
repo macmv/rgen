@@ -27,12 +27,12 @@ pub struct MossBoulder {
   pub large_plants:     BlockFilter,
 }
 
-impl MossBoulder {
-  pub fn new() -> Self {
+impl Default for MossBoulder {
+  fn default() -> Self {
     MossBoulder {
       place_above:      [block![stone], block![dirt]].into(),
       phobic:           block![grass].into(),
-      material:         /*blocks.wool.with_data(6), */ block![rgen:mossy_cobblestone_rgen],
+      material:         block![rgen:mossy_cobblestone_rgen],
       avg_per_chunk:    2.0,
       plant_a:          block![tallgrass[2]],
       plant_b:          block![tallgrass[1]],

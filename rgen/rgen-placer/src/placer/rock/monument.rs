@@ -9,6 +9,16 @@ pub struct Monument {
   pub reward:         BlockState,
 }
 
+impl Default for Monument {
+  fn default() -> Self {
+    Monument {
+      material:       block![sandstone],
+      fancy_material: block![sandstone[type = "chiseled_sandstone"]],
+      reward:         block![gold_block],
+    }
+  }
+}
+
 impl Placer for Monument {
   fn radius(&self) -> u8 { 2 }
 

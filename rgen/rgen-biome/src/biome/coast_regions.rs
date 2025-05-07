@@ -84,7 +84,7 @@ pub fn ancient_shores(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place("dead_tree", PlacerStage::Tree, placer::DeadTree::new());
+  g.place("dead_tree", PlacerStage::Tree, placer::DeadTree::default());
 }
 
 #[allow(dead_code)]
@@ -163,7 +163,7 @@ pub fn sand_beach(g: &mut BiomeBuilder) {
 
   g.set_underwater_block(block![sand]);
 
-  g.place("palm_tree", PlacerStage::Tree, placer::PalmTree::new());
+  g.place("palm_tree", PlacerStage::Tree, placer::PalmTree::default());
 }
 #[allow(dead_code)]
 pub fn monument_beach(g: &mut BiomeBuilder) {

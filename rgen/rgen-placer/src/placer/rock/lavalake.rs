@@ -10,8 +10,8 @@ pub struct LavaLake {
   pub fluid:         BlockState,
 }
 
-impl LavaLake {
-  pub fn new() -> Self {
+impl Default for LavaLake {
+  fn default() -> Self {
     LavaLake {
       ground:        [block![stone], block![dirt], block![grass]].into(),
       material:      block![rgen:basalt[0]],

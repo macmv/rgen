@@ -11,8 +11,8 @@ pub struct Pillar {
   chance_of_secondary_pillars: i32,
 }
 
-impl Pillar {
-  pub fn new() -> Self {
+impl Default for Pillar {
+  fn default() -> Self {
     Pillar {
       ground:        [block![stone], block![dirt], block![grass]].into(),
       material:      block![rgen:basalt[0]],

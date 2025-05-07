@@ -13,8 +13,8 @@ pub struct WaterResources {
   pub multiplier:         i32,
 }
 
-impl WaterResources {
-  pub fn new() -> Self {
+impl Default for WaterResources {
+  fn default() -> Self {
     WaterResources {
       avg_per_chunk:      1.0,
       placement:          block![clay[0]],

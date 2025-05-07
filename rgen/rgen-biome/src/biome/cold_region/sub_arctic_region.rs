@@ -786,7 +786,7 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
   g.set_top_block(block![gravel]);
   g.add_layer(block![gravel], 2, 4);
 
-  g.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::new());
+  g.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::default());
 
   g.place(
     "loose_moss",
@@ -820,7 +820,7 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place("underwater clay", PlacerStage::Sand, placer::WaterResources::new());
+  g.place("underwater clay", PlacerStage::Sand, placer::WaterResources::default());
 
   g.place(
     "mossystone_patches",

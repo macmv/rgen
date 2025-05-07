@@ -10,6 +10,17 @@ pub struct Cactus {
   pub avg_per_chunk: f64,
 }
 
+impl Default for Cactus {
+  fn default() -> Self {
+    Cactus {
+      place_above:   block![sand].into(),
+      body:          block![rgen:cactus],
+      arms:          block![rgen:cactus_arm],
+      avg_per_chunk: 1.0,
+    }
+  }
+}
+
 impl Placer for Cactus {
   fn radius(&self) -> u8 { 2 }
 

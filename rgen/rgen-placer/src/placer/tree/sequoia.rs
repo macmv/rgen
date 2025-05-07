@@ -71,8 +71,8 @@ pub struct Sequoia {
   pub avg_per_chunk: f64,
 }
 
-impl Sequoia {
-  pub fn new() -> Self {
+impl Default for Sequoia {
+  fn default() -> Self {
     Sequoia {
       avg_per_chunk: 3_f64,
       place_above:   block![grass].into(),

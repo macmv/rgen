@@ -7,8 +7,8 @@ pub struct DeadTree {
   pub trunk: BlockState,
 }
 
-impl DeadTree {
-  pub fn new() -> Self { DeadTree { trunk: block![rgen:log2[12]] } }
+impl Default for DeadTree {
+  fn default() -> Self { DeadTree { trunk: block![rgen:log2[12]] } }
 }
 
 impl Placer for DeadTree {

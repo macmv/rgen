@@ -10,6 +10,17 @@ pub struct BasicDryBush {
   pub avg_per_chunk: f64,
 }
 
+impl Default for BasicDryBush {
+  fn default() -> Self {
+    BasicDryBush {
+      avg_per_chunk: 1.0,
+      place_above:   block![grass].into(),
+      trunk:         block![log[variant = "birch"]],
+      leaves:        block![rgen:leaves3],
+    }
+  }
+}
+
 impl Placer for BasicDryBush {
   fn radius(&self) -> u8 { 2 }
 

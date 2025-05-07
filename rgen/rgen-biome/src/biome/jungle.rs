@@ -10,7 +10,7 @@ pub fn deep_jungle(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 5, 8);
 
-  g.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::new());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::default());
 
   g.place(
     "Jungle bushes",

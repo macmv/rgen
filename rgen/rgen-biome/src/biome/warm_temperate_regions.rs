@@ -11,7 +11,7 @@ pub fn cherry_blossom_grove(g: &mut BiomeBuilder) {
   g.color = "#A3B5A0";
   g.set_top_block(block![grass]);
 
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
   g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
@@ -75,7 +75,7 @@ pub fn cherry_blossom_wood(g: &mut BiomeBuilder) {
   g.id = biome![birch_forest_hills];
   g.color = "#7C8F6B";
   g.set_top_block(block![grass]);
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::new());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
 }
 
 #[allow(dead_code)]
@@ -113,8 +113,8 @@ pub fn volcano_growth(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
   g.add_layer(block![rgen:basalt], 5, 8);
 
-  g.place("Lava Lake", PlacerStage::Tree, placer::LavaLake::new());
-  g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::new());
+  g.place("Lava Lake", PlacerStage::Tree, placer::LavaLake::default());
+  g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::default());
   g.place(
     "basalt_patches",
     PlacerStage::Sand,

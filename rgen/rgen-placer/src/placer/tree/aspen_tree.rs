@@ -13,8 +13,8 @@ pub struct AspenTree {
   pub drapes_long:   Vec<Structure>,
 }
 
-impl AspenTree {
-  pub fn new() -> Self {
+impl Default for AspenTree {
+  fn default() -> Self {
     AspenTree {
       avg_per_chunk: 13.0, //40.0,
       place_above:   block![grass].into(),

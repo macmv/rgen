@@ -10,6 +10,17 @@ pub struct LavenderScatter {
   pub attempts:    u32,
 }
 
+impl Default for LavenderScatter {
+  fn default() -> Self {
+    LavenderScatter {
+      attempts:    20,
+      place_above: [block![grass]].into(),
+      is_large:    false,
+      place:       block![rgen:lavender_plant],
+    }
+  }
+}
+
 impl Placer for LavenderScatter {
   fn radius(&self) -> u8 { 8 }
 

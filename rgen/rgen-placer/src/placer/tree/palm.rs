@@ -10,8 +10,8 @@ pub struct PalmTree {
   pub avg_per_chunk: f64,
 }
 
-impl PalmTree {
-  pub fn new() -> Self {
+impl Default for PalmTree {
+  fn default() -> Self {
     PalmTree {
       avg_per_chunk: 2.0,
       place_above:   block![sand].into(),

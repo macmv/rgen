@@ -14,6 +14,21 @@ pub struct LogAndStump {
   pub shroom:         BlockState,
 }
 
+impl Default for LogAndStump {
+  fn default() -> Self {
+    LogAndStump {
+      log:            block![log[variant = "oak"]],
+      moss_log:       block![rgen:mossy_stump[variant = "oak"]],
+      ground:         block![grass],
+      plants:         block![stone].into(),
+      avg_per_chunk:  0.5,
+      chance_of_moss: 8,
+      is_shrooms:     true,
+      shroom:         block![rgen:polypore],
+    }
+  }
+}
+
 impl Placer for LogAndStump {
   //log_moss
   //chance_of_moss

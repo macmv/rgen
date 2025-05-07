@@ -18,8 +18,8 @@ pub enum EvergreenSize {
   Fat,
 }
 
-impl EverGreen {
-  pub fn new() -> Self {
+impl Default for EverGreen {
+  fn default() -> Self {
     EverGreen {
       avg_per_chunk: 13.0, //40.0,
       place_above:   block![grass].into(),

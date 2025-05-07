@@ -9,6 +9,16 @@ pub struct LongLog {
   pub avg_per_chunk: f64,
 }
 
+impl Default for LongLog {
+  fn default() -> Self {
+    LongLog {
+      log:           block![log[variant = "oak"]],
+      ground:        block![grass].into(),
+      avg_per_chunk: 1.0,
+    }
+  }
+}
+
 impl Placer for LongLog {
   //log_moss
   //chance_of_moss

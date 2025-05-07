@@ -10,8 +10,8 @@ pub struct RiverSide {
   pub fluid:         BlockState,
 }
 
-impl RiverSide {
-  pub fn new() -> Self {
+impl Default for RiverSide {
+  fn default() -> Self {
     RiverSide {
       ground:        [block![dirt], block![grass]].into(),
       material:      vec![

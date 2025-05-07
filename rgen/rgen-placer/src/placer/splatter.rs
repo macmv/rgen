@@ -10,6 +10,10 @@ pub struct Splatter {
   pub attempts: u32,
 }
 
+impl Default for Splatter {
+  fn default() -> Self { Splatter { replace: block![stone], place: block![grass], attempts: 10 } }
+}
+
 impl Placer for Splatter {
   fn radius(&self) -> u8 { 8 }
 

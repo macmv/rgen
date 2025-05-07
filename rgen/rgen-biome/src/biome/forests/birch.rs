@@ -10,7 +10,7 @@ pub fn birch_river(g: &mut BiomeBuilder) {
   g.color = "#768A6A";
   g.set_top_block(block![grass]);
 
-  g.place("Basalt Pillar", PlacerStage::Tree, placer::RiverSide::new());
+  g.place("Basalt Pillar", PlacerStage::Tree, placer::RiverSide::default());
 
   g.place(
     "birch log",
@@ -141,7 +141,7 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
   g.color = "#B0C2A5";
 
-  g.place("Aspen Tree", PlacerStage::Tree, placer::AspenTree::new());
+  g.place("Aspen Tree", PlacerStage::Tree, placer::AspenTree::default());
 
   g.place(
     "birch log",

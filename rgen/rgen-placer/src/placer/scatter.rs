@@ -11,6 +11,17 @@ pub struct Scatter {
   pub attempts: u32,
 }
 
+impl Default for Scatter {
+  fn default() -> Self {
+    Scatter {
+      avg_per_chunk: 1.0,
+      attempts:      20,
+      place_above:   block![grass].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
+    }
+  }
+}
+
 impl Placer for Scatter {
   fn radius(&self) -> u8 { 8 }
 
