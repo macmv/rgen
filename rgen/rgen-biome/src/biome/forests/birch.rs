@@ -44,18 +44,20 @@ pub fn birch_river(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    160,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "fern"]],
+      avg_per_chunk: 1.0,
+      attempts:      160,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "fern"]],
     },
   );
   g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    160,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      avg_per_chunk: 1.0,
+      attempts:      160,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 }
@@ -107,18 +109,20 @@ pub fn birch_woodland(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    160,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "fern"]],
+      avg_per_chunk: 1.0,
+      attempts:      160,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "fern"]],
     },
   );
   g.place(
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    160,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      avg_per_chunk: 1.0,
+      attempts:      160,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -172,9 +176,10 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    600,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "fern"]],
+      avg_per_chunk: 1.0,
+      attempts:      600,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "fern"]],
     },
   );
   g.place(
@@ -196,9 +201,10 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    2300,
-      place_above: [block![grass]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      avg_per_chunk: 1.0,
+      attempts:      2300,
+      place_above:   [block![grass]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 }

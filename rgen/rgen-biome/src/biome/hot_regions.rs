@@ -56,9 +56,10 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     "cactus blue",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    30,
-      place_above: [block![sand]].into(),
-      place:       block![rgen:cactus[color = "blue"]],
+      attempts:      30,
+      avg_per_chunk: 1.0,
+      place_above:   [block![sand]].into(),
+      place:         block![rgen:cactus[color = "blue"]],
     },
   );
 
@@ -66,9 +67,10 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     "cactus red",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    20,
-      place_above: [block![sand]].into(),
-      place:       block![rgen:cactus[color = "orange"]],
+      avg_per_chunk: 1.0,
+      attempts:      20,
+      place_above:   [block![sand]].into(),
+      place:         block![rgen:cactus[color = "orange"]],
     },
   );
 }

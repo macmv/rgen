@@ -57,27 +57,30 @@ pub fn ancient_shores(g: &mut BiomeBuilder) {
     "loose_stone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![stone],
-      attempts:    20,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![stone],
+      attempts:      20,
     },
   );
   g.place(
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![mossy_cobblestone],
-      attempts:    40,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![mossy_cobblestone],
+      attempts:      40,
     },
   );
   g.place(
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![stone],
-      attempts:    30,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![stone],
+      attempts:      30,
     },
   );
 
@@ -115,9 +118,10 @@ pub fn dry_shores(g: &mut BiomeBuilder) {
     "dead_bushes",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    30,
-      place_above: [block![gravel], block![sand], block![stone]].into(),
-      place:       block![tallgrass[type = "dead_bush"]],
+      avg_per_chunk: 1.0,
+      attempts:      30,
+      place_above:   [block![gravel], block![sand], block![stone]].into(),
+      place:         block![tallgrass[type = "dead_bush"]],
     },
   )
 }

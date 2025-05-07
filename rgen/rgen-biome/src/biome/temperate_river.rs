@@ -35,9 +35,10 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    800,
-      place_above: [block![grass]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      attempts:      800,
+      avg_per_chunk: 1.0,
+      place_above:   [block![grass]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -136,9 +137,10 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    800,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      avg_per_chunk: 1.0,
+      attempts:      800,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -161,9 +163,10 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    80,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "fern"]],
+      avg_per_chunk: 1.0,
+      attempts:      80,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 }

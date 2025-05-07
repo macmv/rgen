@@ -4,8 +4,9 @@ use rgen_world::PartialWorld;
 use crate::{Placer, Result, Rng, rng::Random};
 
 pub struct Scatter {
-  pub place_above: BlockFilter,
-  pub place:       BlockState,
+  pub place_above:   BlockFilter,
+  pub avg_per_chunk: f64,
+  pub place:         BlockState,
 
   pub attempts: u32,
 }

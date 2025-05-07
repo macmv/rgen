@@ -32,9 +32,10 @@ pub fn cherry_blossom_grove(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    800,
-      place_above: [block![grass]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      attempts:      800,
+      avg_per_chunk: 1.0,
+      place_above:   [block![grass]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -144,9 +145,10 @@ pub fn volcano_growth(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    800,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      attempts:      800,
+      avg_per_chunk: 1.0,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -169,9 +171,10 @@ pub fn volcano_growth(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    100,
-      place_above: [block![grass], block![rgen:mossy_stump]].into(),
-      place:       block![tallgrass[type = "fern"]],
+      attempts:      100,
+      avg_per_chunk: 1.0,
+      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 }

@@ -47,9 +47,10 @@ pub fn deep_snow_beach(g: &mut BiomeBuilder) {
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![stone],
-      attempts:    30,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![stone],
+      attempts:      30,
     },
   );
 }
@@ -82,9 +83,10 @@ pub fn ice_spike_beach(g: &mut BiomeBuilder) {
     "loose_cobblestone",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![stone],
-      attempts:    30,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![stone],
+      attempts:      30,
     },
   );
 }

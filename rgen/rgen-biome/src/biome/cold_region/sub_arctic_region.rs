@@ -609,15 +609,16 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    130,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      130,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "fern"]],
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 
@@ -625,15 +626,16 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    430,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      430,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -790,9 +792,10 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     "loose_moss",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: block![stone].into(),
-      place:       block![rgen:mossy_cobblestone_rgen],
-      attempts:    40,
+      avg_per_chunk: 1.0,
+      place_above:   block![stone].into(),
+      place:         block![rgen:mossy_cobblestone_rgen],
+      attempts:      40,
     },
   );
   g.place(
@@ -866,15 +869,16 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    130,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      130,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "fern"]],
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 
@@ -882,15 +886,16 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    430,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      430,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -921,14 +926,15 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     "mossy_bush",
     PlacerStage::Sand,
     placer::Scatter {
-      place_above: [
+      avg_per_chunk: 1.0,
+      place_above:   [
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
         block![rgen:mossy_stump],
       ]
       .into(),
-      place:       block![rgen:plant],
-      attempts:    150,
+      place:         block![rgen:plant],
+      attempts:      150,
     },
   );
   g.place(
@@ -957,15 +963,16 @@ fn evergreen_grass(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    3,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      3,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "fern"]],
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 
@@ -973,15 +980,16 @@ fn evergreen_grass(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    7,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      7,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
@@ -1030,9 +1038,10 @@ fn evergreen_grass(g: &mut BiomeBuilder) {
     "little brown mushrooms",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    200,
-      place_above: [block![dirt[variant = "podzol"]]].into(),
-      place:       block![brown_mushroom],
+      avg_per_chunk: 1.0,
+      attempts:      200,
+      place_above:   [block![dirt[variant = "podzol"]]].into(),
+      place:         block![brown_mushroom],
     },
   );
 }
@@ -1042,15 +1051,16 @@ fn windswept_evergreen_grass(g: &mut BiomeBuilder) {
     "grass",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    20,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      20,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "fern"]],
+      place:         block![tallgrass[type = "fern"]],
     },
   );
 
@@ -1058,15 +1068,16 @@ fn windswept_evergreen_grass(g: &mut BiomeBuilder) {
     "ferns",
     PlacerStage::Tree,
     placer::Scatter {
-      attempts:    20,
-      place_above: [
+      avg_per_chunk: 1.0,
+      attempts:      20,
+      place_above:   [
         block![grass],
         block![rgen:mossy_stump],
         block![rgen:mossy_cobblestone_rgen],
         block![rgen:mossy_stone],
       ]
       .into(),
-      place:       block![tallgrass[type = "tall_grass"]],
+      place:         block![tallgrass[type = "tall_grass"]],
     },
   );
 
