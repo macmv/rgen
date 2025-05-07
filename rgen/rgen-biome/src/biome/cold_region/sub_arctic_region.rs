@@ -577,7 +577,7 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
       size:               3..=5,
-      multiplyer:         2,
+      multiplier:         2,
     },
   );
 
@@ -590,7 +590,7 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
       size:               2..=4,
-      multiplyer:         3,
+      multiplier:         3,
     },
   );
 
@@ -1123,7 +1123,7 @@ fn river_mass_placer(g: &mut BiomeBuilder) {
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
       size:               1..=2,
-      multiplyer:         3,
+      multiplier:         3,
     },
   );
 
@@ -1136,7 +1136,7 @@ fn river_mass_placer(g: &mut BiomeBuilder) {
       tool_placement:     block![gold_block],
       tool_placement_two: block![iron_ore],
       size:               1..=2,
-      multiplyer:         1,
+      multiplier:         1,
     },
   );
 }

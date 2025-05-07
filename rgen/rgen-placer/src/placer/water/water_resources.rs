@@ -10,7 +10,7 @@ pub struct WaterResources {
   pub tool_placement_two: BlockState,
   pub avg_per_chunk:      f64,
   pub size:               RangeInclusive<u8>,
-  pub multiplyer:         i32,
+  pub multiplier:         i32,
 }
 
 impl WaterResources {
@@ -21,7 +21,7 @@ impl WaterResources {
       tool_placement:     block![gold_block[0]],
       tool_placement_two: block![iron_ore[0]],
       size:               2..=4,
-      multiplyer:         3,
+      multiplier:         3,
     }
   }
 }
@@ -36,7 +36,7 @@ impl Placer for WaterResources {
       return Err(UndoError);
     }
 
-    for _ in 1..=self.multiplyer {
+    for _ in 1..=self.multiplier {
       self.find_water_depth(
         world,
         pos
