@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+mod parser;
+
 struct Config {
   renames: HashMap<&'static str, &'static str>,
 }
