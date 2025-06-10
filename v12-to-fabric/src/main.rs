@@ -101,7 +101,13 @@ fn parse_path(parser: &mut Parser) -> (String, Range<usize>) {
           path.push('.');
         }
         ";" => break (path, start.unwrap()..parser.range().start),
-        _ => panic!("Expected '.' or ';', found '{}'", parser.slice()),
+        _ => panic!("expected '.' or ';', found '{}'", parser.slice()),
+      }
+    } else if parser.slice() == "*" {
+      assert_eq!(parser.next(), Some(Token::Punct));
+      match parser.slice() {
+        ";" => break (path, start.unwrap()..parser.range().start),
+        _ => panic!("expected ';', found '{}'", parser.slice()),
       }
     } else {
       panic!();
