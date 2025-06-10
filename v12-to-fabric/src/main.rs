@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use parser::{Parser, Token};
+
 mod parser;
 
 struct Config {
@@ -33,21 +35,68 @@ fn main() {
 }
 
 impl Config {
-  fn process(&self, mut source: String) -> String {
-    // Skip the `package` line
+  fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
-    for line in source.lines().skip(1) {
-      if let Some(path) = line.strip_prefix("import ") {
-        if let Some(path) = path.strip_suffix(";") {
-          let parts: Vec<&str> = path.split('.').collect();
-          if parts.len() > 1 {
-            let last_part = parts.last().unwrap();
-            imports.insert(last_part.to_string(), path.to_string());
-          }
-        }
+
+    let mut output = source.clone();
+    let mut parser = Parser::new(&source);
+
+    // Eat the package statement
+    if parser.next() != Some(Token::Word) || parser.slice() != "package" {
+      while parser.slice() != ";" {
+        parser.next();
       }
     }
 
-    source
+    while parser.next() == Some(Token::Word) && parser.slice() == "import" {
+      let path = parse_path(&mut parser);
+      let (_, last_part) = path.rsplit_once('.').unwrap();
+      imports.insert(last_part.to_string(), path.clone());
+
+      if let Some(new_path) = self.renames.get(path.as_str()) {
+        // TODO: Fix range
+        output.replace_range(parser.range(), new_path);
+      }
+    }
+
+    while let Some(tok) = parser.next() {
+      match tok {
+        Token::Word => {
+          let word = parser.slice();
+          if let Some(resolved) = imports.get(word) {
+            if let Some(new_name) = self.renames.get(resolved.as_str()) {
+              let (_, new_imported) = new_name.split_once('.').unwrap();
+              let range = parser.range();
+              // TODO: Fix range
+              output.replace_range(range, new_imported);
+            }
+          }
+        }
+        _ => {}
+      }
+    }
+
+    output
   }
+}
+
+fn parse_path(parser: &mut Parser) -> String {
+  let mut path = String::new();
+
+  loop {
+    match parser.next() {
+      Some(Token::Word) => {
+        path.push_str(parser.slice());
+        assert_eq!(parser.next(), Some(Token::Punct));
+        assert_eq!(parser.slice(), ".");
+        path.push('.');
+      }
+      Some(Token::Punct) if parser.slice() == ";" => {
+        break;
+      }
+      _ => panic!(),
+    }
+  }
+
+  path
 }

@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 pub struct Parser<'a> {
   src:  &'a str,
   prev: usize,
@@ -37,7 +39,8 @@ impl<'a> Parser<'a> {
     }
   }
 
-  pub fn slice(&self) -> &'a str { &self.src[self.prev..self.pos] }
+  pub const fn range(&self) -> Range<usize> { self.prev..self.pos }
+  pub fn slice(&self) -> &'a str { &self.src[self.range()] }
 
   pub fn next(&mut self) -> Option<Token> {
     self.skip_whitespace();
