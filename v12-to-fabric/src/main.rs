@@ -14,11 +14,14 @@ fn main() {
   let source = std::fs::read_to_string(filename).expect("Failed to read file");
   let mut renames = HashMap::new();
 
+  // util
   renames.insert("net.minecraft.util.math.AxisAlignedBB", "net.minecraft.util.shape.VoxelShape");
   renames.insert("net.minecraft.util.EnumFacing", "net.minecraft.util.math.Direction");
   renames.insert("net.minecraft.util.EnumHand", "net.minecraft.util.Hand");
-  renames.insert("net.minecraft.util.IStringSerializable", "net.minecraft.util.StringIdentifiable");
+  renames.insert("net.minecraft.util.ResourceLocation", "net.minecraft.util.Identifier");
 
+  // blocks
+  renames.insert("net.minecraft.block.BlockLog", "net.minecraft.block.LogBlock");
   renames.insert("net.minecraft.init.Blocks", "net.minecraft.block.Blocks");
   renames.insert("net.minecraft.block.state.IBlockState", "net.minecraft.block.BlockState");
   renames.insert("net.minecraft.block.BlockPackedIce", "net.minecraft.block.IceBlock");
@@ -31,8 +34,27 @@ fn main() {
     "net.minecraft.block.properties.PropertyEnum",
     "net.minecraft.state.property.EnumProperty",
   );
+  renames.insert(
+    "net.minecraft.block.properties.PropertyInteger",
+    "net.minecraft.state.property.IntProperty",
+  );
+  renames
+    .insert("net.minecraft.block.properties.IProperty", "net.minecraft.state.property.Property");
 
+  // items
+  renames.insert("net.minecraft.item.ItemBlock", "net.minecraft.item.BlockItem");
+  renames.insert("net.minecraft.item.ItemDoor", "net.minecraft.item.TallBlockItem");
+
+  // entities
+  renames
+    .insert("net.minecraft.entity.player.EntityPlayer", "net.minecraft.entity.player.PlayerEntity");
+  renames.insert("net.minecraft.entity.EntityLivingBase", "net.minecraft.entity.LivingEntity");
+
+  // world
   renames.insert("net.minecraft.world.IBlockAccess", "net.minecraft.world.BlockView");
+
+  // client
+  renames.insert("net.minecraft.client.Minecraft", "net.minecraft.client.MinecraftClient");
 
   let config = Config { renames };
 
