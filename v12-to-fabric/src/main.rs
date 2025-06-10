@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Range};
 
 use parser::{Parser, Token};
 
@@ -38,7 +38,7 @@ impl Config {
   fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
 
-    let mut output = source.clone();
+    let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
 
     // Eat the package statement
@@ -54,8 +54,7 @@ impl Config {
       imports.insert(last_part.to_string(), path.clone());
 
       if let Some(new_path) = self.renames.get(path.as_str()) {
-        // TODO: Fix range
-        output.replace_range(parser.range(), new_path);
+        output.replace(parser.range(), new_path);
       }
     }
 
@@ -67,8 +66,7 @@ impl Config {
             if let Some(new_name) = self.renames.get(resolved.as_str()) {
               let (_, new_imported) = new_name.split_once('.').unwrap();
               let range = parser.range();
-              // TODO: Fix range
-              output.replace_range(range, new_imported);
+              output.replace(range, new_imported);
             }
           }
         }
@@ -76,7 +74,7 @@ impl Config {
       }
     }
 
-    output
+    output.output
   }
 }
 
@@ -99,4 +97,40 @@ fn parse_path(parser: &mut Parser) -> String {
   }
 
   path
+}
+
+// This tracks a moving offset, as we replace words in a string from start to
+// end.
+struct Output {
+  output: String,
+  offset: isize,
+}
+
+impl Output {
+  pub fn new(output: String) -> Self { Self { output, offset: 0 } }
+
+  pub fn replace(&mut self, range: Range<usize>, str: &str) {
+    let start = range.start.wrapping_add_signed(self.offset);
+    let end = range.end.wrapping_add_signed(self.offset);
+
+    self.output.replace_range(start..end, str);
+
+    self.offset += str.len() as isize - (end - start) as isize;
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn output_works() {
+    let mut output = Output::new("foo bar".into());
+
+    output.replace(0..3, "bazzz");
+    assert_eq!(output.output, "bazzz bar");
+
+    output.replace(4..7, "quuux");
+    assert_eq!(output.output, "bazzz quuux");
+  }
 }
