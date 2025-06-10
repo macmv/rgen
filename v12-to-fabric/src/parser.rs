@@ -61,9 +61,41 @@ impl<'a> Parser<'a> {
         Some(Token::Word)
       }
 
-      '=' | ';' | '.' => self.ok(Token::Punct),
+      '0'..='9' => {
+        self.advance();
 
-      _ => None,
+        while let Some(c) = self.char() {
+          if c.is_digit(10) || c == '.' {
+            self.advance();
+          } else {
+            break;
+          }
+        }
+
+        Some(Token::Number)
+      }
+
+      '=' | ';' | '.' | ',' | '{' | '}' | '[' | ']' | '(' | ')' | '@' | ':' | '&' | '!' | '|'
+      | '?' | '+' | '-' | '*' | '/' | '%' | '<' | '>' => self.ok(Token::Punct),
+
+      '"' => {
+        self.advance();
+
+        while let Some(c) = self.char() {
+          if c == '"' {
+            self.advance();
+            return Some(Token::String);
+          } else if c == '\\' {
+            // TODO: Multi-character escapes
+            self.advance();
+          }
+          self.advance();
+        }
+
+        panic!("unclosed string literal");
+      }
+
+      c => panic!("unknown character '{c}'"),
     }
   }
 }
