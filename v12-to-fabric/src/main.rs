@@ -49,12 +49,12 @@ impl Config {
     }
 
     while parser.next() == Some(Token::Word) && parser.slice() == "import" {
-      let path = parse_path(&mut parser);
+      let (path, span) = parse_path(&mut parser);
       let (_, last_part) = path.rsplit_once('.').unwrap();
       imports.insert(last_part.to_string(), path.clone());
 
       if let Some(new_path) = self.renames.get(path.as_str()) {
-        output.replace(parser.range(), new_path);
+        output.replace(span, new_path);
       }
     }
 
@@ -78,18 +78,22 @@ impl Config {
   }
 }
 
-fn parse_path(parser: &mut Parser) -> String {
+fn parse_path(parser: &mut Parser) -> (String, Range<usize>) {
   let mut path = String::new();
+  let mut start = None;
 
   loop {
     if let Some(Token::Word) = parser.next() {
+      if start.is_none() {
+        start = Some(parser.range().start);
+      }
       path.push_str(parser.slice());
       assert_eq!(parser.next(), Some(Token::Punct));
       match parser.slice() {
         "." => {
           path.push('.');
         }
-        ";" => break path,
+        ";" => break (path, start.unwrap()..parser.range().start),
         _ => panic!("Expected '.' or ';', found '{}'", parser.slice()),
       }
     } else {
