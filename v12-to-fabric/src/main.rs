@@ -42,7 +42,7 @@ impl Config {
     let mut parser = Parser::new(&source);
 
     // Eat the package statement
-    if parser.next() != Some(Token::Word) || parser.slice() != "package" {
+    if parser.next() == Some(Token::Word) && parser.slice() == "package" {
       while parser.slice() != ";" {
         parser.next();
       }
@@ -63,8 +63,8 @@ impl Config {
         Token::Word => {
           let word = parser.slice();
           if let Some(resolved) = imports.get(word) {
-            if let Some(new_name) = self.renames.get(resolved.as_str()) {
-              let (_, new_imported) = new_name.split_once('.').unwrap();
+            if let Some(new_path) = self.renames.get(resolved.as_str()) {
+              let (_, new_imported) = new_path.rsplit_once('.').unwrap();
               let range = parser.range();
               output.replace(range, new_imported);
             }
@@ -82,21 +82,20 @@ fn parse_path(parser: &mut Parser) -> String {
   let mut path = String::new();
 
   loop {
-    match parser.next() {
-      Some(Token::Word) => {
-        path.push_str(parser.slice());
-        assert_eq!(parser.next(), Some(Token::Punct));
-        assert_eq!(parser.slice(), ".");
-        path.push('.');
+    if let Some(Token::Word) = parser.next() {
+      path.push_str(parser.slice());
+      assert_eq!(parser.next(), Some(Token::Punct));
+      match parser.slice() {
+        "." => {
+          path.push('.');
+        }
+        ";" => break path,
+        _ => panic!("Expected '.' or ';', found '{}'", parser.slice()),
       }
-      Some(Token::Punct) if parser.slice() == ";" => {
-        break;
-      }
-      _ => panic!(),
+    } else {
+      panic!();
     }
   }
-
-  path
 }
 
 // This tracks a moving offset, as we replace words in a string from start to
