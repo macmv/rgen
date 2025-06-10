@@ -20,18 +20,50 @@ pub enum Token {
 
 impl<'a> Parser<'a> {
   fn char(&self) -> Option<char> { self.src[self.pos..].chars().next() }
-  fn advance(&mut self) {
-    if let Some(c) = self.char() {
+  fn advance(&mut self) -> Option<char> {
+    let c = self.char();
+    if let Some(c) = c {
       self.pos += c.len_utf8();
     }
-  }
-  fn ok(&mut self, token: Token) -> Option<Token> {
-    self.advance();
-    Some(token)
+    c
   }
 
   fn skip_whitespace(&mut self) {
     while let Some(c) = self.char() {
+      match c {
+        '/' if self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') => {
+          // Skip the `//`
+          self.pos += 2;
+
+          while let Some(c) = self.char() {
+            if c == '\n' {
+              self.pos += c.len_utf8();
+              break;
+            }
+            self.pos += c.len_utf8();
+          }
+
+          continue;
+        }
+
+        '/' if self.src[self.pos + c.len_utf8()..].chars().next() == Some('*') => {
+          // Skip the `/*`
+          self.pos += 2;
+
+          while let Some(c) = self.char() {
+            if c == '*' && self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') {
+              self.pos += 2;
+              break;
+            }
+            self.pos += c.len_utf8();
+          }
+
+          continue;
+        }
+
+        _ => {}
+      }
+
       if !c.is_whitespace() {
         break;
       }
