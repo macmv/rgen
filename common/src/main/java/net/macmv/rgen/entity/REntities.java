@@ -2,7 +2,6 @@ package net.macmv.rgen.entity;
 
 import net.macmv.rgen.RGen;
 import net.macmv.rgen.entity.model.FrogModel;
-import net.minecraft.block.Block;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
@@ -27,7 +26,7 @@ public class REntities {
   public static final Entity FROG = register("frog", FrogEntity.class, FrogEntity::new);
 
   private static <T extends Entity> T register(String name, Class<T> entity, Function<World, T> factory) {
-    entities.add(EntityEntryBuilder.<T>create().id(new ResourceLocation(RGen.MODID, name), id).name(name).entity(entity).factory(factory).tracker(150, 1, false).build());
+    entities.add(EntityEntryBuilder.<T>create().id(new ResourceLocation(RGen.MOD_ID, name), id).name(name).entity(entity).factory(factory).tracker(150, 1, false).build());
     id++;
     // TODO: Not sure if we really need this.
     return null;
@@ -49,7 +48,7 @@ public class REntities {
       @Nullable
       @Override
       protected ResourceLocation getEntityTexture(T entity) {
-        return new ResourceLocation(RGen.MODID, "textures/entities/" + name + ".png");
+        return new ResourceLocation(RGen.MOD_ID, "textures/entities/" + name + ".png");
       }
     });
   }

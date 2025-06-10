@@ -91,7 +91,7 @@ public final class RBlocks {
 
 
   private static Block register(String name, Block block) {
-    block.setRegistryName(RGen.MODID, name);
+    block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
     blocks.add(block);
     return block;

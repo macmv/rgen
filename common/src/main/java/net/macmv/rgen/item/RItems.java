@@ -12,7 +12,6 @@ import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IRegistryDelegate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -108,7 +107,7 @@ public class RItems {
   }
 
   private static Item registerItem(String name, Item item) {
-    item.setRegistryName(new ResourceLocation(RGen.MODID, name));
+    item.setRegistryName(new ResourceLocation(RGen.MOD_ID, name));
     item.setUnlocalizedName(name);
     items.add(item);
     return item;
