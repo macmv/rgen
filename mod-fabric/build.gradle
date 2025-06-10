@@ -27,6 +27,38 @@ tasks.withType(JavaCompile).configureEach {
   it.options.release = 21
 }
 
+def commonSrc = file("../common/src/main/java")
+def transformedCommon = file("$buildDir/transformed-common")
+
+tasks.register('transformCommonSources') {
+  inputs.dir commonSrc
+  outputs.dir transformedCommon
+
+  doLast {
+    transformedCommon.mkdirs()
+
+    commonSrc.eachFileRecurse { srcFile ->
+      if (srcFile.name.endsWith(".java")) {
+        def relativePath = srcFile.toPath().relativize(commonSrc.toPath()).normalize().toString()
+        def destFile = new File(transformedCommon, srcFile.absolutePath - commonSrc.absolutePath)
+        destFile.parentFile.mkdirs()
+
+        // Replace this with your actual external transformer
+        def process = ["./v12-to-fabric/target/release/v12-to-fabric", srcFile.absolutePath].execute()
+        def transformed = process.text
+
+        destFile.text = transformed
+      }
+    }
+  }
+}
+
+compileJava.dependsOn transformCommonSources
+
+sourceSets.main.java {
+  srcDir transformedCommon
+}
+
 java {
   withSourcesJar()
 
