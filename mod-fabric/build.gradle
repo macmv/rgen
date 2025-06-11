@@ -45,9 +45,13 @@ tasks.register('transformCommonSources') {
 
         // Replace this with your actual external transformer
         def process = ["./v12-to-fabric/target/release/v12-to-fabric", srcFile.absolutePath].execute()
-        def transformed = process.text
+        process.waitFor()
 
-        destFile.text = transformed
+        if (process.exitValue() != 0) {
+          throw new RuntimeException("Transformation failed for ${srcFile.absolutePath}: ${process.err.text}")
+        }
+
+        destFile.text = process.in.text
       }
     }
   }
