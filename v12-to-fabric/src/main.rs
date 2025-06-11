@@ -115,6 +115,10 @@ fn parse_path(parser: &mut Parser) -> (String, Range<usize>) {
     if let Some(Token::Word) = parser.next() {
       if start.is_none() {
         start = Some(parser.range().start);
+
+        if parser.slice() == "static" {
+          continue;
+        }
       }
       path.push_str(parser.slice());
       assert_eq!(parser.next(), Some(Token::Punct));
