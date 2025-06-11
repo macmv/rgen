@@ -1,0 +1,84 @@
+plugins {
+  id 'fabric-loom' version '1.10-SNAPSHOT'
+}
+
+version = '1.0'
+group = 'net.macmv.rgen'
+archivesBaseName = 'rgen'
+
+loom {
+  splitEnvironmentSourceSets()
+
+  mods {
+    "rgen" {
+      sourceSet sourceSets.main
+      sourceSet sourceSets.client
+    }
+  }
+}
+
+dependencies {
+  minecraft "com.mojang:minecraft:1.21.5"
+  mappings "net.fabricmc:yarn:1.21.5+build.1:v2"
+  modImplementation "net.fabricmc:fabric-loader:0.16.10"
+}
+
+tasks.withType(JavaCompile).configureEach {
+  it.options.release = 21
+}
+
+def commonSrc = file("../common/src/main/java")
+def transformedCommon = file("$buildDir/transformed-common")
+
+// FIXME: To re-enable, uncomment the `throw` and `srcDir` lines below.
+
+tasks.register('transformCommonSources') {
+  inputs.dir commonSrc
+  outputs.dir transformedCommon
+
+  doLast {
+    transformedCommon.mkdirs()
+
+    commonSrc.eachFileRecurse { srcFile ->
+      if (srcFile.name.endsWith(".java")) {
+        def relativePath = srcFile.toPath().relativize(commonSrc.toPath()).normalize().toString()
+        def destFile = new File(transformedCommon, srcFile.absolutePath - commonSrc.absolutePath)
+        destFile.parentFile.mkdirs()
+
+        // Replace this with your actual external transformer
+        def process = ["./v12-to-fabric/target/release/v12-to-fabric", srcFile.absolutePath].execute()
+        process.waitFor()
+
+        if (process.exitValue() != 0) {
+          // UNCOMMENT
+          // throw new RuntimeException("Transformation failed for ${srcFile.absolutePath}: ${process.err.text}")
+        }
+
+        destFile.text = process.in.text
+      }
+    }
+  }
+}
+
+compileJava.dependsOn transformCommonSources
+
+sourceSets.main.java {
+  // UNCOMMENT
+  // srcDir transformedCommon
+}
+
+java {
+  withSourcesJar()
+
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
+}
+
+
+jar {
+  inputs.property "archivesName", project.base.archivesName
+
+  from("LICENSE") {
+    rename { "${it}_${inputs.properties.archivesName}" }
+  }
+}
