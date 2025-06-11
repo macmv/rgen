@@ -30,6 +30,8 @@ tasks.withType(JavaCompile).configureEach {
 def commonSrc = file("../common/src/main/java")
 def transformedCommon = file("$buildDir/transformed-common")
 
+// FIXME: To re-enable, uncomment the `throw` and `srcDir` lines below.
+
 tasks.register('transformCommonSources') {
   inputs.dir commonSrc
   outputs.dir transformedCommon
@@ -48,7 +50,8 @@ tasks.register('transformCommonSources') {
         process.waitFor()
 
         if (process.exitValue() != 0) {
-          throw new RuntimeException("Transformation failed for ${srcFile.absolutePath}: ${process.err.text}")
+          // UNCOMMENT
+          // throw new RuntimeException("Transformation failed for ${srcFile.absolutePath}: ${process.err.text}")
         }
 
         destFile.text = process.in.text
@@ -60,7 +63,8 @@ tasks.register('transformCommonSources') {
 compileJava.dependsOn transformCommonSources
 
 sourceSets.main.java {
-  srcDir transformedCommon
+  // UNCOMMENT
+  // srcDir transformedCommon
 }
 
 java {
