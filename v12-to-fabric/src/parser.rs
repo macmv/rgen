@@ -93,7 +93,7 @@ impl<'a> Parser<'a> {
 
       '0'..='9' => {
         while let Some(c) = self.char() {
-          if c.is_digit(10) || c == '.' {
+          if c.is_digit(10) || c == '.' || c == '_' {
             self.advance();
           } else {
             break;
@@ -104,7 +104,7 @@ impl<'a> Parser<'a> {
       }
 
       '=' | ';' | '.' | ',' | '{' | '}' | '[' | ']' | '(' | ')' | '@' | ':' | '&' | '!' | '|'
-      | '?' | '+' | '-' | '*' | '/' | '%' | '<' | '>' => Some(Token::Punct),
+      | '?' | '+' | '-' | '*' | '/' | '%' | '^' | '<' | '>' => Some(Token::Punct),
 
       '"' => {
         while let Some(c) = self.char() {
