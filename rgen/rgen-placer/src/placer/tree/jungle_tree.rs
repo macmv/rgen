@@ -204,7 +204,7 @@ impl skyJungleTree {
 
     // Add some hangign vines from the leaves.
     for (dx, dz) in [(2, 2), (-2, 2), (2, -2), (-2, -2)] {
-      for i in 1..rng.rand_inclusive(1, 2) {
+      for i in 0..rng.rand_inclusive(0, 1) {
         self.streamer_placer(world, rng, pos + Pos::new(dx, -1, dz));
       }
     }
@@ -221,7 +221,7 @@ impl skyJungleTree {
   }
 
   fn streamer_placer(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) {
-    let size = 2_i32;
+    let size = 1_i32;
     for x in -size..=size {
       for z in -size..=size {
         let leaf_pos = pos + Pos::new(x, 0, z);
@@ -232,10 +232,14 @@ impl skyJungleTree {
           {
             for i in 1..rng.rand_inclusive(4, 7) {
               let vine_pos = leaf_pos + Pos::new(0, -i, 0);
-              if world.get(vine_pos + Pos::new(0, -2, 0)) == block![air] {
-                world.set(vine_pos, self.hanging_vines)
-              } else {
+              if world.get(vine_pos + Pos::new(0, -2, 0)) != block![air]
+                && 1 == rng.rand_inclusive(0, 1)
+              {
                 break;
+              } else if world.get(vine_pos + Pos::new(0, -1, 0)) != block![air] {
+                break;
+              } else {
+                world.set(vine_pos, self.hanging_vines)
               }
             }
           }
