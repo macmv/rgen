@@ -19,6 +19,7 @@ fn main() {
   renames.insert("net.minecraft.util.EnumFacing", "net.minecraft.util.math.Direction");
   renames.insert("net.minecraft.util.EnumHand", "net.minecraft.util.Hand");
   renames.insert("net.minecraft.util.ResourceLocation", "net.minecraft.util.Identifier");
+  renames.insert("net.minecraft.util.IStringSerializable", "net.minecraft.util.StringIdentifiable");
 
   // blocks
   renames.insert("net.minecraft.block.BlockLog", "net.minecraft.block.LogBlock");
@@ -113,6 +114,9 @@ impl Config {
               }
             }
           }
+        }
+        Token::Word if parser.slice() == "getName" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "asString");
         }
 
         Token::Word => {
