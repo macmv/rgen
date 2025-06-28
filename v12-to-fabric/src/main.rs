@@ -25,6 +25,7 @@ fn main() {
   renames.insert("net.minecraft.init.Blocks", "net.minecraft.block.Blocks");
   renames.insert("net.minecraft.block.state.IBlockState", "net.minecraft.block.BlockState");
   renames.insert("net.minecraft.block.BlockPackedIce", "net.minecraft.block.IceBlock");
+  renames.insert("net.minecraft.block.BlockRotatedPillar", "net.minecraft.block.PillarBlock");
 
   renames.insert(
     "net.minecraft.block.properties.PropertyBool",
