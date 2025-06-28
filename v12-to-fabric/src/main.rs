@@ -101,6 +101,19 @@ impl Config {
         Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "Settings");
         }
+        Token::Word if parser.slice() == "super" && package == "net.macmv.rgen.block" => {
+          if parser.next() == Some(Token::Punct) && parser.slice() == "(" {
+            if parser.next() == Some(Token::Word) {
+              if parser.next() == Some(Token::Punct) && parser.slice() == "." {
+                let dot_range = parser.range();
+                if parser.next() == Some(Token::Word) && parser.slice() == "material" {
+                  output.replace(dot_range, "");
+                  output.replace(parser.range(), "");
+                }
+              }
+            }
+          }
+        }
 
         Token::Word => {
           let word = parser.slice();
