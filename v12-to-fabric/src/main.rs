@@ -74,11 +74,15 @@ impl Config {
 
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
+    let mut package = String::new();
 
     // Eat the package statement
     if parser.next() == Some(Token::Word) && parser.slice() == "package" {
       while parser.slice() != ";" {
         parser.next();
+        if parser.slice() != ";" {
+          package.push_str(parser.slice());
+        }
       }
     }
 
@@ -94,6 +98,10 @@ impl Config {
 
     while let Some(tok) = parser.next() {
       match tok {
+        Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "Settings");
+        }
+
         Token::Word => {
           let word = parser.slice();
           if let Some(resolved) = imports.get(word) {
