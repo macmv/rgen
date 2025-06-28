@@ -114,6 +114,67 @@ impl Config {
 
           output.replace(parser.range(), source[source_start..source_end].trim());
         }
+        Token::V12Comment => {
+          // The comment is formed like:
+          // ```
+          // // #v12-start
+          // <...>
+          // // #v12-end
+          // ```
+
+          const PREFIX: &str = "// #v12-start";
+          const SUFFIX: &str = "// #v12-end";
+
+          let source = parser.slice();
+          let source_start = source.find(PREFIX).unwrap() + PREFIX.len();
+          let source_end = source.rfind(SUFFIX).unwrap();
+
+          let mut indent = 0;
+          let mut i = parser.range().start + source_start - PREFIX.len();
+          loop {
+            let Some(c) = parser.src.get(i - 1..i) else {
+              break;
+            };
+
+            if c == " " {
+              indent += 1;
+              i -= 1;
+            } else {
+              break;
+            }
+          }
+
+          let indent_str = " ".repeat(indent);
+
+          let mut i = source_start;
+          let eat_line = |i: &mut usize| {
+            loop {
+              let range = parser.range().start + *i..parser.range().start + *i + 1;
+              match parser.src.get(range) {
+                None => panic!("unexpected end of file"),
+                Some("\n") => break,
+                Some(_) => *i += 1,
+              }
+            }
+            *i += 1;
+          };
+          eat_line(&mut i);
+          while i < source_end {
+            let start = i;
+            eat_line(&mut i);
+
+            if i > source_end {
+              break;
+            }
+
+            let mut line = &parser.src[parser.range().start + start..parser.range().start + i];
+            line = line.strip_prefix(&indent_str).unwrap_or(line);
+            output.replace(
+              parser.range().start + start..parser.range().start + i,
+              &format!("{indent_str}// {line}"),
+            );
+          }
+        }
 
         Token::Word
           if parser.slice() == "BlockStateContainer" && package == "net.macmv.rgen.block" =>
