@@ -29,6 +29,7 @@ fn main() {
   renames.insert("net.minecraft.block.BlockPackedIce", "net.minecraft.block.IceBlock");
   renames.insert("net.minecraft.block.BlockRotatedPillar", "net.minecraft.block.PillarBlock");
   renames.insert("net.minecraft.block.BlockVine", "net.minecraft.block.VineBlock");
+  renames.insert("net.minecraft.block.material.MapColor", "net.minecraft.block.MapColor");
 
   renames.insert(
     "net.minecraft.block.properties.PropertyBool",
