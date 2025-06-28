@@ -309,6 +309,14 @@ impl Config {
           output.replace(parser.range(), "getOutlineShape");
         }
 
+        Token::Word if parser.slice() == "new" => {
+          let start = parser.range().start;
+          if parser.next() == Some(Token::Word) && parser.slice() == "AxisAlignedBB" {
+            output
+              .replace(start..parser.range().end, "net.minecraft.util.shape.VoxelShapes.cuboid");
+          }
+        }
+
         Token::Word => {
           let word = parser.slice();
           if let Some(resolved) = imports.get(word) {
