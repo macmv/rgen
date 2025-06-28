@@ -28,6 +28,7 @@ fn main() {
   renames.insert("net.minecraft.block.state.IBlockState", "net.minecraft.block.BlockState");
   renames.insert("net.minecraft.block.BlockPackedIce", "net.minecraft.block.IceBlock");
   renames.insert("net.minecraft.block.BlockRotatedPillar", "net.minecraft.block.PillarBlock");
+  renames.insert("net.minecraft.block.BlockVine", "net.minecraft.block.VineBlock");
 
   renames.insert(
     "net.minecraft.block.properties.PropertyBool",
@@ -67,6 +68,27 @@ fn main() {
 }
 
 impl Config {
+  fn keep_import(&self, path: &str) -> bool {
+    if self.renames.contains_key(path) {
+      return true;
+    }
+
+    if path.starts_with("net.minecraftforge") || path.starts_with("javax") {
+      return false;
+    }
+
+    // Known bad imports should get removed.
+    match path {
+      "net.minecraft.block.state.BlockStateContainer"
+      | "net.minecraft.block.BlockPlanks"
+      | "net.minecraft.creativetab.CreativeTabs"
+      | "net.minecraft.util.BlockRenderLayer"
+      | "net.minecraft.util.DamageSource"
+      | "net.minecraft.util.NonNullList" => false,
+      _ => true,
+    }
+  }
+
   fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
 
@@ -89,7 +111,15 @@ impl Config {
     }
 
     while parser.next() == Some(Token::Word) && parser.slice() == "import" {
+      let line_start = parser.range().start;
+
       let (path, span) = parse_path(&mut parser);
+      if !self.keep_import(&path) {
+        // +2 includes `;` and `\n`.
+        output.replace(line_start..span.end + 2, "");
+        continue;
+      }
+
       let (_, last_part) = path.rsplit_once('.').unwrap();
       imports.insert(last_part.to_string(), path.clone());
 
@@ -270,6 +300,9 @@ impl Config {
         }
         Token::Word if parser.slice() == "withProperty" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "with");
+        }
+        Token::Word if parser.slice() == "NULL_AABB" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "net.minecraft.util.shape.VoxelShapes.empty()");
         }
         Token::Word if parser.slice() == "getBoundingBox" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "getOutlineShape");
