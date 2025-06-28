@@ -246,6 +246,14 @@ impl Config {
             }
           }
         }
+        Token::Word if parser.slice() == "blockState" && package == "net.macmv.rgen.block" => {
+          let start = parser.range().start;
+          if parser.next() == Some(Token::Punct) && parser.slice() == "." {
+            if parser.next() == Some(Token::Word) && parser.slice() == "getBaseState" {
+              output.replace(start..parser.range().end, "getDefaultState");
+            }
+          }
+        }
         Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "Settings");
         }
