@@ -33,7 +33,7 @@ public class Bamboo extends Block {
   }
 
   @Override
-  public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+  public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos /* #fabric:, net.minecraft.block.ShapeContext context */) {
     switch (state.getValue(PLACEMENT)) {
       case X: return BAMBOO_X;
       case Z: return BAMBOO_Z;

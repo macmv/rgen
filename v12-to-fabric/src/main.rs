@@ -99,6 +99,22 @@ impl Config {
 
     while let Some(tok) = parser.next() {
       match tok {
+        Token::FabricComment => {
+          // The comment is formed like:
+          // ```
+          // /* #fabric: <...> */
+          // ```
+
+          const PREFIX: &str = "/* #fabric:";
+          const SUFFIX: &str = "*/";
+
+          let source = parser.slice();
+          let source_start = source.find(PREFIX).unwrap() + PREFIX.len();
+          let source_end = source.rfind(SUFFIX).unwrap();
+
+          output.replace(parser.range(), source[source_start..source_end].trim());
+        }
+
         Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "Settings");
         }

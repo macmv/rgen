@@ -16,6 +16,8 @@ pub enum Token {
   String,
   Number,
   Punct,
+
+  FabricComment,
 }
 
 impl<'a> Parser<'a> {
@@ -28,7 +30,10 @@ impl<'a> Parser<'a> {
     c
   }
 
-  fn skip_whitespace(&mut self) {
+  fn skip_whitespace(&mut self) -> Option<Token> {
+    let mut fabric_comment = false;
+    let start = self.pos;
+
     while let Some(c) = self.char() {
       match c {
         '/' if self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') => {
@@ -51,6 +56,10 @@ impl<'a> Parser<'a> {
           self.pos += 2;
 
           while let Some(c) = self.char() {
+            if self.src[start..self.pos].trim() == "/* #fabric:" {
+              fabric_comment = true;
+            }
+
             if c == '*' && self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') {
               self.pos += 2;
               break;
@@ -69,13 +78,19 @@ impl<'a> Parser<'a> {
       }
       self.pos += c.len_utf8();
     }
+
+    if fabric_comment { Some(Token::FabricComment) } else { None }
   }
 
   pub const fn range(&self) -> Range<usize> { self.prev..self.pos }
   pub fn slice(&self) -> &'a str { &self.src[self.range()] }
 
   pub fn next(&mut self) -> Option<Token> {
-    self.skip_whitespace();
+    let start = self.pos;
+    if let Some(t) = self.skip_whitespace() {
+      self.prev = start;
+      return Some(t);
+    }
     self.prev = self.pos;
 
     match self.advance()? {
