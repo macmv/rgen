@@ -68,6 +68,10 @@ impl Config {
   fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
 
+    if source.starts_with("// # only v12 #") {
+      return String::new();
+    }
+
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
 
