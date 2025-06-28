@@ -115,8 +115,61 @@ impl Config {
           output.replace(parser.range(), source[source_start..source_end].trim());
         }
 
-        Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
-          output.replace(parser.range(), "Settings");
+        Token::Word
+          if parser.slice() == "BlockStateContainer" && package == "net.macmv.rgen.block" =>
+        {
+          macro_rules! t {
+            ($tok:expr) => {
+              if parser.next() != Some($tok) {
+                panic!("expected {:?}, found {:?}", $tok, parser.slice());
+              }
+            };
+            ($tok:expr, $slice:expr) => {
+              if parser.next() != Some($tok) && parser.slice() != $slice {
+                panic!("expected {:?}, found {:?}", $slice, parser.slice());
+              }
+            };
+          }
+
+          let start = parser.range().start;
+
+          t!(Token::Word, "createBlockState");
+          t!(Token::Punct, "(");
+          t!(Token::Punct, ")");
+          t!(Token::Punct, "{");
+          t!(Token::Word, "return");
+          t!(Token::Word, "new");
+          t!(Token::Word, "BlockStateContainer");
+          t!(Token::Punct, "(");
+          t!(Token::Word, "this");
+          t!(Token::Punct, ",");
+
+          let mut props = vec![];
+          loop {
+            if parser.next() != Some(Token::Word) {
+              panic!("expected word, found {:?}", parser.slice());
+            }
+
+            props.push(parser.slice());
+            match parser.next() {
+              Some(Token::Punct) if parser.slice() == "," => {}
+              Some(Token::Punct) if parser.slice() == ")" => break,
+              _ => panic!("expected ',' or ')', found {:?}", parser.slice()),
+            }
+          }
+
+          t!(Token::Punct, ";");
+          t!(Token::Punct, "}");
+
+          let end = parser.range().end;
+
+          output.replace(
+            start..end,
+            &format!(
+              "void appendProperties(net.minecraft.state.StateManager.Builder<Block, BlockState> builder) {{\n    builder.add({});\n  }}",
+              props.join(", ")
+            ),
+          );
         }
         Token::Word if parser.slice() == "super" && package == "net.macmv.rgen.block" => {
           if parser.next() == Some(Token::Punct) && parser.slice() == "(" {
@@ -130,6 +183,9 @@ impl Config {
               }
             }
           }
+        }
+        Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "Settings");
         }
         Token::Word if parser.slice() == "getName" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "asString");
