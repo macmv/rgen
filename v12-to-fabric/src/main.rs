@@ -22,6 +22,7 @@ fn main() {
   renames.insert("net.minecraft.util.IStringSerializable", "net.minecraft.util.StringIdentifiable");
 
   // blocks
+  renames.insert("net.minecraft.block.BlockBush", "net.minecraft.block.BushBlock");
   renames.insert("net.minecraft.block.BlockLog", "net.minecraft.block.LogBlock");
   renames.insert("net.minecraft.init.Blocks", "net.minecraft.block.Blocks");
   renames.insert("net.minecraft.block.state.IBlockState", "net.minecraft.block.BlockState");
