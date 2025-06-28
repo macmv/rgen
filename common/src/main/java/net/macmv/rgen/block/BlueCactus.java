@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -23,9 +22,8 @@ import java.util.Random;
 public class BlueCactus extends Block {
   protected static final AxisAlignedBB AABB_CACTUS = MathUtil.aabb(4, 0, 4, 12, 8, 12);
 
-  public BlueCactus() {
-    super(Material.PLANTS);
-    this.setHardness(0.4f);
+  public BlueCactus(BlockSettings settings) {
+    super(settings.material);
   }
 
   @Override

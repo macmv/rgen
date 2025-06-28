@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 public class LeavesBlockOne extends LeavesBlock {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta < 4);
 
-  public LeavesBlockOne() {
+  public LeavesBlockOne(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 

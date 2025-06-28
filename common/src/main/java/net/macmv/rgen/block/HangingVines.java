@@ -2,7 +2,7 @@ package net.macmv.rgen.block;
 
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
@@ -10,7 +10,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,11 +17,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class HangingVines extends Block {
   public static final PropertyEnum<Type> TYPE = PropertyEnum.create("type", Type.class);
 
-  public HangingVines() {
-    super(Material.PLANTS); // Change material if needed
+  public HangingVines(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, Type.BOTTOM));
   }
-
 
   // LOOK
   @Override
@@ -38,7 +36,6 @@ public class HangingVines extends Block {
   public BlockRenderLayer getBlockLayer() {
     return BlockRenderLayer.CUTOUT_MIPPED;
   }
-
 
 
   // CAN WALK THROUGH
@@ -63,8 +60,8 @@ public class HangingVines extends Block {
     Block aboveBlock = aboveState.getBlock();
 
     if (!(aboveBlock == this ||
-        aboveBlock.isLeaves(aboveState, worldIn, abovePos) ||
-        aboveBlock.isWood(worldIn, abovePos))) {
+      aboveBlock.isLeaves(aboveState, worldIn, abovePos) ||
+      aboveBlock.isWood(worldIn, abovePos))) {
       // Drop the block as an item and set the position to air if not supported
       worldIn.destroyBlock(pos, true);
     }

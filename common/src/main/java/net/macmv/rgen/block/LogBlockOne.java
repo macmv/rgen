@@ -1,6 +1,5 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -12,9 +11,8 @@ import net.minecraft.util.NonNullList;
 public class LogBlockOne extends BlockLog {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type.meta <= LogType.CEDAR.meta);
 
-  public LogBlockOne() {
+  public LogBlockOne(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR).withProperty(LOG_AXIS, EnumAxis.Y));
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
   }
 
   @Override

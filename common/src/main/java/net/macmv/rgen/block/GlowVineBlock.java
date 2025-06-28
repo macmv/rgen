@@ -4,8 +4,7 @@ import net.minecraft.block.BlockVine;
 
 public class GlowVineBlock extends BlockVine {
 
-  public GlowVineBlock() {
+  public GlowVineBlock(BlockSettings settings) {
     super();
-    this.lightValue = 3;
   }
 }

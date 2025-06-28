@@ -1,9 +1,7 @@
 package net.macmv.rgen.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -13,9 +11,8 @@ import net.minecraftforge.common.IPlantable;
 
 public class PlantableStone extends Block {
 
-  public PlantableStone() {
-    super(Material.ROCK);
-    this.setCreativeTab(CreativeTabs.DECORATIONS);
+  public PlantableStone(BlockSettings settings) {
+    super(settings.material);
   }
 
   @Override

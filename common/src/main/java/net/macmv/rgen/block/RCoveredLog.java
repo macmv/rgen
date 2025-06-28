@@ -1,10 +1,6 @@
 package net.macmv.rgen.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
@@ -22,12 +18,9 @@ public class RCoveredLog extends BlockLog {
 
   private final boolean growableSurface;
 
-  public RCoveredLog(boolean growableSurface) {
+  public RCoveredLog(BlockSettings settings, boolean growableSurface) {
     super();
     this.growableSurface = growableSurface;
-    this.setHardness(3.0F);
-    this.setResistance(5.0F);
-    this.setSoundType(SoundType.WOOD);
     this.setDefaultState(this.blockState.getBaseState().withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
   }
 
@@ -37,8 +30,7 @@ public class RCoveredLog extends BlockLog {
   } */
 
   @SideOnly(Side.CLIENT)
-  public BlockRenderLayer getBlockLayer()
-  {
+  public BlockRenderLayer getBlockLayer() {
     return BlockRenderLayer.CUTOUT_MIPPED;
   }
 

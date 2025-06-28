@@ -2,7 +2,6 @@ package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -28,8 +27,8 @@ public class Bamboo extends Block {
   protected static final AxisAlignedBB BAMBOO_Z = MathUtil.aabb(2.5, 0, 10.5, 5.5, 16, 13.5);
   protected static final AxisAlignedBB BAMBOO_XZ = MathUtil.aabb(10.5, 0, 10.5, 13.5, 16, 13.5);
 
-  public Bamboo() {
-    super(Material.PLANTS);
+  public Bamboo(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(PLACEMENT, Placement.STANDARD).withProperty(HAS_LEAVES, false));
   }
 

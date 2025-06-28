@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -23,11 +22,11 @@ public class PinkFlowerbed extends Block {
   public static final PropertyInteger COUNT = PropertyInteger.create("count", 1, 4);
   protected static final AxisAlignedBB PLANT_AABB = MathUtil.aabb(0, 0, 0, 16, 3, 16);
 
-
-  public PinkFlowerbed() {
-    super(Material.PLANTS);
+  public PinkFlowerbed(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(ROTATION, EnumFacing.NORTH).withProperty(COUNT, 1));
   }
+
   @Override
   public boolean isOpaqueCube(IBlockState state) {
     return false;

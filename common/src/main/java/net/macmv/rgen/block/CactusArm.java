@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -30,8 +29,8 @@ public class CactusArm extends Block {
   public static final PropertyEnum<CactusArm.Face> FACE = PropertyEnum.create("face", CactusArm.Face.class);
   protected static final AxisAlignedBB AABB_ARM = MathUtil.aabb(4, 1, 4, 12, 15, 12);
 
-  public CactusArm() {
-    super(Material.PLANTS);
+  public CactusArm(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(FACE, CactusArm.Face.NORTH));
   }
 

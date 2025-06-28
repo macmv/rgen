@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -23,9 +22,8 @@ import java.util.Random;
 public class RgenCactus extends Block {
   protected static final AxisAlignedBB AABB_CACTUS = MathUtil.aabb(1, 0, 1, 15, 16, 15);
 
-  public RgenCactus() {
-    super(Material.PLANTS);
-    this.setHardness(0.4f);
+  public RgenCactus(BlockSettings settings) {
+    super(settings.material);
   }
   @Override
   public boolean isOpaqueCube(IBlockState state) {

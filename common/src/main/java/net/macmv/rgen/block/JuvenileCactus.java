@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -32,11 +31,9 @@ public class JuvenileCactus extends Block {
   protected static final AxisAlignedBB AABB_SMALL = MathUtil.aabb(4, 0, 4, 12, 8, 12);
   protected static final AxisAlignedBB AABB_MEDIUM = MathUtil.aabb(1, 0, 1, 15, 16, 15);
 
-  public JuvenileCactus() {
-    super(Material.PLANTS);
-    this.setHardness(0.4f);
+  public JuvenileCactus(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN).withProperty(AGE, Age.ZERO));
-
   }
 
   @Override

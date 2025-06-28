@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -33,8 +32,8 @@ public class PolyporeBlock extends Block {
   protected static final AxisAlignedBB EAST_3_AABB = MathUtil.aabb(0, 7, 2, 4, 11, 14);
   protected static final AxisAlignedBB WEST_3_AABB = MathUtil.aabb(12, 7, 2, 16, 11, 14);
 
-  public PolyporeBlock() {
-    super(Material.PLANTS);
+  public PolyporeBlock(BlockSettings settings) {
+    super(settings.material);
   }
 
   @Override

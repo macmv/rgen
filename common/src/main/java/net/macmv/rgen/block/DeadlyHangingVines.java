@@ -2,29 +2,25 @@ package net.macmv.rgen.block;
 
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBush;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateBase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class DeadlyHangingVines extends Block {
   public static final PropertyEnum<Type> TYPE = PropertyEnum.create("type", Type.class);
 
-  public DeadlyHangingVines() {
-    super(Material.PLANTS); // Change material if needed
+  public DeadlyHangingVines(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, Type.BOTTOM));
   }
 
@@ -64,7 +60,6 @@ public class DeadlyHangingVines extends Block {
       entityIn.fallDistance = 0.0F; // Prevents fall damage
     }
   }
-
 
 
   @Override

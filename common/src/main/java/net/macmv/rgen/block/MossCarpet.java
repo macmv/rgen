@@ -1,7 +1,6 @@
 package net.macmv.rgen.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -12,8 +11,8 @@ public class MossCarpet extends Block {
   //protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0.09999999403953552, 0.0, 0.09999999403953552, 0.8999999761581421, 0.800000011920929, 0.8999999761581421);
   protected static final AxisAlignedBB CARPET_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.0625D, 1.0D);
 
-  public MossCarpet() {
-    super(Material.CARPET);
+  public MossCarpet(BlockSettings settings) {
+    super(settings.material);
   }
 
   @Override
