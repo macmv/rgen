@@ -251,6 +251,10 @@ impl Config {
         Token::Word if parser.slice() == "getName" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "asString");
         }
+        // Property#create -> Property#of
+        Token::Word if parser.slice() == "create" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "of");
+        }
         // getValue(Property) -> get(Property)
         Token::Word if parser.slice() == "getValue" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "get");
