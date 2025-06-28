@@ -194,6 +194,9 @@ impl Config {
         Token::Word if parser.slice() == "getValue" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "get");
         }
+        Token::Word if parser.slice() == "withProperty" && package == "net.macmv.rgen.block" => {
+          output.replace(parser.range(), "with");
+        }
         Token::Word if parser.slice() == "getBoundingBox" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "getOutlineShape");
         }
