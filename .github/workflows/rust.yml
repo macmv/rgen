@@ -1,9 +1,9 @@
-name: rust build
+name: rust
 
 on:
   pull_request:
 
-env: 
+env:
   CARGO_TERM_COLOR: always
 
 jobs:
@@ -19,8 +19,8 @@ jobs:
           # Only check libs to avoid building `rgen-viewer`.
           cargo clippy --lib -- -D warnings
 
-  test:
-    name: test
+  unit:
+    name: unit
     runs-on: ubuntu-latest
 
     steps:
