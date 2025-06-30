@@ -13,7 +13,9 @@ pub const DEBUG_ORES: bool = false;
 pub const VILLAGES: bool = false;
 
 /// Overrides the geographic type of the world.
-pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Standard;
+pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
+//pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
+
 
 /// Overrides the climate type of the world.
 pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
