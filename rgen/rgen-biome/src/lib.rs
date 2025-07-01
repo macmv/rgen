@@ -33,7 +33,6 @@ pub struct WorldBiomes {
   seed: u64,
 
   composition_lookup: CompositionLookup,
-  biome_override:     bool,
 
   cave:      CaveCarver,
   structure: StructureGenerator,
@@ -140,7 +139,6 @@ impl WorldBiomes {
       seed,
 
       composition_lookup: CompositionLookup::new(seed),
-      biome_override: false,
 
       cave: CaveCarver::new(info, seed),
       structure: StructureGenerator::new(seed),

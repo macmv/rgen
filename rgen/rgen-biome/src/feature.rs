@@ -17,3 +17,6 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 
 /// Overrides the climate type of the world.
 pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
+
+/// Override the entire world to be a single biome (the blank biome).
+pub const BIOME_OVERRIDE: bool = false;
