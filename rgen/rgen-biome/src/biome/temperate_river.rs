@@ -99,6 +99,7 @@ pub fn lavender_river(g: &mut BiomeBuilder) {
     },
   );
 }
+
 pub fn volcano_river(g: &mut BiomeBuilder) {
   g.id = biome![plains];
   g.color = "#899781";
