@@ -1,5 +1,5 @@
 # Biomes
-All regions require documentation explaining biomes and geographic type.  
+All regions require documentation explaining biomes and geographic type. this should be within each folder.
 
 **frozen_region**  
 - frozen_region/ice_cap  
