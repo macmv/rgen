@@ -28,3 +28,7 @@ forge*changelog.txt
 /.keys
 
 .DS_Store
+
+# aseprite
+.aseprite
+.ase
