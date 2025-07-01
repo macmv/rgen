@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -35,8 +34,8 @@ public class DoubleTallLavenderPlant extends BlockBush {
   //protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0.09999999403953552, 0.0, 0.09999999403953552, 0.8999999761581421, 1, 0.8999999761581421);
   protected static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0, 0.0, 0, 1, 1, 1);
 
-  public DoubleTallLavenderPlant() {
-    super(Material.VINE);
+  public DoubleTallLavenderPlant(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, EnumVariant.VARIANT_1).withProperty(HALF, BlockDoublePlant.EnumBlockHalf.LOWER));
   }
 

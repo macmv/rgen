@@ -1,10 +1,7 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -17,13 +14,9 @@ import net.minecraft.world.IBlockAccess;
 public class PlanksBlock extends Block {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta <= LogType.DEAD.meta);
 
-  public PlanksBlock() {
-    super(Material.WOOD);
+  public PlanksBlock(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR));
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-    this.setHardness(2.0F);
-    this.setResistance(5.0F);
-    this.setSoundType(SoundType.WOOD);
   }
 
   @Override

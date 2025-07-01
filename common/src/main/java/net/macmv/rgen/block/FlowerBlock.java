@@ -1,9 +1,7 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -18,11 +16,9 @@ import net.minecraft.world.IBlockAccess;
 public class FlowerBlock extends BlockBush {
   public static PropertyEnum<FlowerType> TYPE = PropertyEnum.create("type", FlowerType.class);
 
-  protected FlowerBlock() {
+  protected FlowerBlock(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, FlowerType.FORGETMENOT));
-
-    this.setCreativeTab(RCreativeTabs.DECORATIONS);
-    this.setSoundType(SoundType.PLANT);
   }
 
   @Override

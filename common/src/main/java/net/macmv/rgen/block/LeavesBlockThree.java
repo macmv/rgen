@@ -22,7 +22,7 @@ import java.util.List;
 public class LeavesBlockThree extends LeavesBlock {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta >= 8 && ty.meta < 9);
 
-  public LeavesBlockThree() {
+  public LeavesBlockThree(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.ASPEN));
   }
 

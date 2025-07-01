@@ -5,7 +5,6 @@ import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockSapling;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -29,8 +28,8 @@ public class JuvenileGreenCactus extends Block {
   // Define the custom stage property
   public static final PropertyInteger STAGE = PropertyInteger.create("stage", 0, 4);
 
-  public JuvenileGreenCactus() {
-    super(Material.PLANTS);
+  public JuvenileGreenCactus(BlockSettings settings) {
+    super(settings.material);
     this.setDefaultState(this.blockState.getBaseState().withProperty(STAGE, 0)); // Default to stage 0
     this.setTickRandomly(true); // Enable random ticks
   }

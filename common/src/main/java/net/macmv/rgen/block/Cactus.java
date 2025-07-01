@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -34,10 +33,9 @@ public class Cactus extends Block {
   protected static final AxisAlignedBB AABB_ORANGE_COLIDE = NULL_AABB;
 
 
-  public Cactus() {
-    super(Material.PLANTS);
-    this.setHardness(0.4f);
-    this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN));
+  public Cactus(BlockSettings settings) {
+    super(settings.material);
+    this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Cactus.Color.GREEN));
   }
 
   @Override

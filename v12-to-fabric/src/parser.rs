@@ -1,9 +1,9 @@
 use std::ops::Range;
 
 pub struct Parser<'a> {
-  src:  &'a str,
-  prev: usize,
-  pos:  usize,
+  pub src: &'a str,
+  prev:    usize,
+  pos:     usize,
 }
 
 impl<'a> Parser<'a> {
@@ -16,6 +16,9 @@ pub enum Token {
   String,
   Number,
   Punct,
+
+  FabricComment,
+  V12Comment,
 }
 
 impl<'a> Parser<'a> {
@@ -28,14 +31,24 @@ impl<'a> Parser<'a> {
     c
   }
 
-  fn skip_whitespace(&mut self) {
-    while let Some(c) = self.char() {
+  fn skip_whitespace(&mut self) -> Option<Token> {
+    let mut fabric_comment = false;
+    let mut v12_comment = false;
+    let start = self.pos;
+
+    'outer: while let Some(c) = self.char() {
       match c {
         '/' if self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') => {
           // Skip the `//`
           self.pos += 2;
+          let comment_start = self.pos;
 
           while let Some(c) = self.char() {
+            if self.src[comment_start..self.pos].trim() == "#v12-start" {
+              v12_comment = true;
+              break 'outer;
+            }
+
             if c == '\n' {
               self.pos += c.len_utf8();
               break;
@@ -51,6 +64,10 @@ impl<'a> Parser<'a> {
           self.pos += 2;
 
           while let Some(c) = self.char() {
+            if self.src[start..self.pos].trim() == "/* #fabric:" {
+              fabric_comment = true;
+            }
+
             if c == '*' && self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') {
               self.pos += 2;
               break;
@@ -69,13 +86,54 @@ impl<'a> Parser<'a> {
       }
       self.pos += c.len_utf8();
     }
+
+    if fabric_comment {
+      return Some(Token::FabricComment);
+    }
+
+    if v12_comment {
+      while let Some(c) = self.char() {
+        match c {
+          '/' if self.src[self.pos + c.len_utf8()..].chars().next() == Some('/') => {
+            // Skip the `//`
+            self.pos += 2;
+            let comment_start = self.pos;
+
+            while let Some(c) = self.char() {
+              if self.src[comment_start..self.pos].trim() == "#v12-end" {
+                self.skip_whitespace();
+                return Some(Token::V12Comment);
+              }
+
+              if c == '\n' {
+                self.pos += c.len_utf8();
+                break;
+              }
+              self.pos += c.len_utf8();
+            }
+
+            continue;
+          }
+
+          _ => self.pos += c.len_utf8(),
+        }
+      }
+
+      panic!("no #v12-end comment found");
+    }
+
+    None
   }
 
   pub const fn range(&self) -> Range<usize> { self.prev..self.pos }
   pub fn slice(&self) -> &'a str { &self.src[self.range()] }
 
   pub fn next(&mut self) -> Option<Token> {
-    self.skip_whitespace();
+    let start = self.pos;
+    if let Some(t) = self.skip_whitespace() {
+      self.prev = start;
+      return Some(t);
+    }
     self.prev = self.pos;
 
     match self.advance()? {

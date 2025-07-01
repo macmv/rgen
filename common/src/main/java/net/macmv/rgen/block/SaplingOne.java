@@ -11,7 +11,7 @@ public class SaplingOne extends Sapling {
   private static final int OFFSET = 0;
   public static final PropertyEnum<LogType> TYPE = PropertyEnum.create("type", LogType.class, ty -> ty.meta >= OFFSET && ty.meta < OFFSET + 8);
 
-  public SaplingOne() {
+  public SaplingOne(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, LogType.FIR).withProperty(STAGE, 0));
   }
 

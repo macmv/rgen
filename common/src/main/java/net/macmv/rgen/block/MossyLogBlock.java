@@ -1,6 +1,5 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
@@ -19,8 +18,7 @@ import net.minecraftforge.common.IPlantable;
 public class MossyLogBlock extends BlockLog {
   public static final PropertyEnum<MossyLogBlock.LogType> VARIANT = PropertyEnum.create("variant", MossyLogBlock.LogType.class);
 
-  public MossyLogBlock() {
-    this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
+  public MossyLogBlock(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, MossyLogBlock.LogType.OAK).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
   }
 

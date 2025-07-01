@@ -54,7 +54,12 @@ tasks.register('transformCommonSources') {
           // throw new RuntimeException("Transformation failed for ${srcFile.absolutePath}: ${process.err.text}")
         }
 
-        destFile.text = process.in.text
+        def output = process.in.text
+        if (output.isEmpty()) {
+          destFile.delete()
+        } else {
+          destFile.text = output
+        }
       }
     }
   }

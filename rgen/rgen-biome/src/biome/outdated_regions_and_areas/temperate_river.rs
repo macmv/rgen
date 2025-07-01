@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
-use crate::builder::PlacerStage;
-
-use super::BiomeBuilder;
+use crate::builder::{BiomeBuilder, PlacerStage};
 
 pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
   println!("hey neil, hey neil, how you doing?");

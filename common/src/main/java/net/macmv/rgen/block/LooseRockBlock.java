@@ -3,7 +3,6 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -34,8 +33,8 @@ public class LooseRockBlock extends Block {
   protected static final AxisAlignedBB LARGE_SELECTED_EAST_AABB = MathUtil.aabb(3, 0, 4, 13, 2, 12);
   protected static final AxisAlignedBB LARGE_SELECTED_WEST_AABB = MathUtil.aabb(3, 0, 4, 13, 2, 12);
 
-  public LooseRockBlock() {
-    super(Material.ROCK);
+  public LooseRockBlock(BlockSettings settings) {
+    super(settings.material);
   }
 
   @Override
