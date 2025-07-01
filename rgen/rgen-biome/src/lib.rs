@@ -253,6 +253,7 @@ impl Generator for WorldBiomes {
           let rel_pos = ChunkRelPos::new(x, 0, z);
 
           chunk.set(rel_pos, ctx.blocks.encode(block![grass]));
+          chunk.add_surface(rel_pos);
         }
       }
 
