@@ -1,9 +1,7 @@
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
-use crate::builder::PlacerStage;
-
-use super::BiomeBuilder;
+use crate::builder::{BiomeBuilder, PlacerStage};
 
 #[allow(dead_code)]
 pub fn cherry_blossom_grove(g: &mut BiomeBuilder) {

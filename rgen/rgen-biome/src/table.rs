@@ -106,11 +106,11 @@ biome_categories!(
 
     // Tropical vvv
 
-    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
 
-    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
 
-    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, deep_jungle)];
+    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
 
     let (GeographicType::Hills, ClimateType::Tropical) = &[b!(20, blank)];
 

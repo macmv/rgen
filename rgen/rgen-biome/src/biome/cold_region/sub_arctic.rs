@@ -514,6 +514,7 @@ fn fir_rainbow_mix(g: &mut BiomeBuilder) {
     },
   );
 }
+
 // OTHER
 
 pub fn windswept_hill(g: &mut BiomeBuilder) {
@@ -952,6 +953,7 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
 }
 
 // EFFECTS
+
 fn ground(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 2, 5);
