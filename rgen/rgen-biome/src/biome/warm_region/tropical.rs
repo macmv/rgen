@@ -3,7 +3,6 @@ use rgen_placer::placer;
 
 use crate::{BiomeBuilder, builder::PlacerStage};
 
-#[allow(dead_code)]
 pub fn deep_jungle(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
   g.color = "#E0705F";

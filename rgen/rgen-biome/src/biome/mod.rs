@@ -2,35 +2,34 @@
 
 
 mod cold_region;
-mod frozen_region;
-mod temperate_region;
-mod warm_region;
-
-mod blank;
-mod cave;
-mod coast_regions;
-mod hot_regions;
-
-mod river;
-mod temperate_river;
-mod warm_temperate_regions;
-
-pub use blank::*;
 #[allow(unused_imports)]
-pub use cave::*;
-#[allow(unused_imports)]
-pub use coast_regions::*;
 pub use cold_region::*;
+
+mod frozen_region;
+#[allow(unused_imports)]
+pub use frozen_region::*;
+
+mod hot_region;
+#[allow(unused_imports)]
+pub use hot_region::*;
+
+mod outdated_regions_and_areas;
+#[allow(unused_imports)]
+pub use outdated_regions_and_areas::*;
+
+mod temperate_region;
 #[allow(unused_imports)]
 pub use temperate_region::*;
+
+mod warm_region;
 #[allow(unused_imports)]
-pub use hot_regions::*;
+pub use warm_region::*;
+
+
+mod cave;
 #[allow(unused_imports)]
-pub use river::*;
-#[allow(unused_imports)]
-pub use temperate_river::*;
-#[allow(unused_imports)]
-pub use warm_temperate_regions::*;
+pub use cave::*;
+
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
