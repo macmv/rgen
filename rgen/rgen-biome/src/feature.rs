@@ -22,4 +22,4 @@ pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
 pub const BIOME_OVERRIDE: bool = false;
 
 /// Replaces everything with a superflat world.
-pub const SUPERFLAT: bool = true;
+pub const SUPERFLAT: bool = false;
