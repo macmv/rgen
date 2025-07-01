@@ -4,8 +4,8 @@ mod blank;
 mod cave;
 mod coast_regions;
 mod cold_region;
+mod temperate_region;
 
-mod forests;
 mod hot_regions;
 mod jungle;
 mod river;
@@ -20,7 +20,7 @@ pub use cave::*;
 pub use coast_regions::*;
 pub use cold_region::*;
 #[allow(unused_imports)]
-pub use forests::*;
+pub use temperate_region::*;
 #[allow(unused_imports)]
 pub use hot_regions::*;
 #[allow(unused_imports)]
