@@ -51,7 +51,7 @@ biome_categories!(
   fn build() {
     //debug biomes
     let (GeographicType::Standard, ClimateType::DebugClimate) =
-      &[b!(20, deep_jungle)];
+      &[b!(20, terraced_jungle_wood)];
 
     // IceCap vvv
 
