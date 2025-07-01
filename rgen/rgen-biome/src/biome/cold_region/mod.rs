@@ -1,5 +1,3 @@
-mod deep_cold_regions;
-mod sub_arctic_region;
+mod sub_arctic;
 
-pub use deep_cold_regions::*;
-pub use sub_arctic_region::*;
+pub use sub_arctic::*;

@@ -1,16 +1,18 @@
 //! Stores all the actual biome implementations.
 
+
+mod cold_region;
+mod frozen_region;
+mod temperate_region;
+mod warm_region;
+
 mod blank;
 mod cave;
 mod coast_regions;
-mod cold_region;
-mod temperate_region;
-
 mod hot_regions;
-mod jungle;
+
 mod river;
 mod temperate_river;
-mod tropical_regions;
 mod warm_temperate_regions;
 
 pub use blank::*;
@@ -24,13 +26,9 @@ pub use temperate_region::*;
 #[allow(unused_imports)]
 pub use hot_regions::*;
 #[allow(unused_imports)]
-pub use jungle::*;
-#[allow(unused_imports)]
 pub use river::*;
 #[allow(unused_imports)]
 pub use temperate_river::*;
-#[allow(unused_imports)]
-pub use tropical_regions::*;
 #[allow(unused_imports)]
 pub use warm_temperate_regions::*;
 
