@@ -3,7 +3,7 @@ use rgen_placer::placer;
 
 use crate::{BiomeBuilder, builder::PlacerStage};
 
-pub fn deep_jungle(g: &mut BiomeBuilder) {
+pub fn terraced_jungle_wood(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
   g.color = "#E0705F";
   g.set_top_block(block![grass]);
