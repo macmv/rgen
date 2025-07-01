@@ -34,7 +34,7 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(seed, &[b!(20, fir_grove)]), lookup }
+        CompositionLookup { blank: composition(seed, &[b!(20, terraced_jungle_wood)]), lookup }
       }
     }
   };
