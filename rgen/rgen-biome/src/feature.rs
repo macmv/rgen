@@ -17,3 +17,6 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 
 /// Overrides the climate type of the world.
 pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
+
+/// Replaces everything with a superflat world.
+pub const SUPERFLAT: bool = true;

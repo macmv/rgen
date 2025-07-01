@@ -249,6 +249,18 @@ impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     profile_function!();
 
+    if feature::SUPERFLAT {
+      for x in 0..16 {
+        for z in 0..16 {
+          let rel_pos = ChunkRelPos::new(x, 0, z);
+
+          chunk.set(rel_pos, ctx.blocks.encode(block![grass]));
+        }
+      }
+
+      return;
+    }
+
     if feature::DEBUG_ORES && (0..=8).contains(&chunk_pos.x()) {
       return;
     }
@@ -267,6 +279,10 @@ impl Generator for WorldBiomes {
 
   fn decorate(&self, world: &mut PartialWorld, chunk_pos: ChunkPos) {
     profile_function!();
+
+    if feature::SUPERFLAT {
+      return;
+    }
 
     if feature::DEBUG_ORES && (-1..=9).contains(&chunk_pos.x()) {
       return;
