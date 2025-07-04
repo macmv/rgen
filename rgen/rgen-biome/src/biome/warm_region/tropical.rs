@@ -3,13 +3,81 @@ use rgen_placer::placer;
 
 use crate::{BiomeBuilder, builder::PlacerStage};
 
+// light_jungle_wood
+
+pub fn light_jungle_wood(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F";
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
+
+    g.place(
+    "basic jungle",
+    PlacerStage::Tree,
+    placer::BasicJungle {
+      trunk:         block![log[variant = "jungle"]],
+      leaves:        block![leaves[variant = "birch"]],
+      avg_per_chunk: 2.0,
+      is_cocoa:      true,
+      shroom:        block![cocoa],
+      ground:        block![grass],
+      vine:          block![vine],
+    },
+  );
+
+    g.place(
+    "jungle log",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log:            block![log[variant = "spruce"]],
+      moss_log:       block![rgen:covered_jungle_log],
+      ground:         block![grass],
+      plants:         block![tallgrass[type="tall_grass"]].into(),
+      avg_per_chunk:  1.75,
+      chance_of_moss: 5,
+      is_shrooms:     false,
+      shroom:         block![rgen:polypore],
+    },
+  );
+
+
+  g.place(
+    "Jungle bushes",
+    PlacerStage::Tree,
+    placer::BushClumps {
+      place_above:   [block![grass]].into(),
+      log:           block![log[variant = "jungle"]],
+      leaves:        block![leaves[variant = "jungle"]],
+      avg_per_chunk: 6.0,
+      radius:        3..=5,
+    },
+  );
+
+  g.place(
+    "Grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above:      g.top_block().into(),
+      place_short:      block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
+
+      radius:        4..=10,
+      attempts:      50,
+      avg_per_chunk: 8.0,
+    },
+  );
+}
+
+// terraced_jungle_wood
+
 pub fn terraced_jungle_wood(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
   g.color = "#E0705F";
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 5, 8);
 
-  g.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::default());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::TerraceJungleTree::default());
 
   g.place(
     "Jungle bushes",

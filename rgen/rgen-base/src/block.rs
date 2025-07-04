@@ -438,6 +438,13 @@ blocks! {
     age: 0..=2,
     facing: ["north", "south", "west", "east"],
   ],
+  Vine => minecraft:vine[
+    east: PropType::Bool,
+    west: PropType::Bool,
+    north: PropType::Bool,
+    south: PropType::Bool,
+    up: PropType::Bool,
+  ],
   GrassPath => minecraft:grass_path,
   CoalOre => minecraft:coal_ore,
   IronOre => minecraft:iron_ore,
@@ -463,6 +470,9 @@ blocks! {
     check_decay: PropType::Bool,
     decayable: PropType::Bool,
     variant: RGEN_WOOD_4_3,
+  ],//
+  RgenJungleStump => rgen:covered_jungle_log[
+    axis: ["x", "y", "z", "none"],
   ],
   RgenMossyStump => rgen:mossy_stump[
     axis: ["x", "y", "z", "none"],
