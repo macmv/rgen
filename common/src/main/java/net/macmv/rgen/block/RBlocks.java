@@ -67,6 +67,7 @@ public final class RBlocks {
   public static final Block COVERED_BIRCH_LOG = register("covered_birch_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block COVERED_JUNGLE_LOG = register("covered_jungle_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
 
+  // This block is to be deprecated do not USE
   public static final Block MOSSY_STUMP = register("mossy_stump", MossyLogBlock::new, new BlockSettings().creativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Block BAMBOO = register("bamboo", Bamboo::new, new BlockSettings().material(Material.PLANTS));
 
