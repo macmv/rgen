@@ -2,9 +2,18 @@ use rgen_base::{biome, block};
 use rgen_placer::placer;
 
 use crate::{BiomeBuilder, builder::PlacerStage};
+// big_canopy_jungle
+pub fn deep_canopy_jungle_wood(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F";
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
+
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
+
+}
 
 // light_jungle_wood
-
 pub fn light_jungle_wood(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
   g.color = "#E0705F";

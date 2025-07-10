@@ -13,6 +13,7 @@ mod oak_tree;
 mod palm;
 mod sequoia;
 mod jungle_standard;
+mod wide_canopy_jungle;
 
 pub use aspen_tree::*;
 pub use bamboo::*;
@@ -29,3 +30,4 @@ pub use oak_tree::*;
 pub use palm::*;
 pub use sequoia::*;
 pub use jungle_standard::*;
+pub use wide_canopy_jungle::*;
