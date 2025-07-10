@@ -61,7 +61,13 @@ impl Placer for BasicBirch {
             continue;
           }
           //sets the leaves
-          world.set(pos + Pos::new(x, y, z), self.leaves);
+          if world.get(pos + Pos::new(x, y, z)) == block![air] || world.get(pos + Pos::new(x, y, z)) == self.leaves{
+            world.set(pos + Pos::new(x, y, z), self.leaves);
+          }else{
+return Err(UndoError);
+          }
+          
+          //
         }
       }
     }

@@ -17,16 +17,14 @@ pub fn light_jungle_wood(g: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BasicJungle {
       trunk:         block![log[variant = "jungle"]],
-      leaves:        block![leaves[variant = "birch"]],
-      avg_per_chunk: 2.0,
+      leaves:        block![leaves[variant = "jungle"]],
+      avg_per_chunk: 7.0,
       is_cocoa:      true,
       shroom:        block![cocoa],
       ground:        block![grass],
       vine:          block![vine],
     },
   );
-  
-
 
   g.place(
     "Jungle bushes",
@@ -37,6 +35,21 @@ pub fn light_jungle_wood(g: &mut BiomeBuilder) {
       leaves:        block![leaves[variant = "jungle"]],
       avg_per_chunk: 6.0,
       radius:        3..=5,
+    },
+  );
+
+    g.place(
+    "jungle log",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log:            block![log[variant = "jungle"]],
+      moss_log:       block![rgen:covered_jungle_log],
+      ground:         block![grass],
+      plants:         block![tallgrass[type="tall_grass"]].into(),
+      avg_per_chunk:  0.75,
+      chance_of_moss: 5,
+      is_shrooms:     false,
+      shroom:         block![rgen:polypore],
     },
   );
 
@@ -52,21 +65,6 @@ pub fn light_jungle_wood(g: &mut BiomeBuilder) {
       radius:        4..=10,
       attempts:      50,
       avg_per_chunk: 8.0,
-    },
-  );
-  
-    g.place(
-    "jungle log",
-    PlacerStage::Tree,
-    placer::LogAndStump {
-      log:            block![log[variant = "jungle"]],
-      moss_log:       block![rgen:covered_jungle_log],
-      ground:         block![grass],
-      plants:         block![tallgrass[type="tall_grass"]].into(),
-      avg_per_chunk:  0.25,
-      chance_of_moss: 5,
-      is_shrooms:     false,
-      shroom:         block![rgen:polypore],
     },
   );
 }

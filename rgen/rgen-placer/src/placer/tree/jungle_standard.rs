@@ -66,6 +66,8 @@ impl Placer for BasicJungle {
           let leafloc = pos + Pos::new(x, y, z);
           if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa]{
             world.set(leafloc, self.leaves);
+          }else{
+            return Err(UndoError);
           }
         }
       }
@@ -87,6 +89,8 @@ impl Placer for BasicJungle {
           let leafloc = pos + Pos::new(x, y - 1, z);
           if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa]{
             world.set(leafloc, self.leaves);
+          }else{
+            return Err(UndoError);
           }
         }
       }
@@ -138,7 +142,7 @@ impl Placer for BasicJungle {
         // Checks if space to grow vine
         if world.get(vineloc) == block![air] && rng.range(0..=1)==0{
           let mut is_space_to_place = false;
-          let mut first_avilable_face = (false,"angle");
+          let mut first_avilable_face = (false,"angle",(0,0));
           let mut aVine = self.vine;
           for side in [(1,0,"east"),(0,1,"south"),(-1,0,"west"),(0,-1,"north")]{
             if world.get(vineloc+Pos::new(side.0,0,side.1)) == self.leaves{
@@ -148,6 +152,7 @@ impl Placer for BasicJungle {
               if !first_avilable_face.0{
                 first_avilable_face.0 = true;
                 first_avilable_face.1 = side.2;
+                first_avilable_face.2  = (side.0,side.1)
               }
               // update vine with new prop
               aVine.set_prop(side.2, true);
@@ -158,7 +163,7 @@ impl Placer for BasicJungle {
             let mut hangingVine = (self.vine);
             hangingVine.set_prop(first_avilable_face.1, true);
             // set the above vine
-            if (world.get(vineloc+Pos::new(0,1,0))== block![air])&& rng.range(0..=3)==0{
+            if (world.get(vineloc+Pos::new(0,1,0))== block![air])&& world.get(vineloc+Pos::new(first_avilable_face.2.0,1,first_avilable_face.2.1))!= block![air] && rng.range(0..=3)==0{
               world.set(vineloc+Pos::new(0,1,0), hangingVine);
 
             }
