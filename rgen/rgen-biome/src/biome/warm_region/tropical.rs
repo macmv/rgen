@@ -9,7 +9,9 @@ pub fn deep_canopy_jungle_wood(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 5, 8);
 
-  g.place("Large Jungle Tree", PlacerStage::Tree, placer::BetterBush::default());
+  g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
+  g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
 
 }
 

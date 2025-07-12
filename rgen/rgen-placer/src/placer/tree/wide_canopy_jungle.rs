@@ -26,7 +26,7 @@ impl Default for WideCanopyJungle {
             trunk: block!(log[variant="jungle"]), //block![concrete[color="red"]],
             branch: block!(log[variant="jungle",axis="none"]),
             top: block![concrete[color="yellow"]],
-            roots: block![leaves[variant = "jungle", check_decay = false, decayable = true]], //block!(log[variant="jungle"]),//block![concrete[color="green"]],
+            roots: block!(log[variant="jungle",axis="none"]), //block!(log[variant="jungle"]),//block![concrete[color="green"]],
             moss_roots: block![rgen:covered_jungle_log],//block![concrete[color="lime"]],
             leaves: block![leaves[variant = "jungle", check_decay = false, decayable = true]],
             vine: block![vine],
@@ -37,7 +37,7 @@ impl Default for WideCanopyJungle {
 impl Placer for WideCanopyJungle {
     fn radius(&self) -> u8 { 10 }
 
-    fn avg_per_chunk(&self) -> f64 { 2.0 }
+    fn avg_per_chunk(&self) -> f64 { 3.0 }
 
     fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
         if pos.y + 24 >= 255 || pos.y <= 1 {

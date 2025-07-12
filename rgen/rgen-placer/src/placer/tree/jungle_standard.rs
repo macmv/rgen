@@ -16,9 +16,9 @@ pub struct BasicJungle {
 impl Default for BasicJungle {
   fn default() -> Self {
     BasicJungle {
-      trunk:         block![log[variant = "birch"]],
-      leaves:        block![leaves[variant = "birch"]],
-      avg_per_chunk: 5.0,
+      trunk:         block![log[variant = "jungle"]],
+      leaves:        block![leaves[variant = "jungle"]],
+      avg_per_chunk: 9.0,
       is_cocoa:    true,
       shroom:        block![cocoa[age = 2]],
       ground:        block![grass],

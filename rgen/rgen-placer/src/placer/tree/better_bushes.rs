@@ -1,6 +1,7 @@
-use rgen_base::{BlockFilter, BlockState, Pos};
+use std::collections::HashMap;
+use rgen_base::{BlockState, BlockFilter, Pos};
 use rgen_world::{PartialWorld, UndoError};
-use crate::{Placer, Random, Result, Rng};
+use crate::{rng, Placer, Random, Result, Rng};
 
 pub struct BetterBush {
     pub place_above: BlockFilter,
@@ -12,20 +13,16 @@ impl Default for BetterBush {
     fn default() -> Self {
         Self {
             place_above: block![grass].into(),
-            trunk: block!(log[variant = "jungle"]),
+            trunk: block!(log[variant="jungle"]),
             leaves: block![leaves[variant = "jungle", check_decay = false, decayable = true]],
         }
     }
 }
 
 impl Placer for BetterBush {
-    fn radius(&self) -> u8 {
-        10
-    }
+    fn radius(&self) -> u8 { 10 }
 
-    fn avg_per_chunk(&self) -> f64 {
-        2.0
-    }
+    fn avg_per_chunk(&self) -> f64 { 12.0 }
 
     fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
         if pos.y + 24 >= 255 || pos.y <= 1 {
@@ -36,103 +33,114 @@ impl Placer for BetterBush {
         if !self.place_above.contains(world.get(below)) || world.get(pos) != block![air] {
             return Err(UndoError);
         }
-
-        self.bush_placer(world, rng, pos);
+        if self.can_place_bush(world, pos){
+            self.bush_placer(world, rng, pos);
+        }
         Ok(())
     }
 }
 
 impl BetterBush {
+    fn can_place_bush(&self, world: &PartialWorld, base: Pos) -> bool {
+        for dy in 0..2 {
+            for dz in -1..=1 {
+                for dx in -1..=1 {
+                    let pos = base + Pos::new(dx, dy, dz);
+                    let block = world.get(pos);
+                    if block != block![air] && block != self.leaves {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
+    }
     fn bush_placer(&self, world: &mut PartialWorld, rng: &mut Rng, base: Pos) {
         let bottoms = vec![
-            vec!["ll--", "lll-", "lcll", "lll-"],
-            vec!["-ll-", "llll", "lcll", "lll-"],
-            vec!["-l--", "llll", "lcll", "lll-"],
-            vec!["----", "lll-", "lcl-", "lll-"],
-            vec!["ll--", "ll--", "lcl-", "-ll-"],
-            vec!["-l--", "lll-", "lcl-", "ll--"],
+            vec!["-ll--", "-lll-", "-lcll", "-lll-", "-----"], // uses top 1
+            vec!["--ll-", "-llll", "-lcll", "-lll-", "-----"], // uses top 2
+            vec!["--l--", "-llll", "-lcll", "-lll-", "-----"], // uses top 1
+            vec!["-----", "-lll-", "-lcl-", "-lll-", "-----"], // uses top 3
+            vec!["-ll--", "-ll--", "-lcl-", "--ll-", "-----"], // uses top 1
+            vec!["--l--", "-lll-", "-lcl-", "-ll--", "-----"], // uses top 4
         ];
 
         let tops = vec![
-            vec!["-l-", "lcl", "-l-"],
-            vec!["-ll", "lcl", "-l-"],
-            vec!["-l-", "lcl", "ll-"],
-            vec!["-l-", "lc-", "-l-"],
+            vec!["-l-", "lcl", "-l-"],  // top 1
+            vec!["-ll", "lcl", "-l-"],  // top 2
+            vec!["-l-", "lcl", "ll-"],  // top 3
+            vec!["-l-", "lc-", "-l-"],  // top 4
         ];
 
-        let bottom_idx = rng.range(0..bottoms.len() as i32) as usize;
-        let rotation = rng.range(0..4) as usize;
+        // mapping bottom index to top index
+        let top_map = [0, 1, 0, 2, 0, 3];
 
-        let (bottom_layout, bottom_center) = Self::rotate_layout_around_center(&bottoms[bottom_idx], rotation);
-        let (top_layout, _top_center) = Self::rotate_layout_around_center(&tops[Self::map_bottom_to_top(bottom_idx)], rotation);
+        let index = rng.range(0..bottoms.len() as i32) as usize;
+        let rotation = rng.range(0..=4) as usize;
+        //let bottom_idx = rng.range(0..bottoms.len() as i32) as usize;
+        //let rotation = rng.range(0..4) as usize;
 
-        let true_base = base - Pos::new(bottom_center.0, 0, bottom_center.1);
+        let bottom_layout = rotate_layout(&bottoms[index], rotation);
+        let top_layout = rotate_layout(&tops[top_map[index]], rotation);
 
-        self.place_layout(world, &bottom_layout, true_base, 0, false);
-        self.place_layout(world, &top_layout, true_base, 1, true);
+        let base_y = base.y;
 
+        self.place_layer(world, &bottom_layout, base.x, base_y, base.z, true,rng);
+        self.place_layer(world, &top_layout, base.x, base_y + 1, base.z, false,rng);
     }
 
-    fn place_layout(&self, world: &mut PartialWorld, layout: &[Vec<char>], base: Pos, dy: i32, is_top: bool) {
-        for (z, row) in layout.iter().enumerate() {
-            for (x, &ch) in row.iter().enumerate() {
-                let pos = base + Pos::new(x as i32, dy, z as i32);
+    fn place_layer(&self, world: &mut PartialWorld, layout: &[String], cx: i32, y: i32, cz: i32, is_bottom: bool,rng: &mut Rng) {
+        let size = layout.len() as i32;
+        let offset = size / 2;
+        for (dz, row) in layout.iter().enumerate() {
+            for (dx, ch) in row.chars().enumerate() {
+        //for (dz, row) in layout.iter().enumerate() {
+        //    for (dx, ch) in row.chars().enumerate() {
+                let x = cx + dx as i32 - offset;
+                let z = cz + dz as i32 - offset;
+                let pos = Pos::new(x, y, z);
 
                 match ch {
                     'l' => {
-                        if world.get(pos) == block![air] {
+                        if world.get(pos)==block!(air){
                             world.set(pos, self.leaves);
                         }
+                        
                     }
                     'c' => {
-                        if world.get(pos) == block![air] {
-                            let block_to_place = if is_top { self.leaves } else { self.trunk };
-                            world.set(pos, block_to_place);
+                        world.set(pos, if is_bottom { self.trunk } else { self.leaves });
+                        if !is_bottom && rng.range(0..=3)==0{
+                            world.set(pos+Pos::new(0, 1, 0), self.leaves)
                         }
                     }
-                    _ => {}
+                    _ => {} // skip '-'
                 }
             }
         }
     }
+}
 
-    fn rotate_layout_around_center(layout: &[&str], times: usize) -> (Vec<Vec<char>>, (i32, i32)) {
-        let mut grid: Vec<Vec<char>> = layout.iter().map(|&row| row.chars().collect()).collect();
-        let mut height = grid.len();
-        let mut width = grid[0].len();
+/// Rotates a 2D layout 90° clockwise n times (n ∈ 0..=3)
+fn rotate_layout(layout: &[&str], turns: usize) -> Vec<String> {
+    let mut matrix: Vec<Vec<char>> = layout.iter().map(|row| row.chars().collect()).collect();
+    for _ in 0..turns {
+        matrix = rotate_90(&matrix);
+    }
+    matrix.into_iter().map(|row| row.into_iter().collect()).collect()
+}
 
-        let mut cx = 0;
-        let mut cz = 0;
-        for (z, row) in grid.iter().enumerate() {
-            for (x, &ch) in row.iter().enumerate() {
-                if ch == 'c' {
-                    cx = x as i32;
-                    cz = z as i32;
-                    break;
-                }
-            }
+
+/// Helper: rotate a 2D char matrix 90° clockwise
+fn rotate_90(matrix: &[Vec<char>]) -> Vec<Vec<char>> {
+    let n = matrix.len();
+    let m = matrix[0].len();
+    let mut new_matrix = vec![vec!['-'; n]; m];
+
+    for i in 0..n {
+        for j in 0..m {
+            new_matrix[j][n - i - 1] = matrix[i][j];
         }
-
-        for _ in 0..times {
-            grid = (0..width)
-                .map(|x| grid.iter().rev().map(|row| row[x]).collect())
-                .collect();
-            let temp = cx;
-            cx = (height as i32 - 1) - cz;
-            cz = temp;
-            std::mem::swap(&mut width, &mut height);
-        }
-
-        (grid, (cx, cz))
     }
 
-    fn map_bottom_to_top(idx: usize) -> usize {
-        match idx {
-            0 | 2 | 4 => 0,
-            1 => 1,
-            3 => 2,
-            5 => 3,
-            _ => 0,
-        }
-    }
+    new_matrix
 }
