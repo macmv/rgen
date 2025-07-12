@@ -254,7 +254,7 @@ impl Generator for WorldBiomes {
 
           chunk.set(rel_pos, ctx.blocks.encode(block![grass]));
           let ground_pos = rel_pos;
-          for i in 1..20 {
+          for i in 1..62 {
             chunk.set(ground_pos.with_y(ground_pos.y()-(1*i)), ctx.blocks.encode(block![stone]));
           }
           chunk.add_surface(rel_pos);

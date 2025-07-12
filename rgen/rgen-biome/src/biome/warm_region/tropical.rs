@@ -5,11 +5,11 @@ use crate::{BiomeBuilder, builder::PlacerStage};
 // big_canopy_jungle
 pub fn deep_canopy_jungle_wood(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
-  g.color = "#E0705F";
+  g.color = "#E0705F"; //variant: ["dirt", "coarse_dirt", "podzol"],
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 5, 8);
 
-  g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::BetterBush::default());
 
 }
 
