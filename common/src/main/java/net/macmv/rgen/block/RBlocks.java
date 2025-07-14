@@ -93,7 +93,23 @@ public final class RBlocks {
   public static final Block PINK_FLOWERBED = register("pink_flowerbed", PinkFlowerbed::new, new BlockSettings().material(Material.PLANTS));
   public static final Block HANGING_VINES = register("hanging_vines", HangingVines::new, new BlockSettings().material(Material.PLANTS));
 
-  public static final Block JUNGLE_FLOWER = register("jungle_flower", JungleFlower::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block PINK_ORCHID = register("pink_orchid", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block PASSION_FLOWER = register("passion_flower", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block HELICONIA = register("heliconia", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block PINK_HEART = register("pink_heart", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block TORCH_GINGER = register("torch_ginger", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block ORCHIDACEAE = register("orchidaceae", JungleFlowerFlowerType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block IPOMOEA = register("ipomoea", JungleFlowerCarpetType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block BROMELIADS = register("bromeliads", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block FICUS_ELASTICA = register("ficus_elastica", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block YELLOW_JUNGLE_ROSE = register("yellow_jungle_rose", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block BIRD_OF_PARADISE = register("bird_of_paradise", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block JUNGLE_BUSH = register("jungle_bush", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+
+
+
+
+
 
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
