@@ -93,6 +93,9 @@ public final class RBlocks {
   public static final Block PINK_FLOWERBED = register("pink_flowerbed", PinkFlowerbed::new, new BlockSettings().material(Material.PLANTS));
   public static final Block HANGING_VINES = register("hanging_vines", HangingVines::new, new BlockSettings().material(Material.PLANTS));
 
+  public static final Block JUNGLE_FLOWER = register("jungle_flower", JungleFlower::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+
+
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
     Block block = blockSupplier.apply(new BlockSettings());
     block.setRegistryName(RGen.MOD_ID, name);

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "variant=1":  { "model": "rgen:block/flower/jungleflower/jun01" },
+    "variant=2":  { "model": "rgen:block/flower/jungleflower/jun02" },
+    "variant=3":  { "model": "rgen:block/flower/jungleflower/jun03" },
+    "variant=4":  { "model": "rgen:block/flower/jungleflower/jun04" },
+    "variant=5":  { "model": "rgen:block/flower/jungleflower/jun05" },
+    "variant=6":  { "model": "rgen:block/flower/jungleflower/jun06" },
+    "variant=7":  { "model": "rgen:block/flower/jungleflower/jun07" },
+    "variant=8":  { "model": "rgen:block/flower/jungleflower/jun08" },
+    "variant=9":  { "model": "rgen:block/flower/jungleflower/jun09" },
+    "variant=10": { "model": "rgen:block/flower/jungleflower/jun10" },
+    "variant=11": { "model": "rgen:block/flower/jungleflower/jun11" },
+    "variant=12": { "model": "rgen:block/flower/jungleflower/jun12" }
+  }
+}
