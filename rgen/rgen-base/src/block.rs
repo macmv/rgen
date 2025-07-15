@@ -510,6 +510,18 @@ blocks! {
   RgenCactus => rgen:cactus[color: ["green", "blue", "yellow", "orange"]],
   RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
   RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],
+  RgenPinkOrchid => rgen:pink_orchid,
+  RgenPassionFlower => rgen:passion_flower,
+  RgenHeliconia => rgen:heliconia,
+  RgenPinkHeart => rgen:pink_heart,
+  RgenTorchGinger => rgen:torch_ginger,
+  RgenOrchidaceae => rgen:orchidaceae,
+  RgenIpomoea => rgen:ipomoea,
+  RgenBromeliads => rgen:bromeliads,
+  RgenFicusElastica => rgen:ficus_elastica,
+  RgenYellowJungleRose => rgen:yellow_jungle_rose,
+  RgenBirdOfParadise => rgen:bird_of_paradise,
+  RgenJungleBush => rgen:jungle_bush,
 }
 
 #[cfg(test)]

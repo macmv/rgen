@@ -12,21 +12,8 @@ pub fn deep_canopy_jungle_wood(g: &mut BiomeBuilder) {
   g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
   g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
   g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
-
-  g.place(
-    "Grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
-
-      radius:        7..=13,
-      attempts:      120,
-      avg_per_chunk: 10.0,
-    },
-  );
+  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::default());
+  
 
 }
 
