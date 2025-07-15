@@ -359,10 +359,14 @@ impl WideCanopyJungle {
                     }
                     let height = maxtower-height_ajust-(x*rng.range(1..=2));
                     if height>0{
-                        for y in 0..height{
-                            self.special_trunk_place(world,pos + Pos::new(x, y, z),base,rotate);
+                        if !(height == 1 && 
+                        (world.get(Self::rotate_face(pos+ Pos::new(0, -1, 0), base, rotate)) == block![air] 
+                        || world.get(Self::rotate_face(pos+ Pos::new(0, -1, 0), base, rotate)) == block![water])){
+                            for y in 0..height{
+                                self.special_trunk_place(world,pos + Pos::new(x, y, z),base,rotate);
+                            }
+                            self.special_check_ground(world,pos + Pos::new(x, 0, z),base,rotate,rng);
                         }
-                        self.special_check_ground(world,pos + Pos::new(x, 0, z),base,rotate,rng);
                     }  
                 }
             }
@@ -437,7 +441,7 @@ impl WideCanopyJungle {
             let mut pos = base;
 
             // Step 1 and 2 in the main direction
-            for _ in 0..4 {
+            for _ in 0..5 {
                 pos = pos + Pos::new(dx, 0, dz);
                 if world.get(pos+ Pos::new(0, -1, 0)) == block![air] || world.get(pos+ Pos::new(0, -1, 0)) == block![water] {
                     elevation_score -= 1;
@@ -475,7 +479,7 @@ impl WideCanopyJungle {
                 }
                 // Check if hanging for a while if so make dangle and end
                 // Ground seaker code:
-                if elevation_score < -1 && world.get(pos + Pos::new(0, -1, 0)) == block![air] {
+                if elevation_score < -1 && (world.get(pos + Pos::new(0, -1, 0)) == block![air] || world.get(pos+ Pos::new(0, -1, 0)) == block![water]){
                     self.ground_seeker(world, pos, rng);
                     continue 'outer;
                 }
@@ -490,7 +494,7 @@ impl WideCanopyJungle {
                     break;
                 }   
             }
-            if world.get(Pos::new(0, -1, 0)) == block![air] {
+            if world.get(Pos::new(0, -1, 0)) == block![air] || world.get(pos+ Pos::new(0, -1, 0)) == block![water] {
                     self.ground_seeker(world, pos, rng);
                     continue 'outer;
                 }
