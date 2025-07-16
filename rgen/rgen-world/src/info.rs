@@ -67,7 +67,8 @@ impl BlockInfoSupplier {
   }
 
   pub fn encode(&self, state: BlockState) -> StateId {
-    let id = self.lookup(state.block).unwrap();
+    let id =
+      self.lookup(state.block).unwrap_or_else(|| panic!("no such block {}", state.block.name()));
     let meta = match state.state {
       StateOrProps::Default => self.get(id).default_meta,
       StateOrProps::Meta(meta) => meta,
