@@ -7,6 +7,7 @@ pub struct BetterBush {
     pub place_above: BlockFilter,
     pub trunk: BlockState,
     pub leaves: BlockState,
+    pub avg_per_chunk: f64,
 }
 
 impl Default for BetterBush {
@@ -15,6 +16,7 @@ impl Default for BetterBush {
             place_above: block![grass].into(),
             trunk: block!(log[variant="jungle"]),
             leaves: block![leaves[variant = "jungle", check_decay = false, decayable = true]],
+            avg_per_chunk: 30.0, //12
         }
     }
 }
@@ -22,7 +24,7 @@ impl Default for BetterBush {
 impl Placer for BetterBush {
     fn radius(&self) -> u8 { 10 }
 
-    fn avg_per_chunk(&self) -> f64 { 12.0 }
+    fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
     fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
         if pos.y + 24 >= 255 || pos.y <= 1 {

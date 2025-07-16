@@ -18,7 +18,7 @@ impl Default for BasicJungle {
     BasicJungle {
       trunk:         block![log[variant = "jungle"]],
       leaves:        block![leaves[variant = "jungle"]],
-      avg_per_chunk: 9.0,
+      avg_per_chunk: 25.0, //9.0
       is_cocoa:    true,
       shroom:        block![cocoa[age = 2]],
       ground:        block![grass],

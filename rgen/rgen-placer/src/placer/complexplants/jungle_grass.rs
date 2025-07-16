@@ -23,6 +23,7 @@ pub struct JungleFloorPlace {
     pub jungle_bush:           BlockState,
     pub grass:                 BlockState,
     pub tall_grass:            BlockState,
+    pub is_flower_floor:       bool
 
 }
 
@@ -47,6 +48,7 @@ impl Default for JungleFloorPlace {
             jungle_bush:        block![rgen:jungle_bush],
             grass:              block![tallgrass],
             tall_grass:         block![double_plant],
+            is_flower_floor:    false,
 
         }
     }
@@ -84,8 +86,14 @@ impl JungleFloorPlace {
                 //     type: ["dead_bush", "tall_grass", "fern"]
                 //     [00:16:33] [RGen/ERROR] [rgen]: rgen_world::info:99: block minecraft:double_plant does not have a state with the properties 
                 //     {"facing": Enum("north"), "half": Enum("upper"), "variant": Enum("double_grass")}
-
-                if chance < 7{
+                
+                let mut flower_percent = 7;
+                // 70% grass
+                if !self.is_flower_floor{
+                // 90% grass
+                  flower_percent = 9;
+                }
+                if chance < flower_percent{
                   let grass_chance = rng.range(0..=8);
                   if grass_chance < 4{
                     // Tall Grass
@@ -105,9 +113,7 @@ impl JungleFloorPlace {
                     // Fern
                     world.set(set_pos+Pos::new(0,1,0), self.grass.with_prop("type", "fern"));
                   }
-                }
-                // 10% Flowers
-                if chance < 8{
+                }else {
                   if world.get(set_pos+Pos::new(0,1,0)) == block!(air){
                     let flower_chance = rng.range(0..5) as usize;
                     let flower_array = [self.pink_orchid,self.passion_flower,self.heliconia,self.pink_heart,self.torch_ginger];

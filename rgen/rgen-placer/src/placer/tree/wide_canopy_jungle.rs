@@ -37,7 +37,7 @@ impl Default for WideCanopyJungle {
 impl Placer for WideCanopyJungle {
     fn radius(&self) -> u8 { 10 }
 
-    fn avg_per_chunk(&self) -> f64 { 3.0 }
+    fn avg_per_chunk(&self) -> f64 { 4.0 }
 
     fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
         if pos.y + 24 >= 255 || pos.y <= 1 {
