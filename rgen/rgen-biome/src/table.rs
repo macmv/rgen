@@ -50,8 +50,7 @@ impl CompositionLookup {
 biome_categories!(
   fn build() {
     //debug biomes
-    let (GeographicType::Standard, ClimateType::DebugClimate) =
-      &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, terraced_jungle_wood)];
 
     // IceCap vvv
 
@@ -151,7 +150,7 @@ pub enum ClimateType {
   HotDesert,
   BadLands,
   Tropical,
-  DebugClimate
+  DebugClimate,
 }
 
 use ClimateType::*;

@@ -255,7 +255,8 @@ impl Generator for WorldBiomes {
           chunk.set(rel_pos, ctx.blocks.encode(block![grass]));
           let ground_pos = rel_pos;
           for i in 1..62 {
-            chunk.set(ground_pos.with_y(ground_pos.y()-(1*i)), ctx.blocks.encode(block![stone]));
+            chunk
+              .set(ground_pos.with_y(ground_pos.y() - (1 * i)), ctx.blocks.encode(block![stone]));
           }
           chunk.add_surface(rel_pos);
         }
@@ -273,7 +274,7 @@ impl Generator for WorldBiomes {
     self.cave.carve(self, chunk, chunk_pos);
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
-    
+
     self.generate_chunk_placers(&ctx.blocks, chunk, chunk_pos);
 
     if feature::VILLAGES {

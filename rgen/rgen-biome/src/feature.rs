@@ -14,14 +14,15 @@ pub const VILLAGES: bool = false;
 
 /// Overrides the geographic type of the world.
 pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
-//pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
-
+//pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> =
+// Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
 pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
 
 /// Override the entire world to be a single biome (the blank biome).
-/// In table.rs To change the biome, modify the biome_categories macro, and change the blank biome composition
+/// In table.rs To change the biome, modify the biome_categories macro, and
+/// change the blank biome composition
 pub const BIOME_OVERRIDE: bool = true;
 
 /// Replaces everything with a superflat world.

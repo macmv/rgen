@@ -1,6 +1,5 @@
 //! Stores all the actual biome implementations.
 
-
 mod cold_region;
 #[allow(unused_imports)]
 pub use cold_region::*;
@@ -25,11 +24,9 @@ mod warm_region;
 #[allow(unused_imports)]
 pub use warm_region::*;
 
-
 mod cave;
 #[allow(unused_imports)]
 pub use cave::*;
-
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 

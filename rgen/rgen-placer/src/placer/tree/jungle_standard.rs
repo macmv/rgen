@@ -7,10 +7,10 @@ pub struct BasicJungle {
   pub trunk:         BlockState,
   pub leaves:        BlockState,
   pub avg_per_chunk: f64,
-  pub is_cocoa:    bool,
+  pub is_cocoa:      bool,
   pub shroom:        BlockState,
   pub ground:        BlockState,
-  pub vine:         BlockState
+  pub vine:          BlockState,
 }
 
 impl Default for BasicJungle {
@@ -19,7 +19,7 @@ impl Default for BasicJungle {
       trunk:         block![log[variant = "jungle"]],
       leaves:        block![leaves[variant = "jungle"]],
       avg_per_chunk: 25.0, //9.0
-      is_cocoa:    true,
+      is_cocoa:      true,
       shroom:        block![cocoa[age = 2]],
       ground:        block![grass],
       vine:          block![vine],
@@ -64,9 +64,9 @@ impl Placer for BasicJungle {
           }
           //sets the leaves
           let leafloc = pos + Pos::new(x, y, z);
-          if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa]{
+          if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa] {
             world.set(leafloc, self.leaves);
-          }else{
+          } else {
             return Err(UndoError);
           }
         }
@@ -85,11 +85,11 @@ impl Placer for BasicJungle {
           if rng.range(0..=4) == 1 && x.abs() == 1 && z.abs() == 1 {
             continue;
           }
-          
+
           let leafloc = pos + Pos::new(x, y - 1, z);
-          if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa]{
+          if world.get(leafloc) == block![air] || world.get(leafloc) == block![cocoa] {
             world.set(leafloc, self.leaves);
-          }else{
+          } else {
             return Err(UndoError);
           }
         }
@@ -102,86 +102,89 @@ impl Placer for BasicJungle {
     }
 
     // Builds polypores
-    if self.is_cocoa && 3 == *rng.choose(&[0,1,2,3]){
-        for rel_x in -1..=1_i32 {
-          for rel_z in -1..=1_i32 {
-            if rng.range(0..16) < 3 {
-              let mut state = self.shroom.with_prop("facing", *rng.choose(&["north","east","south","west"])).with_prop("age", 2);
+    if self.is_cocoa && 3 == *rng.choose(&[0, 1, 2, 3]) {
+      for rel_x in -1..=1_i32 {
+        for rel_z in -1..=1_i32 {
+          if rng.range(0..16) < 3 {
+            let mut state = self
+              .shroom
+              .with_prop("facing", *rng.choose(&["north", "east", "south", "west"]))
+              .with_prop("age", 2);
 
-              // This removes the coners and the center
-              if (rel_x == 0 && rel_z == 0) || (rel_x.abs() == rel_z.abs()) {
-                continue;
-              }
-
-              if rel_x == 1 {
-                state.set_prop("facing", "west");
-              } else if rel_x == -1 {
-                state.set_prop("facing", "east");
-              } else if rel_z == 1 {
-                state.set_prop("facing", "north");
-              } else if rel_z == -1 {
-                state.set_prop("facing", "south");
-              }
-              let cocoaLoc = pos + Pos::new(rel_x, height-5, rel_z);
-              if world.get(cocoaLoc) == block![air] || world.get(cocoaLoc) == block![cocoa]{
-                world.set(cocoaLoc, state);
-              }
-
+            // This removes the coners and the center
+            if (rel_x == 0 && rel_z == 0) || (rel_x.abs() == rel_z.abs()) {
+              continue;
             }
-          }
-        }
-      
-    }
 
-    //Build vines
-    let y = height - 3_i32; 
-    for x in -3..=3_i32 {
-      for z in -3..=3_i32 {
-        // sets locaiton of vines
-        let vineloc = pos + Pos::new(x, y, z);
-        // Checks if space to grow vine
-        if world.get(vineloc) == block![air] && rng.range(0..=1)==0{
-          let mut is_space_to_place = false;
-          let mut first_avilable_face = (false,"angle",(0,0));
-          let mut aVine = self.vine;
-          for side in [(1,0,"east"),(0,1,"south"),(-1,0,"west"),(0,-1,"north")]{
-            if world.get(vineloc+Pos::new(side.0,0,side.1)) == self.leaves{
-              //a working vine face was found
-              is_space_to_place = true;
-              // set what the hanging vines should look like
-              if !first_avilable_face.0{
-                first_avilable_face.0 = true;
-                first_avilable_face.1 = side.2;
-                first_avilable_face.2  = (side.0,side.1)
-              }
-              // update vine with new prop
-              aVine.set_prop(side.2, true);
+            if rel_x == 1 {
+              state.set_prop("facing", "west");
+            } else if rel_x == -1 {
+              state.set_prop("facing", "east");
+            } else if rel_z == 1 {
+              state.set_prop("facing", "north");
+            } else if rel_z == -1 {
+              state.set_prop("facing", "south");
             }
-          // VINE can be placed
-          if is_space_to_place{
-            world.set(vineloc, aVine);
-            let mut hangingVine = (self.vine);
-            hangingVine.set_prop(first_avilable_face.1, true);
-            // set the above vine
-            if (world.get(vineloc+Pos::new(0,1,0))== block![air])&& world.get(vineloc+Pos::new(first_avilable_face.2.0,1,first_avilable_face.2.1))!= block![air] && rng.range(0..=3)==0{
-              world.set(vineloc+Pos::new(0,1,0), hangingVine);
-
-            }
-            // add the long hanging vines
-            for y in 1 .. rng.range(3..=6){
-              if (world.get(vineloc+Pos::new(0,y*-1,0))== block![air]){
-                world.set(vineloc+Pos::new(0,y*-1,0), hangingVine);
-              }else{
-                break;
-              }
-            }
+            let cocoaLoc = pos + Pos::new(rel_x, height - 5, rel_z);
+            if world.get(cocoaLoc) == block![air] || world.get(cocoaLoc) == block![cocoa] {
+              world.set(cocoaLoc, state);
             }
           }
         }
       }
     }
-    Ok(())}}
 
-    
-  
-
+    //Build vines
+    let y = height - 3_i32;
+    for x in -3..=3_i32 {
+      for z in -3..=3_i32 {
+        // sets locaiton of vines
+        let vineloc = pos + Pos::new(x, y, z);
+        // Checks if space to grow vine
+        if world.get(vineloc) == block![air] && rng.range(0..=1) == 0 {
+          let mut is_space_to_place = false;
+          let mut first_avilable_face = (false, "angle", (0, 0));
+          let mut aVine = self.vine;
+          for side in [(1, 0, "east"), (0, 1, "south"), (-1, 0, "west"), (0, -1, "north")] {
+            if world.get(vineloc + Pos::new(side.0, 0, side.1)) == self.leaves {
+              //a working vine face was found
+              is_space_to_place = true;
+              // set what the hanging vines should look like
+              if !first_avilable_face.0 {
+                first_avilable_face.0 = true;
+                first_avilable_face.1 = side.2;
+                first_avilable_face.2 = (side.0, side.1)
+              }
+              // update vine with new prop
+              aVine.set_prop(side.2, true);
+            }
+            // VINE can be placed
+            if is_space_to_place {
+              world.set(vineloc, aVine);
+              let mut hangingVine = (self.vine);
+              hangingVine.set_prop(first_avilable_face.1, true);
+              // set the above vine
+              if (world.get(vineloc + Pos::new(0, 1, 0)) == block![air])
+                && world
+                  .get(vineloc + Pos::new(first_avilable_face.2.0, 1, first_avilable_face.2.1))
+                  != block![air]
+                && rng.range(0..=3) == 0
+              {
+                world.set(vineloc + Pos::new(0, 1, 0), hangingVine);
+              }
+              // add the long hanging vines
+              for y in 1..rng.range(3..=6) {
+                if (world.get(vineloc + Pos::new(0, y * -1, 0)) == block![air]) {
+                  world.set(vineloc + Pos::new(0, y * -1, 0), hangingVine);
+                } else {
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    Ok(())
+  }
+}
