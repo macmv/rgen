@@ -5,8 +5,13 @@ use rgen_world::{PartialWorld,};
 //use std::collections::{HashSet, VecDeque}; //rng::Random
 
 // Special traits
-pub trait Deepforest {
-    fn deepforest() -> Self;
+pub trait Style {
+    fn style(style: FloorStyle) -> Self;
+}
+
+pub enum FloorStyle {
+    Normal,
+    Flower,
 }
 
 pub struct JungleFloorPlace {
@@ -28,7 +33,7 @@ pub struct JungleFloorPlace {
   pub jungle_bush:        BlockState,
   pub grass:              BlockState,
   pub tall_grass:         BlockState,
-  pub is_flower_floor:    bool,
+  pub floor_style:        FloorStyle,
 }
 
 impl Default for JungleFloorPlace {
@@ -58,16 +63,17 @@ impl Default for JungleFloorPlace {
       jungle_bush:        block![rgen:jungle_bush],
       grass:              block![tallgrass],
       tall_grass:         block![double_plant],
-      is_flower_floor:    false,
+      floor_style:        FloorStyle::Normal,
     }
   }
 }
-impl Deepforest for JungleFloorPlace {
-    fn deepforest() -> Self {
+
+impl Style for JungleFloorPlace {
+    fn style(style: FloorStyle) -> Self {
         JungleFloorPlace {
             attempts:           4,
             is_large:           true,
-            is_flower_floor:    true,
+            floor_style:        style,
             place:              block![rgen:jungle_bush],
             place_above:        [
                 block![grass],
@@ -110,6 +116,16 @@ impl Placer for JungleFloorPlace {
     Ok(())
   }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub enum PlantCategory {
+    None,
+    Grass,
+    DoubleTall,
+    MixA,
+}
+
+
 impl JungleFloorPlace {
   fn circle(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos, radius: i32) {
 
@@ -122,67 +138,10 @@ impl JungleFloorPlace {
             if self.place_above.contains(world.get(set_pos))
               && world.get(set_pos + Pos::new(0, 1, 0)) == block!(air)
               && world.get(set_pos + Pos::new(0, 2, 0)) == block!(air)
-              && world.get(set_pos + Pos::new(0, 3, 0)) == block!(air)
-            {
-              let chance = rng.range(0..10);
-              // 70% GRASS & FERN MIX
-              //     variant: ["sunflower", "syringa", "double_grass", "double_fern",
-              // "double_rose", "paeonia"],     type: ["dead_bush",
-              // "tall_grass", "fern"]     [00:16:33] [RGen/ERROR] [rgen]:
-              // rgen_world::info:99: block minecraft:double_plant does not have a state with
-              // the properties     {"facing": Enum("north"), "half":
-              // Enum("upper"), "variant": Enum("double_grass")}
+              && world.get(set_pos + Pos::new(0, 3, 0)) == block!(air){
 
-              let mut flower_percent = 7;
-              // 70% grass
-              if !self.is_flower_floor {
-                // 90% grass
-                flower_percent = 9;
               }
-              if chance < flower_percent {
-                let grass_chance = rng.range(0..=8);
-                if grass_chance < 4 {
-                  // Tall Grass
-                  world
-                    .set(set_pos + Pos::new(0, 1, 0), self.grass.with_prop("type", "tall_grass"));
-                } else if grass_chance < 6 {
-                  // Double Tall Grass
-                  world.set(
-                    set_pos + Pos::new(0, 1, 0),
-                    self.tall_grass.with_prop("half", "lower").with_prop("variant", "double_grass"),
-                  );
-                  world.set(
-                    set_pos + Pos::new(0, 2, 0),
-                    self.tall_grass.with_prop("half", "upper").with_prop("variant", "sunflower"),
-                  );
-                } else if grass_chance < 7 {
-                  // Double Tall Fern
-                  world.set(
-                    set_pos + Pos::new(0, 1, 0),
-                    self.tall_grass.with_prop("half", "lower").with_prop("variant", "double_fern"),
-                  );
-                  world.set(
-                    set_pos + Pos::new(0, 2, 0),
-                    self.tall_grass.with_prop("half", "upper").with_prop("variant", "sunflower"),
-                  );
-                } else if grass_chance < 8 {
-                  // Fern
-                  world.set(set_pos + Pos::new(0, 1, 0), self.grass.with_prop("type", "fern"));
-                }
-              } else {
-                if world.get(set_pos + Pos::new(0, 1, 0)) == block!(air) {
-                  let flower_chance = rng.range(0..5) as usize;
-                  let flower_array = [
-                    self.pink_orchid,
-                    self.passion_flower,
-                    self.heliconia,
-                    self.pink_heart,
-                    self.torch_ginger,
-                  ];
-                  world.set(set_pos + Pos::new(0, 1, 0), flower_array[flower_chance]);
-                }
-              }
-            }
+            
           }
         }
       }
