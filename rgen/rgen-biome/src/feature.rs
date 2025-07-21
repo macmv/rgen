@@ -20,7 +20,7 @@ pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
 
 /// Override the entire world to be a single biome (the blank biome).
 /// table.rs line 37 to set new biome
-pub const BIOME_OVERRIDE: bool = false;
+pub const BIOME_OVERRIDE: bool = true;
 
 /// Replaces everything with a superflat world.
 pub const SUPERFLAT: bool = false;
