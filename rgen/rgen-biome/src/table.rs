@@ -35,7 +35,7 @@ macro_rules! biome_categories {
           }
         )*
         // set BIOME_OVERRIDE here!
-        CompositionLookup { blank: composition(seed, &[b!(20, terraced_jungle)]), lookup }
+        CompositionLookup { blank: composition(seed, &[b!(20, light_jungle_wood)]), lookup }
       }
     }
   };
