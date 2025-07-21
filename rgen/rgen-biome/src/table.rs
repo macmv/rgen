@@ -34,7 +34,8 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(seed, &[b!(20, deep_canopy_jungle_wood)]), lookup }
+        // set BIOME_OVERRIDE here!
+        CompositionLookup { blank: composition(seed, &[b!(20, terraced_jungle)]), lookup }
       }
     }
   };
@@ -50,7 +51,7 @@ impl CompositionLookup {
 biome_categories!(
   fn build() {
     //debug biomes
-    let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, blank)];
 
     // IceCap vvv
 
@@ -109,11 +110,11 @@ biome_categories!(
 
     // Tropical vvv
 
-    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, blank)];
 
-    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, blank)];
 
-    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, blank)];
 
     let (GeographicType::Hills, ClimateType::Tropical) = &[b!(20, blank)];
 

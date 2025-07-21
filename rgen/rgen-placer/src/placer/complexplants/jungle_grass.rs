@@ -1,8 +1,13 @@
 //use core::f64::math::sqrt;
 use crate::{Placer, Random, Result, Rng};
 use rgen_base::{BlockFilter, BlockState, Pos};
-use rgen_world::{PartialWorld, UndoError};
-use std::collections::{HashSet, VecDeque}; //rng::Random
+use rgen_world::{PartialWorld,};
+//use std::collections::{HashSet, VecDeque}; //rng::Random
+
+// Special traits
+pub trait Deepforest {
+    fn deepforest() -> Self;
+}
 
 pub struct JungleFloorPlace {
   pub place_above:        BlockFilter,
@@ -57,6 +62,38 @@ impl Default for JungleFloorPlace {
     }
   }
 }
+impl Deepforest for JungleFloorPlace {
+    fn deepforest() -> Self {
+        JungleFloorPlace {
+            attempts:           4,
+            is_large:           true,
+            is_flower_floor:    true,
+            place:              block![rgen:jungle_bush],
+            place_above:        [
+                block![grass],
+                block![dirt],
+                block![rgen:mossy_cobblestone_rgen],
+                block![rgen:covered_jungle_log],
+            ]
+            .into(),
+            pink_orchid:        block![rgen:pink_orchid],
+            passion_flower:     block![rgen:passion_flower],
+            heliconia:          block![rgen:heliconia],
+            pink_heart:         block![rgen:pink_heart],
+            torch_ginger:       block![rgen:torch_ginger],
+            orchidaceae:        block![rgen:orchidaceae],
+            ipomoea:            block![rgen:ipomoea],
+            bromeliads:         block![rgen:bromeliads],
+            ficus_elastica:     block![rgen:ficus_elastica],
+            yellow_jungle_rose: block![rgen:yellow_jungle_rose],
+            bird_of_paradise:   block![rgen:bird_of_paradise],
+            jungle_bush:        block![rgen:jungle_bush],
+            grass:              block![tallgrass],
+            tall_grass:         block![double_plant],
+        }
+    }
+}
+
 
 impl Placer for JungleFloorPlace {
   fn radius(&self) -> u8 { 8 }
@@ -64,7 +101,7 @@ impl Placer for JungleFloorPlace {
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     //8  9    10   11
     //0  1    2    3
-    let lav_options = [[0, 8], [1, 9], [2, 10], [3, 11]];
+
     for _ in 0..self.attempts {
       let pos = pos + Pos::new(rng.range(-8..=8), 0, rng.range(-8..=8));
       self.circle(world, rng, pos, 8);
@@ -75,7 +112,7 @@ impl Placer for JungleFloorPlace {
 }
 impl JungleFloorPlace {
   fn circle(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos, radius: i32) {
-    let test = 0;
+
     for dx in -radius..=radius {
       for dz in -radius..=radius {
         for dy in -4..4 {
