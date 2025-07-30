@@ -34,7 +34,7 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(seed, &[b!(1, hot_desert)]), lookup }
+        CompositionLookup { blank: composition(seed, &[b!(1, desert)]), lookup }
       }
     }
   };
