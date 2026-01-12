@@ -242,12 +242,33 @@ impl Config {
             if parser.next() != Some(Token::Word) {
               panic!("expected word, found {:?}", parser.slice());
             }
+            let mut prop = String::new();
+            prop.push_str(parser.slice());
 
-            props.push(parser.slice());
             match parser.next() {
-              Some(Token::Punct) if parser.slice() == "," => {}
-              Some(Token::Punct) if parser.slice() == ")" => break,
-              _ => panic!("expected ',' or ')', found {:?}", parser.slice()),
+              Some(Token::Punct) if parser.slice() == "," => {
+                props.push(prop);
+              }
+              Some(Token::Punct) if parser.slice() == ")" => {
+                props.push(prop);
+                break;
+              }
+              Some(Token::Punct) if parser.slice() == "." => {
+                prop.push_str(parser.slice());
+                if parser.next() != Some(Token::Word) {
+                  panic!("expected word, found {:?}", parser.slice());
+                }
+                prop.push_str(parser.slice());
+
+                props.push(prop);
+                match parser.next() {
+                  Some(Token::Punct) if parser.slice() == "," => {}
+                  Some(Token::Punct) if parser.slice() == ")" => break,
+                  _ => panic!("expected ',' or ')', found {:?}", parser.slice()),
+                }
+              }
+
+              _ => panic!("expected ',', '.', or ')', found {:?}", parser.slice()),
             }
           }
 
