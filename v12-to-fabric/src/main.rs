@@ -50,6 +50,8 @@ fn main() {
   renames.insert("net.minecraft.item.ItemBlock", "net.minecraft.item.BlockItem");
   renames.insert("net.minecraft.item.ItemDoor", "net.minecraft.item.TallBlockItem");
 
+  renames.insert("net.minecraft.creativetab.CreativeTabs", "net.minecraft.item.ItemGroup");
+
   // entities
   renames
     .insert("net.minecraft.entity.player.EntityPlayer", "net.minecraft.entity.player.PlayerEntity");
