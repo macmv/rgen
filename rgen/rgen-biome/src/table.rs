@@ -34,7 +34,8 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(seed, &[b!(1, blank)]), lookup }
+        // set BIOME_OVERRIDE here!
+        CompositionLookup { blank: composition(seed, &[b!(20, light_jungle_wood)]), lookup }
       }
     }
   };
@@ -49,6 +50,9 @@ impl CompositionLookup {
 // === Biome categories ===
 biome_categories!(
   fn build() {
+    //debug biomes
+    let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, blank)];
+
     // IceCap vvv
 
     let (GeographicType::Standard, ClimateType::IceCap) =
@@ -106,17 +110,23 @@ biome_categories!(
 
     // Tropical vvv
 
-    let (GeographicType::Standard, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Standard, ClimateType::Tropical) = 
+    &[ b!(5, canopied_jungle),b!(5, flower_canopied_jungle), b!(5, light_jungle_wood), b!(5, terraced_jungle),];
 
-    let (GeographicType::River, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::River, ClimateType::Tropical) = 
+    &[b!(5, canopied_jungle),b!(5, flower_canopied_jungle),b!(5, light_jungle_wood),b!(5, terraced_jungle),];
 
-    let (GeographicType::Canyon, ClimateType::Tropical) = &[b!(20, terraced_jungle_wood)];
+    let (GeographicType::Canyon, ClimateType::Tropical) = 
+    &[b!(5, canopied_jungle),b!(5, flower_canopied_jungle),b!(5, light_jungle_wood),b!(5, terraced_jungle),];
 
-    let (GeographicType::Hills, ClimateType::Tropical) = &[b!(20, blank)];
+    let (GeographicType::Hills, ClimateType::Tropical) = 
+    &[b!(10, terraced_jungle),b!(10, light_jungle_wood),];
 
-    let (GeographicType::Mountains, ClimateType::Tropical) = &[b!(20, blank)];
+    let (GeographicType::Mountains, ClimateType::Tropical) = 
+    &[b!(10, terraced_jungle),b!(10, light_jungle_wood),];
 
-    let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
+    let (GeographicType::Beach, ClimateType::Tropical) = 
+    &[b!(20, blank)];
   }
 );
 
@@ -147,6 +157,7 @@ pub enum ClimateType {
   HotDesert,
   BadLands,
   Tropical,
+  DebugClimate,
 }
 
 use ClimateType::*;

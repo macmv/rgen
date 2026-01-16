@@ -3,7 +3,7 @@ use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
 
-pub struct JungleTree {
+pub struct TerraceJungleTree {
   place_above: BlockFilter,
   trunk:       BlockState,
   leaves:      BlockState,
@@ -12,7 +12,7 @@ pub struct JungleTree {
   avg_per_chunk: f64,
 }
 
-impl Default for JungleTree {
+impl Default for TerraceJungleTree {
   fn default() -> Self {
     Self {
       avg_per_chunk: 8.0,
@@ -24,7 +24,7 @@ impl Default for JungleTree {
   }
 }
 
-impl Placer for JungleTree {
+impl Placer for TerraceJungleTree {
   fn radius(&self) -> u8 { 2 }
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
@@ -62,7 +62,7 @@ impl Placer for JungleTree {
   }
 }
 
-impl JungleTree {
+impl TerraceJungleTree {
   fn place_trunk(&self, world: &mut PartialWorld, rng: &mut Rng, mut pos: Pos, height: i32) {
     let sway_x = rng.range(-0.8..=0.8);
     let sway_z = rng.range(-0.8..=0.8);

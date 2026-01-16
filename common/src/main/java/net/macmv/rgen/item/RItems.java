@@ -89,6 +89,20 @@ public class RItems {
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
+  public static final Item PINK_ORCHID =  registerBlockItem(RBlocks.PINK_ORCHID).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item PASSION_FLOWER = registerBlockItem(RBlocks.PASSION_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item HELICONIA = registerBlockItem(RBlocks.HELICONIA).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item PINK_HEART = registerBlockItem(RBlocks.PINK_HEART).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item TORCH_GINGER = registerBlockItem(RBlocks.TORCH_GINGER).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item ORCHIDACEAE = registerBlockItem(RBlocks.ORCHIDACEAE).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item IPOMOEA = registerBlockItem(RBlocks.IPOMOEA).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item BROMELIADS = registerBlockItem(RBlocks.BROMELIADS).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item FICUS_ELASTICA = registerBlockItem(RBlocks.FICUS_ELASTICA).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item YELLOW_JUNGLE_ROSE = registerBlockItem(RBlocks.YELLOW_JUNGLE_ROSE).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item BIRD_OF_PARADISE = registerBlockItem(RBlocks.BIRD_OF_PARADISE).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item JUNGLE_BUSH = registerBlockItem(RBlocks.JUNGLE_BUSH).setCreativeTab(RCreativeTabs.DECORATIONS);
+
+
 
   // Other cactus fruits
 

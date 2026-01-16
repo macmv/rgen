@@ -1,15 +1,72 @@
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::placer::{self, Style};
 
 use crate::{BiomeBuilder, builder::PlacerStage};
+// Canopied Jungle
+pub fn canopied_jungle(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F"; //variant: ["dirt", "coarse_dirt", "podzol"],
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
 
-pub fn terraced_jungle_wood(g: &mut BiomeBuilder) {
+  g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
+  g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
+  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::CanopiedJungle))
+}
+
+pub fn flower_canopied_jungle(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F"; //variant: ["dirt", "coarse_dirt", "podzol"],
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
+
+  g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
+  g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
+  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::FlowerCanopiedJungle))
+}
+
+// light_jungle_wood
+pub fn light_jungle_wood(g: &mut BiomeBuilder) {
   g.id = biome![jungle];
   g.color = "#E0705F";
   g.set_top_block(block![grass]);
   g.add_layer(block![dirt], 5, 8);
 
-  g.place("Large Jungle Tree", PlacerStage::Tree, placer::JungleTree::default());
+  g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
+  g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
+  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::LightJungle));
+
+  g.place(
+    "jungle log",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log:            block![log[variant = "jungle"]],
+      moss_log:       block![rgen:covered_jungle_log],
+      ground:         block![grass],
+      plants:         block![tallgrass[type="tall_grass"]].into(),
+      avg_per_chunk:  2.0,
+      chance_of_moss: 5,
+      is_shrooms:     false,
+      shroom:         block![rgen:polypore],
+    },
+  );
+}
+//jungle_beach
+//jungle_rocks
+
+
+// terraced_jungle_wood
+
+pub fn terraced_jungle(g: &mut BiomeBuilder) {
+  g.id = biome![jungle];
+  g.color = "#E0705F";
+  g.set_top_block(block![grass]);
+  g.add_layer(block![dirt], 5, 8);
+
+  g.place("Large Jungle Tree", PlacerStage::Tree, placer::TerraceJungleTree::default());
+  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::TerracedJungle));
 
   g.place(
     "Jungle bushes",
@@ -23,18 +80,5 @@ pub fn terraced_jungle_wood(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
-
-      radius:        4..=10,
-      attempts:      50,
-      avg_per_chunk: 8.0,
-    },
-  );
 }
+//flowered_terraced_jungle
