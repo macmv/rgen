@@ -1,6 +1,8 @@
 cargo build --release -p rgen-jni
 cargo build --release -p rgen-jni-impl
 
+set -u
+
 INSTANCE=$1
 # Jaimie's path: ~/Minecraft/multimcTar/MultiMC/instances/rgenTest
 
