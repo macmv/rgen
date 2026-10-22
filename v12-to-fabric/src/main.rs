@@ -17,6 +17,19 @@ struct Config {
   drop_methods:     HashSet<&'static str>,
   /// Annotations that don't exist on fabric. Arguments are removed too.
   drop_annotations: HashSet<&'static str>,
+  /// Vanilla classes that have the same name as one of our classes. These are never imported, and
+  /// are always written out in full.
+  qualified:        HashSet<&'static str>,
+  /// Constants that were renamed, like `MapColor.SAND`.
+  members:          HashMap<(&'static str, &'static str), &'static str>,
+  /// Block state properties that only exist in 1.12 (or are already added by the modern parent).
+  drop_props:       HashSet<&'static str>,
+  /// Calls, written as statements, that only exist in 1.12.
+  drop_calls:       HashSet<&'static str>,
+  /// Methods that have a `ShapeContext` argument now, and their new names.
+  shape_methods:    HashMap<&'static str, &'static str>,
+  /// Vanilla classes that make us implement `getCodec`.
+  codec_parents:    HashSet<&'static str>,
 }
 
 fn main() {
@@ -33,13 +46,22 @@ fn main() {
   renames.insert("net.minecraft.util.IStringSerializable", "net.minecraft.util.StringIdentifiable");
 
   // blocks
-  renames.insert("net.minecraft.block.BlockBush", "net.minecraft.block.BushBlock");
-  renames.insert("net.minecraft.block.BlockLog", "net.minecraft.block.LogBlock");
+  renames.insert("net.minecraft.block.BlockBush", "net.minecraft.block.PlantBlock");
+  renames.insert("net.minecraft.block.BlockLog", "net.minecraft.block.PillarBlock");
   renames.insert("net.minecraft.init.Blocks", "net.minecraft.block.Blocks");
   renames.insert("net.minecraft.block.state.IBlockState", "net.minecraft.block.BlockState");
   renames.insert("net.minecraft.block.BlockPackedIce", "net.minecraft.block.IceBlock");
   renames.insert("net.minecraft.block.BlockRotatedPillar", "net.minecraft.block.PillarBlock");
   renames.insert("net.minecraft.block.BlockVine", "net.minecraft.block.VineBlock");
+  renames.insert("net.minecraft.block.BlockDoor", "net.minecraft.block.DoorBlock");
+  renames.insert("net.minecraft.block.BlockTrapDoor", "net.minecraft.block.TrapdoorBlock");
+  renames.insert("net.minecraft.block.BlockStairs", "net.minecraft.block.StairsBlock");
+  renames.insert("net.minecraft.block.BlockLeaves", "net.minecraft.block.LeavesBlock");
+  renames.insert("net.minecraft.block.BlockFalling", "net.minecraft.block.FallingBlock");
+  renames.insert("net.minecraft.block.BlockHorizontal", "net.minecraft.block.HorizontalFacingBlock");
+  renames.insert("net.minecraft.block.BlockSapling", "net.minecraft.block.SaplingBlock");
+  renames.insert("net.minecraft.block.BlockDoublePlant", "net.minecraft.block.TallPlantBlock");
+  renames.insert("net.minecraft.block.IGrowable", "net.minecraft.block.Fertilizable");
   renames.insert("net.minecraft.block.material.MapColor", "net.minecraft.block.MapColor");
 
   // These don't exist anymore, so there are polyfills in `compat`.
@@ -74,6 +96,8 @@ fn main() {
 
   // world
   renames.insert("net.minecraft.world.IBlockAccess", "net.minecraft.world.BlockView");
+  renames.insert("net.minecraft.util.EnumActionResult", "net.minecraft.util.ActionResult");
+  renames.insert("net.minecraft.entity.player.EntityPlayerMP", "net.minecraft.server.network.ServerPlayerEntity");
 
   // client
   renames.insert("net.minecraft.client.Minecraft", "net.minecraft.client.MinecraftClient");
@@ -99,11 +123,52 @@ fn main() {
     "canSustainPlant",
     "getOffsetType",
     "getPickBlock",
+    "getMapColor",
+    "getSaplingDropChance",
+    "canSilkHarvest",
+    // TODO: These all need to be ported to their modern equivalents.
+    "isOpaqueCube",
+    "isFullCube",
+    "getStateForPlacement",
+    "onItemUse",
   ]);
 
   let drop_annotations = HashSet::from(["SideOnly", "Nonnull", "Nullable", "SubscribeEvent"]);
 
-  let config = Config { renames, words, drop_methods, drop_annotations };
+  let qualified = HashSet::from(["net.minecraft.block.PlantBlock", "net.minecraft.block.LeavesBlock"]);
+
+  let members = HashMap::from([
+    (("MapColor", "OBSIDIAN"), "BLACK"),
+    (("MapColor", "SAND"), "PALE_YELLOW"),
+    (("MapColor", "WOOD"), "OAK_TAN"),
+    (("MapColor", "ORANGE_STAINED_HARDENED_CLAY"), "TERRACOTTA_ORANGE"),
+  ]);
+
+  let drop_props = HashSet::from(["LOG_AXIS", "CHECK_DECAY", "DECAYABLE"]);
+  let drop_calls = HashSet::from(["setHarvestLevel", "setTickRandomly", "setCreativeTab"]);
+  let shape_methods = HashMap::from([
+    ("getBoundingBox", "getOutlineShape"),
+    ("getCollisionBoundingBox", "getCollisionShape"),
+  ]);
+  let codec_parents = HashSet::from([
+    "net.minecraft.block.Block",
+    "net.minecraft.block.PlantBlock",
+    "net.minecraft.block.FallingBlock",
+    "net.minecraft.block.HorizontalFacingBlock",
+  ]);
+
+  let config = Config {
+    renames,
+    words,
+    drop_methods,
+    drop_annotations,
+    qualified,
+    members,
+    drop_props,
+    drop_calls,
+    shape_methods,
+    codec_parents,
+  };
 
   let output = config.process(source);
 
@@ -191,10 +256,14 @@ impl Config {
       return String::new();
     }
 
+    // Nested names that are easier to fix up before parsing.
+    let source = source.replace("BlockLog.EnumAxis", "EnumAxis");
+
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
     let mut package = String::new();
     let mut class_name = String::new();
+    let mut ctor_param = String::new();
 
     // Eat the package statement
     if parser.next() == Some(Token::Word) && parser.slice() == "package" {
@@ -220,7 +289,11 @@ impl Config {
       imports.insert(last_part.to_string(), path.clone());
 
       if let Some(new_path) = self.renames.get(path.as_str()) {
-        output.replace(span, new_path);
+        if self.qualified.contains(new_path) {
+          output.replace(line_start..span.end + 2, "");
+        } else {
+          output.replace(span, new_path);
+        }
       }
     }
 
@@ -377,19 +450,29 @@ impl Config {
           t!(Token::Punct, ";");
           t!(Token::Punct, "}");
 
+          props.retain(|p| !self.drop_props.contains(p.as_str()));
+
           let end = parser.range().end;
 
           output.replace(
             start..end,
             &format!(
-              "void appendProperties(net.minecraft.state.StateManager.Builder<Block, BlockState> builder) {{\n    builder.add({});\n  }}",
-              props.join(", ")
+              "void appendProperties(net.minecraft.state.StateManager.Builder<net.minecraft.block.Block, net.minecraft.block.BlockState> builder) {{\n    super.appendProperties(builder);\n{}  }}",
+              if props.is_empty() {
+                String::new()
+              } else {
+                format!("    builder.add({});\n", props.join(", "))
+              }
             ),
           );
         }
         Token::Word if parser.slice() == "super" && package == "net.macmv.rgen.block" => {
           if parser.next() == Some(Token::Punct) && parser.slice() == "(" {
-            if parser.next() == Some(Token::Word) {
+            let mut look = parser.clone();
+            if look.next() == Some(Token::Punct) && look.slice() == ")" && !ctor_param.is_empty() {
+              output.replace(look.range(), &format!("{ctor_param}.vanilla())"));
+              parser = look;
+            } else if parser.next() == Some(Token::Word) {
               if parser.next() == Some(Token::Punct) && parser.slice() == "." {
                 let dot_range = parser.range();
                 if parser.next() == Some(Token::Word) && parser.slice() == "material" {
@@ -419,14 +502,8 @@ impl Config {
         Token::Word if parser.slice() == "getValue" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "get");
         }
-        Token::Word if parser.slice() == "withProperty" && package == "net.macmv.rgen.block" => {
-          output.replace(parser.range(), "with");
-        }
         Token::Word if parser.slice() == "NULL_AABB" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "net.minecraft.util.shape.VoxelShapes.empty()");
-        }
-        Token::Word if parser.slice() == "getBoundingBox" && package == "net.macmv.rgen.block" => {
-          output.replace(parser.range(), "getOutlineShape");
         }
 
         // `@SideOnly(Side.CLIENT)` and friends.
@@ -465,9 +542,130 @@ impl Config {
           }
         }
 
-        Token::Word if parser.slice() == "class" => {
-          if parser.next() == Some(Token::Word) {
-            class_name = parser.slice().to_string();
+        Token::Word if parser.slice() == "withProperty" && package == "net.macmv.rgen.block" => {
+          // `.withProperty(DROPPED, ...)` is removed completely.
+          let name_range = parser.range();
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Punct)
+            && look.slice() == "("
+            && look.next() == Some(Token::Word)
+            && self.drop_props.contains(look.slice())
+          {
+            let mut depth = 1;
+            let mut inner = parser.clone();
+            inner.next();
+            while depth > 0 {
+              match inner.next() {
+                Some(Token::Punct) if inner.slice() == "(" => depth += 1,
+                Some(Token::Punct) if inner.slice() == ")" => depth -= 1,
+                None => break,
+                _ => {}
+              }
+            }
+            let before = &source[..name_range.start];
+            let dot = before.trim_end().len() - 1;
+            output.replace(dot..inner.range().end, "");
+            parser = inner;
+          } else {
+            output.replace(name_range, "with");
+          }
+        }
+
+        Token::Word
+          if self.shape_methods.contains_key(parser.slice())
+            && package == "net.macmv.rgen.block" =>
+        {
+          output.replace(parser.range(), self.shape_methods[parser.slice()]);
+
+          let is_call = source[..parser.range().start].trim_end().ends_with('.');
+
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Punct) && look.slice() == "(" {
+            let start = look.range().end;
+            let mut depth = 1;
+            while depth > 0 {
+              match look.next() {
+                Some(Token::Punct) if look.slice() == "(" => depth += 1,
+                Some(Token::Punct) if look.slice() == ")" => depth -= 1,
+                None => break,
+                _ => {}
+              }
+            }
+            let end = look.range().start;
+            // Some sources already have a manual `#fabric:` argument.
+            if !source[start..end].contains("ShapeContext") {
+              let arg = if is_call { ", context" } else { ", net.minecraft.block.ShapeContext context" };
+              output.replace(end..end, arg);
+            }
+          }
+        }
+
+        // Statements like `this.setHarvestLevel("shovel", 0);`
+        Token::Word if self.drop_calls.contains(parser.slice()) => {
+          let before = source[..parser.range().start].trim_end();
+          let start = if before.ends_with("this.") {
+            before.len() - "this.".len()
+          } else if before.ends_with(';') || before.ends_with('{') || before.ends_with('}') {
+            parser.range().start
+          } else {
+            usize::MAX
+          };
+
+          if start != usize::MAX {
+            let mut look = parser.clone();
+            if look.next() == Some(Token::Punct) && look.slice() == "(" {
+              let mut depth = 1;
+              while depth > 0 {
+                match look.next() {
+                  Some(Token::Punct) if look.slice() == "(" => depth += 1,
+                  Some(Token::Punct) if look.slice() == ")" => depth -= 1,
+                  None => break,
+                  _ => {}
+                }
+              }
+              if look.next() == Some(Token::Punct) && look.slice() == ";" {
+                output.replace(start..look.range().end, "");
+                parser = look;
+              }
+            }
+          }
+        }
+
+        Token::Word
+          if parser.slice() == "class"
+            && !source[..parser.range().start].trim_end().ends_with('.') =>
+        {
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Word) {
+            class_name = look.slice().to_string();
+          }
+
+          // Find the parent class, and see if it makes us implement `getCodec`.
+          let mut parent = None;
+          let mut brace = None;
+          while let Some(tok) = look.next() {
+            if tok == Token::Word && look.slice() == "extends" && parent.is_none() {
+              if look.next() == Some(Token::Word) {
+                parent = Some(look.slice().to_string());
+              }
+            } else if tok == Token::Punct && look.slice() == "{" {
+              brace = Some(look.range().end);
+              break;
+            }
+          }
+
+          if let (Some(parent), Some(brace)) = (parent, brace) {
+            let resolved = imports.get(&parent).and_then(|p| self.renames.get(p.as_str()));
+            if let Some(resolved) = resolved {
+              if self.codec_parents.contains(resolved) {
+                output.replace(
+                  brace..brace,
+                  &format!(
+                    "\n  @Override\n  protected com.mojang.serialization.MapCodec<? extends {resolved}> getCodec() {{\n    return null;\n  }}\n"
+                  ),
+                );
+              }
+            }
           }
         }
 
@@ -478,6 +676,7 @@ impl Config {
             let mut look = parser.clone();
             if look.next() == Some(Token::Word) {
               let param = look.slice().to_string();
+              ctor_param = param.clone();
               if look.next() == Some(Token::Punct)
                 && look.slice() == ")"
                 && look.next() == Some(Token::Punct)
@@ -485,8 +684,12 @@ impl Config {
               {
                 let brace = look.range().end;
                 let mut first = look.clone();
-                let has_super = first.next() == Some(Token::Word)
-                  && (first.slice() == "super" || first.slice() == "this");
+                let has_super = match first.next() {
+                  Some(Token::Word) => first.slice() == "super" || first.slice() == "this",
+                  // A comment that gets replaced with the call.
+                  Some(Token::V12Comment | Token::FabricComment) => true,
+                  _ => false,
+                };
                 if !has_super {
                   output.replace(brace..brace, &format!(" super({param}.vanilla());"));
                 }
@@ -505,6 +708,13 @@ impl Config {
 
         Token::Word => {
           let word = parser.slice();
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Punct) && look.slice() == "." && look.next() == Some(Token::Word) {
+            if let Some(new_member) = self.members.get(&(word, look.slice())) {
+              output.replace(look.range(), new_member);
+            }
+          }
+
           if let Some(new_word) = self.words.get(word) {
             if !source[..parser.range().start].trim_end().ends_with('.') {
               output.replace(parser.range(), new_word);
@@ -513,7 +723,11 @@ impl Config {
             if let Some(new_path) = self.renames.get(resolved.as_str()) {
               let (_, new_imported) = new_path.rsplit_once('.').unwrap();
               let range = parser.range();
-              output.replace(range, new_imported);
+              if self.qualified.contains(new_path) {
+                output.replace(range, new_path);
+              } else {
+                output.replace(range, new_imported);
+              }
             }
           }
         }
