@@ -4,7 +4,10 @@ import net.macmv.rgen.compat.CreativeTabs;
 import net.macmv.rgen.compat.Material;
 import net.macmv.rgen.compat.SoundType;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.sound.BlockSoundGroup;
+
+import java.util.function.Function;
 
 /**
  * The fabric version of the 1.12 block settings polyfill. This is what the common sources build,
@@ -46,6 +49,15 @@ public class BlockSettings {
   public BlockSettings lightValue(int lightValue) {
     this.lightValue = lightValue;
     return this;
+  }
+
+  // Builds a block from vanilla settings, like `Block::new`.
+  public <T extends Block> T createMat(Function<AbstractBlock.Settings, T> constructor) {
+    return constructor.apply(this.vanilla());
+  }
+
+  public <T extends Block> T create(Function<BlockSettings, T> constructor) {
+    return constructor.apply(this);
   }
 
   public AbstractBlock.Settings vanilla() {

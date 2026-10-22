@@ -143,16 +143,22 @@ public final class RBlocks {
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
     Block block = blockSupplier.apply(new BlockSettings());
+    // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.BLOCK, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), block); */
     blocks.add(block);
     return block;
   }
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier, BlockSettings settings) {
     Block block = blockSupplier.apply(settings);
+    // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.BLOCK, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), block); */
     blocks.add(block);
     return block;
   }
@@ -174,9 +180,16 @@ public final class RBlocks {
       return alias;
     }
 
+    // #v12-start
     return Block.getBlockFromName(name);
+    // #v12-end
+    /* #fabric: return net.minecraft.registry.Registries.BLOCK.get(net.minecraft.util.Identifier.of(name)); */
   }
 
+  // Loads this class, which registers the blocks on fabric.
+  public static void init() {}
+
+  // #v12-start
   public static void registerBlocks(IForgeRegistry<Block> reg) {
     for (Block b : blocks) {
       reg.register(b);
@@ -195,4 +208,5 @@ public final class RBlocks {
     ModelLoader.setCustomStateMapper(PALM_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(LAVENDER_TREE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
   }
+  // #v12-end
 }

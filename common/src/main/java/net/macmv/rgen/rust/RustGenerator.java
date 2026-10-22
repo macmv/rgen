@@ -1,3 +1,5 @@
+// # only v12 #
+
 package net.macmv.rgen.rust;
 
 import net.macmv.rgen.RGen;

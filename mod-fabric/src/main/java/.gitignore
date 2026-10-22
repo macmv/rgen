@@ -12,3 +12,8 @@
 !net/macmv/rgen/block/BlockSettings.java
 !net/macmv/rgen/tab/
 !net/macmv/rgen/tab/RCreativeTabs.java
+!net/macmv/rgen/item/
+!net/macmv/rgen/item/GreenCactusFruit.java
+!net/macmv/rgen/item/BlueCactusFruit.java
+!net/macmv/rgen/item/MossCompass.java
+!net/macmv/rgen/item/DebugStickItem.java

@@ -125,6 +125,12 @@ impl<'a> Parser<'a> {
     None
   }
 
+  /// Moves to just after `pos`, which must be after the current position.
+  pub fn skip_to(&mut self, pos: usize) {
+    self.prev = pos;
+    self.pos = pos;
+  }
+
   pub const fn range(&self) -> Range<usize> { self.prev..self.pos }
   pub fn slice(&self) -> &'a str { &self.src[self.range()] }
 

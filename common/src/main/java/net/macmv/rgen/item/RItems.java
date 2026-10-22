@@ -141,21 +141,35 @@ public class RItems {
   }
 
   private static Item registerBlockItem(Block block, Item item) {
+    // #v12-start
     ResourceLocation path = block.getRegistryName();
     if (path == null) {
       throw new IllegalArgumentException("block must have a registry name");
     }
 
     return registerItem(path.getResourcePath(), item);
+    // #v12-end
+    /* #fabric: return registerItem(net.minecraft.registry.Registries.BLOCK.getId(block).getPath(), item); */
   }
 
   private static Item registerItem(String name, Item item) {
+    // #v12-start
     item.setRegistryName(new ResourceLocation(RGen.MOD_ID, name));
     item.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.ITEM, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), item); */
     items.add(item);
     return item;
   }
 
+  // Loads this class, which registers the items on fabric.
+  public static void init() {}
+
+  public static Set<Item> all() {
+    return items;
+  }
+
+  // #v12-start
   public static void registerItems(IForgeRegistry<Item> reg) {
     for (Item i : items) {
       reg.register(i);
@@ -237,4 +251,5 @@ public class RItems {
     ModelResourceLocation location = new ModelResourceLocation(name, "inventory");
     ModelLoader.setCustomModelResourceLocation(item, meta, location);
   }
+  // #v12-end
 }
