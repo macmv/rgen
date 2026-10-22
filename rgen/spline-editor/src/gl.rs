@@ -20,7 +20,6 @@ pub struct Frame {
   pub right:      [f32; 3],
   pub up:         [f32; 3],
   pub pixel:      f32,
-  pub step:       f32,
   pub max_height: f32,
   pub hover:      Option<(i32, i32)>,
 }
@@ -33,7 +32,7 @@ pub struct Renderer {
   heights: glow::Texture,
   colors:  glow::Texture,
 
-  n:       i32,
+  size:    [i32; 2],
   pending: Vec<Upload>,
 }
 
@@ -76,7 +75,7 @@ impl Renderer {
         vao,
         heights: make_texture(gl)?,
         colors: make_texture(gl)?,
-        n: 0,
+        size: [0, 0],
         pending: vec![],
       })
     }
@@ -96,16 +95,16 @@ impl Renderer {
       gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
       for upload in std::mem::take(&mut self.pending) {
         match upload {
-          Upload::Full { n, heights, colors } => {
-            self.n = n as i32;
+          Upload::Full { size, heights, colors } => {
+            self.size = [size[0] as i32, size[1] as i32];
 
             gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
             gl.tex_image_2d(
               glow::TEXTURE_2D,
               0,
               glow::R32F as i32,
-              self.n,
-              self.n,
+              self.size[0],
+              self.size[1],
               0,
               glow::RED,
               glow::FLOAT,
@@ -117,8 +116,8 @@ impl Renderer {
               glow::TEXTURE_2D,
               0,
               glow::RGBA8 as i32,
-              self.n,
-              self.n,
+              self.size[0],
+              self.size[1],
               0,
               glow::RGBA,
               glow::UNSIGNED_BYTE,
@@ -156,7 +155,7 @@ impl Renderer {
           }
         }
       }
-      if self.n == 0 {
+      if self.size[0] == 0 {
         return;
       }
 
@@ -187,8 +186,7 @@ impl Renderer {
         viewport.height_px as f32,
       );
       gl.uniform_1_f32(uniform("uPixel").as_ref(), frame.pixel);
-      gl.uniform_1_i32(uniform("uN").as_ref(), self.n);
-      gl.uniform_1_f32(uniform("uStep").as_ref(), frame.step);
+      gl.uniform_2_i32(uniform("uSize").as_ref(), self.size[0], self.size[1]);
       gl.uniform_1_f32(uniform("uMaxHeight").as_ref(), frame.max_height);
       let (hx, hz) = frame.hover.unwrap_or((-1, -1));
       gl.uniform_2_i32(uniform("uHover").as_ref(), hx, hz);

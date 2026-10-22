@@ -1,7 +1,7 @@
 #version 330 core
 
-// Ray marches a grid of columns of cubes. Each column is `uStep` blocks wide,
-// and its height is a multiple of `uStep`, so every block is a cube.
+// Ray marches a grid of columns of blocks. Each column is one block wide, and
+// its height is a whole number of blocks.
 
 uniform sampler2D uHeight; // R32F, the top of each column
 uniform sampler2D uColor;  // RGBA8, the color of each column
@@ -13,8 +13,7 @@ uniform vec3 uUp;
 uniform vec4 uViewport; // x, y, width, height in pixels
 uniform float uPixel;   // the angle of one pixel, in radians
 
-uniform int uN;
-uniform float uStep;
+uniform ivec2 uSize; // columns along x and z
 uniform float uMaxHeight;
 uniform ivec2 uHover; // the highlighted column, or (-1, -1)
 
@@ -36,8 +35,8 @@ void main() {
   vec3 dir = normalize(uForward + ndc.x * uRight + ndc.y * uUp);
   vec3 origin = uEye;
 
-  float extent = float(uN) * uStep;
-  vec3 bounds = vec3(extent, uMaxHeight, extent);
+  vec2 extent = vec2(uSize);
+  vec3 bounds = vec3(extent.x, uMaxHeight, extent.y);
 
   // Clip the ray to the box around the terrain.
   vec3 safe = vec3(
@@ -56,17 +55,17 @@ void main() {
 
   if (tIn < tOut) {
     vec3 start = origin + dir * (tIn + 1e-3);
-    ivec2 cell = clamp(ivec2(floor(start.xz / uStep)), ivec2(0), ivec2(uN - 1));
+    ivec2 cell = clamp(ivec2(floor(start.xz)), ivec2(0), uSize - 1);
     ivec2 stepDir = ivec2(dir.x >= 0.0 ? 1 : -1, dir.z >= 0.0 ? 1 : -1);
     vec2 d = safe.xz;
-    vec2 tDelta = uStep / abs(d);
-    vec2 boundary = (vec2(cell) + vec2((stepDir + 1) / 2)) * uStep;
+    vec2 tDelta = 1.0 / abs(d);
+    vec2 boundary = vec2(cell) + vec2((stepDir + 1) / 2);
     vec2 tMax = (boundary - origin.xz) / d;
 
     float tCur = tIn;
     int lastAxis = abs(dir.x) > abs(dir.z) ? 0 : 1;
 
-    for (int i = 0; i < uN * 3; i++) {
+    for (int i = 0; i < (uSize.x + uSize.y) * 2; i++) {
       float h = texelFetch(uHeight, cell, 0).r;
       float tExit = min(tMax.x, tMax.y);
 
@@ -99,7 +98,7 @@ void main() {
 
         // Step slightly into the block, to find which block was hit.
         vec3 pos = origin + dir * t;
-        vec3 inside = (pos - normal * 0.01 * uStep) / uStep;
+        vec3 inside = pos - normal * 0.01;
         vec3 block = floor(inside);
         vec3 local = inside - block;
 
@@ -107,7 +106,7 @@ void main() {
 
         // How much of a block one pixel covers. Blocks smaller than a few
         // pixels can't show any detail, so their detail fades out.
-        float footprint = t * uPixel / uStep;
+        float footprint = t * uPixel;
         float detail = 1.0 - smoothstep(0.1, 0.3, footprint);
 
         // Each block is a flat shade, with hard edges between blocks.
@@ -140,7 +139,7 @@ void main() {
         tMax.y += tDelta.y;
         lastAxis = 1;
       }
-      if (cell.x < 0 || cell.y < 0 || cell.x >= uN || cell.y >= uN) break;
+      if (cell.x < 0 || cell.y < 0 || cell.x >= uSize.x || cell.y >= uSize.y) break;
     }
   }
 

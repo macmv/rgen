@@ -11,7 +11,7 @@ use std::sync::{
 use eframe::egui;
 use rgen_biome::{RawNoise, TerrainNoise};
 
-use crate::grid::TILES;
+use crate::grid::TILE_BLOCKS;
 
 /// One chunk to generate.
 pub struct Job {
@@ -21,15 +21,13 @@ pub struct Job {
   pub tz:    usize,
   /// The world position of the chunk's minimum corner.
   pub min:   [f64; 2],
-  pub step:  f64,
-  pub cols:  usize,
 }
 
 pub struct TileResult {
   pub epoch: u64,
   pub tx:    usize,
   pub tz:    usize,
-  /// `cols * cols` samples, with x changing fastest.
+  /// `TILE_BLOCKS * TILE_BLOCKS` samples, with x changing fastest.
   pub raw:   Vec<RawNoise>,
 }
 
@@ -71,11 +69,11 @@ impl Pool {
             continue;
           }
 
-          let mut raw = Vec::with_capacity(job.cols * job.cols);
-          for j in 0..job.cols {
-            for i in 0..job.cols {
-              let x = job.min[0] + i as f64 * job.step;
-              let z = job.min[1] + j as f64 * job.step;
+          let mut raw = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
+          for j in 0..TILE_BLOCKS {
+            for i in 0..TILE_BLOCKS {
+              let x = job.min[0] + i as f64;
+              let z = job.min[1] + j as f64;
               raw.push(job.noise.sample(x, z));
             }
           }
@@ -93,28 +91,34 @@ impl Pool {
 
   /// Throws away any queued chunks, and queues every chunk of a new region.
   /// The chunks closest to the middle are generated first.
-  pub fn start_region(&self, epoch: u64, noise: &Arc<TerrainNoise>, origin: [f64; 2], step: f64, cols: usize) {
-    let tile_blocks = cols as f64 * step;
-    let middle = TILES as i32 / 2;
+  pub fn start_region(
+    &self,
+    epoch: u64,
+    noise: &Arc<TerrainNoise>,
+    origin: [f64; 2],
+    tiles: [usize; 2],
+  ) {
+    let middle = [tiles[0] as i32 / 2, tiles[1] as i32 / 2];
 
-    let mut tiles: Vec<(usize, usize)> =
-      (0..TILES).flat_map(|tz| (0..TILES).map(move |tx| (tx, tz))).collect();
+    let mut jobs_at: Vec<(usize, usize)> =
+      (0..tiles[1]).flat_map(|tz| (0..tiles[0]).map(move |tx| (tx, tz))).collect();
     // The workers pop from the end, so put the closest chunks last.
-    tiles.sort_by_key(|&(tx, tz)| {
-      let (dx, dz) = (tx as i32 - middle, tz as i32 - middle);
+    jobs_at.sort_by_key(|&(tx, tz)| {
+      let (dx, dz) = (tx as i32 - middle[0], tz as i32 - middle[1]);
       std::cmp::Reverse((dx.abs().max(dz.abs()), dx * dx + dz * dz))
     });
 
-    let jobs = tiles
+    let jobs = jobs_at
       .into_iter()
       .map(|(tx, tz)| Job {
         epoch,
         noise: noise.clone(),
         tx,
         tz,
-        min: [origin[0] + tx as f64 * tile_blocks, origin[1] + tz as f64 * tile_blocks],
-        step,
-        cols,
+        min: [
+          origin[0] + (tx * TILE_BLOCKS) as f64,
+          origin[1] + (tz * TILE_BLOCKS) as f64,
+        ],
       })
       .collect();
 

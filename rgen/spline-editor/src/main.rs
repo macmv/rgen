@@ -17,7 +17,7 @@ mod grid;
 mod pool;
 
 use camera::Camera;
-use grid::{Grid, Layer, SEA_LEVEL, TILES, TILE_BLOCKS};
+use grid::{Grid, Layer, SEA_LEVEL, TILE_BLOCKS};
 use pool::{Pool, TileResult};
 
 fn main() -> Result<(), eframe::Error> {
@@ -138,8 +138,11 @@ struct App {
   seed:        u64,
   /// The chunk in the middle of the terrain.
   center_tile: [i32; 2],
-  /// Blocks along each side of a column.
-  step:        u32,
+  /// The number of chunks along x and z that are being generated.
+  tiles:       [usize; 2],
+  /// The values of the size sliders. These are only applied once the slider is
+  /// let go, as a new size regenerates everything.
+  slider_tiles: [usize; 2],
 
   noise:    Arc<TerrainNoise>,
   pool:     Pool,
@@ -147,7 +150,7 @@ struct App {
   /// Bumped whenever a new region is started, so that stale chunks are ignored.
   epoch:    u64,
   /// What the current region was generated with.
-  requested: Option<(u64, [i32; 2], u32)>,
+  requested: Option<(u64, [i32; 2], [usize; 2])>,
 
   grid:  Option<Grid>,
   /// Set when the splines or display options change, so the grid colors need to
@@ -175,7 +178,8 @@ impl App {
 
       seed: 0,
       center_tile: [0, 0],
-      step: 4,
+      tiles: [21, 21],
+      slider_tiles: [21, 21],
 
       noise: Arc::new(TerrainNoise::new(0)),
       pool: Pool::new(ctx, tx),
@@ -223,9 +227,9 @@ impl eframe::App for App {
   }
 }
 
-/// The block sizes to pick from. Each chunk is `TILE_BLOCKS` wide, so these
-/// all divide it evenly.
-const STEPS: [u32; 6] = [1, 2, 4, 8, 16, 32];
+/// The most chunks along one side. Every block is a column, so a bigger world
+/// takes a lot of memory.
+const MAX_TILES: usize = 48;
 
 /// The most chunks that are copied into the grid each frame.
 const TILES_PER_FRAME: usize = 24;
@@ -237,22 +241,22 @@ impl App {
 
   /// The world position of the terrain's minimum corner.
   fn origin(&self) -> [f64; 2] {
-    let first = |c: i32| f64::from(c - TILES as i32 / 2) * f64::from(TILE_BLOCKS);
-    [first(self.center_tile[0]), first(self.center_tile[1])]
+    let first = |c: i32, tiles: usize| f64::from(c - tiles as i32 / 2) * TILE_BLOCKS as f64;
+    [first(self.center_tile[0], self.tiles[0]), first(self.center_tile[1], self.tiles[1])]
   }
 
   /// Starts generating a new region if the parameters changed.
   fn request_region(&mut self) {
-    let key = (self.seed, self.center_tile, self.step);
+    let key = (self.seed, self.center_tile, self.tiles);
     if self.requested == Some(key) {
       return;
     }
     self.requested = Some(key);
     self.epoch += 1;
 
-    let grid = Grid::new(self.origin(), self.step);
+    let grid = Grid::new(self.origin(), self.tiles);
     self.renderer.lock().unwrap().queue(grid.full_upload());
-    self.pool.start_region(self.epoch, &self.noise, grid.origin, grid.step, grid.cols);
+    self.pool.start_region(self.epoch, &self.noise, grid.origin, self.tiles);
     self.grid = Some(grid);
   }
 
@@ -297,23 +301,25 @@ impl App {
       });
       ui.end_row();
 
-      ui.label("Block size");
-      egui::ComboBox::from_id_source("step")
-        .selected_text(format!("{0}x{0}x{0}", self.step))
-        .show_ui(ui, |ui| {
-          for step in STEPS {
-            ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
-          }
-        });
-      ui.end_row();
+      for (axis, label) in ["Width (x)", "Height (z)"].into_iter().enumerate() {
+        ui.label(label);
+        let response = ui.add(
+          egui::Slider::new(&mut self.slider_tiles[axis], 1..=MAX_TILES).suffix(" chunks"),
+        );
+        if response.drag_released() || (response.changed() && !response.dragged()) {
+          self.tiles[axis] = self.slider_tiles[axis];
+        }
+        ui.end_row();
+      }
 
       ui.label("Region");
-      let blocks = TILES as u32 * TILE_BLOCKS;
-      ui.label(format!("{TILES}x{TILES} chunks, {blocks} blocks"));
+      let [x, z] = self.tiles.map(|t| t * TILE_BLOCKS);
+      ui.label(format!("{x} x {z} blocks"));
       ui.end_row();
 
       ui.label("Generated");
-      let (done, total) = (self.grid.as_ref().map_or(0, |g| g.loaded_count), TILES * TILES);
+      let done = self.grid.as_ref().map_or(0, |g| g.loaded_count);
+      let total = self.tiles[0] * self.tiles[1];
       ui.label(if done == total { "done".to_string() } else { format!("{done} / {total}") });
       ui.end_row();
     });
@@ -381,7 +387,7 @@ impl App {
   /// The noise and height parts of the vertex the mouse was over last frame.
   fn hovered(&self) -> Option<(RawNoise, HeightParts)> {
     let grid = self.grid.as_ref()?;
-    let raw = *grid.raw.get(self.hover?)?;
+    let raw = grid.raw(self.hover?)?;
     Some((raw, self.active_splines().parts(raw)))
   }
 
@@ -405,6 +411,7 @@ impl App {
     }
 
     let extent = grid.extent();
+    let longest = extent[0].max(extent[1]);
 
     if response.dragged_by(egui::PointerButton::Primary) {
       let d = response.drag_delta();
@@ -413,7 +420,7 @@ impl App {
     }
     if response.dragged_by(egui::PointerButton::Secondary) {
       let d = response.drag_delta();
-      self.camera.drag_pan([d.x, d.y], extent, rect);
+      self.camera.drag_pan([d.x, d.y], longest, rect);
     }
     if response.hovered() {
       let scroll = ui.input(|i| i.raw_scroll_delta.y);
@@ -422,8 +429,12 @@ impl App {
 
     // The camera works in grid space: one unit is one block, and the terrain
     // covers 0..extent on x and z.
-    let target = [extent / 2.0 + self.camera.pan[0], SEA_LEVEL as f32, extent / 2.0 + self.camera.pan[1]];
-    let view = self.camera.view(rect, extent, target);
+    let target = [
+      extent[0] / 2.0 + self.camera.pan[0],
+      SEA_LEVEL as f32,
+      extent[1] / 2.0 + self.camera.pan[1],
+    ];
+    let view = self.camera.view(rect, longest, target);
 
     // Find the column under the mouse.
     self.hover = None;
@@ -453,7 +464,6 @@ impl App {
       right:      view.right_scaled(rect.aspect_ratio()),
       up:         view.up_scaled(),
       pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
-      step:       grid.step as f32,
       max_height: grid.max_height() + 1.0,
       hover:      self.hover.map(|idx| {
         let (i, j) = grid.coords(idx);
@@ -470,20 +480,19 @@ impl App {
 
     // The section line, following the terrain.
     let splines = self.active_splines();
-    let snap = |h: f64| ((h / grid.step).floor() * grid.step) as f32;
     let line: Vec<Option<Pos2>> = self
       .section
       .samples
       .iter()
       .map(|s| {
-        let mut h = snap(splines.parts(s.noise).height);
+        let mut h = splines.parts(s.noise).height.floor() as f32;
         if self.flatten_water {
-          h = h.max(snap(SEA_LEVEL));
+          h = h.max(SEA_LEVEL.floor() as f32);
         }
         view
           .project([
             (s.x - grid.origin[0]) as f32,
-            h + grid.step as f32,
+            h + 1.0,
             (s.z - grid.origin[1]) as f32,
           ])
           .map(|p| p.0)
