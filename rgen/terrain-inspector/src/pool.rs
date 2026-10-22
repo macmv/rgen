@@ -1,6 +1,7 @@
-//! Generates the chunks of terrain on a pool of threads, the same way
-//! `rgen-viewer` does: the main thread queues up chunks nearest to the center
-//! first, and the workers pull them off as they get free.
+//! Generates the chunks of terrain on a pool of threads. The main thread
+//! queues up the chunks around the camera, and the workers pull the nearest one
+//! off as they get free. As the camera moves, the queue is replanned: chunks
+//! that are now too far away are dropped, and new ones are added.
 
 use std::sync::{
   Arc, Condvar, Mutex,
@@ -13,7 +14,7 @@ use rgen_biome::{RawNoise, TerrainNoise};
 
 use crate::{
   Splines,
-  grid::{Grid, Layer, TILE_BLOCKS, TileColumns},
+  grid::{Grid, Layer, TILE_BLOCKS, TileColumns, distance_sq},
 };
 
 /// What the workers need to turn noise into heights and colors. Whenever any of
@@ -29,16 +30,13 @@ pub struct Params {
 pub struct Job {
   pub epoch: u64,
   pub noise: Arc<TerrainNoise>,
-  pub tx:    usize,
-  pub tz:    usize,
-  /// The world position of the chunk's minimum corner.
-  pub min:   [f64; 2],
+  /// The chunk's position, in chunks.
+  pub tile:  [i32; 2],
 }
 
 pub struct TileResult {
   pub epoch: u64,
-  pub tx:    usize,
-  pub tz:    usize,
+  pub tile:  [i32; 2],
   /// `TILE_BLOCKS * TILE_BLOCKS` samples, with x changing fastest.
   pub raw:   Vec<RawNoise>,
   /// The columns, made with the params with this id.
@@ -90,11 +88,12 @@ impl Pool {
             continue;
           }
 
+          let min = job.tile.map(|t| f64::from(t) * TILE_BLOCKS as f64);
           let mut raw = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
           for j in 0..TILE_BLOCKS {
             for i in 0..TILE_BLOCKS {
-              let x = job.min[0] + i as f64;
-              let z = job.min[1] + j as f64;
+              let x = min[0] + i as f64;
+              let z = min[1] + j as f64;
               raw.push(job.noise.sample(x, z));
             }
           }
@@ -105,8 +104,7 @@ impl Pool {
 
           let result = TileResult {
             epoch: job.epoch,
-            tx: job.tx,
-            tz: job.tz,
+            tile: job.tile,
             raw,
             params_id: params.id,
             columns,
@@ -125,38 +123,31 @@ impl Pool {
   /// Changes what chunks that haven't started yet are made with.
   pub fn set_params(&self, params: Arc<Params>) { *self.queue.params.lock().unwrap() = params; }
 
-  /// Throws away any queued chunks, and queues every chunk of a new region.
-  /// The chunks closest to the middle are generated first.
-  pub fn start_region(
+  /// Throws away every queued chunk, and starts a new epoch. Chunks that are
+  /// being generated finish, but are ignored.
+  pub fn reset(&self, epoch: u64) {
+    self.queue.epoch.store(epoch, Ordering::SeqCst);
+    self.queue.jobs.lock().unwrap().clear();
+  }
+
+  /// Drops the queued chunks that are further than `radius` chunks from
+  /// `center`, and queues `new`. The chunks closest to the center are
+  /// generated first.
+  pub fn plan(
     &self,
     epoch: u64,
     noise: &Arc<TerrainNoise>,
-    origin: [f64; 2],
-    tiles: [usize; 2],
+    center: [i32; 2],
+    radius: i32,
+    new: &[[i32; 2]],
   ) {
-    let middle = [tiles[0] as i32 / 2, tiles[1] as i32 / 2];
-
-    let mut jobs_at: Vec<(usize, usize)> =
-      (0..tiles[1]).flat_map(|tz| (0..tiles[0]).map(move |tx| (tx, tz))).collect();
+    let mut jobs = self.queue.jobs.lock().unwrap();
+    jobs.retain(|job| job.epoch == epoch && crate::grid::in_range(center, radius, job.tile));
+    jobs.extend(new.iter().map(|&tile| Job { epoch, noise: noise.clone(), tile }));
     // The workers pop from the end, so put the closest chunks last.
-    jobs_at.sort_by_key(|&(tx, tz)| {
-      let (dx, dz) = (tx as i32 - middle[0], tz as i32 - middle[1]);
-      std::cmp::Reverse((dx.abs().max(dz.abs()), dx * dx + dz * dz))
-    });
+    jobs.sort_by_key(|job| std::cmp::Reverse(distance_sq(center, job.tile)));
+    drop(jobs);
 
-    let jobs = jobs_at
-      .into_iter()
-      .map(|(tx, tz)| Job {
-        epoch,
-        noise: noise.clone(),
-        tx,
-        tz,
-        min: [origin[0] + (tx * TILE_BLOCKS) as f64, origin[1] + (tz * TILE_BLOCKS) as f64],
-      })
-      .collect();
-
-    self.queue.epoch.store(epoch, Ordering::SeqCst);
-    *self.queue.jobs.lock().unwrap() = jobs;
     self.queue.ready.notify_all();
   }
 }

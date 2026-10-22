@@ -2,18 +2,19 @@ use eframe::egui::{Pos2, Rect};
 
 use crate::grid::{dot, normalize};
 
-/// An orbit camera looking at a point above the middle of the grid.
+/// An orbit camera looking at a point on the ground.
 pub struct Camera {
   pub yaw:   f32,
   pub pitch: f32,
-  /// Distance from the target, as a multiple of the grid's width.
+  /// Distance from the target, as a multiple of the extent that the camera is
+  /// given.
   pub zoom:  f32,
-  /// How far the target is from the middle of the grid, in blocks.
-  pub pan:   [f32; 2],
+  /// The world position the camera looks at, in blocks.
+  pub target: [f64; 2],
 }
 
 impl Default for Camera {
-  fn default() -> Self { Camera { yaw: 0.6, pitch: 0.55, zoom: 0.9, pan: [0.0, 0.0] } }
+  fn default() -> Self { Camera { yaw: 0.6, pitch: 0.55, zoom: 0.9, target: [0.0, 0.0] } }
 }
 
 /// A camera for one frame, with its basis computed.
@@ -37,11 +38,8 @@ impl Camera {
     let right = [cy, -sy];
     let forward = [-sy, -cy];
 
-    self.pan[0] += (-right[0] * delta[0] + forward[0] * delta[1]) * scale;
-    self.pan[1] += (-right[1] * delta[0] + forward[1] * delta[1]) * scale;
-
-    let limit = extent / 2.0;
-    self.pan = self.pan.map(|p| p.clamp(-limit, limit));
+    self.target[0] += f64::from((-right[0] * delta[0] + forward[0] * delta[1]) * scale);
+    self.target[1] += f64::from((-right[1] * delta[0] + forward[1] * delta[1]) * scale);
   }
 
   pub fn view(&self, rect: Rect, extent: f32, target: [f32; 3]) -> View {

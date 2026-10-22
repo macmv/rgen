@@ -5,6 +5,11 @@
 //! The bricks of the chunks that do store blocks live in slots, which are the
 //! same slots as in the GPU's atlas. This all lives on the CPU too, so that
 //! hovering can ray cast without reading anything back.
+//!
+//! The world wraps around in x and z, like a torus: the chunk at `(cx, cz)` in
+//! the table is the chunk at `(cx - shift) mod dims` in the window that the
+//! camera sees. Moving the window only changes the shift, and the chunks that
+//! leave one side are cleared to make room for the ones that enter the other.
 
 use std::sync::Arc;
 
@@ -50,6 +55,9 @@ pub struct Chunks {
   free:     Vec<u32>,
   capacity: usize,
 
+  /// The chunk of the table that the window starts at, along x and z.
+  shift:    [usize; 2],
+
   /// Set when there weren't enough slots, and some chunks are missing.
   pub overflowed: bool,
 }
@@ -65,11 +73,24 @@ impl Chunks {
       bricks: vec![],
       free: vec![],
       capacity,
+      shift: [0, 0],
       overflowed: false,
     }
   }
 
   fn table_index(&self, c: [usize; 3]) -> usize { c[0] + self.dims[0] * (c[1] + self.dims[1] * c[2]) }
+
+  /// Sets which chunk of the table is at the window's minimum corner.
+  pub fn set_shift(&mut self, shift: [usize; 2]) { self.shift = shift; }
+
+  /// The table index of a chunk of the window.
+  fn window_index(&self, c: [usize; 3]) -> usize {
+    self.table_index([
+      (c[0] + self.shift[0]) % self.dims[0],
+      c[1],
+      (c[2] + self.shift[1]) % self.dims[2],
+    ])
+  }
 
   fn alloc(&mut self) -> Option<u32> {
     if let Some(slot) = self.free.pop() {
@@ -82,22 +103,40 @@ impl Chunks {
     Some(self.bricks.len() as u32 - 1)
   }
 
+  /// Empties the chunks above one square of columns, and pushes the changes.
+  pub fn clear_column(&mut self, cx: usize, cz: usize, out: &mut Vec<ChunkUpdate>) {
+    for cy in 0..self.dims[1] {
+      let chunk = [cx, cy, cz];
+      let idx = self.table_index(chunk);
+      let old = self.table[idx];
+      if old >= FIRST_SLOT {
+        self.free.push(old - FIRST_SLOT);
+      }
+      if old != EMPTY {
+        self.table[idx] = EMPTY;
+        out.push(ChunkUpdate { chunk, value: EMPTY, brick: None });
+      }
+    }
+  }
+
   /// Rebuilds the chunks above one square of columns from their heights, and
-  /// pushes the changes. `heights` is indexed with `width` columns per row. A
-  /// column's blocks are the ones below its height.
+  /// pushes the changes. `heights` is indexed with `width` columns per row, and
+  /// the square starts at `start` in it. A column's blocks are the ones below
+  /// its height.
   pub fn rebuild_column(
     &mut self,
     cx: usize,
     cz: usize,
     heights: &[f32],
     width: usize,
+    start: [usize; 2],
     out: &mut Vec<ChunkUpdate>,
   ) {
     let mut column = [0i32; CHUNK * CHUNK];
     let (mut lowest, mut highest) = (i32::MAX, 0);
     for lz in 0..CHUNK {
       for lx in 0..CHUNK {
-        let h = heights[(cz * CHUNK + lz) * width + cx * CHUNK + lx] as i32;
+        let h = heights[(start[1] + lz) * width + start[0] + lx] as i32;
         let h = h.clamp(0, WORLD_HEIGHT as i32);
         column[lz * CHUNK + lx] = h;
         lowest = lowest.min(h);
@@ -129,8 +168,8 @@ impl Chunks {
       for lz in 0..CHUNK {
         for lx in 0..CHUNK {
           let local = (column[lz * CHUNK + lx] - base).clamp(0, CHUNK as i32) as usize;
-          let start = brick_index(lx, 0, lz);
-          scratch[start..start + local].fill(1);
+          let first = brick_index(lx, 0, lz);
+          scratch[first..first + local].fill(1);
         }
       }
 
@@ -188,7 +227,7 @@ impl Chunks {
 
     let mut t_cur = t_in;
     for _ in 0..self.dims.iter().sum::<usize>() + 4 {
-      let state = self.table[self.table_index(cell.map(|v| v as usize))];
+      let state = self.table[self.window_index(cell.map(|v| v as usize))];
 
       if state != EMPTY {
         let lo = cell.map(|v| v * CHUNK as i32);
@@ -272,7 +311,7 @@ mod tests {
     let mut out = vec![];
     for cz in 0..size / CHUNK {
       for cx in 0..size / CHUNK {
-        chunks.rebuild_column(cx, cz, &heights, size, &mut out);
+        chunks.rebuild_column(cx, cz, &heights, size, [cx * CHUNK, cz * CHUNK], &mut out);
       }
     }
     (chunks, heights)
@@ -315,15 +354,37 @@ mod tests {
   fn rebuild_only_reports_changes() {
     let (mut chunks, heights) = world(32, |_, _| 40.0);
     let mut out = vec![];
-    chunks.rebuild_column(0, 0, &heights, 32, &mut out);
+    chunks.rebuild_column(0, 0, &heights, 32, [0, 0], &mut out);
     assert!(out.is_empty());
+  }
+
+  #[test]
+  fn shifted_window_wraps() {
+    // Two chunks along x are solid in the table, then the window moves over.
+    let (mut chunks, _) = world(64, |x, _| if x >= 32 { 100.0 } else { 20.0 });
+    chunks.set_shift([1, 0]);
+    // The window's first chunk is the table's second, which is the tall one.
+    let hit = chunks.raycast([0.5, 200.0, 0.5], [0.0, -1.0, 0.0]);
+    assert_eq!(hit, Some([0, 99, 0]));
+    let hit = chunks.raycast([32.5, 200.0, 0.5], [0.0, -1.0, 0.0]);
+    assert_eq!(hit, Some([32, 19, 0]));
+  }
+
+  #[test]
+  fn clearing_frees_slots() {
+    let (mut chunks, _) = world(32, |_, _| 40.0);
+    let mut out = vec![];
+    chunks.clear_column(0, 0, &mut out);
+    assert!(!out.is_empty());
+    assert_eq!(chunks.raycast([0.5, 200.0, 0.5], [0.0, -1.0, 0.0]), None);
+    assert_eq!(chunks.free.len(), 1);
   }
 
   #[test]
   fn running_out_of_slots_is_reported() {
     let mut chunks = Chunks::new([32, 32], 0);
     let heights = vec![40.0; 32 * 32];
-    chunks.rebuild_column(0, 0, &heights, 32, &mut vec![]);
+    chunks.rebuild_column(0, 0, &heights, 32, [0, 0], &mut vec![]);
     assert!(chunks.overflowed);
   }
 }

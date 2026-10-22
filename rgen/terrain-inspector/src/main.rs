@@ -1,4 +1,5 @@
 use std::{
+  collections::HashSet,
   ops::RangeInclusive,
   sync::{Arc, Mutex, mpsc},
 };
@@ -18,7 +19,7 @@ mod grid;
 mod pool;
 
 use camera::Camera;
-use grid::{Grid, Layer, SEA_LEVEL, TILE_BLOCKS};
+use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS};
 use pool::{Params, Pool, TileResult};
 
 fn main() -> Result<(), eframe::Error> {
@@ -136,26 +137,23 @@ struct App {
   saved:         Splines,
   compare_saved: bool,
 
-  seed:         u64,
-  /// The chunk in the middle of the terrain.
-  center_tile:  [i32; 2],
-  /// The number of chunks along x and z that are being generated.
-  tiles:        [usize; 2],
-  /// The values of the size sliders. These are only applied once the slider is
-  /// let go, as a new size regenerates everything.
-  slider_tiles: [usize; 2],
+  seed:          u64,
+  /// How many chunks around the camera are generated.
+  view_distance: i32,
 
   noise:     Arc<TerrainNoise>,
   pool:      Pool,
   /// What the workers are making columns with.
   params:    Arc<Params>,
   results:   mpsc::Receiver<TileResult>,
-  /// Bumped whenever a new region is started, so that stale chunks are ignored.
+  /// Bumped whenever the world starts over, so that stale chunks are ignored.
   epoch:     u64,
-  /// What the current region was generated with.
-  requested: Option<(u64, [i32; 2], [usize; 2])>,
+  /// The chunks that are generated, or are queued or being generated.
+  requested: HashSet<[i32; 2]>,
+  /// The center and view distance that chunks were last queued for.
+  planned:   Option<([i32; 2], i32)>,
 
-  grid:  Option<Grid>,
+  grid:  Grid,
   /// Set when the splines or display options change, so the grid colors need to
   /// be rebuilt.
   dirty: bool,
@@ -163,8 +161,8 @@ struct App {
   layer:         Layer,
   flatten_water: bool,
   camera:        Camera,
-  /// The grid vertex under the mouse, from the last frame.
-  hover:         Option<usize>,
+  /// The world position of the column under the mouse, from the last frame.
+  hover:         Option<[i32; 2]>,
 
   renderer: Arc<Mutex<gl::Renderer>>,
 
@@ -180,24 +178,25 @@ impl App {
       layer:         Layer::Height,
       flatten_water: true,
     });
+    let grid = Grid::new(renderer.lock().unwrap().brick_capacity());
+    renderer.lock().unwrap().queue(grid.reset_upload());
     App {
       splines: Splines::from_game(),
       saved: Splines::from_game(),
       compare_saved: false,
 
       seed: 0,
-      center_tile: [0, 0],
-      tiles: [21, 21],
-      slider_tiles: [21, 21],
+      view_distance: 10,
 
       noise: Arc::new(TerrainNoise::new(0)),
       pool: Pool::new(ctx, tx, params.clone()),
       params,
       results: rx,
       epoch: 0,
-      requested: None,
+      requested: HashSet::new(),
+      planned: None,
 
-      grid: None,
+      grid,
       dirty: false,
 
       layer: Layer::Height,
@@ -214,7 +213,7 @@ impl App {
 
 impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-    self.request_region();
+    self.plan_chunks();
     self.receive_tiles(ctx);
 
     egui::SidePanel::left("controls").default_width(340.0).show(ctx, |ui| self.controls(ui));
@@ -227,15 +226,14 @@ impl eframe::App for App {
         flatten_water: self.flatten_water,
       });
       self.pool.set_params(self.params.clone());
-      if let Some(grid) = &mut self.grid {
-        let updates = grid.recompute_all(
-          &self.params.splines,
-          self.params.layer,
-          self.params.flatten_water,
-        );
-        let mut renderer = self.renderer.lock().unwrap();
-        renderer.queue(grid.colors_upload());
-        renderer.queue(grid::Upload::Chunks(updates));
+      let uploads = self.grid.recompute_all(
+        &self.params.splines,
+        self.params.layer,
+        self.params.flatten_water,
+      );
+      let mut renderer = self.renderer.lock().unwrap();
+      for upload in uploads {
+        renderer.queue(upload);
       }
       self.dirty = false;
     }
@@ -249,9 +247,9 @@ impl eframe::App for App {
   }
 }
 
-/// The most chunks along one side. Every block is a column, so a bigger world
-/// takes a lot of memory.
-const MAX_TILES: usize = 48;
+/// The camera's zoom is relative to this many blocks, so that it doesn't change
+/// when the view distance does.
+const CAMERA_EXTENT: f32 = 21.0 * TILE_BLOCKS as f32;
 
 /// How long a frame spends copying chunks into the grid, once it has copied one.
 /// Past that, the rest wait for the next frame, so that the window stays
@@ -263,38 +261,55 @@ impl App {
     if self.compare_saved { &self.saved } else { &self.splines }
   }
 
-  /// The world position of the terrain's minimum corner.
-  fn origin(&self) -> [f64; 2] {
-    let first = |c: i32, tiles: usize| f64::from(c - tiles as i32 / 2) * TILE_BLOCKS as f64;
-    [first(self.center_tile[0], self.tiles[0]), first(self.center_tile[1], self.tiles[1])]
+  /// The chunk the camera is looking at.
+  fn center_tile(&self) -> [i32; 2] {
+    self.camera.target.map(|t| (t / TILE_BLOCKS as f64).floor() as i32)
   }
 
-  /// Starts generating a new region if the parameters changed.
-  fn request_region(&mut self) {
-    let key = (self.seed, self.center_tile, self.tiles);
-    if self.requested == Some(key) {
+  /// Throws away all the terrain, and starts generating it again.
+  fn restart(&mut self) {
+    self.epoch += 1;
+    self.requested.clear();
+    self.planned = None;
+    self.pool.reset(self.epoch);
+
+    self.grid = Grid::new(self.renderer.lock().unwrap().brick_capacity());
+    self.renderer.lock().unwrap().queue(self.grid.reset_upload());
+  }
+
+  /// Moves the grid to follow the camera, and queues any chunks within the view
+  /// distance that aren't generated yet. Chunks that are too far away are
+  /// thrown out, and the rest are left alone.
+  fn plan_chunks(&mut self) {
+    let center = self.center_tile();
+    let radius = self.view_distance;
+    if self.planned == Some((center, radius)) {
       return;
     }
-    self.requested = Some(key);
-    self.epoch += 1;
+    self.planned = Some((center, radius));
 
-    let mut renderer = self.renderer.lock().unwrap();
-    let grid = Grid::new(self.origin(), self.tiles, renderer.brick_capacity());
-    renderer.queue(grid.reset_upload());
-    drop(renderer);
-    self.pool.start_region(self.epoch, &self.noise, grid.origin, self.tiles);
-    self.grid = Some(grid);
+    self.grid.set_center(center);
+    let updates = self.grid.evict_outside(center, radius);
+    if !updates.is_empty() {
+      self.renderer.lock().unwrap().queue(grid::Upload::Chunks(updates));
+    }
+    self.requested.retain(|&t| grid::in_range(center, radius, t));
+
+    let new: Vec<[i32; 2]> =
+      grid::tiles_in_range(center, radius).filter(|t| !self.requested.contains(t)).collect();
+    self.requested.extend(new.iter().copied());
+    self.pool.plan(self.epoch, &self.noise, center, radius, &new);
   }
 
   /// Copies the chunks the workers finished into the terrain.
   fn receive_tiles(&mut self, ctx: &egui::Context) {
-    let Some(grid) = &mut self.grid else { return };
     let start = std::time::Instant::now();
 
     let mut renderer = self.renderer.lock().unwrap();
     while start.elapsed() < TILE_BUDGET {
       let Ok(tile) = self.results.try_recv() else { return };
-      if tile.epoch != self.epoch {
+      // Chunks that went out of range while they were generated are dropped.
+      if tile.epoch != self.epoch || !self.requested.contains(&tile.tile) {
         continue;
       }
 
@@ -306,7 +321,7 @@ impl App {
         Grid::tile_columns(&tile.raw, &p.splines, p.layer, p.flatten_water)
       };
 
-      for upload in grid.set_tile(tile.tx, tile.tz, &tile.raw, &columns) {
+      for upload in self.grid.set_tile(tile.tile, &tile.raw, &columns) {
         renderer.queue(upload);
       }
     }
@@ -323,38 +338,28 @@ impl App {
       if ui.add(DragValue::new(&mut self.seed)).changed() {
         self.noise = Arc::new(TerrainNoise::new(self.seed));
         self.section.resample(&self.noise);
+        self.restart();
       }
       ui.end_row();
 
-      ui.label("Center chunk");
+      ui.label("Looking at");
       ui.horizontal(|ui| {
-        ui.add(DragValue::new(&mut self.center_tile[0]).speed(0.2));
-        ui.add(DragValue::new(&mut self.center_tile[1]).speed(0.2));
+        ui.add(DragValue::new(&mut self.camera.target[0]).speed(8.0));
+        ui.add(DragValue::new(&mut self.camera.target[1]).speed(8.0));
       });
       ui.end_row();
 
-      for (axis, label) in ["Width (x)", "Height (z)"].into_iter().enumerate() {
-        ui.label(label);
-        let response =
-          ui.add(egui::Slider::new(&mut self.slider_tiles[axis], 1..=MAX_TILES).suffix(" chunks"));
-        if response.drag_released() || (response.changed() && !response.dragged()) {
-          self.tiles[axis] = self.slider_tiles[axis];
-        }
-        ui.end_row();
-      }
-
-      ui.label("Region");
-      let [x, z] = self.tiles.map(|t| t * TILE_BLOCKS);
-      ui.label(format!("{x} x {z} blocks"));
+      ui.label("View distance");
+      ui.add(egui::Slider::new(&mut self.view_distance, 1..=MAX_RADIUS).suffix(" chunks"));
       ui.end_row();
 
       ui.label("Generated");
-      let done = self.grid.as_ref().map_or(0, |g| g.loaded_count);
-      let total = self.tiles[0] * self.tiles[1];
+      let done = self.grid.loaded_count();
+      let total = grid::tiles_in_range([0, 0], self.view_distance).count();
       ui.label(if done == total { "done".to_string() } else { format!("{done} / {total}") });
       ui.end_row();
 
-      if self.grid.as_ref().is_some_and(|g| g.chunks.overflowed) {
+      if self.grid.chunks.overflowed {
         ui.label("Warning");
         ui.colored_label(Color32::from_rgb(255, 150, 60), "out of chunk slots");
         ui.end_row();
@@ -423,8 +428,7 @@ impl App {
 
   /// The noise and height parts of the vertex the mouse was over last frame.
   fn hovered(&self) -> Option<(RawNoise, HeightParts)> {
-    let grid = self.grid.as_ref()?;
-    let raw = grid.raw(self.hover?)?;
+    let raw = self.grid.raw_at(self.hover?)?;
     Some((raw, self.active_splines().parts(raw)))
   }
 
@@ -433,22 +437,8 @@ impl App {
     let rect = response.rect;
     painter.rect_filled(rect, 0.0, Color32::from_rgb(28, 30, 38));
 
-    let Some(grid) = &self.grid else {
-      painter.text(
-        rect.center(),
-        Align2::CENTER_CENTER,
-        "Sampling...",
-        FontId::proportional(18.0),
-        Color32::GRAY,
-      );
-      return;
-    };
-    if grid.colors.is_empty() {
-      return;
-    }
-
-    let extent = grid.extent();
-    let longest = extent[0].max(extent[1]);
+    let grid = &self.grid;
+    let longest = CAMERA_EXTENT;
 
     if response.dragged_by(egui::PointerButton::Primary) {
       let d = response.drag_delta();
@@ -464,12 +454,13 @@ impl App {
       self.camera.zoom = (self.camera.zoom * (-scroll * 0.002).exp()).clamp(0.02, 4.0);
     }
 
-    // The camera works in grid space: one unit is one block, and the terrain
-    // covers 0..extent on x and z.
+    // The camera works in window space: one unit is one block, and the window
+    // covers 0..size on x and z.
+    let window = grid.window_origin();
     let target = [
-      extent[0] / 2.0 + self.camera.pan[0],
+      (self.camera.target[0] - window[0]) as f32,
       SEA_LEVEL as f32,
-      extent[1] / 2.0 + self.camera.pan[1],
+      (self.camera.target[1] - window[1]) as f32,
     ];
     let view = self.camera.view(rect, longest, target);
 
@@ -482,8 +473,7 @@ impl App {
 
     if let Some(idx) = self.hover {
       if self.section.picking && response.clicked() {
-        let (i, j) = grid.coords(idx);
-        let point = grid.world(i, j);
+        let point = idx.map(f64::from);
         if self.section.a.is_none() || self.section.b.is_some() {
           self.section.a = Some(point);
           self.section.b = None;
@@ -501,9 +491,10 @@ impl App {
       right:      view.right_scaled(rect.aspect_ratio()),
       up:         view.up_scaled(),
       pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
+      shift:      grid.shift(),
       hover:      self.hover.map(|idx| {
-        let (i, j) = grid.coords(idx);
-        (i as i32, j as i32)
+        let [i, j] = grid.to_window(idx);
+        (i, j)
       }),
     };
     let renderer = self.renderer.clone();
@@ -526,13 +517,13 @@ impl App {
           h = h.max(SEA_LEVEL.floor() as f32);
         }
         view
-          .project([(s.x - grid.origin[0]) as f32, h + 1.0, (s.z - grid.origin[1]) as f32])
+          .project([(s.x - window[0]) as f32, h + 1.0, (s.z - window[1]) as f32])
           .map(|p| p.0)
       })
       .collect();
     for w in line.windows(2) {
       if let [Some(a), Some(b)] = w {
-        painter.line_segment([*a, *b], Stroke::new(2.5, Color32::from_rgb(255, 210, 40)));
+        painter.line_segment([*a, *b], Stroke::new(2.5_f32, Color32::from_rgb(255, 210, 40)));
       }
     }
     for (label, end) in [("A", line.first()), ("B", line.last())] {
@@ -551,9 +542,7 @@ impl App {
     // Readout.
     let text = match self.hovered() {
       Some((r, p)) => {
-        let idx = self.hover.unwrap();
-        let (i, j) = grid.coords(idx);
-        let [x, z] = grid.world(i, j);
+        let [x, z] = self.hover.unwrap();
         format!(
           "x {x:.0}  z {z:.0}\n\
            continentalness {:.3} -> c {:.1}\n\
@@ -618,7 +607,7 @@ impl App {
         plot.line(Line::new(series(&|p| p.p)).name("peaks/valleys (p)"));
         plot.line(Line::new(series(&|p| p.e * 128.0)).name("erosion (e x 128)"));
         plot.line(Line::new(series(&|p| p.impact * 128.0)).name("height impact (x 128)"));
-        plot.line(Line::new(series(&|p| p.height)).name("height").width(3.0).color(Color32::WHITE));
+        plot.line(Line::new(series(&|p| p.height)).name("height").width(3.0_f32).color(Color32::WHITE));
       });
   }
 }

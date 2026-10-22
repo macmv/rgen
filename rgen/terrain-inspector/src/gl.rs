@@ -32,6 +32,8 @@ pub struct Frame {
   pub right:      [f32; 3],
   pub up:         [f32; 3],
   pub pixel:      f32,
+  /// How far the grid is rotated to get the window, in blocks.
+  pub shift:      [i32; 2],
   pub hover:      Option<(i32, i32)>,
 }
 
@@ -144,14 +146,10 @@ impl Renderer {
   /// The number of chunks the atlas has room for blocks of.
   pub fn brick_capacity(&self) -> usize { (self.side as usize).pow(3) }
 
-  /// Queues new terrain, which is uploaded on the next paint. A full upload
-  /// replaces the columns queued before it, but not the chunks. Emptying the
+  /// Queues new terrain, which is uploaded on the next paint. Emptying the
   /// chunks replaces everything.
   pub fn queue(&mut self, upload: Upload) {
     match upload {
-      Upload::Colors { .. } => {
-        self.pending.retain(|u| matches!(u, Upload::Reset { .. } | Upload::Chunks(_)))
-      }
       Upload::Reset { .. } => self.pending.clear(),
       _ => {}
     }
@@ -260,22 +258,6 @@ impl Renderer {
               break;
             }
           }
-          Upload::Colors { size, colors } => {
-            self.size = [size[0] as i32, size[1] as i32];
-
-            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
-            gl.tex_image_2d(
-              glow::TEXTURE_2D,
-              0,
-              glow::RGBA8 as i32,
-              self.size[0],
-              self.size[1],
-              0,
-              glow::RGBA,
-              glow::UNSIGNED_BYTE,
-              Some(&colors),
-            );
-          }
           Upload::Tile { x, y, size, colors } => {
             let (x, y, size) = (x as i32, y as i32, size as i32);
 
@@ -341,6 +323,7 @@ impl Renderer {
       gl.uniform_1_i32(uniform("uBricks").as_ref(), 2);
       gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
       gl.uniform_1_i32(uniform("uAtlasSide").as_ref(), self.side);
+      gl.uniform_2_i32(uniform("uShift").as_ref(), frame.shift[0], frame.shift[1]);
       gl.uniform_3_f32_slice(uniform("uEye").as_ref(), &frame.eye);
       gl.uniform_3_f32_slice(uniform("uForward").as_ref(), &frame.forward);
       gl.uniform_3_f32_slice(uniform("uRight").as_ref(), &frame.right);

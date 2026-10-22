@@ -18,6 +18,7 @@ uniform float uPixel;   // the angle of one pixel, in radians
 
 uniform ivec3 uChunks; // chunks along x, y and z
 uniform int uAtlasSide; // slots along each side of the atlas
+uniform ivec2 uShift; // how far the grid is rotated to get the window, in blocks
 uniform ivec2 uHover; // the highlighted column, or (-1, -1)
 
 out vec4 outColor;
@@ -43,11 +44,23 @@ ivec3 atlasOrigin(int slot) {
   ) * CHUNK;
 }
 
+// The table cell of a chunk of the window. The grid wraps around, and the
+// window starts uShift blocks into it.
+ivec3 wrapCell(ivec3 c) {
+  c.xz = (c.xz + uShift / CHUNK) % uChunks.xz;
+  return c;
+}
+
+// The texel of the color texture for a column of the window.
+ivec2 wrapColumn(ivec2 v) {
+  return (v + uShift) % (uChunks.xz * CHUNK);
+}
+
 bool solidAt(ivec3 v) {
   if (any(lessThan(v, ivec3(0))) || any(greaterThanEqual(v, uChunks * CHUNK))) return false;
 
   ivec3 c = v / CHUNK;
-  uint state = texelFetch(uTable, c, 0).r;
+  uint state = texelFetch(uTable, wrapCell(c), 0).r;
   if (state < 2u) return state == 1u;
 
   ivec3 l = v - c * CHUNK;
@@ -100,7 +113,7 @@ bool footprintSample(vec2 spot, float hitY, vec3 d, float r, out vec3 albedo) {
   }
   top = float(s.y + 1);
 
-  vec3 base = texelFetch(uColor, s.xz, 0).rgb;
+  vec3 base = texelFetch(uColor, wrapColumn(s.xz), 0).rgb;
   if (top - hitY > max(1.0, r)) {
     // The neighbor stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
@@ -158,7 +171,7 @@ void main() {
     ivec3 voxel = ivec3(0);
 
     for (int i = 0; i < uChunks.x + uChunks.y + uChunks.z + 4; i++) {
-      uint state = texelFetch(uTable, cell, 0).r;
+      uint state = texelFetch(uTable, wrapCell(cell), 0).r;
 
       if (state != 0u) {
         // The block the ray enters the chunk through.
@@ -221,7 +234,7 @@ void main() {
       vec3 block = vec3(voxel);
       vec3 local = clamp(pos - block, 0.0, 1.0);
 
-      vec3 base = texelFetch(uColor, voxel.xz, 0).rgb;
+      vec3 base = texelFetch(uColor, wrapColumn(voxel.xz), 0).rgb;
 
       // How much of a block one pixel covers. Blocks smaller than a few
       // pixels can't show any detail, so their detail fades out.
