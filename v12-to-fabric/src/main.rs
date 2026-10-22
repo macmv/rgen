@@ -144,6 +144,13 @@ fn main() {
     "tickRate",
     "canGrow",
     "canUseBonemeal",
+    "destroyBlockWithDrops",
+    "canPlaceBlockAt",
+    "canBlockStay",
+    "onBlockHarvested",
+    "getLightOpacity",
+    "doesSideBlockRendering",
+    "updateTick",
     "Sapling::grow",
     "Sapling::updateTick",
     "Sapling::generateTree",
@@ -213,6 +220,7 @@ impl Config {
       "net.minecraft.client.model.",
       "net.minecraft.network.",
       "net.minecraft.world.gen.feature.WorldGen",
+      "net.minecraft.item.ItemMultiTexture",
     ];
     if GONE.iter().any(|g| path.starts_with(g)) {
       return false;
@@ -290,7 +298,9 @@ impl Config {
     }
 
     // Nested names that are easier to fix up before parsing.
-    let source = source.replace("BlockLog.EnumAxis", "EnumAxis");
+    let source = source
+      .replace("BlockLog.EnumAxis", "EnumAxis")
+      .replace("BlockDoublePlant.EnumBlockHalf", "net.minecraft.block.enums.DoubleBlockHalf");
 
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
@@ -643,29 +653,30 @@ impl Config {
         // Statements like `this.setHarvestLevel("shovel", 0);`
         Token::Word if self.drop_calls.contains(parser.slice()) => {
           let before = source[..parser.range().start].trim_end();
-          let start = if before.ends_with("this.") {
-            before.len() - "this.".len()
+          // Statements are removed entirely, and calls in a chain are removed from the chain.
+          let (start, statement) = if before.ends_with("this.") {
+            (before.len() - "this.".len(), true)
+          } else if before.ends_with('.') {
+            (before.len() - 1, false)
           } else if before.ends_with(';') || before.ends_with('{') || before.ends_with('}') {
-            parser.range().start
+            (parser.range().start, true)
           } else {
-            usize::MAX
+            (usize::MAX, true)
           };
 
           if start != usize::MAX {
-            let mut look = parser.clone();
-            if look.next() == Some(Token::Punct) && look.slice() == "(" {
-              let mut depth = 1;
-              while depth > 0 {
-                match look.next() {
-                  Some(Token::Punct) if look.slice() == "(" => depth += 1,
-                  Some(Token::Punct) if look.slice() == ")" => depth -= 1,
-                  None => break,
-                  _ => {}
-                }
-              }
-              if look.next() == Some(Token::Punct) && look.slice() == ";" {
-                output.replace(start..look.range().end, "");
+            if let Some(args) = call_args(&parser) {
+              let mut look = parser.clone();
+              look.skip_to(args.close + 1);
+              if !statement {
+                output.replace(start..args.close + 1, "");
                 parser = look;
+              } else {
+                let mut after = look.clone();
+                if after.next() == Some(Token::Punct) && after.slice() == ";" {
+                  output.replace(start..after.range().end, "");
+                  parser = after;
+                }
               }
             }
           }
@@ -724,16 +735,20 @@ impl Config {
               {
                 let brace = look.range().end;
                 let mut first = look.clone();
-                let has_super = match first.next() {
-                  Some(Token::Word) if matches!(first.slice(), "super" | "this") => {
-                    // `this.foo()` is not a constructor call.
-                    first.next() == Some(Token::Punct) && first.slice() == "("
+                let mut has_super = false;
+                loop {
+                  match first.next() {
+                    Some(Token::Word) if matches!(first.slice(), "super" | "this") => {
+                      // `this.foo()` is not a constructor call.
+                      has_super = first.next() == Some(Token::Punct) && first.slice() == "(";
+                    }
+                    // This comment is replaced with the call.
+                    Some(Token::FabricComment) => has_super = true,
+                    Some(Token::V12Comment) => continue,
+                    _ => {}
                   }
-                  Some(Token::Word) => false,
-                  // A comment that gets replaced with the call.
-                  Some(Token::V12Comment | Token::FabricComment) => true,
-                  _ => false,
-                };
+                  break;
+                }
                 if !has_super {
                   output.replace(brace..brace, &format!(" super({param}.vanilla());"));
                 }
@@ -744,9 +759,47 @@ impl Config {
 
         Token::Word if parser.slice() == "new" => {
           let start = parser.range().start;
-          if parser.next() == Some(Token::Word) && parser.slice() == "AxisAlignedBB" {
-            output
-              .replace(start..parser.range().end, "net.minecraft.util.shape.VoxelShapes.cuboid");
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Word) {
+            let class = look.slice().to_string();
+            let class_range = look.range();
+
+            match class.as_str() {
+              "AxisAlignedBB" => {
+                output.replace(start..class_range.end, "net.minecraft.util.shape.VoxelShapes.cuboid");
+                parser = look;
+              }
+              "ResourceLocation" => {
+                output.replace(start..class_range.end, "net.minecraft.util.Identifier.of");
+                parser = look;
+              }
+              // These all take item settings now.
+              "ItemBlock" | "ItemDoor" | "Item" => {
+                if let Some(args) = call_args(&look) {
+                  let close = args.close;
+                  if class == "Item" && args.commas.is_empty() && source[args.open..close].trim().is_empty() {
+                    output.replace(close..close, "new net.minecraft.item.Item.Settings()");
+                  } else if class != "Item" {
+                    output.replace(close..close, ", new net.minecraft.item.Item.Settings()");
+                  }
+                }
+              }
+              // Items with variants don't exist anymore, so this is just a block item.
+              "ItemMultiTexture" => {
+                if let Some(args) = call_args(&look) {
+                  let first_end = args.commas.first().copied().unwrap_or(args.close);
+                  let block = source[args.open..first_end].trim();
+                  output.replace(
+                    start..args.close + 1,
+                    &format!("new net.minecraft.item.BlockItem({block}, new net.minecraft.item.Item.Settings())"),
+                  );
+                  let mut after = look.clone();
+                  after.skip_to(args.close + 1);
+                  parser = after;
+                }
+              }
+              _ => {}
+            }
           }
         }
 
@@ -780,6 +833,41 @@ impl Config {
     }
 
     output.finish()
+  }
+}
+
+struct CallArgs {
+  /// Just after the `(`.
+  open:   usize,
+  /// The `)`.
+  close:  usize,
+  /// The top level `,` characters.
+  commas: Vec<usize>,
+}
+
+/// If `parser` is on a word that is followed by a call, this returns where its arguments are.
+fn call_args(parser: &Parser) -> Option<CallArgs> {
+  let mut look = parser.clone();
+  if look.next() != Some(Token::Punct) || look.slice() != "(" {
+    return None;
+  }
+
+  let open = look.range().end;
+  let mut depth = 1;
+  let mut commas = vec![];
+  loop {
+    match look.next() {
+      Some(Token::Punct) if look.slice() == "(" => depth += 1,
+      Some(Token::Punct) if look.slice() == ")" => {
+        depth -= 1;
+        if depth == 0 {
+          return Some(CallArgs { open, close: look.range().start, commas });
+        }
+      }
+      Some(Token::Punct) if look.slice() == "," && depth == 1 => commas.push(look.range().start),
+      None => return None,
+      _ => {}
+    }
   }
 }
 
