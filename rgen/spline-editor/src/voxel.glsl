@@ -35,9 +35,6 @@ float hash(vec3 p) {
   return fract((p.x + p.y) * p.z);
 }
 
-// The most blocks the surface probe walks in each direction.
-const int PROBE = 6;
-
 ivec3 atlasOrigin(int slot) {
   return ivec3(
     slot % uAtlasSide,
@@ -62,36 +59,38 @@ float faceShade(int axis, bool up) {
   return axis == 1 ? (up ? 1.0 : 0.5) : (axis == 0 ? 0.62 : 0.8);
 }
 
-// What one spot on the surface near a hit looks like, without marching a ray of
-// its own. `p` is a spot on the plane of the face that was hit, `n` points out
-// of that face, `d` is the ray direction, and `r` is how wide a pixel is there,
-// in blocks. This is for averaging the footprint of a pixel that covers several
+// What one spot on the ground near a hit looks like, without marching a ray of
+// its own. `spot` is the spot on the ground, `hitY` is the height of the hit
+// it's near, `d` is the ray direction, and `r` is how wide a pixel is there, in
+// blocks. This is for averaging the footprint of a pixel that covers several
 // blocks.
 //
 // look does this by comparing the ray's own height over the spot against the
 // column's top. That only works for rays that are close to level: a ray that
 // looks steeply down is far over or under every neighbor, so the result flips
 // between the top, the side and nothing at fixed angles, which shows up as
-// rings on the ground below the camera. Instead this finds the surface by
-// walking out of or into the block at the spot, along the face's normal, which
-// doesn't depend on the viewing angle, or on there being only one surface above
-// each column.
-bool footprintSample(vec3 p, ivec3 n, vec3 d, float r, out vec3 albedo) {
-  int axis = n.x != 0 ? 0 : (n.y != 0 ? 1 : 2);
-  ivec3 s = ivec3(floor(p - vec3(n) * 0.01));
+// rings on the ground below the camera. Instead this goes by how much higher
+// the neighbor is than the hit, which doesn't depend on the viewing angle.
+//
+// The spots are always on the ground, around the hit, even if the hit was on
+// the side of something. A pixel that hits a side still covers some of the top
+// of what's next to it, and averaging only the sides would leave it dark.
+//
+// The neighbor's top is found by walking up or down the blocks at the spot,
+// starting from the height of the hit. That finds the surface near the hit, so
+// it's the right one even if there are overhangs above or below it.
+bool footprintSample(vec2 spot, float hitY, vec3 d, float r, out vec3 albedo) {
+  // Walking this far is enough to tell if the neighbor is more than `r` away.
+  int steps = clamp(int(r) + 2, 3, 16);
 
-  // How far the surface at the spot is out of the hit's plane. This is
-  // positive when the spot is on something that stands up out of the hit.
-  int rise = 0;
+  ivec3 s = ivec3(int(floor(spot.x)), int(floor(hitY - 0.01)), int(floor(spot.y)));
+  float top;
   if (solidAt(s)) {
-    while (rise < PROBE && solidAt(s + n)) {
-      s += n;
-      rise++;
-    }
+    for (int k = 0; k < steps && solidAt(s + ivec3(0, 1, 0)); k++) s.y++;
   } else {
     bool found = false;
-    for (int k = 0; k < PROBE; k++) {
-      s -= n;
+    for (int k = 0; k < steps; k++) {
+      s.y--;
       if (solidAt(s)) {
         found = true;
         break;
@@ -99,13 +98,14 @@ bool footprintSample(vec3 p, ivec3 n, vec3 d, float r, out vec3 albedo) {
     }
     if (!found) return false;
   }
+  top = float(s.y + 1);
 
   vec3 base = texelFetch(uColor, s.xz, 0).rgb;
-  if (axis == 1 && float(rise) > max(1.0, r)) {
-    // The spot stands above the hit, so the pixel sees its side.
+  if (top - hitY > max(1.0, r)) {
+    // The neighbor stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
   } else {
-    albedo = base * faceShade(axis, n[axis] > 0);
+    albedo = base;
   }
   return true;
 }
@@ -247,20 +247,19 @@ void main() {
       // still several pixels wide stay sharp.
       float filterAmount = smoothstep(0.5, 1.5, footprint);
       if (filterAmount > 0.0) {
-        // The spots are in the plane of the face that was hit. One pair is
-        // along the ray's direction in that plane, and the other is across it.
-        vec3 tangent = dir - normal * dot(dir, normal);
-        vec3 along = tangent / max(length(tangent), 1e-4);
-        vec3 across = cross(normal, along);
-        float alongLen = min(footprint / max(abs(dot(dir, normal)), 0.05), 4.0);
+        vec2 d = safe.xz;
+        float lh = max(length(d), 1e-4);
+        vec2 along = d / lh;
+        vec2 across = vec2(-along.y, along.x);
+        float alongLen = min(footprint / max(abs(dir.y), 0.05), 4.0);
 
         vec3 sum = color * 2.0;
         float weight = 2.0;
         for (int k = 0; k < 4; k++) {
           float sg = (k & 1) == 0 ? -0.5 : 0.5;
-          vec3 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
+          vec2 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
           vec3 other;
-          if (footprintSample(pos + offset, ivec3(normal), dir, footprint, other)) {
+          if (footprintSample(pos.xz + offset, pos.y, dir, footprint, other)) {
             sum += other;
             weight += 1.0;
           }
