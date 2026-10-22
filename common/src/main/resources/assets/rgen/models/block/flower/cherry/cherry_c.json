@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
 	"textures": {
-		"0": "rgen:blocks/plants/pink_blossom/blossom",
-		"1": "rgen:blocks/plants/pink_blossom/stem",
-		"particle": "rgen:blocks/plants/pink_blossom/blossom"
+		"0": "rgen:block/plants/pink_blossom/blossom",
+		"1": "rgen:block/plants/pink_blossom/stem",
+		"particle": "rgen:block/plants/pink_blossom/blossom"
 	},
 	"elements": [
 		{

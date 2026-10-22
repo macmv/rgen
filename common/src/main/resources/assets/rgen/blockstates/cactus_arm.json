@@ -1,8 +1,8 @@
 {
   "variants": {
-    "face=north": { "model": "rgen:wood/cactus/cactus_arm" },
-    "face=east":  { "model": "rgen:wood/cactus/cactus_arm", "y":90 },
-    "face=south":  { "model": "rgen:wood/cactus/cactus_arm", "y": 180 },
-    "face=west":  { "model": "rgen:wood/cactus/cactus_arm", "y": 270 }
+    "face=north": { "model": "rgen:block/wood/cactus/cactus_arm" },
+    "face=east":  { "model": "rgen:block/wood/cactus/cactus_arm", "y":90 },
+    "face=south":  { "model": "rgen:block/wood/cactus/cactus_arm", "y": 180 },
+    "face=west":  { "model": "rgen:block/wood/cactus/cactus_arm", "y": 270 }
   }
 }

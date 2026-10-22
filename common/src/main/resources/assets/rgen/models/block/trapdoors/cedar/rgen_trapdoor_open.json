@@ -1,7 +1,7 @@
 {
   "textures": {
-    "texture": "rgen:blocks/trapdoors/cedar_trapdoor",
-    "particle": "rgen:blocks/trapdoors/cedar_trapdoor"
+    "texture": "rgen:block/trapdoors/cedar_trapdoor",
+    "particle": "rgen:block/trapdoors/cedar_trapdoor"
   },
   "elements": [
     {

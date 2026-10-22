@@ -1,8 +1,8 @@
 {
   "textures": {
-    "1": "rgen:blocks/plants/bamboo",
-    "2": "rgen:blocks/plants/bamboo_leaves",
-    "particle": "rgen:blocks/plants/bamboo"
+    "1": "rgen:block/plants/bamboo",
+    "2": "rgen:block/plants/bamboo_leaves",
+    "particle": "rgen:block/plants/bamboo"
   },
   "elements": [
     {

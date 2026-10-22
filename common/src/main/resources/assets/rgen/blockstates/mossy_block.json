@@ -1,7 +1,7 @@
 {
     "variants": {
         "normal": {
-            "model": "rgen:mossy_block"
+            "model": "rgen:block/mossy_block"
         }
     }
 }

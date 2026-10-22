@@ -71,8 +71,8 @@ tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEac
   classpath += files(generated)
 }
 
-// The assets are shared with 1.12, with a few things renamed (`blocks` is `block` now). The item
-// models and the language file only exist for fabric, see `tools/gen_fabric_assets.py`.
+// The assets are shared with 1.12. They are in the modern layout in `common/`, and `mod-v12` converts
+// them back to the 1.12 one.
 processResources {
   // Stonecutter writes the resources too.
   dependsOn 'stonecutterGenerate'
@@ -80,19 +80,6 @@ processResources {
   from(rootProject.file('common/src/main/resources/assets')) {
     into 'assets'
     exclude '**/*.lang', '**/*DELETEME*'
-
-    eachFile { details ->
-      details.path = details.path.replace('/textures/blocks/', '/textures/block/').replace('/textures/items/', '/textures/item/')
-    }
-
-    // Blockstates are relative to `models/block` on 1.12.
-    filesMatching('**/blockstates/*.json') {
-      filter { line -> line.replaceAll('"model": *"rgen:', '"model": "rgen:block/') }
-    }
-
-    filesMatching('**/*.json') {
-      filter { line -> line.replaceAll('"(rgen:|minecraft:)?blocks/', '"$1block/').replaceAll('"(rgen:|minecraft:)?items/', '"$1item/') }
-    }
   }
 }
 

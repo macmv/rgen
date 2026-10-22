@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:items/flower/jungle/passion_flower"
+    "layer0": "rgen:item/flower/jungle/passion_flower"
   }
 }

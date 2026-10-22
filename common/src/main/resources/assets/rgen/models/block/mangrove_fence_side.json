@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_side",
   "textures": {
-    "texture": "rgen:blocks/wood/mangrove/mangrove_planks"
+    "texture": "rgen:block/wood/mangrove/mangrove_planks"
   }
 }
