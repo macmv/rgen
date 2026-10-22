@@ -3,14 +3,21 @@
 
 #![allow(non_snake_case)]
 
-use std::{ffi::CStr, process::Command};
+use std::{
+  ffi::{CStr, CString, OsStr},
+  os::unix::ffi::{OsStrExt},
+  path::Path,
+  process::Command,
+};
 
 use jni::{
   JNIEnv,
   objects::{JByteArray, JCharArray, JClass, JValue},
   sys::{jbyte, jint, jlong, jobject, jobjectArray, jstring},
 };
-use libc::{LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW, c_void, dlclose, dlerror, dlmopen, dlsym};
+use libc::{
+  Dl_info, LM_ID_NEWLM, RTLD_LOCAL, RTLD_NOW, c_void, dladdr, dlclose, dlerror, dlmopen, dlsym,
+};
 use parking_lot::RwLock;
 
 const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/..");
@@ -202,14 +209,28 @@ fn unload(s: &Symbols) {
   }
 }
 
+/// Returns the path of `librgen_jni_impl.so`, which lives next to this
+/// library. This works both when extracted from the jar, and when loaded from
+/// `java.library.path` during development.
+fn impl_path() -> CString {
+  unsafe {
+    let mut info: Dl_info = std::mem::zeroed();
+    if dladdr(impl_path as *const c_void, &mut info) == 0 {
+      panic!("Failed to find the path of the rgen_jni library");
+    }
+
+    let this = Path::new(OsStr::from_bytes(CStr::from_ptr(info.dli_fname).to_bytes()));
+    let dir = this.parent().unwrap_or(Path::new("."));
+    CString::new(dir.join("librgen_jni_impl.so").as_os_str().as_bytes()).unwrap()
+  }
+}
+
 fn load() -> Symbols {
+  let path = impl_path();
   unsafe {
     let ptr = dlmopen(
       LM_ID_NEWLM, // make sure to give it a new namespace
-      CStr::from_bytes_with_nul_unchecked(
-        format!("{}/target/release/librgen_jni_impl.so\0", PROJECT_ROOT).as_bytes(),
-      )
-      .as_ptr(),
+      path.as_ptr(),
       RTLD_NOW | RTLD_LOCAL,
     );
 

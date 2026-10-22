@@ -120,7 +120,7 @@ public class RustGenerator {
 
   public static void init(long seed) {
     if (!active) {
-      System.loadLibrary("rgen_jni");
+      NativeLoader.load();
       init();
       spawn_logging_thread();
     }
@@ -146,6 +146,11 @@ public class RustGenerator {
 
   @SideOnly(Side.CLIENT)
   public static void reload() {
+    if (NativeLoader.isBundled()) {
+      Minecraft.getMinecraft().player.sendMessage(new TextComponentString(TextFormatting.RED + "Hot reload is only available in dev builds."));
+      return;
+    }
+
     int res = reload_generator();
     if (res == 0) {
       int dimension = 0;
