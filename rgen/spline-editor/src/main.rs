@@ -215,7 +215,7 @@ impl eframe::App for App {
       if let Some(grid) = &mut self.grid {
         let updates = grid.recompute_all(&splines, self.layer, self.flatten_water);
         let mut renderer = self.renderer.lock().unwrap();
-        renderer.queue(grid.full_upload());
+        renderer.queue(grid.colors_upload());
         renderer.queue(grid::Upload::Chunks(updates));
       }
       self.dirty = false;
@@ -260,7 +260,6 @@ impl App {
     let mut renderer = self.renderer.lock().unwrap();
     let grid = Grid::new(self.origin(), self.tiles, renderer.brick_capacity());
     renderer.queue(grid.reset_upload());
-    renderer.queue(grid.full_upload());
     drop(renderer);
     self.pool.start_region(self.epoch, &self.noise, grid.origin, self.tiles);
     self.grid = Some(grid);

@@ -40,7 +40,6 @@ pub struct Frame {
 pub struct Renderer {
   program: glow::Program,
   vao:     glow::VertexArray,
-  heights: glow::Texture,
   colors:  glow::Texture,
   /// One `u32` per chunk: empty, solid, or the chunk's slot in the atlas.
   table:   glow::Texture,
@@ -128,7 +127,6 @@ impl Renderer {
       Ok(Renderer {
         program,
         vao,
-        heights: make_texture(gl)?,
         colors: make_texture(gl)?,
         table: make_volume(gl)?,
         bricks,
@@ -151,10 +149,10 @@ impl Renderer {
   /// chunks replaces everything.
   pub fn queue(&mut self, upload: Upload) {
     match upload {
-      Upload::Full { .. } => {
-        self.pending.retain(|u| matches!(u, Upload::ResetChunks { .. } | Upload::Chunks(_)))
+      Upload::Colors { .. } => {
+        self.pending.retain(|u| matches!(u, Upload::Reset { .. } | Upload::Chunks(_)))
       }
-      Upload::ResetChunks { .. } => self.pending.clear(),
+      Upload::Reset { .. } => self.pending.clear(),
       _ => {}
     }
     self.pending.push(upload);
@@ -205,7 +203,21 @@ impl Renderer {
       let mut queue = std::mem::take(&mut self.pending).into_iter();
       while let Some(upload) = queue.next() {
         match upload {
-          Upload::ResetChunks { dims } => {
+          Upload::Reset { size, dims } => {
+            self.size = [size[0] as i32, size[1] as i32];
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+            gl.tex_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              glow::RGBA8 as i32,
+              self.size[0],
+              self.size[1],
+              0,
+              glow::RGBA,
+              glow::UNSIGNED_BYTE,
+              None,
+            );
+
             self.chunks = dims.map(|d| d as i32);
             let [w, h, d] = self.chunks;
             self.table_data = vec![0; (w * h * d) as usize];
@@ -248,21 +260,8 @@ impl Renderer {
               break;
             }
           }
-          Upload::Full { size, heights, colors } => {
+          Upload::Colors { size, colors } => {
             self.size = [size[0] as i32, size[1] as i32];
-
-            gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
-            gl.tex_image_2d(
-              glow::TEXTURE_2D,
-              0,
-              glow::R32F as i32,
-              self.size[0],
-              self.size[1],
-              0,
-              glow::RED,
-              glow::FLOAT,
-              Some(bytes_of(&heights)),
-            );
 
             gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
             gl.tex_image_2d(
@@ -277,21 +276,8 @@ impl Renderer {
               Some(&colors),
             );
           }
-          Upload::Tile { x, y, size, heights, colors } => {
+          Upload::Tile { x, y, size, colors } => {
             let (x, y, size) = (x as i32, y as i32, size as i32);
-
-            gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
-            gl.tex_sub_image_2d(
-              glow::TEXTURE_2D,
-              0,
-              x,
-              y,
-              size,
-              size,
-              glow::RED,
-              glow::FLOAT,
-              glow::PixelUnpackData::Slice(bytes_of(&heights)),
-            );
 
             gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
             gl.tex_sub_image_2d(
@@ -343,19 +329,16 @@ impl Renderer {
       gl.bind_vertex_array(Some(self.vao));
 
       gl.active_texture(glow::TEXTURE0);
-      gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
-      gl.active_texture(glow::TEXTURE1);
       gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
-      gl.active_texture(glow::TEXTURE2);
+      gl.active_texture(glow::TEXTURE1);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
-      gl.active_texture(glow::TEXTURE3);
+      gl.active_texture(glow::TEXTURE2);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
 
       let uniform = |name: &str| gl.get_uniform_location(self.program, name);
-      gl.uniform_1_i32(uniform("uHeight").as_ref(), 0);
-      gl.uniform_1_i32(uniform("uColor").as_ref(), 1);
-      gl.uniform_1_i32(uniform("uTable").as_ref(), 2);
-      gl.uniform_1_i32(uniform("uBricks").as_ref(), 3);
+      gl.uniform_1_i32(uniform("uColor").as_ref(), 0);
+      gl.uniform_1_i32(uniform("uTable").as_ref(), 1);
+      gl.uniform_1_i32(uniform("uBricks").as_ref(), 2);
       gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
       gl.uniform_1_i32(uniform("uAtlasSide").as_ref(), self.side);
       gl.uniform_3_f32_slice(uniform("uEye").as_ref(), &frame.eye);
@@ -370,7 +353,6 @@ impl Renderer {
         viewport.height_px as f32,
       );
       gl.uniform_1_f32(uniform("uPixel").as_ref(), frame.pixel);
-      gl.uniform_2_i32(uniform("uSize").as_ref(), self.size[0], self.size[1]);
       let (hx, hz) = frame.hover.unwrap_or((-1, -1));
       gl.uniform_2_i32(uniform("uHover").as_ref(), hx, hz);
 
@@ -379,11 +361,6 @@ impl Renderer {
       gl.active_texture(glow::TEXTURE0);
     }
   }
-}
-
-fn bytes_of(floats: &[f32]) -> &[u8] {
-  // SAFETY: f32 has no padding, and u8 has no alignment requirement.
-  unsafe { std::slice::from_raw_parts(floats.as_ptr().cast(), floats.len() * 4) }
 }
 
 fn bytes_of_u32(values: &[u32]) -> &[u8] {

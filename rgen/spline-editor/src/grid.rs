@@ -110,12 +110,13 @@ pub struct Grid {
 
 /// Terrain to copy into the GPU's textures.
 pub enum Upload {
-  /// Replaces both textures.
-  Full { size: [usize; 2], heights: Vec<f32>, colors: Vec<u8> },
-  /// Replaces one square of both textures.
-  Tile { x: usize, y: usize, size: usize, heights: Vec<f32>, colors: Vec<u8> },
-  /// Empties the chunks, and sizes them for a new grid.
-  ResetChunks { dims: [usize; 3] },
+  /// Sizes the textures for a new grid, and empties the chunks. The colors
+  /// start out undefined, as only generated columns are ever drawn.
+  Reset { size: [usize; 2], dims: [usize; 3] },
+  /// Replaces the colors of every column.
+  Colors { size: [usize; 2], colors: Vec<u8> },
+  /// Replaces the colors of one square of columns.
+  Tile { x: usize, y: usize, size: usize, colors: Vec<u8> },
   /// Changes some chunks.
   Chunks(Vec<ChunkUpdate>),
 }
@@ -168,16 +169,17 @@ impl Grid {
     [self.origin[0] + i as f64, self.origin[1] + j as f64]
   }
 
-  /// The upload that empties the chunks. This goes before `full_upload` for a
-  /// new grid.
-  pub fn reset_upload(&self) -> Upload { Upload::ResetChunks { dims: self.chunks.dims } }
+  /// The upload for a new grid, which is all it needs, as the columns are
+  /// uploaded as they are generated.
+  pub fn reset_upload(&self) -> Upload {
+    Upload::Reset { size: self.size, dims: self.chunks.dims }
+  }
 
-  /// The upload for the columns of the entire grid.
-  pub fn full_upload(&self) -> Upload {
-    Upload::Full {
-      size:    self.size,
-      heights: self.height.clone(),
-      colors:  self.colors.iter().flat_map(|c| c.to_array()).collect(),
+  /// The upload for the colors of the entire grid.
+  pub fn colors_upload(&self) -> Upload {
+    Upload::Colors {
+      size:   self.size,
+      colors: self.colors.iter().flat_map(|c| c.to_array()).collect(),
     }
   }
 
@@ -192,7 +194,6 @@ impl Grid {
     layer: Layer,
     flatten_water: bool,
   ) -> Vec<Upload> {
-    let mut heights = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
     let mut colors = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS * 4);
 
     for tj in 0..TILE_BLOCKS {
@@ -205,7 +206,6 @@ impl Grid {
         self.height[idx] = height;
         self.colors[idx] = color;
 
-        heights.push(height);
         colors.extend(color.to_array());
       }
     }
@@ -219,7 +219,7 @@ impl Grid {
     self.rebuild_chunks(tx, tz, &mut updates);
 
     vec![
-      Upload::Tile { x: tx * TILE_BLOCKS, y: tz * TILE_BLOCKS, size: TILE_BLOCKS, heights, colors },
+      Upload::Tile { x: tx * TILE_BLOCKS, y: tz * TILE_BLOCKS, size: TILE_BLOCKS, colors },
       Upload::Chunks(updates),
     ]
   }

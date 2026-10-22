@@ -5,7 +5,6 @@
 // own, which are stored in a slot of the brick atlas. Those the ray steps
 // through block by block.
 
-uniform sampler2D uHeight;  // R32F, the top of each column. Only used to filter.
 uniform sampler2D uColor;   // RGBA8, the color of each column
 uniform usampler3D uTable;  // R32UI, one per chunk: 0 empty, 1 solid, else slot + 2
 uniform usampler3D uBricks; // R8UI, the atlas. Texels are laid out as (y, x, z).
@@ -17,7 +16,6 @@ uniform vec3 uUp;
 uniform vec4 uViewport; // x, y, width, height in pixels
 uniform float uPixel;   // the angle of one pixel, in radians
 
-uniform ivec2 uSize; // columns along x and z
 uniform ivec3 uChunks; // chunks along x, y and z
 uniform int uAtlasSide; // slots along each side of the atlas
 uniform ivec2 uHover; // the highlighted column, or (-1, -1)
