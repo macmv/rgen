@@ -12,12 +12,16 @@ import net.macmv.rgen.item.RItems;
 public class RDoor extends BlockDoor {
 
   public RDoor(BlockSettings settings) {
+    // #v12-start
     super(settings.material);
     this.setHardness(settings.hardness);
     this.setSoundType(settings.soundType);
     this.disableStats();
+    // #v12-end
+    /* #fabric: super(net.minecraft.block.BlockSetType.OAK, settings.vanilla()); */
   }
 
+  // #v12-start
   @Override
   public Item getItemDropped(IBlockState state, Random random, int fortune) {
     return state.getValue(HALF) == EnumDoorHalf.UPPER ? net.minecraft.init.Items.AIR : getDoorItem();
@@ -43,4 +47,5 @@ public class RDoor extends BlockDoor {
       default: return null;
     }
   }
+  // #v12-end
 }

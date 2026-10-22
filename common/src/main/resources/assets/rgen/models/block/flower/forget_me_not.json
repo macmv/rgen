@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/forget_me_not"
+    "cross": "rgen:block/forget_me_not"
   }
 }

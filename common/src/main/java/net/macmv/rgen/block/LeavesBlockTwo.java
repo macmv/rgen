@@ -20,6 +20,7 @@ public class LeavesBlockTwo extends LeavesBlock {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty == LogType.MANGROVE || ty == LogType.LAVENDER_TREE || ty == LogType.DEAD);
 
   public LeavesBlockTwo(BlockSettings settings) {
+    super(settings);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 

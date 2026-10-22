@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/wall_gate_closed",
   "textures": {
-    "texture": "rgen:blocks/wood/dead/dead_planks"
+    "texture": "rgen:block/wood/dead/dead_planks"
   }
 }

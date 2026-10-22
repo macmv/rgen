@@ -14,19 +14,28 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
+  private static final Map<String, Block> aliases = new HashMap<>();
 
   public static final Block DERP_DOG = register("derp_dog", s -> s.createMat(Block::new));
   public static final Block LOOSE_ROCK = register("loose_rock", LooseRockBlock::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", PlantBlock::new, new BlockSettings().material(Material.GRASS).creativeTab(RCreativeTabs.DECORATIONS));
   // public static final Block MOSSY_STUMP = register("mossy_stump", Block::new, new BlockSettings().material(Material.WOOD));
+  // Backported blocks: where vanilla has the block, we use that. Otherwise, we register our own.
+  //? if vanilla_moss {
+  /*public static final Block MOSSY_CARPET = backport("mossy_carpet", net.minecraft.block.Blocks.MOSS_CARPET);
+  public static final Block MOSSY_BLOCK = backport("mossy_block", net.minecraft.block.Blocks.MOSS_BLOCK);*/
+  //?} else {
   public static final Block MOSSY_CARPET = register("mossy_carpet", MossCarpet::new, new BlockSettings().material(Material.CARPET).creativeTab(RCreativeTabs.DECORATIONS));
   public static final Block MOSSY_BLOCK = register("mossy_block", MossBlock::new, new BlockSettings().material(Material.GROUND));
+  //?}
   public static final Block MOSSY_COBBLESTONE_RGEN = register("mossy_cobblestone_rgen", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
   public static final Block MOSSY_STONE = register("mossy_stone", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
   public static final Block POLYPORE = register("polypore", PolyporeBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
@@ -36,8 +45,12 @@ public final class RBlocks {
   public static final Block LOG2 = register("log2", LogBlockTwo::new, new BlockSettings().creativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
   public static final Block PLANKS = register("planks", PlanksBlock::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  // The slabs are one block on newer versions.
+  // #v12-start
   public static final Block PLANK_SLAB = register("plank_slab", RWoodSlab.Half::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block PLANK_DOUBLE_SLAB = register("plank_double_slab", RWoodSlab.Double::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  // #v12-end
+  /* #fabric: public static final Block PLANK_SLAB = register("plank_slab", s -> new net.minecraft.block.SlabBlock(s.vanilla()), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD)); */
   public static final Block FIR_FENCE = register("fir_fence", s -> new RWoodFence(s, LogType.FIR), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block PALM_FENCE = register("palm_fence", s -> new RWoodFence(s, LogType.PALM), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block CHERRY_FENCE = register("cherry_fence", s -> new RWoodFence(s, LogType.CHERRY), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
@@ -133,21 +146,54 @@ public final class RBlocks {
 
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
-    Block block = blockSupplier.apply(new BlockSettings());
+    Block block = blockSupplier.apply(new BlockSettings() /* #fabric: .name(name) */);
+    // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.BLOCK, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), block); */
     blocks.add(block);
     return block;
   }
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier, BlockSettings settings) {
-    Block block = blockSupplier.apply(settings);
+    Block block = blockSupplier.apply(settings /* #fabric: .name(name) */);
+    // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.BLOCK, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), block); */
     blocks.add(block);
     return block;
   }
 
+  // Registers `block` (a vanilla block) as the stand in for our block named `name`.
+  //
+  // Nothing gets registered for it, but it can still be found with `byName("rgen:<name>")`, so the
+  // terrain generator can keep placing `rgen:<name>` on every version.
+  private static Block backport(String name, Block block) {
+    aliases.put(RGen.MOD_ID + ":" + name, block);
+    return block;
+  }
+
+  // Finds a block by its registry name, following the backports above. Returns null if there is no
+  // such block.
+  public static Block byName(String name) {
+    Block alias = aliases.get(name);
+    if (alias != null) {
+      return alias;
+    }
+
+    // #v12-start
+    return Block.getBlockFromName(name);
+    // #v12-end
+    /* #fabric: return net.minecraft.registry.Registries.BLOCK.get(net.minecraft.util.Identifier.of(name)); */
+  }
+
+  // Loads this class, which registers the blocks on fabric.
+  public static void init() {}
+
+  // #v12-start
   public static void registerBlocks(IForgeRegistry<Block> reg) {
     for (Block b : blocks) {
       reg.register(b);
@@ -166,4 +212,5 @@ public final class RBlocks {
     ModelLoader.setCustomStateMapper(PALM_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(LAVENDER_TREE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
   }
+  // #v12-end
 }

@@ -1,6 +1,6 @@
 {
   "parent": "block/leaves",
   "textures": {
-    "all": "rgen:blocks/wood/cedar/cedar_leaves"
+    "all": "rgen:block/wood/cedar/cedar_leaves"
   }
 }

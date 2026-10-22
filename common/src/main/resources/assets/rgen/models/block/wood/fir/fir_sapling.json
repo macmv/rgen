@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/fir/fir_sapling"
+    "cross": "rgen:block/wood/fir/fir_sapling"
   }
 }

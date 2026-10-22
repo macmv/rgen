@@ -1,0 +1,21 @@
+# Everything here is generated from `common/` by the v12-to-fabric transformer, except for the files
+# that are explicitly allowed below. Handwritten sources go in this list.
+*
+!.gitignore
+!net/
+!net/macmv/
+!net/macmv/rgen/
+!net/macmv/rgen/RGen.java
+!net/macmv/rgen/compat/
+!net/macmv/rgen/compat/*.java
+!net/macmv/rgen/block/
+!net/macmv/rgen/block/BlockSettings.java
+!net/macmv/rgen/tab/
+!net/macmv/rgen/tab/RCreativeTabs.java
+!net/macmv/rgen/item/
+!net/macmv/rgen/item/GreenCactusFruit.java
+!net/macmv/rgen/item/BlueCactusFruit.java
+!net/macmv/rgen/item/MossCompass.java
+!net/macmv/rgen/item/DebugStickItem.java
+!net/macmv/rgen/datagen/
+!net/macmv/rgen/datagen/*.java

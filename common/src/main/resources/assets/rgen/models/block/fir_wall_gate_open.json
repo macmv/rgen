@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/wall_gate_open",
   "textures": {
-    "texture": "rgen:blocks/wood/fir/fir_planks"
+    "texture": "rgen:block/wood/fir/fir_planks"
   }
 }

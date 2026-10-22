@@ -1,6 +1,6 @@
 {
   "parent": "block/leaves",
   "textures": {
-    "all": "rgen:blocks/wood/aspen/aspen_leaves"
+    "all": "rgen:block/wood/aspen/aspen_leaves"
   }
 }

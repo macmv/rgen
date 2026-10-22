@@ -1,12 +1,12 @@
 {
   "parent": "block/block",
   "textures": {
-    "0": "rgen:blocks/derp_dog_folder/derp_dog_bottom",
-    "1": "rgen:blocks/derp_dog_folder/derp_dog_front",
-    "2": "rgen:blocks/derp_dog_folder/derp_dog_side",
-    "3": "rgen:blocks/derp_dog_folder/derp_dog_tail",
-    "4": "rgen:blocks/derp_dog_folder/derp_dog_top",
-    "particle": "rgen:blocks/derp_dog_folder/derp_dog_bottom"
+    "0": "rgen:block/derp_dog_folder/derp_dog_bottom",
+    "1": "rgen:block/derp_dog_folder/derp_dog_front",
+    "2": "rgen:block/derp_dog_folder/derp_dog_side",
+    "3": "rgen:block/derp_dog_folder/derp_dog_tail",
+    "4": "rgen:block/derp_dog_folder/derp_dog_top",
+    "particle": "rgen:block/derp_dog_folder/derp_dog_bottom"
   },
   "elements": [
     {

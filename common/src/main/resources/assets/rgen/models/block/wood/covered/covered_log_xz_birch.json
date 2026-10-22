@@ -1,9 +1,9 @@
 {   "parent": "rgen:block/wood/covered/covered_log_xz_oak",
     "textures": {
-        "particle": "blocks/log_birch",
-        "top": "rgen:blocks/wood/covered/moss_top",
-        "side": "blocks/log_birch",
-        "front": "blocks/log_birch_top",
-        "overlay": "rgen:blocks/wood/covered/moss_side"
+        "particle": "block/log_birch",
+        "top": "rgen:block/wood/covered/moss_top",
+        "side": "block/log_birch",
+        "front": "block/log_birch_top",
+        "overlay": "rgen:block/wood/covered/moss_side"
     }
 }

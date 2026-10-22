@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:blocks/wood/dead/dead_sapling"
+    "layer0": "rgen:block/wood/dead/dead_sapling"
   }
 }
