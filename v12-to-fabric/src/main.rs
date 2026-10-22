@@ -69,6 +69,10 @@ fn main() {
   renames.insert("net.minecraft.block.SoundType", "net.macmv.rgen.compat.SoundType");
 
   renames.insert(
+    "net.minecraft.block.properties.PropertyDirection",
+    "net.minecraft.state.property.DirectionProperty",
+  );
+  renames.insert(
     "net.minecraft.block.properties.PropertyBool",
     "net.minecraft.state.property.BooleanProperty",
   );
@@ -215,7 +219,6 @@ impl Config {
       "net.minecraft.init.",
       "net.minecraft.tileentity.",
       "net.minecraft.stats.",
-      "net.minecraft.block.properties.",
       "net.minecraft.client.renderer.",
       "net.minecraft.client.model.",
       "net.minecraft.network.",
@@ -300,7 +303,10 @@ impl Config {
     // Nested names that are easier to fix up before parsing.
     let source = source
       .replace("BlockLog.EnumAxis", "EnumAxis")
-      .replace("BlockDoublePlant.EnumBlockHalf", "net.minecraft.block.enums.DoubleBlockHalf");
+      .replace("BlockDoublePlant.EnumBlockHalf", "net.minecraft.block.enums.DoubleBlockHalf")
+      .replace("EnumFacing.Plane", "net.minecraft.util.math.Direction.Type")
+      // Saplings don't grow with bonemeal yet, see the dropped methods.
+      .replace(" implements IGrowable", "");
 
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
