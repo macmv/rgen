@@ -138,7 +138,7 @@ void main() {
         // How much of a block one pixel covers. Blocks smaller than a few
         // pixels can't show any detail, so their detail fades out.
         float footprint = t * uPixel;
-        float detail = 1.0 - smoothstep(0.05, 0.2, footprint);
+        float detail = 1.0 - smoothstep(0.15, 0.6, footprint);
 
         // Each block is a flat shade, with hard edges between blocks.
         base *= 1.0 + (hash(block) - 0.5) * 0.14 * detail;
@@ -151,12 +151,14 @@ void main() {
 
         color = base * shade;
 
-        // Once a pixel covers more than a quarter of a block, it can't pick
-        // one block's color without graining, as the surface changes from block
-        // to block. So average it with four more spots of its footprint on
-        // the ground: two along the ray, where grazing angles stretch the
-        // footprint, and two across it.
-        if (footprint > 0.25) {
+        // Once a pixel covers about a block, it can't pick one block's color
+        // without graining, as the surface changes from block to block. So
+        // average it with four more spots of its footprint on the ground: two
+        // along the ray, where grazing angles stretch the footprint, and two
+        // across it. The average is blended in slowly, so that blocks that are
+        // still several pixels wide stay sharp.
+        float filterAmount = smoothstep(0.5, 1.5, footprint);
+        if (filterAmount > 0.0) {
           float lh = max(length(d), 1e-4);
           vec2 along = d / lh;
           vec2 across = vec2(-along.y, along.x);
@@ -176,7 +178,7 @@ void main() {
               weight += 1.0;
             }
           }
-          color = sum / weight;
+          color = mix(color, sum / weight, filterAmount);
         }
 
         if (cell == uHover) {
