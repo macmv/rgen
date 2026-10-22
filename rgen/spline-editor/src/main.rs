@@ -135,13 +135,14 @@ struct App {
 
   seed:   u64,
   center: [f64; 2],
-  /// Columns along each side of the terrain.
-  n:      usize,
+  /// The width of the terrain, in blocks. Changing the block size doesn't
+  /// change this, only how finely it's sampled.
+  width:  u32,
   /// Blocks along each side of a column.
   step:   u32,
 
   noise:      Arc<TerrainNoise>,
-  requested:  Option<(u64, [i64; 2], usize, u32)>,
+  requested:  Option<(u64, [i64; 2], u32, u32)>,
   request_id: u64,
   tx:         mpsc::Sender<(u64, Vec<RawNoise>)>,
   rx:         mpsc::Receiver<(u64, Vec<RawNoise>)>,
@@ -172,7 +173,7 @@ impl App {
 
       seed: 0,
       center: [0.0, 0.0],
-      n: 512,
+      width: 2048,
       step: 4,
 
       noise: Arc::new(TerrainNoise::new(0)),
@@ -200,7 +201,7 @@ impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     while let Ok((id, raw)) = self.rx.try_recv() {
       if id == self.request_id {
-        self.grid = Some(Grid::new(raw, self.n, self.center, f64::from(self.step)));
+        self.grid = Some(Grid::new(raw, self.columns(), self.center, f64::from(self.step)));
         self.dirty = true;
       }
     }
@@ -232,14 +233,26 @@ impl eframe::App for App {
   }
 }
 
+/// The largest block size.
+const MAX_STEP: u32 = 32;
+/// The most columns along one side. A bigger grid is too slow to recolor
+/// while editing splines.
+const MAX_COLUMNS: u32 = 1024;
+
 impl App {
+  /// Columns along each side of the terrain.
+  fn columns(&self) -> usize { (self.width / self.step) as usize }
+
+  /// The smallest block size that keeps the grid under `MAX_COLUMNS`.
+  fn min_step(&self) -> u32 { (self.width / MAX_COLUMNS).max(1) }
+
   fn active_splines(&self) -> &Splines {
     if self.compare_saved { &self.saved } else { &self.splines }
   }
 
   /// Starts sampling the noise in the background if the parameters changed.
   fn request_grid(&mut self, ctx: &egui::Context) {
-    let key = (self.seed, [self.center[0] as i64, self.center[1] as i64], self.n, self.step);
+    let key = (self.seed, [self.center[0] as i64, self.center[1] as i64], self.width, self.step);
     if self.requested == Some(key) {
       return;
     }
@@ -248,7 +261,7 @@ impl App {
 
     let id = self.request_id;
     let noise = self.noise.clone();
-    let (center, n, step) = (self.center, self.n, f64::from(self.step));
+    let (center, n, step) = (self.center, self.columns(), f64::from(self.step));
     let tx = self.tx.clone();
     let ctx = ctx.clone();
 
@@ -297,28 +310,33 @@ impl App {
       });
       ui.end_row();
 
+      ui.label("Width");
+      egui::ComboBox::from_id_source("width")
+        .selected_text(format!("{} blocks", self.width))
+        .show_ui(ui, |ui| {
+          for width in [512, 1024, 2048, 4096, 8192] {
+            ui.selectable_value(&mut self.width, width, format!("{width} blocks"));
+          }
+        });
+      ui.end_row();
+
+      // Keep the block size in range when the width changes.
+      self.step = self.step.clamp(self.min_step(), MAX_STEP);
+
       ui.label("Block size");
       egui::ComboBox::from_id_source("step")
         .selected_text(format!("{0}x{0}x{0}", self.step))
         .show_ui(ui, |ui| {
-          for step in [1, 2, 4, 8, 16, 32] {
-            ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
+          for step in (0..).map(|i| 1u32 << i).take_while(|&s| s <= MAX_STEP) {
+            if step >= self.min_step() {
+              ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
+            }
           }
         });
       ui.end_row();
 
       ui.label("Columns");
-      egui::ComboBox::from_id_source("columns")
-        .selected_text(format!("{0}x{0}", self.n))
-        .show_ui(ui, |ui| {
-          for n in [128, 256, 512, 1024] {
-            ui.selectable_value(&mut self.n, n, format!("{n}x{n}"));
-          }
-        });
-      ui.end_row();
-
-      ui.label("Width");
-      ui.label(format!("{} blocks", self.n * self.step as usize));
+      ui.label(format!("{0}x{0}", self.columns()));
       ui.end_row();
     });
 
