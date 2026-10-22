@@ -47,8 +47,12 @@ public final class RBlocks {
   public static final Block LOG2 = register("log2", LogBlockTwo::new, new BlockSettings().creativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
   public static final Block PLANKS = register("planks", PlanksBlock::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  // The slabs are one block on newer versions.
+  // #v12-start
   public static final Block PLANK_SLAB = register("plank_slab", RWoodSlab.Half::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block PLANK_DOUBLE_SLAB = register("plank_double_slab", RWoodSlab.Double::new, new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  // #v12-end
+  /* #fabric: public static final Block PLANK_SLAB = register("plank_slab", s -> new net.minecraft.block.SlabBlock(s.vanilla()), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD)); */
   public static final Block FIR_FENCE = register("fir_fence", s -> new RWoodFence(s, LogType.FIR), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block PALM_FENCE = register("palm_fence", s -> new RWoodFence(s, LogType.PALM), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block CHERRY_FENCE = register("cherry_fence", s -> new RWoodFence(s, LogType.CHERRY), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
