@@ -1,11 +1,14 @@
-cargo build --release -p rgen-jni
-cargo build --release -p rgen-jni-impl
+#!/usr/bin/env bash
+set -euo pipefail
 
-INSTANCE=$1
-# Jaimie's path: ~/Minecraft/multimcTar/MultiMC/instances/rgenTest
+RGEN_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+INSTANCE="${1:?Usage: multimc.sh /path/to/MultiMC/instance}"
 
-rm -r $INSTANCE/.minecraft/saves/1/region
+cargo build --release -p rgen-jni -p rgen-jni-impl --manifest-path "$RGEN_ROOT/Cargo.toml"
 
-mkdir $INSTANCE/natives
-ln -s $PWD/target/release/librgen_jni.so $INSTANCE/natives
-ln -s $PWD/target/release/librgen_jni_impl.so $INSTANCE/natives
+# Reset generated chunks in the test save so they are regenerated with this build.
+rm -rf "$INSTANCE/.minecraft/saves/1/region"
+
+mkdir -p "$INSTANCE/natives"
+ln -sfn "$RGEN_ROOT/target/release/librgen_jni.so" "$INSTANCE/natives/librgen_jni.so"
+ln -sfn "$RGEN_ROOT/target/release/librgen_jni_impl.so" "$INSTANCE/natives/librgen_jni_impl.so"

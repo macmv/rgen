@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "rgen:blocks/wood/lavender_tree/lavender_tree_planks"
+  }
+}

@@ -9,7 +9,7 @@ pub fn cherry_blossom_grove(g: &mut BiomeBuilder) {
   g.color = "#A3B5A0";
   g.set_top_block(block![grass]);
 
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Cherry::default());
   g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,
@@ -73,7 +73,7 @@ pub fn cherry_blossom_wood(g: &mut BiomeBuilder) {
   g.id = biome![birch_forest_hills];
   g.color = "#7C8F6B";
   g.set_top_block(block![grass]);
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Cherry::default());
 }
 
 #[allow(dead_code)]

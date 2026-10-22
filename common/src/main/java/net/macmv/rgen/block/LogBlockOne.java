@@ -25,7 +25,7 @@ public class LogBlockOne extends BlockLog {
     // TODO: Add these back
     items.add(new ItemStack(this, 1, LogType.FIR.meta));
     items.add(new ItemStack(this, 1, LogType.PALM.meta));
-    items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, LogType.CHERRY.meta));
     items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
   }
 

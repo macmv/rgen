@@ -1,6 +1,7 @@
 package net.macmv.rgen.block;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -12,10 +13,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanksBlock extends Block {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta <= LogType.DEAD.meta);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty != LogType.SEASONAL && ty.meta <= LogType.DEAD.meta);
 
   public PlanksBlock(BlockSettings settings) {
     super(settings.material);
+    this.setSoundType(SoundType.WOOD);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR));
   }
 
@@ -27,7 +29,7 @@ public class PlanksBlock extends Block {
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     for (LogType ty : LogType.values()) {
-      if (ty.meta <= LogType.DEAD.meta) {
+      if (ty != LogType.SEASONAL && ty.meta <= LogType.DEAD.meta) {
         items.add(new ItemStack(this, 1, ty.meta));
       }
     }

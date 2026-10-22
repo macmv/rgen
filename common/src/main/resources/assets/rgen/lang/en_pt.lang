@@ -8,18 +8,18 @@ tile.thatch_roof.name=Thatched Roofin
 
 tile.log.fir.name=Fir Timber
 tile.log.palm.name=Palm Timber
-tile.log.sakura.name=Sakura Timber
+tile.log.cherry.name=Cherry Timber
 tile.log.cedar.name=Cedar Timber
 tile.log2.mangrove.name=Mangrove Timber
 tile.log2.dead.name=Deadman's Timber
 
 tile.leaves.fir.name=Fir Foliage
 tile.leaves.palm.name=Palm Foliage
-tile.leaves.sakura.name=Sakura Foliage
+tile.leaves.cherry.name=Cherry Foliage
 tile.leaves.cedar.name=Cedar Foliage
 tile.leaves2.mangrove.name=Mangrove Foliage
-tile.leaves2.lavender.name=Lavender Foliage
-tile.leaves2.seasonal.name=Seasonal Foliage
+tile.leaves2.lavender_tree.name=Lavender Tree Foliage
+tile.leaves3.seasonal.name=Seasonal Foliage
 
 tile.bamboo.name=Bamboo Stick
 tile.glow_vine.name=Glowin' Vines
@@ -29,7 +29,7 @@ tile.lavender_plant.name=Lavender Herb
 
 tile.planks.fir.name=Fir Planks
 tile.planks.palm.name=Palm Planks
-tile.planks.sakura.name=Sakura Planks
+tile.planks.cherry.name=Cherry Planks
 tile.planks.cedar.name=Cedar Planks
 tile.planks.mangrove.name=Mangrove Planks
 
@@ -47,3 +47,9 @@ tile.mossy_stone.name=Mossy Stone
 
 item.debug_stick.name=Debuggin' Stick
 item.green_cactus_fruit.name=Green Cactus Fruit o' Doom
+tile.log2.lavender_tree.name=Lavender Tree Timber
+tile.leaves2.dead.name=Dead Foliage
+tile.leaves3.aspen.name=Aspen Foliage
+tile.sapling.lavender_tree.name=Lavender Tree Sapling
+tile.planks.lavender_tree.name=Lavender Tree Planks
+tile.planks.dead.name=Dead Planks

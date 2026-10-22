@@ -6,10 +6,10 @@ import net.minecraft.util.IStringSerializable;
 public enum LogType implements IStringSerializable {
   FIR(0, "fir", MapColor.OBSIDIAN),
   PALM(1, "palm", MapColor.SAND),
-  SAKURA(2, "sakura", MapColor.PINK),
+  CHERRY(2, "cherry", MapColor.PINK),
   CEDAR(3, "cedar", MapColor.SAND),
   MANGROVE(4, "mangrove", MapColor.RED),
-  LAVENDER(5, "lavender", MapColor.PURPLE),
+  LAVENDER_TREE(5, "lavender_tree", MapColor.PURPLE),
   SEASONAL(6, "seasonal", MapColor.ORANGE_STAINED_HARDENED_CLAY),
   DEAD(7, "dead", MapColor.BROWN),
   ASPEN(8, "aspen", MapColor.SAND);
@@ -34,10 +34,10 @@ public enum LogType implements IStringSerializable {
     switch (meta) {
       case 0: return FIR;
       case 1: return PALM;
-      case 2: return SAKURA;
+      case 2: return CHERRY;
       case 3: return CEDAR;
       case 4: return MANGROVE;
-      case 5: return LAVENDER;
+      case 5: return LAVENDER_TREE;
       case 6: return SEASONAL;
       case 7: return DEAD;
       default: return ASPEN;

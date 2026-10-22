@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_column",
+  "textures": {
+    "end": "rgen:blocks/wood/lavender_tree/lavender_tree_log_top",
+    "side": "rgen:blocks/wood/lavender_tree/lavender_tree_log"
+  }
+}

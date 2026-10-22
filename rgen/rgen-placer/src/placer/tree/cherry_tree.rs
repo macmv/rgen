@@ -10,7 +10,7 @@ enum SplitTree {
   Duo,
   Uno,
 }
-pub struct Sakura {
+pub struct Cherry {
   pub place_above:   BlockFilter,
   pub trunk:         BlockState,
   pub leaves:        BlockState,
@@ -20,9 +20,9 @@ pub struct Sakura {
   pub drapes: Vec<Structure>,
 }
 
-impl Default for Sakura {
+impl Default for Cherry {
   fn default() -> Self {
-    Sakura {
+    Cherry {
       avg_per_chunk: 1.0,
       place_above:   block![grass].into(),
       trunk:         block![rgen:log[2]],
@@ -38,7 +38,7 @@ impl Default for Sakura {
   }
 }
 
-impl Placer for Sakura {
+impl Placer for Cherry {
   fn radius(&self) -> u8 { 16 }
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
@@ -74,7 +74,7 @@ impl Placer for Sakura {
   }
 }
 
-impl Sakura {
+impl Cherry {
   fn build_cannopy(&self, world: &mut PartialWorld, pos: Pos, rng: &mut Rng) {
     // Leaf box 2
     for rel_y in -1..=2_i32 {

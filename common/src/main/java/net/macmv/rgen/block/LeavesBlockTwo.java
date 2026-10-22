@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 
 public class LeavesBlockTwo extends LeavesBlock {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty.meta >= 4 && ty.meta < 7);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty == LogType.MANGROVE || ty == LogType.LAVENDER_TREE || ty == LogType.DEAD);
 
   public LeavesBlockTwo(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
@@ -32,8 +32,8 @@ public class LeavesBlockTwo extends LeavesBlock {
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     items.add(new ItemStack(this, 1, LogType.MANGROVE.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.LAVENDER.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.SEASONAL.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.DEAD.meta - 4));
   }
 
   @Override
@@ -43,7 +43,8 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    LogType variant = LogType.fromMeta((meta & 3) + 4);
+    int variantMeta = meta & 3;
+    LogType variant = variantMeta == 1 ? LogType.LAVENDER_TREE : variantMeta == 3 ? LogType.DEAD : LogType.MANGROVE;
 
     return this.getDefaultState().withProperty(VARIANT, variant).withProperty(DECAYABLE, (meta & 4) == 0).withProperty(CHECK_DECAY, (meta & 8) > 0);
   }

@@ -8,25 +8,25 @@ tile.thatch_roof.name=Thatch Roof
 
 tile.log.fir.name=Fir Log
 tile.log.palm.name=Palm Log
-tile.log.sakura.name=Sakura Log
+tile.log.cherry.name=Cherry Log
 tile.log.cedar.name=Cedar Log
 tile.log2.mangrove.name=Mangrove Log
 tile.log2.dead.name=Dead Log
 
 tile.leaves.fir.name=Fir Leaves
 tile.leaves.palm.name=Palm Leaves
-tile.leaves.sakura.name=Sakura Leaves
+tile.leaves.cherry.name=Cherry Leaves
 tile.leaves.cedar.name=Cedar Leaves
 tile.leaves2.mangrove.name=Mangrove Leaves
-tile.leaves2.lavender.name=Lavender Leaves
-tile.leaves2.seasonal.name=Seasonal Leaves
+tile.leaves2.lavender_tree.name=Lavender Tree Leaves
+tile.leaves3.seasonal.name=Seasonal Leaves
 
 tile.sapling.fir.name=Fir Sapling
 tile.sapling.palm.name=Palm Sapling
-tile.sapling.sakura.name=Sakura Sapling
+tile.sapling.cherry.name=Cherry Sapling
 tile.sapling.cedar.name=Cedar Sapling
 tile.sapling.mangrove.name=Mangrove Sapling
-tile.sapling.lavender.name=Lavender Sapling
+tile.sapling.lavender_tree.name=Lavender Tree Sapling
 tile.sapling.seasonal.name=Seasonal Sapling
 tile.sapling.dead.name=Dead Sapling
 tile.sapling2.aspen.name=Aspen Sapling
@@ -39,7 +39,7 @@ tile.lavender_plant.name=Lavender Plant
 
 tile.planks.fir.name=Fir Planks
 tile.planks.palm.name=Palm Planks
-tile.planks.sakura.name=Sakura Planks
+tile.planks.cherry.name=Cherry Planks
 tile.planks.cedar.name=Cedar Planks
 tile.planks.mangrove.name=Mangrove Planks
 
@@ -59,3 +59,30 @@ item.debug_stick.name=Debug Stick
 item.green_cactus_fruit.name=Green Cactus Fruit
 
 
+tile.log2.lavender_tree.name=Lavender Tree Log
+tile.leaves2.dead.name=Dead Leaves
+tile.leaves3.aspen.name=Aspen Leaves
+tile.planks.lavender_tree.name=Lavender Tree Planks
+tile.planks.dead.name=Dead Planks
+item.fir_door.name=Fir Door
+tile.fir_stairs.name=Fir Stairs
+tile.fir_trapdoor.name=Fir Trapdoor
+item.palm_door.name=Palm Door
+tile.palm_stairs.name=Palm Stairs
+tile.palm_trapdoor.name=Palm Trapdoor
+item.cherry_door.name=Cherry Door
+tile.cherry_stairs.name=Cherry Stairs
+tile.cherry_trapdoor.name=Cherry Trapdoor
+item.cedar_door.name=Cedar Door
+tile.cedar_stairs.name=Cedar Stairs
+tile.cedar_trapdoor.name=Cedar Trapdoor
+item.mangrove_door.name=Mangrove Door
+tile.mangrove_stairs.name=Mangrove Stairs
+tile.mangrove_trapdoor.name=Mangrove Trapdoor
+item.lavender_tree_door.name=Lavender Tree Door
+tile.lavender_tree_stairs.name=Lavender Tree Stairs
+tile.lavender_tree_trapdoor.name=Lavender Tree Trapdoor
+item.dead_door.name=Dead Door
+tile.dead_stairs.name=Dead Stairs
+tile.dead_trapdoor.name=Dead Trapdoor
+item.bamboo_door.name=Bamboo Door
