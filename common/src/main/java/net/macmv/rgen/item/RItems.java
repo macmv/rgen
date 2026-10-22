@@ -38,7 +38,10 @@ public class RItems {
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  // #v12-start
   public static final Item PLANK_SLAB = registerBlockItem(RBlocks.PLANK_SLAB, new ItemSlab(RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_DOUBLE_SLAB).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  // #v12-end
+  /* #fabric: public static final Item PLANK_SLAB = registerBlockItem(RBlocks.PLANK_SLAB); */
 
   public static final Item FIR_FENCE = registerBlockItem(RBlocks.FIR_FENCE);
   public static final Item PALM_FENCE = registerBlockItem(RBlocks.PALM_FENCE);

@@ -54,6 +54,8 @@ fn main() {
   renames.insert("net.minecraft.block.BlockRotatedPillar", "net.minecraft.block.PillarBlock");
   renames.insert("net.minecraft.block.BlockVine", "net.minecraft.block.VineBlock");
   renames.insert("net.minecraft.block.BlockDoor", "net.minecraft.block.DoorBlock");
+  renames.insert("net.minecraft.block.BlockFence", "net.minecraft.block.FenceBlock");
+  renames.insert("net.minecraft.block.BlockFenceGate", "net.minecraft.block.FenceGateBlock");
   renames.insert("net.minecraft.block.BlockTrapDoor", "net.minecraft.block.TrapdoorBlock");
   renames.insert("net.minecraft.block.BlockStairs", "net.minecraft.block.StairsBlock");
   renames.insert("net.minecraft.block.BlockLeaves", "net.macmv.rgen.compat.LeavesBase");
@@ -148,6 +150,10 @@ fn main() {
     "tickRate",
     "canGrow",
     "canUseBonemeal",
+    "getPlantType",
+    "getPlant",
+    "getOffset",
+    "JungleFlower::getItem",
     "destroyBlockWithDrops",
     "canPlaceBlockAt",
     "canBlockStay",
@@ -175,7 +181,16 @@ fn main() {
 
   // Properties with a single value can't exist anymore, so those are dropped for their class.
   let drop_props = HashSet::from(["LOG_AXIS", "CHECK_DECAY", "DECAYABLE", "FlowerBlock::TYPE"]);
-  let drop_calls = HashSet::from(["setHarvestLevel", "setTickRandomly", "setCreativeTab"]);
+  let drop_calls = HashSet::from([
+    "setHarvestLevel",
+    "setTickRandomly",
+    "setCreativeTab",
+    // These are in the block settings now.
+    "setHardness",
+    "setResistance",
+    "setSoundType",
+    "disableStats",
+  ]);
   let shape_methods = HashMap::from([
     ("getBoundingBox", "getOutlineShape"),
     ("getCollisionBoundingBox", "getCollisionShape"),
@@ -225,6 +240,7 @@ impl Config {
       "net.minecraft.network.",
       "net.minecraft.world.gen.feature.WorldGen",
       "net.minecraft.item.ItemMultiTexture",
+      "net.minecraft.item.ItemSlab",
     ];
     if GONE.iter().any(|g| path.starts_with(g)) {
       return false;
@@ -310,6 +326,8 @@ impl Config {
       .replace("BlockLog.EnumAxis", "EnumAxis")
       .replace("BlockDoublePlant.EnumBlockHalf", "net.minecraft.block.enums.DoubleBlockHalf")
       .replace("EnumFacing.Plane", "net.minecraft.util.math.Direction.Type")
+      .replace("BlockPlanks.EnumType", "net.minecraft.block.WoodType")
+      .replace(" implements net.minecraftforge.common.IPlantable", "")
       // Saplings don't grow with bonemeal yet, see the dropped methods.
       .replace(" implements IGrowable", "");
 
