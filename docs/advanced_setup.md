@@ -46,6 +46,10 @@ Anything that is too different goes in a handwritten fabric file, which needs to
 sources still use (`Material`, `SoundType`, `CreativeTabs`), and base classes that hide differences
 between minecraft versions (`LeavesBase`, `FallingBase`).
 
+The fabric item models and language file are made by the data generator, not by hand. After adding
+a block or item, run `./gradlew :mod-fabric:1.21.1:runDatagen` and commit the result in
+`mod-fabric/src/main/generated`. Names there are just the registry names in title case.
+
 ### Backporting blocks
 
 If vanilla added a block that we had to make ourselves (like moss), add a flag for it in

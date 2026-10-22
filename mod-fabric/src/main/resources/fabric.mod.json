@@ -7,7 +7,8 @@
   "authors": ["Me"],
   "environment": "*",
   "entrypoints": {
-    "main": ["net.macmv.rgen.RGen"]
+    "main": ["net.macmv.rgen.RGen"],
+    "fabric-datagen": ["net.macmv.rgen.datagen.RGenDataGenerator"]
   },
   "depends": {
     "fabricloader": ">=0.16.10",

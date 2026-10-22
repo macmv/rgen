@@ -54,9 +54,36 @@ tasks.matching { it.name.startsWith('stonecutter') }.configureEach {
   dependsOn ':mod-fabric:transformCommonSources'
 }
 
+// The item models and the language file come from the data generator (`runDatagen`), and are checked
+// in. They go in the jar and the game runs directly, but not on the classpath of the generator
+// itself, as it looks for the models that `common/` has.
+def generated = rootProject.file('mod-fabric/src/main/generated')
+
+fabricApi {
+  configureDataGeneration {
+    outputDirectory = generated
+    createSourceSet = false
+    modId = 'rgen'
+  }
+}
+
+// Loom adds the output as a resource directory, take that out again.
+sourceSets.main.resources.srcDirs -= [generated]
+
+jar {
+  from(generated)
+}
+
+tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
+  classpath += files(generated)
+}
+
 // The assets are shared with 1.12, with a few things renamed (`blocks` is `block` now). The item
 // models and the language file only exist for fabric, see `tools/gen_fabric_assets.py`.
 processResources {
+  // Stonecutter writes the resources too.
+  dependsOn 'stonecutterGenerate'
+
   from(rootProject.file('common/src/main/resources/assets')) {
     into 'assets'
     exclude '**/*.lang', '**/*DELETEME*'
