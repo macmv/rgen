@@ -17,3 +17,5 @@
 !net/macmv/rgen/item/BlueCactusFruit.java
 !net/macmv/rgen/item/MossCompass.java
 !net/macmv/rgen/item/DebugStickItem.java
+!net/macmv/rgen/datagen/
+!net/macmv/rgen/datagen/*.java

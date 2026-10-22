@@ -1,7 +1,6 @@
 {
   "block.rgen.bamboo": "Bamboo",
   "block.rgen.bamboo_door": "Bamboo Door",
-  "block.rgen.bamboo_stairs": "Bamboo Stairs",
   "block.rgen.basalt": "Basalt",
   "block.rgen.blue_cactus": "Blue Cactus",
   "block.rgen.cactus": "Cactus",
@@ -40,8 +39,6 @@
   "block.rgen.mangrove_door": "Mangrove Door",
   "block.rgen.mangrove_stairs": "Mangrove Stairs",
   "block.rgen.mangrove_trapdoor": "Mangrove Trapdoor",
-  "block.rgen.mossy_block": "Mossy Block",
-  "block.rgen.mossy_carpet": "Mossy Carpet",
   "block.rgen.mossy_cobblestone_rgen": "Mossy Cobblestone Rgen",
   "block.rgen.mossy_stone": "Mossy Stone",
   "block.rgen.mossy_stump": "Mossy Stump",
