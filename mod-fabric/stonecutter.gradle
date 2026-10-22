@@ -1,0 +1,48 @@
+plugins {
+  id 'dev.kikugie.stonecutter'
+}
+
+// The version that the checked in sources are written against. Run `./gradlew "Set active project
+// to <version>"` to switch it.
+stonecutter.active "1.21.5"
+
+// Translates the 1.12 sources in `common/` into fabric (yarn) sources. This runs once for all
+// versions: stonecutter then handles the differences between minecraft versions, by processing the
+// generated sources the same way it processes the handwritten ones.
+def commonSrc = rootProject.file("common/src/main/java")
+def transformer = rootProject.file("v12-to-fabric/target/release/v12-to-fabric")
+def generatedCommon = file("src/generated/java")
+
+tasks.register('transformCommonSources') {
+  inputs.dir commonSrc
+  inputs.file transformer
+  outputs.dir generatedCommon
+
+  doLast {
+    delete generatedCommon
+    generatedCommon.mkdirs()
+
+    commonSrc.eachFileRecurse { srcFile ->
+      if (!srcFile.name.endsWith(".java")) return
+
+      def destFile = new File(generatedCommon, commonSrc.toPath().relativize(srcFile.toPath()).toString())
+
+      def process = new ProcessBuilder(transformer.absolutePath, srcFile.absolutePath).start()
+      // Drain both streams before waiting, so a large file can't fill the pipe and hang.
+      def out = new StringBuffer()
+      def err = new StringBuffer()
+      process.consumeProcessOutput(out, err)
+      process.waitFor()
+
+      if (process.exitValue() != 0) {
+        // FIXME: Fail the build here once the transformer handles every file.
+        logger.warn("Transformation failed for ${srcFile}: ${err}")
+      }
+
+      if (!out.toString().isEmpty()) {
+        destFile.parentFile.mkdirs()
+        destFile.text = out.toString()
+      }
+    }
+  }
+}
