@@ -1,11 +1,22 @@
-use std::{collections::HashMap, ops::Range};
+use std::{
+  collections::{HashMap, HashSet},
+  ops::Range,
+};
 
 use parser::{Parser, Token};
 
 mod parser;
 
 struct Config {
-  renames: HashMap<&'static str, &'static str>,
+  renames:          HashMap<&'static str, &'static str>,
+  /// Identifiers that get replaced anywhere they appear (unless they are used as a member, like
+  /// `foo.NAME`).
+  words:            HashMap<&'static str, &'static str>,
+  /// Methods that only exist in 1.12 (metadata, creative tab listing, etc). Declarations of these
+  /// are removed entirely.
+  drop_methods:     HashSet<&'static str>,
+  /// Annotations that don't exist on fabric. Arguments are removed too.
+  drop_annotations: HashSet<&'static str>,
 }
 
 fn main() {
@@ -31,6 +42,10 @@ fn main() {
   renames.insert("net.minecraft.block.BlockVine", "net.minecraft.block.VineBlock");
   renames.insert("net.minecraft.block.material.MapColor", "net.minecraft.block.MapColor");
 
+  // These don't exist anymore, so there are polyfills in `compat`.
+  renames.insert("net.minecraft.block.material.Material", "net.macmv.rgen.compat.Material");
+  renames.insert("net.minecraft.block.SoundType", "net.macmv.rgen.compat.SoundType");
+
   renames.insert(
     "net.minecraft.block.properties.PropertyBool",
     "net.minecraft.state.property.BooleanProperty",
@@ -50,7 +65,7 @@ fn main() {
   renames.insert("net.minecraft.item.ItemBlock", "net.minecraft.item.BlockItem");
   renames.insert("net.minecraft.item.ItemDoor", "net.minecraft.item.TallBlockItem");
 
-  renames.insert("net.minecraft.creativetab.CreativeTabs", "net.minecraft.item.ItemGroup");
+  renames.insert("net.minecraft.creativetab.CreativeTabs", "net.macmv.rgen.compat.CreativeTabs");
 
   // entities
   renames
@@ -63,7 +78,32 @@ fn main() {
   // client
   renames.insert("net.minecraft.client.Minecraft", "net.minecraft.client.MinecraftClient");
 
-  let config = Config { renames };
+  let words = HashMap::from([
+    ("EnumAxis", "net.minecraft.util.math.Direction.Axis"),
+    ("LOG_AXIS", "AXIS"),
+    ("isRemote", "isClient"),
+  ]);
+
+  let drop_methods = HashSet::from([
+    "getMetaFromState",
+    "getStateFromMeta",
+    "damageDropped",
+    "getSubBlocks",
+    "getSubItems",
+    "onSheared",
+    "harvestBlock",
+    "getSilkTouchDrop",
+    "getBlockLayer",
+    "getItemDropped",
+    "getWoodType",
+    "canSustainPlant",
+    "getOffsetType",
+    "getPickBlock",
+  ]);
+
+  let drop_annotations = HashSet::from(["SideOnly", "Nonnull", "Nullable", "SubscribeEvent"]);
+
+  let config = Config { renames, words, drop_methods, drop_annotations };
 
   let output = config.process(source);
 
@@ -92,6 +132,58 @@ impl Config {
     }
   }
 
+  /// If the parser is at the name of a method declaration, this returns the range of the whole
+  /// declaration (including annotations and modifiers), and a parser positioned after it.
+  fn method_range<'a>(
+    &self,
+    decl_start: usize,
+    parser: &Parser<'a>,
+  ) -> Option<(Range<usize>, Parser<'a>)> {
+    let mut look = parser.clone();
+
+    if look.next() != Some(Token::Punct) || look.slice() != "(" {
+      return None;
+    }
+
+    let mut depth = 1;
+    while depth > 0 {
+      match look.next() {
+        Some(Token::Punct) if look.slice() == "(" => depth += 1,
+        Some(Token::Punct) if look.slice() == ")" => depth -= 1,
+        None => return None,
+        _ => {}
+      }
+    }
+
+    // Skip `throws Foo, Bar`.
+    let mut tok = look.next();
+    if tok == Some(Token::Word) && look.slice() == "throws" {
+      while !(look.slice() == "{" || look.slice() == ";") {
+        tok = look.next();
+        tok?;
+      }
+    }
+
+    match (tok, look.slice()) {
+      (Some(Token::Punct), "{") => {
+        let mut depth = 1;
+        while depth > 0 {
+          match look.next() {
+            Some(Token::Punct) if look.slice() == "{" => depth += 1,
+            Some(Token::Punct) if look.slice() == "}" => depth -= 1,
+            None => return None,
+            _ => {}
+          }
+        }
+      }
+      // An abstract method.
+      (Some(Token::Punct), ";") => {}
+      _ => return None,
+    }
+
+    Some((decl_start..look.range().end, look))
+  }
+
   fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
 
@@ -102,6 +194,7 @@ impl Config {
     let mut output = Output::new(source.clone());
     let mut parser = Parser::new(&source);
     let mut package = String::new();
+    let mut class_name = String::new();
 
     // Eat the package statement
     if parser.next() == Some(Token::Word) && parser.slice() == "package" {
@@ -131,7 +224,14 @@ impl Config {
       }
     }
 
+    // The start of the current declaration: right after the last `;`, `{`, or `}`.
+    let mut decl_start = parser.range().start;
+
     while let Some(tok) = parser.next() {
+      if tok == Token::Punct && matches!(parser.slice(), ";" | "{" | "}") {
+        decl_start = parser.range().end;
+      }
+
       match tok {
         Token::FabricComment => {
           // The comment is formed like:
@@ -293,7 +393,7 @@ impl Config {
               if parser.next() == Some(Token::Punct) && parser.slice() == "." {
                 let dot_range = parser.range();
                 if parser.next() == Some(Token::Word) && parser.slice() == "material" {
-                  output.replace(dot_range, "");
+                  output.replace(dot_range, ".vanilla()");
                   output.replace(parser.range(), "");
                 }
               }
@@ -307,9 +407,6 @@ impl Config {
               output.replace(start..parser.range().end, "getDefaultState");
             }
           }
-        }
-        Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
-          output.replace(parser.range(), "Settings");
         }
         Token::Word if parser.slice() == "getName" && package == "net.macmv.rgen.block" => {
           output.replace(parser.range(), "asString");
@@ -332,6 +429,72 @@ impl Config {
           output.replace(parser.range(), "getOutlineShape");
         }
 
+        // `@SideOnly(Side.CLIENT)` and friends.
+        Token::Punct if parser.slice() == "@" => {
+          let start = parser.range().start;
+          let mut look = parser.clone();
+          if look.next() == Some(Token::Word) && self.drop_annotations.contains(look.slice()) {
+            let mut end = look.range().end;
+            let mut after = look.clone();
+            if after.next() == Some(Token::Punct) && after.slice() == "(" {
+              let mut depth = 1;
+              while depth > 0 {
+                match after.next() {
+                  Some(Token::Punct) if after.slice() == "(" => depth += 1,
+                  Some(Token::Punct) if after.slice() == ")" => depth -= 1,
+                  None => break,
+                  _ => {}
+                }
+              }
+              end = after.range().end;
+              look = after;
+            }
+            output.replace(start..end, "");
+            parser = look;
+          }
+        }
+
+        Token::Word
+          if self.drop_methods.contains(parser.slice())
+            && !source[..parser.range().start].trim_end().ends_with('.') =>
+        {
+          if let Some((range, end_parser)) = self.method_range(decl_start, &parser) {
+            output.replace(range, "");
+            parser = end_parser;
+            decl_start = parser.range().end;
+          }
+        }
+
+        Token::Word if parser.slice() == "class" => {
+          if parser.next() == Some(Token::Word) {
+            class_name = parser.slice().to_string();
+          }
+        }
+
+        // `Foo(BlockSettings settings) {` -> `Foo(BlockSettings settings) { super(settings);`
+        Token::Word if parser.slice() == "BlockSettings" && package == "net.macmv.rgen.block" => {
+          let prev = source[..parser.range().start].trim_end();
+          if prev.ends_with('(') && prev[..prev.len() - 1].trim_end().ends_with(&class_name) {
+            let mut look = parser.clone();
+            if look.next() == Some(Token::Word) {
+              let param = look.slice().to_string();
+              if look.next() == Some(Token::Punct)
+                && look.slice() == ")"
+                && look.next() == Some(Token::Punct)
+                && look.slice() == "{"
+              {
+                let brace = look.range().end;
+                let mut first = look.clone();
+                let has_super = first.next() == Some(Token::Word)
+                  && (first.slice() == "super" || first.slice() == "this");
+                if !has_super {
+                  output.replace(brace..brace, &format!(" super({param}.vanilla());"));
+                }
+              }
+            }
+          }
+        }
+
         Token::Word if parser.slice() == "new" => {
           let start = parser.range().start;
           if parser.next() == Some(Token::Word) && parser.slice() == "AxisAlignedBB" {
@@ -342,7 +505,11 @@ impl Config {
 
         Token::Word => {
           let word = parser.slice();
-          if let Some(resolved) = imports.get(word) {
+          if let Some(new_word) = self.words.get(word) {
+            if !source[..parser.range().start].trim_end().ends_with('.') {
+              output.replace(parser.range(), new_word);
+            }
+          } else if let Some(resolved) = imports.get(word) {
             if let Some(new_path) = self.renames.get(resolved.as_str()) {
               let (_, new_imported) = new_path.rsplit_once('.').unwrap();
               let range = parser.range();
@@ -354,7 +521,7 @@ impl Config {
       }
     }
 
-    output.output
+    output.finish()
   }
 }
 
@@ -392,23 +559,38 @@ fn parse_path(parser: &mut Parser) -> (String, Range<usize>) {
   }
 }
 
-// This tracks a moving offset, as we replace words in a string from start to
-// end.
+// This collects edits to the original source. Edits use offsets into the original source, and are
+// applied (in order) when the output is finished. An edit that starts inside an earlier edit is
+// ignored, which lets an edit that covers a large range (like dropping a method) win over edits
+// to the text it covers.
 struct Output {
-  output: String,
-  offset: isize,
+  source: String,
+  edits:  Vec<(Range<usize>, String)>,
 }
 
 impl Output {
-  pub fn new(output: String) -> Self { Self { output, offset: 0 } }
+  pub fn new(source: String) -> Self { Self { source, edits: vec![] } }
 
   pub fn replace(&mut self, range: Range<usize>, str: &str) {
-    let start = range.start.wrapping_add_signed(self.offset);
-    let end = range.end.wrapping_add_signed(self.offset);
+    self.edits.push((range, str.to_string()));
+  }
 
-    self.output.replace_range(start..end, str);
+  pub fn finish(mut self) -> String {
+    // Stable, so edits that start at the same place stay in the order they were made.
+    self.edits.sort_by(|a, b| a.0.start.cmp(&b.0.start).then(b.0.end.cmp(&a.0.end)));
 
-    self.offset += str.len() as isize - (end - start) as isize;
+    let mut out = String::new();
+    let mut cursor = 0;
+    for (range, text) in self.edits {
+      if range.start < cursor {
+        continue;
+      }
+      out.push_str(&self.source[cursor..range.start]);
+      out.push_str(&text);
+      cursor = range.end;
+    }
+    out.push_str(&self.source[cursor..]);
+    out
   }
 }
 
@@ -421,9 +603,16 @@ mod tests {
     let mut output = Output::new("foo bar".into());
 
     output.replace(0..3, "bazzz");
-    assert_eq!(output.output, "bazzz bar");
+    output.replace(4..7, "quuux");
+    assert_eq!(output.finish(), "bazzz quuux");
+  }
+
+  #[test]
+  fn big_edit_wins() {
+    let mut output = Output::new("foo bar baz".into());
 
     output.replace(4..7, "quuux");
-    assert_eq!(output.output, "bazzz quuux");
+    output.replace(0..8, "");
+    assert_eq!(output.finish(), "baz");
   }
 }

@@ -1,3 +1,5 @@
+// # only v12 #
+
 package net.macmv.rgen.entity.model;
 
 import net.minecraft.client.model.ModelBase;

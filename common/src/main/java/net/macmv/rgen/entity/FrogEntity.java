@@ -1,3 +1,5 @@
+// # only v12 #
+
 package net.macmv.rgen.entity;
 
 import net.minecraft.entity.EntityCreature;
