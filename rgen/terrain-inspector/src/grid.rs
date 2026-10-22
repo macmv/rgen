@@ -82,12 +82,18 @@ impl Layer {
   }
 }
 
-/// Chunks are generated in a circle of this many chunks around the camera.
+/// The largest view distance. Chunks are generated in a circle of this many
+/// chunks around the camera.
 pub const MAX_RADIUS: i32 = 16;
 
+/// How many chunks past the view distance a generated chunk is kept for. This
+/// keeps chunks from being thrown out while panning back and forth.
+pub const UNLOAD_MARGIN: i32 = 3;
+
 /// The number of chunks along each side of the grid. It's big enough for the
-/// window around the camera at the largest view distance.
-pub const SIDE: usize = 2 * MAX_RADIUS as usize + 1;
+/// window around the camera at the largest view distance, plus the chunks that
+/// are kept past it.
+pub const SIDE: usize = 2 * (MAX_RADIUS + UNLOAD_MARGIN) as usize + 1;
 
 /// The squared distance between two chunks, in chunks.
 pub fn distance_sq(a: [i32; 2], b: [i32; 2]) -> i32 {
@@ -206,8 +212,8 @@ impl Grid {
     [0, 1].map(|a| world[a] - self.window[a] * TILE_BLOCKS as i32)
   }
 
-  /// The number of chunks that are generated.
-  pub fn loaded_count(&self) -> usize { self.tiles.len() }
+  /// Whether a chunk is generated.
+  pub fn contains(&self, tile: [i32; 2]) -> bool { self.tiles.contains_key(&tile) }
 
   /// The noise at a world block, if its chunk is generated.
   pub fn raw_at(&self, world: [i32; 2]) -> Option<RawNoise> {

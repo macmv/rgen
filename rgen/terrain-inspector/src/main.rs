@@ -19,7 +19,7 @@ mod grid;
 mod pool;
 
 use camera::Camera;
-use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS};
+use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN};
 use pool::{Params, Pool, TileResult};
 
 fn main() -> Result<(), eframe::Error> {
@@ -289,11 +289,13 @@ impl App {
     self.planned = Some((center, radius));
 
     self.grid.set_center(center);
-    let updates = self.grid.evict_outside(center, radius);
+    // Generated chunks stay a bit past the view distance, but any that are
+    // still waiting to be generated are only wanted inside it.
+    let updates = self.grid.evict_outside(center, radius + UNLOAD_MARGIN);
     if !updates.is_empty() {
       self.renderer.lock().unwrap().queue(grid::Upload::Chunks(updates));
     }
-    self.requested.retain(|&t| grid::in_range(center, radius, t));
+    self.requested.retain(|&t| self.grid.contains(t) || grid::in_range(center, radius, t));
 
     let new: Vec<[i32; 2]> =
       grid::tiles_in_range(center, radius).filter(|t| !self.requested.contains(t)).collect();
@@ -354,8 +356,10 @@ impl App {
       ui.end_row();
 
       ui.label("Generated");
-      let done = self.grid.loaded_count();
-      let total = grid::tiles_in_range([0, 0], self.view_distance).count();
+      let center = self.center_tile();
+      let in_view = || grid::tiles_in_range(center, self.view_distance);
+      let done = in_view().filter(|&t| self.grid.contains(t)).count();
+      let total = in_view().count();
       ui.label(if done == total { "done".to_string() } else { format!("{done} / {total}") });
       ui.end_row();
 
