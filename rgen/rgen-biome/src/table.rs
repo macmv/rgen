@@ -34,7 +34,7 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
-        CompositionLookup { blank: composition(seed, &[b!(1, blank)]), lookup }
+        CompositionLookup { blank: composition(seed, &[b!(1, desert)]), lookup }
       }
     }
   };
@@ -117,6 +117,19 @@ biome_categories!(
     let (GeographicType::Mountains, ClimateType::Tropical) = &[b!(20, blank)];
 
     let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
+
+    // HotDesert vvv
+    let (GeographicType::Standard, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::River, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Hills, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Mountains, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Beach, ClimateType::HotDesert) = &[b!(20, blank)];
   }
 );
 

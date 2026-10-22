@@ -89,6 +89,11 @@ public class RItems {
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
+  public static final Item SALT = registerBlockItem(RBlocks.SALT);
+  public static final Item SALT_ON_SAND = registerBlockItem(RBlocks.SALT_ON_SAND);
+  public static final Item SALT_DUST = registerItem("salt_dust", new Item());
+
+
 
   // Other cactus fruits
 

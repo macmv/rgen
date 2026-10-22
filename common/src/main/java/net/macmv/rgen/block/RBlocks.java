@@ -92,6 +92,11 @@ public final class RBlocks {
   public static final Block PINK_FLOWERBED = register("pink_flowerbed", PinkFlowerbed::new, new BlockSettings().material(Material.PLANTS));
   public static final Block HANGING_VINES = register("hanging_vines", HangingVines::new, new BlockSettings().material(Material.PLANTS));
 
+  public static final Block SALT = register("salt",SaltBlock::new, new BlockSettings().material(Material.SAND).hardness(1.0f).resistance(2.5f).soundType(SoundType.SAND));
+  public static final Block SALT_ON_SAND = register("salt_on_sand",SaltOnSand::new, new BlockSettings().material(Material.SAND).hardness(1.0f).resistance(2.5f).soundType(SoundType.SAND));
+
+
+
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
     Block block = blockSupplier.apply(new BlockSettings());
     block.setRegistryName(RGen.MOD_ID, name);

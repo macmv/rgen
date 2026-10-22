@@ -3,11 +3,20 @@ use rgen_placer::{chunk_placer, placer};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
-pub fn flat_desert(g: &mut BiomeBuilder) {
+pub fn hot_desert(g: &mut BiomeBuilder) {
+  g.id = biome![desert];
+  g.color = "#faffd1";
+  g.set_top_block(block![sand]);
+  g.add_layer(block![sand], 2, 3);
+  g.add_layer(block![sandstone], 5, 8);
+}
+
+pub fn desert(g: &mut BiomeBuilder) {
   g.id = biome![desert];
   g.color = "#E0705F";
   g.set_top_block(block![sand]);
-  g.add_layer(block![sandstone], 5, 8);
+  g.add_layer(block![sand], 1, 2);
+  g.add_layer(block![sandstone], 4, 6);
 
   g.place(
     "Large Cactus",
