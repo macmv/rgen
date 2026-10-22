@@ -15,19 +15,28 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
+  private static final Map<String, Block> aliases = new HashMap<>();
 
   public static final Block DERP_DOG = register("derp_dog", s -> s.createMat(Block::new));
   public static final Block LOOSE_ROCK = register("loose_rock", LooseRockBlock::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", PlantBlock::new, new BlockSettings().material(Material.GRASS).creativeTab(RCreativeTabs.DECORATIONS));
   // public static final Block MOSSY_STUMP = register("mossy_stump", Block::new, new BlockSettings().material(Material.WOOD));
+  // Backported blocks: where vanilla has the block, we use that. Otherwise, we register our own.
+  //? if vanilla_moss {
+  /*public static final Block MOSSY_CARPET = backport("mossy_carpet", net.minecraft.block.Blocks.MOSS_CARPET);
+  public static final Block MOSSY_BLOCK = backport("mossy_block", net.minecraft.block.Blocks.MOSS_BLOCK);*/
+  //?} else {
   public static final Block MOSSY_CARPET = register("mossy_carpet", MossCarpet::new, new BlockSettings().material(Material.CARPET).creativeTab(RCreativeTabs.DECORATIONS));
   public static final Block MOSSY_BLOCK = register("mossy_block", MossBlock::new, new BlockSettings().material(Material.GROUND));
+  //?}
   public static final Block MOSSY_COBBLESTONE_RGEN = register("mossy_cobblestone_rgen", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
   public static final Block MOSSY_STONE = register("mossy_stone", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
   public static final Block GRAVE_DIRT = register("grave_dirt", GraveDirtBlock::new, new BlockSettings().material(Material.GROUND).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(0.5f).resistance(2.5f).soundType(SoundType.GROUND));
@@ -161,6 +170,26 @@ public final class RBlocks {
     block.setUnlocalizedName(name);
     blocks.add(block);
     return block;
+  }
+
+  // Registers `block` (a vanilla block) as the stand in for our block named `name`.
+  //
+  // Nothing gets registered for it, but it can still be found with `byName("rgen:<name>")`, so the
+  // terrain generator can keep placing `rgen:<name>` on every version.
+  private static Block backport(String name, Block block) {
+    aliases.put(RGen.MOD_ID + ":" + name, block);
+    return block;
+  }
+
+  // Finds a block by its registry name, following the backports above. Returns null if there is no
+  // such block.
+  public static Block byName(String name) {
+    Block alias = aliases.get(name);
+    if (alias != null) {
+      return alias;
+    }
+
+    return Block.getBlockFromName(name);
   }
 
   public static void registerBlocks(IForgeRegistry<Block> reg) {
