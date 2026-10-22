@@ -173,7 +173,7 @@ mod tests {
     BlockState { block: b, state: StateOrProps::meta(state) }
   }
 
-  fn block_info(data: &BlockData, state: u8) -> BlockInfo {
+  fn block_info(data: &BlockData, state: u8) -> BlockInfo<'_> {
     BlockInfo { data, state: StateId(state.into()) }
   }
 

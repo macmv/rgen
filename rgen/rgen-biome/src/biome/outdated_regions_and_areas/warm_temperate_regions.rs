@@ -1,5 +1,5 @@
 use rgen_base::{biome, block};
-use rgen_placer::{chunk_placer, placer};
+use rgen_placer::placer;
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 

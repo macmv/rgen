@@ -1,7 +1,7 @@
 use rgen_base::{biome, block};
-use rgen_placer::{chunk_placer, placer};
+use rgen_placer::chunk_placer;
 
-use crate::builder::{BiomeBuilder, PlacerStage};
+use crate::builder::BiomeBuilder;
 
 pub fn blank(g: &mut BiomeBuilder) {
   g.id = biome![plains];

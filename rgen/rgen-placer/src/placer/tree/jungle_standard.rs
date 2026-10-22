@@ -125,9 +125,9 @@ impl Placer for BasicJungle {
             } else if rel_z == -1 {
               state.set_prop("facing", "south");
             }
-            let cocoaLoc = pos + Pos::new(rel_x, height - 5, rel_z);
-            if world.get(cocoaLoc) == block![air] || world.get(cocoaLoc) == block![cocoa] {
-              world.set(cocoaLoc, state);
+            let cocoa_loc = pos + Pos::new(rel_x, height - 5, rel_z);
+            if world.get(cocoa_loc) == block![air] || world.get(cocoa_loc) == block![cocoa] {
+              world.set(cocoa_loc, state);
             }
           }
         }
@@ -144,7 +144,7 @@ impl Placer for BasicJungle {
         if world.get(vineloc) == block![air] && rng.range(0..=1) == 0 {
           let mut is_space_to_place = false;
           let mut first_avilable_face = (false, "angle", (0, 0));
-          let mut aVine = self.vine;
+          let mut a_vine = self.vine;
           for side in [(1, 0, "east"), (0, 1, "south"), (-1, 0, "west"), (0, -1, "north")] {
             if world.get(vineloc + Pos::new(side.0, 0, side.1)) == self.leaves {
               //a working vine face was found
@@ -156,13 +156,13 @@ impl Placer for BasicJungle {
                 first_avilable_face.2 = (side.0, side.1)
               }
               // update vine with new prop
-              aVine.set_prop(side.2, true);
+              a_vine.set_prop(side.2, true);
             }
             // VINE can be placed
             if is_space_to_place {
-              world.set(vineloc, aVine);
-              let mut hangingVine = (self.vine);
-              hangingVine.set_prop(first_avilable_face.1, true);
+              world.set(vineloc, a_vine);
+              let mut hanging_vine = self.vine;
+              hanging_vine.set_prop(first_avilable_face.1, true);
               // set the above vine
               if (world.get(vineloc + Pos::new(0, 1, 0)) == block![air])
                 && world
@@ -170,12 +170,12 @@ impl Placer for BasicJungle {
                   != block![air]
                 && rng.range(0..=3) == 0
               {
-                world.set(vineloc + Pos::new(0, 1, 0), hangingVine);
+                world.set(vineloc + Pos::new(0, 1, 0), hanging_vine);
               }
               // add the long hanging vines
               for y in 1..rng.range(3..=6) {
                 if (world.get(vineloc + Pos::new(0, y * -1, 0)) == block![air]) {
-                  world.set(vineloc + Pos::new(0, y * -1, 0), hangingVine);
+                  world.set(vineloc + Pos::new(0, y * -1, 0), hanging_vine);
                 } else {
                   break;
                 }

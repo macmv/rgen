@@ -41,7 +41,7 @@ impl PartialWorldStorage for &mut StagedWorldStorage {
 pub struct UndoError;
 
 impl PartialWorld<'_> {
-  pub fn get(&self, pos: Pos) -> BlockInfo { self.info.decode(self.storage.get(pos)) }
+  pub fn get(&self, pos: Pos) -> BlockInfo<'_> { self.info.decode(self.storage.get(pos)) }
 
   pub fn set(&mut self, pos: Pos, state: impl Into<BlockState>) {
     if let Some(frame) = self.undo_stack.last_mut() {

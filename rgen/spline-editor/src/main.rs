@@ -158,7 +158,7 @@ fn plot_spline(plot_ui: &mut PlotUi, spline: &Spline<Vec<(f64, f64)>>, scale: f6
   );
 
   let points =
-    Points::new(spline.storage.iter().map(|k| [k.0, k.1 * scale]).collect::<Vec<_>>()).radius(5.0);
+    Points::new(spline.storage.iter().map(|k| [k.0, k.1 * scale]).collect::<Vec<_>>()).radius(5.0_f32);
 
   plot_ui.line(line);
   plot_ui.points(points);

@@ -84,7 +84,7 @@ impl WorldViewer {
     *self_mode = mode;
   }
 
-  pub fn read_chunks(&self) -> RwLockReadGuard<HashMap<RegionPos, RenderBuffer>> {
+  pub fn read_chunks(&self) -> RwLockReadGuard<'_, HashMap<RegionPos, RenderBuffer>> {
     self.chunks.read()
   }
 

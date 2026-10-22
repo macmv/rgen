@@ -156,7 +156,7 @@ impl PropMap {
   pub fn len(&self) -> usize { self.entries.partition_point(|(e, _)| e.is_some()) }
   pub fn is_empty(&self) -> bool { self.len() == 0 }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue<'_>)> + '_ {
     self.entries[0..self.len()]
       .iter()
       .copied()
@@ -234,7 +234,7 @@ impl PropMapOwned {
     PropMapOwned { entries: [const { (String::new(), PropValueOwned::Bool(false)) }; 8] }
   }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue<'_>)> + '_ {
     self.entries.iter().filter_map(|(key, value)| {
       if key.is_empty() { None } else { Some((&**key, value.as_value())) }
     })
@@ -288,7 +288,7 @@ impl PartialEq<PropMapOwned> for PropMapOwned {
 }
 
 impl PropValueOwned {
-  pub fn as_value(&self) -> PropValue {
+  pub fn as_value(&self) -> PropValue<'_> {
     match self {
       PropValueOwned::Bool(value) => PropValue::Bool(*value),
       PropValueOwned::Int(value) => PropValue::Int(*value),

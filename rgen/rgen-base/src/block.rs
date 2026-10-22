@@ -208,7 +208,7 @@ pub struct BlockInfo<'a> {
 
 impl BlockInfo<'_> {
   // NB: Do not use! Only meant for `rgen-world` to construct.
-  pub fn new(data: &BlockData, state: StateId) -> BlockInfo { BlockInfo { data, state } }
+  pub fn new(data: &BlockData, state: StateId) -> BlockInfo<'_> { BlockInfo { data, state } }
 
   pub fn block_kind(&self) -> BlockKind { self.data.block.unwrap_or(BlockKind::Air) }
   pub fn meta(&self) -> u8 { self.state.meta() }

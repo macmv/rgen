@@ -62,7 +62,7 @@ pub type BlockInfoSupplier = InfoSupplier<BlockKind, BlockId, BlockData>;
 pub type BiomeInfoSupplier = InfoSupplier<Biome, BiomeId, ()>;
 
 impl BlockInfoSupplier {
-  pub fn decode(&self, state: StateId) -> BlockInfo {
+  pub fn decode(&self, state: StateId) -> BlockInfo<'_> {
     BlockInfo::new(self.get(state.block()), state)
   }
 

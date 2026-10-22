@@ -1,7 +1,6 @@
-use crate::{Placer, Random, Result, Rng, rng};
+use crate::{Placer, Random, Result, Rng};
 use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
-use std::collections::HashMap;
 
 pub struct BetterBush {
   pub place_above:   BlockFilter,

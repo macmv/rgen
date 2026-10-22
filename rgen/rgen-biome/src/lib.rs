@@ -545,7 +545,7 @@ impl WorldBiomes {
     }
   }
 
-  pub fn height_info(&self, pos: Pos) -> HeightInfo {
+  pub fn height_info(&self, pos: Pos) -> HeightInfo<'_> {
     let mut info =
       HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, underground: None };
     info.change_xz();
