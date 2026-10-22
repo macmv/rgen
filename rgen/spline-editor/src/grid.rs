@@ -1,13 +1,18 @@
 use eframe::egui::Color32;
 use rgen_biome::RawNoise;
 
-use crate::Splines;
+use crate::{
+  Splines,
+  chunks::{CHUNK, ChunkUpdate, Chunks},
+};
 
 pub const SEA_LEVEL: f64 = 64.0;
 
 /// The width of a chunk, in blocks. This is the same size as the regions in
 /// `rgen-viewer`.
 pub const TILE_BLOCKS: usize = 128;
+
+const _: () = assert!(TILE_BLOCKS % CHUNK == 0);
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Layer {
@@ -96,9 +101,11 @@ pub struct Grid {
   pub height: Vec<f32>,
   pub colors: Vec<Color32>,
 
+  /// The same terrain as 3D chunks, for the ray marcher.
+  pub chunks: Chunks,
+
   loaded:           Vec<bool>,
   pub loaded_count: usize,
-  max_height:       f32,
 }
 
 /// Terrain to copy into the GPU's textures.
@@ -107,6 +114,10 @@ pub enum Upload {
   Full { size: [usize; 2], heights: Vec<f32>, colors: Vec<u8> },
   /// Replaces one square of both textures.
   Tile { x: usize, y: usize, size: usize, heights: Vec<f32>, colors: Vec<u8> },
+  /// Empties the chunks, and sizes them for a new grid.
+  ResetChunks { dims: [usize; 3] },
+  /// Changes some chunks.
+  Chunks(Vec<ChunkUpdate>),
 }
 
 fn pack(raw: RawNoise) -> [f32; 3] {
@@ -122,8 +133,9 @@ fn unpack(raw: [f32; 3]) -> RawNoise {
 }
 
 impl Grid {
-  /// Makes a grid where nothing has been generated.
-  pub fn new(origin: [f64; 2], tiles: [usize; 2]) -> Self {
+  /// Makes a grid where nothing has been generated. `brick_capacity` is the
+  /// number of chunks the GPU can hold blocks for.
+  pub fn new(origin: [f64; 2], tiles: [usize; 2], brick_capacity: usize) -> Self {
     let size = [tiles[0] * TILE_BLOCKS, tiles[1] * TILE_BLOCKS];
     let len = size[0] * size[1];
     Grid {
@@ -133,9 +145,9 @@ impl Grid {
       raw: vec![[0.0; 3]; len],
       height: vec![-1.0; len],
       colors: vec![Color32::BLACK; len],
+      chunks: Chunks::new(size, brick_capacity),
       loaded: vec![false; tiles[0] * tiles[1]],
       loaded_count: 0,
-      max_height: 0.0,
     }
   }
 
@@ -148,9 +160,6 @@ impl Grid {
   /// The size of the grid in blocks, along x and z.
   pub fn extent(&self) -> [f32; 2] { [self.size[0] as f32, self.size[1] as f32] }
 
-  /// The tallest column, in blocks.
-  pub fn max_height(&self) -> f32 { self.max_height }
-
   /// The noise at a column.
   pub fn raw(&self, idx: usize) -> Option<RawNoise> { self.raw.get(idx).copied().map(unpack) }
 
@@ -159,7 +168,11 @@ impl Grid {
     [self.origin[0] + i as f64, self.origin[1] + j as f64]
   }
 
-  /// The upload for the entire grid.
+  /// The upload that empties the chunks. This goes before `full_upload` for a
+  /// new grid.
+  pub fn reset_upload(&self) -> Upload { Upload::ResetChunks { dims: self.chunks.dims } }
+
+  /// The upload for the columns of the entire grid.
   pub fn full_upload(&self) -> Upload {
     Upload::Full {
       size:    self.size,
@@ -178,7 +191,7 @@ impl Grid {
     splines: &Splines,
     layer: Layer,
     flatten_water: bool,
-  ) -> Upload {
+  ) -> Vec<Upload> {
     let mut heights = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
     let mut colors = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS * 4);
 
@@ -191,7 +204,6 @@ impl Grid {
         self.raw[idx] = pack(sample);
         self.height[idx] = height;
         self.colors[idx] = color;
-        self.max_height = self.max_height.max(height);
 
         heights.push(height);
         colors.extend(color.to_array());
@@ -203,11 +215,39 @@ impl Grid {
       self.loaded_count += 1;
     }
 
-    Upload::Tile { x: tx * TILE_BLOCKS, y: tz * TILE_BLOCKS, size: TILE_BLOCKS, heights, colors }
+    let mut updates = vec![];
+    self.rebuild_chunks(tx, tz, &mut updates);
+
+    vec![
+      Upload::Tile { x: tx * TILE_BLOCKS, y: tz * TILE_BLOCKS, size: TILE_BLOCKS, heights, colors },
+      Upload::Chunks(updates),
+    ]
   }
 
-  /// Recalculates every loaded column, after the splines or layer change.
-  pub fn recompute_all(&mut self, splines: &Splines, layer: Layer, flatten_water: bool) {
+  /// Rebuilds the chunks above one tile of columns.
+  fn rebuild_chunks(&mut self, tx: usize, tz: usize, out: &mut Vec<ChunkUpdate>) {
+    let per_tile = TILE_BLOCKS / CHUNK;
+    for cz in 0..per_tile {
+      for cx in 0..per_tile {
+        self.chunks.rebuild_column(
+          tx * per_tile + cx,
+          tz * per_tile + cz,
+          &self.height,
+          self.size[0],
+          out,
+        );
+      }
+    }
+  }
+
+  /// Recalculates every loaded column, after the splines or layer change. This
+  /// returns the chunks that changed.
+  pub fn recompute_all(
+    &mut self,
+    splines: &Splines,
+    layer: Layer,
+    flatten_water: bool,
+  ) -> Vec<ChunkUpdate> {
     let [nx, _] = self.size;
     let tiles_x = self.tiles[0];
     let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
@@ -215,7 +255,7 @@ impl Grid {
 
     let (raw, loaded) = (&self.raw, &self.loaded);
 
-    let max_height = std::thread::scope(|scope| {
+    std::thread::scope(|scope| {
       let handles: Vec<_> = self
         .height
         .chunks_mut(rows_per_thread * nx)
@@ -223,9 +263,7 @@ impl Grid {
         .enumerate()
         .map(|(chunk, (heights, colors))| {
           scope.spawn(move || {
-            let mut max = 0.0f32;
-            for (r, (hrow, crow)) in heights.chunks_mut(nx).zip(colors.chunks_mut(nx)).enumerate()
-            {
+            for (r, (hrow, crow)) in heights.chunks_mut(nx).zip(colors.chunks_mut(nx)).enumerate() {
               let j = chunk * rows_per_thread + r;
               for i in 0..nx {
                 if !loaded[(j / TILE_BLOCKS) * tiles_x + i / TILE_BLOCKS] {
@@ -235,27 +273,30 @@ impl Grid {
                 let (h, c) = Self::column(sample, splines, layer, flatten_water);
                 hrow[i] = h;
                 crow[i] = c;
-                max = max.max(h);
               }
             }
-            max
           })
         })
         .collect();
 
-      handles.into_iter().map(|h| h.join().unwrap()).fold(0.0, f32::max)
+      for handle in handles {
+        handle.join().unwrap();
+      }
     });
 
-    self.max_height = max_height;
+    let mut updates = vec![];
+    for tz in 0..self.tiles[1] {
+      for tx in 0..self.tiles[0] {
+        if self.loaded[tz * self.tiles[0] + tx] {
+          self.rebuild_chunks(tx, tz, &mut updates);
+        }
+      }
+    }
+    updates
   }
 
   /// The height and color of one column.
-  fn column(
-    raw: RawNoise,
-    splines: &Splines,
-    layer: Layer,
-    flatten_water: bool,
-  ) -> (f32, Color32) {
+  fn column(raw: RawNoise, splines: &Splines, layer: Layer, flatten_water: bool) -> (f32, Color32) {
     let parts = splines.parts(raw);
 
     let height = if flatten_water && parts.height < SEA_LEVEL {
@@ -274,72 +315,12 @@ impl Grid {
     (height, color)
   }
 
-  /// Casts a ray through the columns, and returns the first column it hits.
-  /// The ray is in grid space: one unit is one block, and the grid covers
+  /// Casts a ray through the blocks, and returns the column of the first one it
+  /// hits. The ray is in grid space: one unit is one block, and the grid covers
   /// `0..extent` on x and z. This is the same walk the shader does.
   pub fn raycast(&self, origin: [f32; 3], dir: [f32; 3]) -> Option<usize> {
-    let extent = self.extent();
-    let top = self.max_height();
-
-    // Clip the ray to the box around the grid.
-    let (mut t_in, mut t_out) = (0.0f32, f32::INFINITY);
-    for (axis, max) in [(0, extent[0]), (1, top), (2, extent[1])] {
-      if dir[axis].abs() < 1e-9 {
-        if origin[axis] < 0.0 || origin[axis] > max {
-          return None;
-        }
-        continue;
-      }
-      let a = (0.0 - origin[axis]) / dir[axis];
-      let b = (max - origin[axis]) / dir[axis];
-      t_in = t_in.max(a.min(b));
-      t_out = t_out.min(a.max(b));
-    }
-    if t_in >= t_out {
-      return None;
-    }
-
-    let start = [origin[0] + dir[0] * (t_in + 1e-3), origin[2] + dir[2] * (t_in + 1e-3)];
-    let size = [self.size[0] as i32, self.size[1] as i32];
-    let mut cell = [
-      (start[0].floor() as i32).clamp(0, size[0] - 1),
-      (start[1].floor() as i32).clamp(0, size[1] - 1),
-    ];
-    let d = [dir[0], dir[2]];
-    let o = [origin[0], origin[2]];
-
-    let dir_sign = [if d[0] >= 0.0 { 1 } else { -1 }, if d[1] >= 0.0 { 1 } else { -1 }];
-    let t_delta = [1.0 / d[0].abs().max(1e-9), 1.0 / d[1].abs().max(1e-9)];
-    let mut t_max = [0.0; 2];
-    for a in 0..2 {
-      let boundary = (cell[a] + (dir_sign[a] + 1) / 2) as f32;
-      t_max[a] = if d[a].abs() < 1e-9 { f32::INFINITY } else { (boundary - o[a]) / d[a] };
-    }
-
-    let mut t_cur = t_in;
-    for _ in 0..(size[0] + size[1]) * 2 {
-      let idx = self.index(cell[0] as usize, cell[1] as usize);
-      let h = self.height[idx];
-      let t_exit = t_max[0].min(t_max[1]);
-
-      let y_in = origin[1] + dir[1] * t_cur;
-      let y_out = origin[1] + dir[1] * t_exit;
-      if y_in < h || y_out < h {
-        return Some(idx);
-      }
-      if t_exit > t_out {
-        return None;
-      }
-
-      let a = if t_max[0] < t_max[1] { 0 } else { 1 };
-      cell[a] += dir_sign[a];
-      t_cur = t_max[a];
-      t_max[a] += t_delta[a];
-      if cell[a] < 0 || cell[a] >= size[a] {
-        return None;
-      }
-    }
-    None
+    let [x, _, z] = self.chunks.raycast(origin, dir)?;
+    Some(self.index(x, z))
   }
 }
 

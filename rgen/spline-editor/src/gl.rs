@@ -1,6 +1,13 @@
-use eframe::{egui::PaintCallbackInfo, glow, glow::HasContext};
+use eframe::{
+  egui::{self, PaintCallbackInfo},
+  glow,
+  glow::HasContext,
+};
 
-use crate::grid::Upload;
+use crate::{
+  chunks::{CHUNK, ChunkUpdate},
+  grid::Upload,
+};
 
 const VERTEX: &str = "#version 330 core
 void main() {
@@ -12,6 +19,11 @@ void main() {
 
 const FRAGMENT: &str = include_str!("voxel.glsl");
 
+/// The most bricks that are copied to the GPU in one frame. Copying them all at
+/// once stalls the driver, and can freeze the whole desktop, so the rest wait
+/// for later frames.
+const BRICKS_PER_FRAME: usize = 96;
+
 /// Everything the shader needs to draw one frame.
 #[derive(Clone, Copy)]
 pub struct Frame {
@@ -20,7 +32,6 @@ pub struct Frame {
   pub right:      [f32; 3],
   pub up:         [f32; 3],
   pub pixel:      f32,
-  pub max_height: f32,
   pub hover:      Option<(i32, i32)>,
 }
 
@@ -31,13 +42,28 @@ pub struct Renderer {
   vao:     glow::VertexArray,
   heights: glow::Texture,
   colors:  glow::Texture,
+  /// One `u32` per chunk: empty, solid, or the chunk's slot in the atlas.
+  table:   glow::Texture,
+  /// The blocks of every chunk that has any, in slots of `CHUNK` cubed.
+  bricks:  glow::Texture,
+
+  /// What `table` holds. It's uploaded in one piece, rather than a texel at a
+  /// time, as small writes to an integer texture are slow.
+  table_data:  Vec<u32>,
+  table_dirty: bool,
 
   size:    [i32; 2],
+  /// The number of chunks along x, y and z.
+  chunks:  [i32; 3],
+  /// The number of slots along each side of the atlas.
+  side:    i32,
   pending: Vec<Upload>,
+  /// Repainted while uploads are waiting, so that they keep going.
+  ctx:     egui::Context,
 }
 
 impl Renderer {
-  pub fn new(gl: &glow::Context) -> Result<Self, String> {
+  pub fn new(gl: &glow::Context, ctx: egui::Context) -> Result<Self, String> {
     unsafe {
       let program = gl.create_program()?;
       let mut shaders = vec![];
@@ -70,31 +96,158 @@ impl Renderer {
         Ok(texture)
       };
 
+      let make_volume = |gl: &glow::Context| -> Result<glow::Texture, String> {
+        let texture = gl.create_texture()?;
+        gl.bind_texture(glow::TEXTURE_3D, Some(texture));
+        gl.tex_parameter_i32(glow::TEXTURE_3D, glow::TEXTURE_MIN_FILTER, glow::NEAREST as i32);
+        gl.tex_parameter_i32(glow::TEXTURE_3D, glow::TEXTURE_MAG_FILTER, glow::NEAREST as i32);
+        Ok(texture)
+      };
+
+      // The atlas is a cube of slots, as big as the driver allows, up to 32
+      // slots along a side (1 GiB).
+      let max = gl.get_parameter_i32(glow::MAX_3D_TEXTURE_SIZE);
+      let side = (max / CHUNK as i32).clamp(1, 32);
+      let edge = side * CHUNK as i32;
+
+      let bricks = make_volume(gl)?;
+      gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+      gl.tex_image_3d(
+        glow::TEXTURE_3D,
+        0,
+        glow::R8UI as i32,
+        edge,
+        edge,
+        edge,
+        0,
+        glow::RED_INTEGER,
+        glow::UNSIGNED_BYTE,
+        None,
+      );
+
       Ok(Renderer {
         program,
         vao,
         heights: make_texture(gl)?,
         colors: make_texture(gl)?,
+        table: make_volume(gl)?,
+        bricks,
+        table_data: vec![],
+        table_dirty: false,
         size: [0, 0],
+        chunks: [0, 0, 0],
+        side,
         pending: vec![],
+        ctx,
       })
     }
   }
 
+  /// The number of chunks the atlas has room for blocks of.
+  pub fn brick_capacity(&self) -> usize { (self.side as usize).pow(3) }
+
   /// Queues new terrain, which is uploaded on the next paint. A full upload
-  /// replaces everything queued before it.
+  /// replaces the columns queued before it, but not the chunks. Emptying the
+  /// chunks replaces everything.
   pub fn queue(&mut self, upload: Upload) {
-    if matches!(upload, Upload::Full { .. }) {
-      self.pending.clear();
+    match upload {
+      Upload::Full { .. } => {
+        self.pending.retain(|u| matches!(u, Upload::ResetChunks { .. } | Upload::Chunks(_)))
+      }
+      Upload::ResetChunks { .. } => self.pending.clear(),
+      _ => {}
     }
     self.pending.push(upload);
+  }
+
+  /// Where a slot starts in the atlas, in texels.
+  fn slot_origin(&self, slot: u32) -> [i32; 3] {
+    let (slot, side) = (slot as i32, self.side);
+    let chunk = CHUNK as i32;
+    [slot % side * chunk, slot / side % side * chunk, slot / (side * side) * chunk]
+  }
+
+  /// Copies the bricks of some updates to the atlas, and records where they
+  /// are in the table, which is uploaded later.
+  fn upload_chunks(&mut self, gl: &glow::Context, updates: &[ChunkUpdate]) {
+    let [w, h, _] = self.chunks.map(|c| c as usize);
+    for update in updates {
+      if let Some(brick) = &update.brick {
+        let [x, y, z] = self.slot_origin(update.value - crate::chunks::FIRST_SLOT);
+        unsafe {
+          gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
+          gl.tex_sub_image_3d(
+            glow::TEXTURE_3D,
+            0,
+            x,
+            y,
+            z,
+            CHUNK as i32,
+            CHUNK as i32,
+            CHUNK as i32,
+            glow::RED_INTEGER,
+            glow::UNSIGNED_BYTE,
+            glow::PixelUnpackData::Slice(brick),
+          );
+        }
+      }
+
+      let [x, y, z] = update.chunk;
+      self.table_data[x + w * (y + h * z)] = update.value;
+    }
+    self.table_dirty = true;
   }
 
   pub fn paint(&mut self, info: &PaintCallbackInfo, gl: &glow::Context, frame: &Frame) {
     unsafe {
       gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
-      for upload in std::mem::take(&mut self.pending) {
+      let mut budget = BRICKS_PER_FRAME;
+      let mut queue = std::mem::take(&mut self.pending).into_iter();
+      while let Some(upload) = queue.next() {
         match upload {
+          Upload::ResetChunks { dims } => {
+            self.chunks = dims.map(|d| d as i32);
+            let [w, h, d] = self.chunks;
+            self.table_data = vec![0; (w * h * d) as usize];
+            self.table_dirty = false;
+
+            gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
+            gl.tex_image_3d(
+              glow::TEXTURE_3D,
+              0,
+              glow::R32UI as i32,
+              w,
+              h,
+              d,
+              0,
+              glow::RED_INTEGER,
+              glow::UNSIGNED_INT,
+              Some(&vec![0u8; (w * h * d) as usize * 4]),
+            );
+          }
+          Upload::Chunks(mut updates) => {
+            // Copy as many bricks as are left in this frame's budget, and
+            // leave the rest, and everything after them, for the next frame.
+            let (mut bricks, mut take) = (0, updates.len());
+            for (i, update) in updates.iter().enumerate() {
+              if update.brick.is_some() {
+                if bricks == budget {
+                  take = i;
+                  break;
+                }
+                bricks += 1;
+              }
+            }
+            let rest = updates.split_off(take);
+            self.upload_chunks(gl, &updates);
+            budget -= bricks;
+
+            if !rest.is_empty() {
+              self.pending.push(Upload::Chunks(rest));
+              self.pending.extend(queue);
+              break;
+            }
+          }
           Upload::Full { size, heights, colors } => {
             self.size = [size[0] as i32, size[1] as i32];
 
@@ -155,7 +308,30 @@ impl Renderer {
           }
         }
       }
-      if self.size[0] == 0 {
+
+      if self.table_dirty {
+        let [w, h, d] = self.chunks;
+        gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
+        gl.tex_sub_image_3d(
+          glow::TEXTURE_3D,
+          0,
+          0,
+          0,
+          0,
+          w,
+          h,
+          d,
+          glow::RED_INTEGER,
+          glow::UNSIGNED_INT,
+          glow::PixelUnpackData::Slice(bytes_of_u32(&self.table_data)),
+        );
+        self.table_dirty = false;
+      }
+      if !self.pending.is_empty() {
+        self.ctx.request_repaint();
+      }
+
+      if self.size[0] == 0 || self.chunks[0] == 0 {
         return;
       }
 
@@ -170,10 +346,18 @@ impl Renderer {
       gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
       gl.active_texture(glow::TEXTURE1);
       gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+      gl.active_texture(glow::TEXTURE2);
+      gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
+      gl.active_texture(glow::TEXTURE3);
+      gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
 
       let uniform = |name: &str| gl.get_uniform_location(self.program, name);
       gl.uniform_1_i32(uniform("uHeight").as_ref(), 0);
       gl.uniform_1_i32(uniform("uColor").as_ref(), 1);
+      gl.uniform_1_i32(uniform("uTable").as_ref(), 2);
+      gl.uniform_1_i32(uniform("uBricks").as_ref(), 3);
+      gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
+      gl.uniform_1_i32(uniform("uAtlasSide").as_ref(), self.side);
       gl.uniform_3_f32_slice(uniform("uEye").as_ref(), &frame.eye);
       gl.uniform_3_f32_slice(uniform("uForward").as_ref(), &frame.forward);
       gl.uniform_3_f32_slice(uniform("uRight").as_ref(), &frame.right);
@@ -187,7 +371,6 @@ impl Renderer {
       );
       gl.uniform_1_f32(uniform("uPixel").as_ref(), frame.pixel);
       gl.uniform_2_i32(uniform("uSize").as_ref(), self.size[0], self.size[1]);
-      gl.uniform_1_f32(uniform("uMaxHeight").as_ref(), frame.max_height);
       let (hx, hz) = frame.hover.unwrap_or((-1, -1));
       gl.uniform_2_i32(uniform("uHover").as_ref(), hx, hz);
 
@@ -201,4 +384,9 @@ impl Renderer {
 fn bytes_of(floats: &[f32]) -> &[u8] {
   // SAFETY: f32 has no padding, and u8 has no alignment requirement.
   unsafe { std::slice::from_raw_parts(floats.as_ptr().cast(), floats.len() * 4) }
+}
+
+fn bytes_of_u32(values: &[u32]) -> &[u8] {
+  // SAFETY: u32 has no padding, and u8 has no alignment requirement.
+  unsafe { std::slice::from_raw_parts(values.as_ptr().cast(), values.len() * 4) }
 }

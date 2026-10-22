@@ -44,8 +44,11 @@ pub struct Pool {
 
 impl Pool {
   pub fn new(ctx: &egui::Context, results: mpsc::Sender<TileResult>) -> Pool {
-    let queue =
-      Arc::new(Queue { jobs: Mutex::new(vec![]), ready: Condvar::new(), epoch: AtomicU64::new(0) });
+    let queue = Arc::new(Queue {
+      jobs:  Mutex::new(vec![]),
+      ready: Condvar::new(),
+      epoch: AtomicU64::new(0),
+    });
 
     let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
     for _ in 0..threads {
@@ -115,10 +118,7 @@ impl Pool {
         noise: noise.clone(),
         tx,
         tz,
-        min: [
-          origin[0] + (tx * TILE_BLOCKS) as f64,
-          origin[1] + (tz * TILE_BLOCKS) as f64,
-        ],
+        min: [origin[0] + (tx * TILE_BLOCKS) as f64, origin[1] + (tz * TILE_BLOCKS) as f64],
       })
       .collect();
 

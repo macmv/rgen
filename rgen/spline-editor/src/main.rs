@@ -3,15 +3,16 @@ use std::{
   sync::{Arc, Mutex, mpsc},
 };
 
-use eframe::egui_glow;
-use eframe::egui::{
-  self, Align2, Color32, DragValue, FontId, Pos2, Rect, Sense, Stroke, Vec2,
+use eframe::{
+  egui::{self, Align2, Color32, DragValue, FontId, Pos2, Rect, Sense, Stroke, Vec2},
+  egui_glow,
 };
 use egui_plot::{HLine, Legend, Line, Plot, Points, VLine};
 use rgen_biome::{HeightParts, RawNoise, TerrainNoise};
 use rgen_spline::{Cosine, Spline};
 
 mod camera;
+mod chunks;
 mod gl;
 mod grid;
 mod pool;
@@ -30,7 +31,7 @@ fn main() -> Result<(), eframe::Error> {
     options,
     Box::new(|cc| {
       let gl = cc.gl.as_ref().expect("the terrain view needs OpenGL");
-      let renderer = gl::Renderer::new(gl).expect("failed to build the terrain shader");
+      let renderer = gl::Renderer::new(gl, cc.egui_ctx.clone()).expect("failed to build the terrain shader");
       Box::new(App::new(&cc.egui_ctx, Arc::new(Mutex::new(renderer))))
     }),
   )
@@ -135,20 +136,20 @@ struct App {
   saved:         Splines,
   compare_saved: bool,
 
-  seed:        u64,
+  seed:         u64,
   /// The chunk in the middle of the terrain.
-  center_tile: [i32; 2],
+  center_tile:  [i32; 2],
   /// The number of chunks along x and z that are being generated.
-  tiles:       [usize; 2],
+  tiles:        [usize; 2],
   /// The values of the size sliders. These are only applied once the slider is
   /// let go, as a new size regenerates everything.
   slider_tiles: [usize; 2],
 
-  noise:    Arc<TerrainNoise>,
-  pool:     Pool,
-  results:  mpsc::Receiver<TileResult>,
+  noise:     Arc<TerrainNoise>,
+  pool:      Pool,
+  results:   mpsc::Receiver<TileResult>,
   /// Bumped whenever a new region is started, so that stale chunks are ignored.
-  epoch:    u64,
+  epoch:     u64,
   /// What the current region was generated with.
   requested: Option<(u64, [i32; 2], [usize; 2])>,
 
@@ -212,8 +213,10 @@ impl eframe::App for App {
     if self.dirty {
       let splines = if self.compare_saved { self.saved.clone() } else { self.splines.clone() };
       if let Some(grid) = &mut self.grid {
-        grid.recompute_all(&splines, self.layer, self.flatten_water);
-        self.renderer.lock().unwrap().queue(grid.full_upload());
+        let updates = grid.recompute_all(&splines, self.layer, self.flatten_water);
+        let mut renderer = self.renderer.lock().unwrap();
+        renderer.queue(grid.full_upload());
+        renderer.queue(grid::Upload::Chunks(updates));
       }
       self.dirty = false;
     }
@@ -254,8 +257,11 @@ impl App {
     self.requested = Some(key);
     self.epoch += 1;
 
-    let grid = Grid::new(self.origin(), self.tiles);
-    self.renderer.lock().unwrap().queue(grid.full_upload());
+    let mut renderer = self.renderer.lock().unwrap();
+    let grid = Grid::new(self.origin(), self.tiles, renderer.brick_capacity());
+    renderer.queue(grid.reset_upload());
+    renderer.queue(grid.full_upload());
+    drop(renderer);
     self.pool.start_region(self.epoch, &self.noise, grid.origin, self.tiles);
     self.grid = Some(grid);
   }
@@ -273,9 +279,11 @@ impl App {
         continue;
       }
 
-      let upload =
-        grid.set_tile(tile.tx, tile.tz, &tile.raw, splines, self.layer, self.flatten_water);
-      renderer.queue(upload);
+      for upload in
+        grid.set_tile(tile.tx, tile.tz, &tile.raw, splines, self.layer, self.flatten_water)
+      {
+        renderer.queue(upload);
+      }
       received += 1;
     }
 
@@ -303,9 +311,8 @@ impl App {
 
       for (axis, label) in ["Width (x)", "Height (z)"].into_iter().enumerate() {
         ui.label(label);
-        let response = ui.add(
-          egui::Slider::new(&mut self.slider_tiles[axis], 1..=MAX_TILES).suffix(" chunks"),
-        );
+        let response =
+          ui.add(egui::Slider::new(&mut self.slider_tiles[axis], 1..=MAX_TILES).suffix(" chunks"));
         if response.drag_released() || (response.changed() && !response.dragged()) {
           self.tiles[axis] = self.slider_tiles[axis];
         }
@@ -322,6 +329,12 @@ impl App {
       let total = self.tiles[0] * self.tiles[1];
       ui.label(if done == total { "done".to_string() } else { format!("{done} / {total}") });
       ui.end_row();
+
+      if self.grid.as_ref().is_some_and(|g| g.chunks.overflowed) {
+        ui.label("Warning");
+        ui.colored_label(Color32::from_rgb(255, 150, 60), "out of chunk slots");
+        ui.end_row();
+      }
     });
 
     egui::ComboBox::from_label("Layer").selected_text(self.layer.name()).show_ui(ui, |ui| {
@@ -464,7 +477,6 @@ impl App {
       right:      view.right_scaled(rect.aspect_ratio()),
       up:         view.up_scaled(),
       pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
-      max_height: grid.max_height() + 1.0,
       hover:      self.hover.map(|idx| {
         let (i, j) = grid.coords(idx);
         (i as i32, j as i32)
@@ -490,11 +502,7 @@ impl App {
           h = h.max(SEA_LEVEL.floor() as f32);
         }
         view
-          .project([
-            (s.x - grid.origin[0]) as f32,
-            h + 1.0,
-            (s.z - grid.origin[1]) as f32,
-          ])
+          .project([(s.x - grid.origin[0]) as f32, h + 1.0, (s.z - grid.origin[1]) as f32])
           .map(|p| p.0)
       })
       .collect();
