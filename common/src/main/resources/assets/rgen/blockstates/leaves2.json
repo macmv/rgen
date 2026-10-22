@@ -35,6 +35,18 @@
     },
     "check_decay=false,decayable=false,variant=dead": {
       "model": "rgen:wood/dead/dead_leaves"
+    },
+    "check_decay=true,decayable=true,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_leaves"
+    },
+    "check_decay=true,decayable=false,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_leaves"
+    },
+    "check_decay=false,decayable=true,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_leaves"
+    },
+    "check_decay=false,decayable=false,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_leaves"
     }
   }
 }

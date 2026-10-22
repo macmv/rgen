@@ -45,6 +45,7 @@ public final class RBlocks {
   public static final Block MANGROVE_FENCE = register("mangrove_fence", s -> new RWoodFence(s, LogType.MANGROVE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block LAVENDER_TREE_FENCE = register("lavender_tree_fence", s -> new RWoodFence(s, LogType.LAVENDER_TREE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block DEAD_FENCE = register("dead_fence", s -> new RWoodFence(s, LogType.DEAD), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block BURNED_TREE_FENCE = register("burned_tree_fence", s -> new RWoodFence(s, LogType.BURNED_TREE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
 
   public static final Block FIR_FENCE_GATE = register("fir_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.SPRUCE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block PALM_FENCE_GATE = register("palm_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.JUNGLE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
@@ -53,10 +54,12 @@ public final class RBlocks {
   public static final Block MANGROVE_FENCE_GATE = register("mangrove_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.JUNGLE), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block LAVENDER_TREE_FENCE_GATE = register("lavender_tree_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.ACACIA), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block DEAD_FENCE_GATE = register("dead_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.DARK_OAK), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block BURNED_TREE_FENCE_GATE = register("burned_tree_fence_gate", s -> new RWoodFenceGate(s, BlockPlanks.EnumType.DARK_OAK), new BlockSettings().material(Material.WOOD).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(2.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block LAVENDER_TREE_STAIRS = register("lavender_tree_stairs", s -> new RStairs(s, LogType.LAVENDER_TREE), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
   // Stairs
   // public static final Block BAMBOO_STAIRS = register("bamboo_stairs", new BambooStairs());
   public static final Block DEAD_STAIRS = register("dead_stairs", s -> new RStairs(s, LogType.DEAD), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
+  public static final Block BURNED_TREE_STAIRS = register("burned_tree_stairs", s -> new RStairs(s, LogType.BURNED_TREE), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
   public static final Block MANGROVE_STAIRS = register("mangrove_stairs", s -> new RStairs(s, LogType.MANGROVE), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
   public static final Block CEDAR_STAIRS = register("cedar_stairs", s -> new RStairs(s, LogType.CEDAR), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
   public static final Block CHERRY_STAIRS = register("cherry_stairs", s -> new RStairs(s, LogType.CHERRY), new BlockSettings().material(Material.WOOD).hardness(2.0f).soundType(SoundType.WOOD));
@@ -65,6 +68,7 @@ public final class RBlocks {
 
   // Doors
   public static final Block DEAD_DOOR = register("dead_door", RDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).soundType(SoundType.WOOD));
+  public static final Block BURNED_TREE_DOOR = register("burned_tree_door", RDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).soundType(SoundType.WOOD));
   public static final Block MANGROVE_DOOR = register("mangrove_door", RDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).soundType(SoundType.WOOD));
   public static final Block BAMBOO_DOOR = register("bamboo_door", RDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).soundType(SoundType.WOOD));
   public static final Block CEDAR_DOOR = register("cedar_door", RDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).soundType(SoundType.WOOD));
@@ -75,6 +79,7 @@ public final class RBlocks {
 
   // TrapDoors
   public static final Block DEAD_TRAPDOOR = register("dead_trapdoor", RTrapDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block BURNED_TREE_TRAPDOOR = register("burned_tree_trapdoor", RTrapDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block MANGROVE_TRAPDOOR = register("mangrove_trapdoor", RTrapDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block CEDAR_TRAPDOOR = register("cedar_trapdoor", RTrapDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block CHERRY_TRAPDOOR = register("cherry_trapdoor", RTrapDoor::new, new BlockSettings().material(Material.WOOD).hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
@@ -98,6 +103,7 @@ public final class RBlocks {
   public static final Block GLOW_VINE = register("glow_vine", GlowVineBlock::new, new BlockSettings().lightValue(3));
 
   public static final Block SAPLING = register("sapling", SaplingOne::new);
+  public static final Block BURNED_TREE_SAPLING = register("burned_tree_sapling", BurnedTreeSapling::new);
   public static final Block SAPLING2 = register("sapling2", SaplingTwo::new);
 
   public static final Block FLOWER = register("flower", FlowerBlock::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
@@ -158,6 +164,7 @@ public final class RBlocks {
   public static void registerModels() {
     // Ignores powered metadata alongside the rest of the metadata on the client side.
     ModelLoader.setCustomStateMapper(DEAD_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
+    ModelLoader.setCustomStateMapper(BURNED_TREE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(MANGROVE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(BAMBOO_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(CEDAR_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());

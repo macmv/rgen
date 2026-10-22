@@ -102,3 +102,8 @@ tile.lavender_tree_fence_gate.name=Lavender Tree Fence Gate
 
 tile.dead_fence.name=Dead Fence
 tile.dead_fence_gate.name=Dead Fence Gate
+
+tile.covered_oak_log.name=Moss Covered Oak Log
+tile.covered_spruce_log.name=Snow Covered Spruce Log
+tile.covered_birch_log.name=Moss Covered Birch Log
+tile.covered_jungle_log.name=Grass Covered Jungle Log

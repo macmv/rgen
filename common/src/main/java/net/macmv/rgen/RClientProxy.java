@@ -78,6 +78,14 @@ public class RClientProxy extends RCommonProxy {
     ItemColors itemColors = Minecraft.getMinecraft().getItemColors();
     itemColors.registerItemColorHandler(mangroveLeavesItemColor, RItems.LEAVES2);
 
+    IItemColor coveredJungleLogItemColor = new IItemColor() {
+      @Override
+      public int colorMultiplier(ItemStack stack, int tintIndex) {
+        return tintIndex == 0 ? ColorizerGrass.getGrassColor(0.5D, 1.0D) : 0xFFFFFF;
+      }
+    };
+    itemColors.registerItemColorHandler(coveredJungleLogItemColor, RItems.COVERED_JUNGLE_LOG);
+
     // Register block color handler for the LavenderPlant block
     blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER, RBlocks.HANGING_VINES, RBlocks.COVERED_JUNGLE_LOG);
   }

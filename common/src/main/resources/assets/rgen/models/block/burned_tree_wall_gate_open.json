@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_gate_open",
+  "textures": {
+    "texture": "rgen:blocks/wood/burned_tree/burned_tree_planks"
+  }
+}

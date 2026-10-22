@@ -20,6 +20,9 @@
     },
     "variant=dead": {
       "model": "rgen:wood/dead/dead_plank_slab_double"
+    },
+    "variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_plank_slab_double"
     }
   }
 }

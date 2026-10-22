@@ -44,6 +44,21 @@
     },
     "axis=none,variant=lavender_tree": {
       "model": "rgen:wood/lavender_tree/lavender_tree_log"
+    },
+    "axis=y,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_log"
+    },
+    "axis=z,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_log",
+      "x": 90
+    },
+    "axis=x,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=none,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_log"
     }
   }
 }

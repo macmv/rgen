@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanksBlock extends Block {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty != LogType.SEASONAL && ty.meta <= LogType.DEAD.meta);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty != LogType.SEASONAL && (ty.meta <= LogType.DEAD.meta || ty == LogType.BURNED_TREE));
 
   public PlanksBlock(BlockSettings settings) {
     super(settings.material);
@@ -31,7 +31,7 @@ public class PlanksBlock extends Block {
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     for (LogType ty : LogType.values()) {
-      if (ty != LogType.SEASONAL && ty.meta <= LogType.DEAD.meta) {
+      if (ty != LogType.SEASONAL && (ty.meta <= LogType.DEAD.meta || ty == LogType.BURNED_TREE)) {
         items.add(new ItemStack(this, 1, ty.meta));
       }
     }

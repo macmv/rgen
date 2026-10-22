@@ -18,6 +18,14 @@ import java.util.Random;
 /** Shared metadata slab for the group 1 and group 2 plank variants. */
 public abstract class RWoodSlab extends BlockSlab {
   public static final IProperty<LogType> VARIANT = PlanksBlock.VARIANT;
+  private static final LogType[] SLAB_TYPES = { LogType.FIR, LogType.PALM, LogType.CHERRY, LogType.CEDAR, LogType.MANGROVE, LogType.LAVENDER_TREE, LogType.DEAD, LogType.BURNED_TREE };
+
+  public static int slabMeta(LogType type) {
+    for (int i = 0; i < SLAB_TYPES.length; i++) if (SLAB_TYPES[i] == type) return i;
+    return 0;
+  }
+
+  private static LogType slabType(int meta) { return SLAB_TYPES[meta & 7]; }
 
   protected RWoodSlab(BlockSettings settings) {
     super(Material.WOOD);
@@ -34,7 +42,7 @@ public abstract class RWoodSlab extends BlockSlab {
 
   @Override
   public String getUnlocalizedName(int meta) {
-    return "tile.plank_slab." + LogType.fromMeta(meta).name;
+    return "tile.plank_slab." + slabType(meta).name;
   }
 
   @Override
@@ -44,12 +52,12 @@ public abstract class RWoodSlab extends BlockSlab {
 
   @Override
   public Comparable<?> getTypeForItem(ItemStack stack) {
-    return LogType.fromMeta(stack.getMetadata());
+    return slabType(stack.getMetadata());
   }
 
   @Override
   public int damageDropped(IBlockState state) {
-    return state.getValue(VARIANT).meta;
+    return slabMeta(state.getValue(VARIANT));
   }
 
   @Override
@@ -59,7 +67,7 @@ public abstract class RWoodSlab extends BlockSlab {
 
   @Override
   public ItemStack getItem(World world, BlockPos pos, IBlockState state) {
-    return new ItemStack(RItems.PLANK_SLAB, 1, state.getValue(VARIANT).meta);
+    return new ItemStack(RItems.PLANK_SLAB, 1, slabMeta(state.getValue(VARIANT)));
   }
 
   @Override
@@ -69,7 +77,7 @@ public abstract class RWoodSlab extends BlockSlab {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta(meta & 7));
+    IBlockState state = this.getDefaultState().withProperty(VARIANT, slabType(meta & 7));
     if (!this.isDouble()) {
       state = state.withProperty(HALF, (meta & 8) == 0 ? EnumBlockHalf.BOTTOM : EnumBlockHalf.TOP);
     }
@@ -78,7 +86,7 @@ public abstract class RWoodSlab extends BlockSlab {
 
   @Override
   public int getMetaFromState(IBlockState state) {
-    int meta = state.getValue(VARIANT).meta;
+    int meta = slabMeta(state.getValue(VARIANT));
     if (!this.isDouble() && state.getValue(HALF) == EnumBlockHalf.TOP) {
       meta |= 8;
     }
@@ -90,9 +98,10 @@ public abstract class RWoodSlab extends BlockSlab {
     if (!this.isDouble()) {
       for (LogType type : LogType.values()) {
         if (type != LogType.SEASONAL && type.meta <= LogType.DEAD.meta) {
-          items.add(new ItemStack(this, 1, type.meta));
+          items.add(new ItemStack(this, 1, slabMeta(type)));
         }
       }
+      items.add(new ItemStack(this, 1, slabMeta(LogType.BURNED_TREE)));
     }
   }
 

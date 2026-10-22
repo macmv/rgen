@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 
 public class LeavesBlockTwo extends LeavesBlock {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty == LogType.MANGROVE || ty == LogType.LAVENDER_TREE || ty == LogType.DEAD);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, ty -> ty == LogType.MANGROVE || ty == LogType.LAVENDER_TREE || ty == LogType.BURNED_TREE || ty == LogType.DEAD);
 
   public LeavesBlockTwo(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
@@ -31,20 +31,21 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, LogType.MANGROVE.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.DEAD.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.MANGROVE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.BURNED_TREE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.DEAD.groupTwoMeta()));
   }
 
   @Override
   protected ItemStack getSilkTouchDrop(IBlockState state) {
-    return new ItemStack(Item.getItemFromBlock(this), 1, state.getValue(VARIANT).meta - 4);
+    return new ItemStack(Item.getItemFromBlock(this), 1, state.getValue(VARIANT).groupTwoMeta());
   }
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
     int variantMeta = meta & 3;
-    LogType variant = variantMeta == 1 ? LogType.LAVENDER_TREE : variantMeta == 3 ? LogType.DEAD : LogType.MANGROVE;
+    LogType variant = LogType.groupTwoFromMeta(variantMeta);
 
     return this.getDefaultState().withProperty(VARIANT, variant).withProperty(DECAYABLE, (meta & 4) == 0).withProperty(CHECK_DECAY, (meta & 8) > 0);
   }
@@ -52,7 +53,7 @@ public class LeavesBlockTwo extends LeavesBlock {
   @Override
   public int getMetaFromState(IBlockState state) {
     int i = 0;
-    i = i | state.getValue(VARIANT).meta - 4;
+    i = i | state.getValue(VARIANT).groupTwoMeta();
 
     if (!state.getValue(DECAYABLE)) {
       i |= 4;
@@ -77,7 +78,7 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public int damageDropped(IBlockState state) {
-    return state.getValue(VARIANT).meta - 4;
+    return state.getValue(VARIANT).groupTwoMeta();
   }
 
   @Override
@@ -91,6 +92,6 @@ public class LeavesBlockTwo extends LeavesBlock {
 
   @Override
   public NonNullList<ItemStack> onSheared(ItemStack item, net.minecraft.world.IBlockAccess world, BlockPos pos, int fortune) {
-    return NonNullList.withSize(1, new ItemStack(this, 1, world.getBlockState(pos).getValue(VARIANT).meta - 4));
+    return NonNullList.withSize(1, new ItemStack(this, 1, world.getBlockState(pos).getValue(VARIANT).groupTwoMeta()));
   }
 }

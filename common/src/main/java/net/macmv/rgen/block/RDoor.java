@@ -33,6 +33,7 @@ public class RDoor extends BlockDoor {
     String name = this.getRegistryName().getResourcePath();
     switch (name) {
       case "dead_door": return RItems.DEAD_DOOR;
+      case "burned_tree_door": return RItems.BURNED_TREE_DOOR;
       case "mangrove_door": return RItems.MANGROVE_DOOR;
       case "bamboo_door": return RItems.BAMBOO_DOOR;
       case "cedar_door": return RItems.CEDAR_DOOR;

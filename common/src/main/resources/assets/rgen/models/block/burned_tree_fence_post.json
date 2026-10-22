@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "rgen:blocks/wood/burned_tree/burned_tree_planks"
+  }
+}

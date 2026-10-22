@@ -2,6 +2,7 @@ package net.macmv.rgen.tab;
 
 import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.block.LogType;
+import net.macmv.rgen.block.RWoodSlab;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -34,6 +35,7 @@ public class RCreativeTabs {
       addTree(items, organizedWoodItems, LogType.MANGROVE);
       addTree(items, organizedWoodItems, LogType.DEAD);
       addTree(items, organizedWoodItems, LogType.LAVENDER_TREE);
+      addTree(items, organizedWoodItems, LogType.BURNED_TREE);
 
       for (LogType type : new LogType[] {
           LogType.ASPEN,
@@ -68,13 +70,14 @@ public class RCreativeTabs {
         addItem(items, organizedWoodItems, RItems.LOG, type.meta);
         addItem(items, organizedWoodItems, RItems.LEAVES, type.meta);
       } else {
-        addItem(items, organizedWoodItems, RItems.LOG2, type.meta - 4);
-        addItem(items, organizedWoodItems, RItems.LEAVES2, type.meta - 4);
+        addItem(items, organizedWoodItems, RItems.LOG2, type.groupTwoMeta());
+        addItem(items, organizedWoodItems, RItems.LEAVES2, type.groupTwoMeta());
       }
-      addItem(items, organizedWoodItems, RItems.SAPLING, type.meta);
+      if (type == LogType.BURNED_TREE) addItem(items, organizedWoodItems, RItems.BURNED_TREE_SAPLING, 0);
+      else addItem(items, organizedWoodItems, RItems.SAPLING, type.meta);
       addItem(items, organizedWoodItems, RItems.PLANKS, type.meta);
-      if (type.meta <= LogType.DEAD.meta && type != LogType.SEASONAL) {
-        addItem(items, organizedWoodItems, RItems.PLANK_SLAB, type.meta);
+      if ((type.meta <= LogType.DEAD.meta && type != LogType.SEASONAL) || type == LogType.BURNED_TREE) {
+        addItem(items, organizedWoodItems, RItems.PLANK_SLAB, RWoodSlab.slabMeta(type));
       }
 
       switch (type) {
@@ -119,6 +122,13 @@ public class RCreativeTabs {
           addItem(items, organizedWoodItems, RItems.DEAD_TRAPDOOR, 0);
           addItem(items, organizedWoodItems, RItems.DEAD_FENCE, 0);
           addItem(items, organizedWoodItems, RItems.DEAD_FENCE_GATE, 0);
+          break;
+        case BURNED_TREE:
+          addItem(items, organizedWoodItems, RItems.BURNED_TREE_STAIRS, 0);
+          addItem(items, organizedWoodItems, RItems.BURNED_TREE_DOOR, 0);
+          addItem(items, organizedWoodItems, RItems.BURNED_TREE_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.BURNED_TREE_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.BURNED_TREE_FENCE_GATE, 0);
           break;
         case LAVENDER_TREE:
           addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_STAIRS, 0);

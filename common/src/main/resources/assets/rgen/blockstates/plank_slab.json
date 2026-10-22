@@ -41,6 +41,12 @@
     },
     "half=top,variant=dead": {
       "model": "rgen:wood/dead/dead_plank_slab_top"
+    },
+    "half=bottom,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_plank_slab_bottom"
+    },
+    "half=top,variant=burned_tree": {
+      "model": "rgen:wood/burned_tree/burned_tree_plank_slab_top"
     }
   }
 }

@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
 public class LogBlockTwo extends BlockLog {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type == LogType.MANGROVE || type == LogType.LAVENDER_TREE || type == LogType.DEAD);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type == LogType.MANGROVE || type == LogType.LAVENDER_TREE || type == LogType.BURNED_TREE || type == LogType.DEAD);
 
   public LogBlockTwo(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(LOG_AXIS, EnumAxis.Y));
@@ -23,20 +23,21 @@ public class LogBlockTwo extends BlockLog {
   @Override
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     // TODO: Add these back
-    items.add(new ItemStack(this, 1, LogType.MANGROVE.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.meta - 4));
-    items.add(new ItemStack(this, 1, LogType.DEAD.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.MANGROVE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.BURNED_TREE.groupTwoMeta()));
+    items.add(new ItemStack(this, 1, LogType.DEAD.groupTwoMeta()));
   }
 
   @Override
   public int damageDropped(IBlockState state) {
-    return state.getValue(VARIANT).meta - 4;
+    return state.getValue(VARIANT).groupTwoMeta();
   }
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
     int variantMeta = meta & 3;
-    LogType variant = variantMeta == 1 ? LogType.LAVENDER_TREE : variantMeta == 3 ? LogType.DEAD : LogType.MANGROVE;
+    LogType variant = LogType.groupTwoFromMeta(variantMeta);
     IBlockState state = this.getDefaultState().withProperty(VARIANT, variant);
 
     switch (meta & 12) {
@@ -49,7 +50,7 @@ public class LogBlockTwo extends BlockLog {
 
   @Override
   public int getMetaFromState(IBlockState state) {
-    int i = state.getValue(VARIANT).meta - 4;
+    int i = state.getValue(VARIANT).groupTwoMeta();
 
     switch (state.getValue(LOG_AXIS)) {
       case X: return i | 4;
