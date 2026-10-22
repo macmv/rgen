@@ -1,0 +1,8 @@
+# Everything here is generated from `common/` by the v12-to-fabric transformer, except for the files
+# that are explicitly allowed below. Handwritten sources go in this list.
+*
+!.gitignore
+!net/
+!net/macmv/
+!net/macmv/rgen/
+!net/macmv/rgen/RGen.java

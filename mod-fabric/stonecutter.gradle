@@ -2,30 +2,40 @@ plugins {
   id 'dev.kikugie.stonecutter'
 }
 
-// The version that the checked in sources are written against. Run `./gradlew "Set active project
-// to <version>"` to switch it.
-stonecutter.active "1.21.5"
+// Stonecutter leaves the sources of the active version alone, and only processes the other ones.
+// The generated sources are always in their 1.12.2 state, so 1.12.2 is the active version (and a
+// placeholder, see build.gradle). That way every version we build gets processed.
+stonecutter.active "1.12.2"
 
 // Translates the 1.12 sources in `common/` into fabric (yarn) sources. This runs once for all
 // versions: stonecutter then handles the differences between minecraft versions, by processing the
 // generated sources the same way it processes the handwritten ones.
+//
+// Stonecutter only processes `src/main/java`, so the output goes right next to the handwritten
+// sources. The generated files are ignored by git (see `src/main/java/.gitignore`), and are listed
+// in a manifest so they can be cleaned up without touching the handwritten ones.
 def commonSrc = rootProject.file("common/src/main/java")
 def transformer = rootProject.file("v12-to-fabric/target/release/v12-to-fabric")
-def generatedCommon = file("src/generated/java")
+def javaSrc = file("src/main/java")
+def manifest = file("src/main/java/.generated-files")
 
 tasks.register('transformCommonSources') {
   inputs.dir commonSrc
   inputs.file transformer
-  outputs.dir generatedCommon
+  outputs.file manifest
 
   doLast {
-    delete generatedCommon
-    generatedCommon.mkdirs()
+    if (manifest.exists()) {
+      manifest.readLines().each { delete new File(javaSrc, it) }
+    }
+
+    def written = []
 
     commonSrc.eachFileRecurse { srcFile ->
       if (!srcFile.name.endsWith(".java")) return
 
-      def destFile = new File(generatedCommon, commonSrc.toPath().relativize(srcFile.toPath()).toString())
+      def relative = commonSrc.toPath().relativize(srcFile.toPath()).toString()
+      def destFile = new File(javaSrc, relative)
 
       def process = new ProcessBuilder(transformer.absolutePath, srcFile.absolutePath).start()
       // Drain both streams before waiting, so a large file can't fill the pipe and hang.
@@ -42,7 +52,10 @@ tasks.register('transformCommonSources') {
       if (!out.toString().isEmpty()) {
         destFile.parentFile.mkdirs()
         destFile.text = out.toString()
+        written << relative
       }
     }
+
+    manifest.text = written.sort().join("\n") + "\n"
   }
 }
