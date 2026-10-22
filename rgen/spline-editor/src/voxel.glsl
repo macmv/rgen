@@ -30,6 +30,37 @@ float hash(vec3 p) {
   return fract((p.x + p.y) * p.z);
 }
 
+// What one spot on the ground near a hit looks like to a ray, without marching
+// a ray of its own. `p` is the spot, `yRay` is how high the ray is over it, `d`
+// is the ray direction, and `r` is how wide a pixel is there, in blocks. This
+// is for averaging the footprint of a pixel that covers several blocks.
+bool footprintSample(vec2 p, float yRay, vec3 d, float r, out vec3 albedo) {
+  ivec2 c = ivec2(floor(p));
+  if (c.x < 0 || c.y < 0 || c.x >= uSize.x || c.y >= uSize.y) return false;
+
+  float h = texelFetch(uHeight, c, 0).r;
+  if (h < 0.0) return false;
+
+  // How far under the top the ray is.
+  float depth = h - yRay;
+  vec3 base = texelFetch(uColor, c, 0).rgb;
+
+  if (depth < -r) {
+    // Well above the column, so the ray is looking at something behind it.
+    return false;
+  } else if (depth <= r) {
+    // Close to the top, so this is the top of the column.
+    albedo = base;
+  } else if (depth < 3.0 + 2.0 * r) {
+    // Below the top, so the ray is looking at the side of the column.
+    albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
+  } else {
+    // Deep inside the column, where the ray wouldn't get to.
+    return false;
+  }
+  return true;
+}
+
 void main() {
   vec2 ndc = (gl_FragCoord.xy - uViewport.xy) / uViewport.zw * 2.0 - 1.0;
   vec3 dir = normalize(uForward + ndc.x * uRight + ndc.y * uUp);
@@ -107,7 +138,7 @@ void main() {
         // How much of a block one pixel covers. Blocks smaller than a few
         // pixels can't show any detail, so their detail fades out.
         float footprint = t * uPixel;
-        float detail = 1.0 - smoothstep(0.1, 0.3, footprint);
+        float detail = 1.0 - smoothstep(0.05, 0.2, footprint);
 
         // Each block is a flat shade, with hard edges between blocks.
         base *= 1.0 + (hash(block) - 0.5) * 0.14 * detail;
@@ -119,6 +150,35 @@ void main() {
         base *= 1.0 - 0.3 * line * detail;
 
         color = base * shade;
+
+        // Once a pixel covers more than a quarter of a block, it can't pick
+        // one block's color without graining, as the surface changes from block
+        // to block. So average it with four more spots of its footprint on
+        // the ground: two along the ray, where grazing angles stretch the
+        // footprint, and two across it.
+        if (footprint > 0.25) {
+          float lh = max(length(d), 1e-4);
+          vec2 along = d / lh;
+          vec2 across = vec2(-along.y, along.x);
+          float alongLen = min(footprint / max(abs(dir.y), 0.05), 4.0);
+
+          vec3 sum = color * 2.0;
+          float weight = 2.0;
+          for (int k = 0; k < 4; k++) {
+            float sg = (k & 1) == 0 ? -0.5 : 0.5;
+            vec2 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
+            // How far along the ray the spot is, which changes how high the ray is over it.
+            float dt = k < 2 ? sg * alongLen / lh : 0.0;
+
+            vec3 other;
+            if (footprintSample(pos.xz + offset, pos.y + dir.y * dt, dir, footprint, other)) {
+              sum += other;
+              weight += 1.0;
+            }
+          }
+          color = sum / weight;
+        }
+
         if (cell == uHover) {
           color = mix(color, vec3(1.0), 0.35);
         }
