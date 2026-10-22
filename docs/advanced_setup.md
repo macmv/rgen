@@ -11,7 +11,7 @@ gradle, and we don't want to hold everything else back:
 - The root build is the fabric mod, in `mod-fabric/`. It needs Java 25 or newer to run gradle.
   [Stonecutter](https://stonecutter.kikugie.dev) builds it for each version listed in
   `settings.gradle` (and `mod-fabric/versions/<version>/gradle.properties`), with
-  `./gradlew :mod-fabric:1.21.5:build` for example.
+  `./gradlew :mod-fabric:1.21.1:build` for example. There is only 1.21.1 for now.
 
 Both builds share the sources in `common/`. For fabric, `v12-to-fabric` translates them first (build
 it with `cargo build --release` in `v12-to-fabric/`), and the result is written to
