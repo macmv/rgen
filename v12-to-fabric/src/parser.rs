@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+#[derive(Clone)]
 pub struct Parser<'a> {
   pub src: &'a str,
   prev:    usize,
@@ -162,7 +163,21 @@ impl<'a> Parser<'a> {
       }
 
       '=' | ';' | '.' | ',' | '{' | '}' | '[' | ']' | '(' | ')' | '@' | ':' | '&' | '!' | '|'
-      | '?' | '+' | '-' | '*' | '/' | '%' | '^' | '<' | '>' => Some(Token::Punct),
+      | '?' | '+' | '-' | '*' | '/' | '%' | '^' | '<' | '>' | '~' | '$' | '#' | '\\' => Some(Token::Punct),
+
+      '\'' => {
+        while let Some(c) = self.char() {
+          if c == '\'' {
+            self.advance();
+            return Some(Token::String);
+          } else if c == '\\' {
+            self.advance();
+          }
+          self.advance();
+        }
+
+        panic!("unclosed char literal");
+      }
 
       '"' => {
         while let Some(c) = self.char() {

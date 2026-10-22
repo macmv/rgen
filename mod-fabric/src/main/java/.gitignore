@@ -6,3 +6,9 @@
 !net/macmv/
 !net/macmv/rgen/
 !net/macmv/rgen/RGen.java
+!net/macmv/rgen/compat/
+!net/macmv/rgen/compat/*.java
+!net/macmv/rgen/block/
+!net/macmv/rgen/block/BlockSettings.java
+!net/macmv/rgen/tab/
+!net/macmv/rgen/tab/RCreativeTabs.java
