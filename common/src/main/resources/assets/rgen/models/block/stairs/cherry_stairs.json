@@ -1,8 +1,8 @@
 {
   "parent": "block/stairs",
   "textures": {
-      "bottom": "rgen:blocks/wood/cherry/cherry_planks",
-      "top": "rgen:blocks/wood/cherry/cherry_planks",
-      "side": "rgen:blocks/wood/cherry/cherry_planks"
+      "bottom": "rgen:block/wood/cherry/cherry_planks",
+      "top": "rgen:block/wood/cherry/cherry_planks",
+      "side": "rgen:block/wood/cherry/cherry_planks"
   }
 }

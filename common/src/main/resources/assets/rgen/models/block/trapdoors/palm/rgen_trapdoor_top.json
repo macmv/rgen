@@ -1,7 +1,7 @@
 {
   "textures": {
-    "texture": "rgen:blocks/trapdoors/palm_trapdoor",
-    "particle": "rgen:blocks/trapdoors/palm_trapdoor"
+    "texture": "rgen:block/trapdoors/palm_trapdoor",
+    "particle": "rgen:block/trapdoors/palm_trapdoor"
   },
   "elements": [
     {

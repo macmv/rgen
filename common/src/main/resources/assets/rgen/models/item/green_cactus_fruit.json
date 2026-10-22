@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "rgen:items/green_cactus_fruit"
+    "layer0": "rgen:item/green_cactus_fruit"
   }
 }

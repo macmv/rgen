@@ -1,13 +1,13 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "rgen:blocks/wood/cherry/cherry_log",
-    "bottom": "rgen:blocks/wood/cherry/cherry_log",
-    "top": "rgen:blocks/wood/cherry/cherry_log",
-    "side": "rgen:blocks/wood/cherry/cherry_log",
-    "front": "rgen:blocks/wood/cherry/cherry_log_top",
-    "overlay": "rgen:blocks/wood/covered_log/vine_side",
-    "overlay_top": "rgen:blocks/wood/covered_log/vine_top"
+    "particle": "rgen:block/wood/cherry/cherry_log",
+    "bottom": "rgen:block/wood/cherry/cherry_log",
+    "top": "rgen:block/wood/cherry/cherry_log",
+    "side": "rgen:block/wood/cherry/cherry_log",
+    "front": "rgen:block/wood/cherry/cherry_log_top",
+    "overlay": "rgen:block/wood/covered_log/vine_side",
+    "overlay_top": "rgen:block/wood/covered_log/vine_top"
   },
   "elements": [
     {

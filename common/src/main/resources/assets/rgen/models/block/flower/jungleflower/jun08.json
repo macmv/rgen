@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/flower/jungleflower/jun8"
+    "cross": "rgen:block/flower/jungleflower/jun8"
   }
 }

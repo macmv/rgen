@@ -1,10 +1,10 @@
 {   "parent": "block/block",
     "textures": {
-        "particle": "blocks/log_acacia",
-        "top": "blocks/grass_top",
-        "side": "blocks/log_acacia",
-        "front": "blocks/log_acacia_top",
-        "overlay": "blocks/grass_side_overlay"
+        "particle": "block/log_acacia",
+        "top": "block/grass_top",
+        "side": "block/log_acacia",
+        "front": "block/log_acacia_top",
+        "overlay": "block/grass_side_overlay"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],

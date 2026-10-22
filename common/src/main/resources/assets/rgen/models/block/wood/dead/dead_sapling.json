@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/dead/dead_sapling"
+    "cross": "rgen:block/wood/dead/dead_sapling"
   }
 }

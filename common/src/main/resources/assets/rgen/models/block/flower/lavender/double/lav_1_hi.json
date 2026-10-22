@@ -2,9 +2,9 @@
   "ambientocclusion": false,
   "parent": "block/cube",
   "textures": {
-    "1": "rgen:blocks/plants/lavender/double/lav_stalk_1_hi",
-    "0": "rgen:blocks/plants/lavender/double/lav_flower_1_hi",
-    "particle": "rgen:blocks/plants/lavender/lavender_flower_0"
+    "1": "rgen:block/plants/lavender/double/lav_stalk_1_hi",
+    "0": "rgen:block/plants/lavender/double/lav_flower_1_hi",
+    "particle": "rgen:block/plants/lavender/lavender_flower_0"
   },
   "elements": [
     {

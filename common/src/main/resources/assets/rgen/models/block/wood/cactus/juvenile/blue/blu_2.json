@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "rgen:blocks/wood/cactus/juveniles/blue/blu_2",
-    "particle": "rgen:blocks/wood/cactus/juveniles/blue/blu_2"
+    "0": "rgen:block/wood/cactus/juveniles/blue/blu_2",
+    "particle": "rgen:block/wood/cactus/juveniles/blue/blu_2"
   },
   "elements": [
     {

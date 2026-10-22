@@ -33,3 +33,6 @@ forge*changelog.txt
 .aseprite
 .ase
 
+
+# The data generator keeps a cache here.
+mod-fabric/src/main/generated/.cache/

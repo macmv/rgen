@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:blocks/wood/cherry/cherry_sapling"
+    "layer0": "rgen:block/wood/cherry/cherry_sapling"
   }
 }

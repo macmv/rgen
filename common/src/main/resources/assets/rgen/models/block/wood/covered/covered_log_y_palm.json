@@ -1,11 +1,11 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "rgen:blocks/wood/palm/palm_log",
-    "bottom": "rgen:blocks/wood/palm/palm_log_top",
-    "top": "blocks/sand",
-    "side": "rgen:blocks/wood/palm/palm_log",
-    "overlay": "rgen:blocks/wood/covered_log/sand_side"
+    "particle": "rgen:block/wood/palm/palm_log",
+    "bottom": "rgen:block/wood/palm/palm_log_top",
+    "top": "block/sand",
+    "side": "rgen:block/wood/palm/palm_log",
+    "overlay": "rgen:block/wood/covered_log/sand_side"
   },
   "elements": [
     {

@@ -1,17 +1,17 @@
 {
   "variants": {
     "axis=y": {
-      "model": "rgen:wood/covered/covered_log_y_cherry"
+      "model": "rgen:block/wood/covered/covered_log_y_cherry"
     },
     "axis=z": {
-      "model": "rgen:wood/covered/covered_log_xz_cherry"
+      "model": "rgen:block/wood/covered/covered_log_xz_cherry"
     },
     "axis=x": {
-      "model": "rgen:wood/covered/covered_log_xz_cherry",
+      "model": "rgen:block/wood/covered/covered_log_xz_cherry",
       "y": 90
     },
     "axis=none": {
-      "model": "rgen:wood/covered/covered_log_none_cherry"
+      "model": "rgen:block/wood/covered/covered_log_none_cherry"
     }
   }
 }

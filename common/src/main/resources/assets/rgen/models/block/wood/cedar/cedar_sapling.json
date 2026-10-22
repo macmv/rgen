@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/cedar/cedar_sapling"
+    "cross": "rgen:block/wood/cedar/cedar_sapling"
   }
 }

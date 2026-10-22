@@ -1,10 +1,10 @@
 {
   "variants": {
     "stage=0": {
-      "model": "rgen:wood/burned_tree/burned_tree_sapling"
+      "model": "rgen:block/wood/burned_tree/burned_tree_sapling"
     },
     "stage=1": {
-      "model": "rgen:wood/burned_tree/burned_tree_sapling"
+      "model": "rgen:block/wood/burned_tree/burned_tree_sapling"
     }
   }
 }

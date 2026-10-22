@@ -46,6 +46,11 @@ Anything that is too different goes in a handwritten fabric file, which needs to
 sources still use (`Material`, `SoundType`, `CreativeTabs`), and base classes that hide differences
 between minecraft versions (`LeavesBase`, `FallingBase`).
 
+The assets in `common/src/main/resources` use the modern layout (`textures/block`, `textures/item`,
+and blockstates that name models with their full path, like `rgen:block/wood/fir/fir_log`). Fabric
+uses them as they are, and `mod-v12` converts them to the 1.12 layout when it builds (see
+`mod-v12/assets.gradle`). Write new assets in the modern layout.
+
 The fabric item models and language file are made by the data generator, not by hand. After adding
 a block or item, run `./gradlew :mod-fabric:1.21.1:runDatagen` and commit the result in
 `mod-fabric/src/main/generated`. Names there are just the registry names in title case.

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "rgen:blocks/wood/dead/dead_planks"
+    "all": "rgen:block/wood/dead/dead_planks"
   }
 }

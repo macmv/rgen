@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "normal": {
+            "model": "rgen:block/mossy_stump"
+        }
+    }
+}

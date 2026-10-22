@@ -1,9 +1,9 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "0": "rgen:blocks/flower/forgetmenot/forgetmenot_flower",
-    "1": "rgen:blocks/flower/forgetmenot/forgetmenot_stalk",
-    "particle": "rgen:blocks/flower/forgetmenot/forgetmenot_flower"
+    "0": "rgen:block/flower/forgetmenot/forgetmenot_flower",
+    "1": "rgen:block/flower/forgetmenot/forgetmenot_stalk",
+    "particle": "rgen:block/flower/forgetmenot/forgetmenot_flower"
   },
   "elements": [
     {
