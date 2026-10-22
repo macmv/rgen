@@ -37,37 +37,79 @@ float hash(vec3 p) {
   return fract((p.x + p.y) * p.z);
 }
 
-// What one spot on the ground near a hit looks like, without marching a ray of
-// its own. `p` is the spot, `hitY` is the height of the hit it's near, `d` is
-// the ray direction, and `r` is how wide a pixel is there, in blocks. This is
-// for averaging the footprint of a pixel that covers several blocks.
+// The most blocks the surface probe walks in each direction.
+const int PROBE = 6;
+
+ivec3 atlasOrigin(int slot) {
+  return ivec3(
+    slot % uAtlasSide,
+    (slot / uAtlasSide) % uAtlasSide,
+    slot / (uAtlasSide * uAtlasSide)
+  ) * CHUNK;
+}
+
+bool solidAt(ivec3 v) {
+  if (any(lessThan(v, ivec3(0))) || any(greaterThanEqual(v, uChunks * CHUNK))) return false;
+
+  ivec3 c = v / CHUNK;
+  uint state = texelFetch(uTable, c, 0).r;
+  if (state < 2u) return state == 1u;
+
+  ivec3 l = v - c * CHUNK;
+  return texelFetch(uBricks, atlasOrigin(int(state) - 2) + ivec3(l.y, l.x, l.z), 0).r != 0u;
+}
+
+// How bright a face is, by the axis it points along.
+float faceShade(int axis, bool up) {
+  return axis == 1 ? (up ? 1.0 : 0.5) : (axis == 0 ? 0.62 : 0.8);
+}
+
+// What one spot on the surface near a hit looks like, without marching a ray of
+// its own. `p` is a spot on the plane of the face that was hit, `n` points out
+// of that face, `d` is the ray direction, and `r` is how wide a pixel is there,
+// in blocks. This is for averaging the footprint of a pixel that covers several
+// blocks.
 //
 // look does this by comparing the ray's own height over the spot against the
 // column's top. That only works for rays that are close to level: a ray that
 // looks steeply down is far over or under every neighbor, so the result flips
 // between the top, the side and nothing at fixed angles, which shows up as
-// rings on the ground below the camera. Instead this goes by how much higher
-// the neighbor is than the hit, which doesn't depend on the viewing angle.
-bool footprintSample(vec2 p, float hitY, vec3 d, float r, out vec3 albedo) {
-  ivec2 c = ivec2(floor(p));
-  if (c.x < 0 || c.y < 0 || c.x >= uSize.x || c.y >= uSize.y) return false;
+// rings on the ground below the camera. Instead this finds the surface by
+// walking out of or into the block at the spot, along the face's normal, which
+// doesn't depend on the viewing angle, or on there being only one surface above
+// each column.
+bool footprintSample(vec3 p, ivec3 n, vec3 d, float r, out vec3 albedo) {
+  int axis = n.x != 0 ? 0 : (n.y != 0 ? 1 : 2);
+  ivec3 s = ivec3(floor(p - vec3(n) * 0.01));
 
-  float h = texelFetch(uHeight, c, 0).r;
-  if (h < 0.0) return false;
+  // How far the surface at the spot is out of the hit's plane. This is
+  // positive when the spot is on something that stands up out of the hit.
+  int rise = 0;
+  if (solidAt(s)) {
+    while (rise < PROBE && solidAt(s + n)) {
+      s += n;
+      rise++;
+    }
+  } else {
+    bool found = false;
+    for (int k = 0; k < PROBE; k++) {
+      s -= n;
+      if (solidAt(s)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return false;
+  }
 
-  vec3 base = texelFetch(uColor, c, 0).rgb;
-  if (h - hitY > max(1.0, r)) {
-    // The neighbor stands above the hit, so the pixel sees its side.
+  vec3 base = texelFetch(uColor, s.xz, 0).rgb;
+  if (axis == 1 && float(rise) > max(1.0, r)) {
+    // The spot stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
   } else {
-    albedo = base;
+    albedo = base * faceShade(axis, n[axis] > 0);
   }
   return true;
-}
-
-int argmax3(vec3 v) {
-  if (v.x > v.y) return v.x > v.z ? 0 : 2;
-  return v.y > v.z ? 1 : 2;
 }
 
 // Keeps a ray direction away from zero, so that it can be divided by.
@@ -76,6 +118,11 @@ float nonzero(float v) { return abs(v) < 1e-9 ? (v < 0.0 ? -1e-9 : 1e-9) : v; }
 int argmin(vec3 v) {
   if (v.x < v.y) return v.x < v.z ? 0 : 2;
   return v.y < v.z ? 1 : 2;
+}
+
+int argmax3(vec3 v) {
+  if (v.x > v.y) return v.x > v.z ? 0 : 2;
+  return v.y > v.z ? 1 : 2;
 }
 
 void main() {
@@ -130,12 +177,7 @@ void main() {
           break;
         }
 
-        int slot = int(state) - 2;
-        ivec3 atlas = ivec3(
-          slot % uAtlasSide,
-          (slot / uAtlasSide) % uAtlasSide,
-          slot / (uAtlasSide * uAtlasSide)
-        ) * CHUNK;
+        ivec3 atlas = atlasOrigin(int(state) - 2);
 
         vec3 fMax = (vec3(v + (stepDir + 1) / 2) - origin) / safe;
         vec3 fDelta = 1.0 / abs(safe);
@@ -175,7 +217,7 @@ void main() {
     if (found) {
       vec3 normal = vec3(0.0);
       normal[hitAxis] = -float(stepDir[hitAxis]);
-      float shade = hitAxis == 1 ? (normal.y > 0.0 ? 1.0 : 0.5) : (hitAxis == 0 ? 0.62 : 0.8);
+      float shade = faceShade(hitAxis, normal[hitAxis] > 0.0);
 
       vec3 pos = origin + dir * tHit;
       vec3 block = vec3(voxel);
@@ -205,24 +247,22 @@ void main() {
       // along the ray, where grazing angles stretch the footprint, and two
       // across it. The average is blended in slowly, so that blocks that are
       // still several pixels wide stay sharp.
-      //
-      // This goes by the heights of the columns, so it assumes the terrain has
-      // no overhangs.
       float filterAmount = smoothstep(0.5, 1.5, footprint);
       if (filterAmount > 0.0) {
-        vec2 d = safe.xz;
-        float lh = max(length(d), 1e-4);
-        vec2 along = d / lh;
-        vec2 across = vec2(-along.y, along.x);
-        float alongLen = min(footprint / max(abs(dir.y), 0.05), 4.0);
+        // The spots are in the plane of the face that was hit. One pair is
+        // along the ray's direction in that plane, and the other is across it.
+        vec3 tangent = dir - normal * dot(dir, normal);
+        vec3 along = tangent / max(length(tangent), 1e-4);
+        vec3 across = cross(normal, along);
+        float alongLen = min(footprint / max(abs(dot(dir, normal)), 0.05), 4.0);
 
         vec3 sum = color * 2.0;
         float weight = 2.0;
         for (int k = 0; k < 4; k++) {
           float sg = (k & 1) == 0 ? -0.5 : 0.5;
-          vec2 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
+          vec3 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
           vec3 other;
-          if (footprintSample(pos.xz + offset, pos.y, dir, footprint, other)) {
+          if (footprintSample(pos + offset, ivec3(normal), dir, footprint, other)) {
             sum += other;
             weight += 1.0;
           }
