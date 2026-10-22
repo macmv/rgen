@@ -108,6 +108,12 @@ pub struct Grid {
   pub loaded_count: usize,
 }
 
+/// The height and color of every column of a tile.
+pub struct TileColumns {
+  pub heights: Vec<f32>,
+  pub colors:  Vec<Color32>,
+}
+
 /// Terrain to copy into the GPU's textures.
 pub enum Upload {
   /// Sizes the textures for a new grid, and empties the chunks. The colors
@@ -183,31 +189,41 @@ impl Grid {
     }
   }
 
-  /// Stores a freshly generated chunk, and returns the upload for it.
-  /// `raw` is `TILE_BLOCKS * TILE_BLOCKS` samples, indexed like the grid.
+  /// The height and color of every column of a tile. `raw` is `TILE_BLOCKS *
+  /// TILE_BLOCKS` samples, indexed like the grid. This is the slow part of
+  /// `set_tile`, and doesn't need the grid, so the workers do it.
+  pub fn tile_columns(
+    raw: &[RawNoise],
+    splines: &Splines,
+    layer: Layer,
+    flatten_water: bool,
+  ) -> TileColumns {
+    let (heights, colors) =
+      raw.iter().map(|&sample| Self::column(sample, splines, layer, flatten_water)).unzip();
+    TileColumns { heights, colors }
+  }
+
+  /// Stores a freshly generated chunk, and returns the upload for it. `raw` and
+  /// `columns` are `TILE_BLOCKS * TILE_BLOCKS` samples, indexed like the grid.
   pub fn set_tile(
     &mut self,
     tx: usize,
     tz: usize,
     raw: &[RawNoise],
-    splines: &Splines,
-    layer: Layer,
-    flatten_water: bool,
+    columns: &TileColumns,
   ) -> Vec<Upload> {
     let mut colors = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS * 4);
 
     for tj in 0..TILE_BLOCKS {
-      for ti in 0..TILE_BLOCKS {
-        let idx = self.index(tx * TILE_BLOCKS + ti, tz * TILE_BLOCKS + tj);
-        let sample = raw[tj * TILE_BLOCKS + ti];
-        let (height, color) = Self::column(sample, splines, layer, flatten_water);
+      let row = self.index(tx * TILE_BLOCKS, tz * TILE_BLOCKS + tj);
+      let src = tj * TILE_BLOCKS..(tj + 1) * TILE_BLOCKS;
 
-        self.raw[idx] = pack(sample);
-        self.height[idx] = height;
-        self.colors[idx] = color;
-
-        colors.extend(color.to_array());
+      for (dst, &sample) in self.raw[row..row + TILE_BLOCKS].iter_mut().zip(&raw[src.clone()]) {
+        *dst = pack(sample);
       }
+      self.height[row..row + TILE_BLOCKS].copy_from_slice(&columns.heights[src.clone()]);
+      self.colors[row..row + TILE_BLOCKS].copy_from_slice(&columns.colors[src.clone()]);
+      colors.extend(columns.colors[src].iter().flat_map(|c| c.to_array()));
     }
 
     if !self.loaded[tz * self.tiles[0] + tx] {

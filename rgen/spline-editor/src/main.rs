@@ -19,7 +19,7 @@ mod pool;
 
 use camera::Camera;
 use grid::{Grid, Layer, SEA_LEVEL, TILE_BLOCKS};
-use pool::{Pool, TileResult};
+use pool::{Params, Pool, TileResult};
 
 fn main() -> Result<(), eframe::Error> {
   let options = eframe::NativeOptions {
@@ -147,6 +147,8 @@ struct App {
 
   noise:     Arc<TerrainNoise>,
   pool:      Pool,
+  /// What the workers are making columns with.
+  params:    Arc<Params>,
   results:   mpsc::Receiver<TileResult>,
   /// Bumped whenever a new region is started, so that stale chunks are ignored.
   epoch:     u64,
@@ -172,6 +174,12 @@ struct App {
 impl App {
   fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>) -> Self {
     let (tx, rx) = mpsc::channel();
+    let params = Arc::new(Params {
+      id:            0,
+      splines:       Splines::from_game(),
+      layer:         Layer::Height,
+      flatten_water: true,
+    });
     App {
       splines: Splines::from_game(),
       saved: Splines::from_game(),
@@ -183,7 +191,8 @@ impl App {
       slider_tiles: [21, 21],
 
       noise: Arc::new(TerrainNoise::new(0)),
-      pool: Pool::new(ctx, tx),
+      pool: Pool::new(ctx, tx, params.clone()),
+      params,
       results: rx,
       epoch: 0,
       requested: None,
@@ -211,9 +220,19 @@ impl eframe::App for App {
     egui::SidePanel::left("controls").default_width(340.0).show(ctx, |ui| self.controls(ui));
 
     if self.dirty {
-      let splines = if self.compare_saved { self.saved.clone() } else { self.splines.clone() };
+      self.params = Arc::new(Params {
+        id:            self.params.id + 1,
+        splines:       self.active_splines().clone(),
+        layer:         self.layer,
+        flatten_water: self.flatten_water,
+      });
+      self.pool.set_params(self.params.clone());
       if let Some(grid) = &mut self.grid {
-        let updates = grid.recompute_all(&splines, self.layer, self.flatten_water);
+        let updates = grid.recompute_all(
+          &self.params.splines,
+          self.params.layer,
+          self.params.flatten_water,
+        );
         let mut renderer = self.renderer.lock().unwrap();
         renderer.queue(grid.colors_upload());
         renderer.queue(grid::Upload::Chunks(updates));
@@ -234,8 +253,10 @@ impl eframe::App for App {
 /// takes a lot of memory.
 const MAX_TILES: usize = 48;
 
-/// The most chunks that are copied into the grid each frame.
-const TILES_PER_FRAME: usize = 24;
+/// How long a frame spends copying chunks into the grid, once it has copied one.
+/// Past that, the rest wait for the next frame, so that the window stays
+/// responsive.
+const TILE_BUDGET: std::time::Duration = std::time::Duration::from_millis(6);
 
 impl App {
   fn active_splines(&self) -> &Splines {
@@ -268,22 +289,26 @@ impl App {
   /// Copies the chunks the workers finished into the terrain.
   fn receive_tiles(&mut self, ctx: &egui::Context) {
     let Some(grid) = &mut self.grid else { return };
-    let splines = if self.compare_saved { &self.saved } else { &self.splines };
+    let start = std::time::Instant::now();
 
     let mut renderer = self.renderer.lock().unwrap();
-    let mut received = 0;
-    while received < TILES_PER_FRAME {
+    while start.elapsed() < TILE_BUDGET {
       let Ok(tile) = self.results.try_recv() else { return };
       if tile.epoch != self.epoch {
         continue;
       }
 
-      for upload in
-        grid.set_tile(tile.tx, tile.tz, &tile.raw, splines, self.layer, self.flatten_water)
-      {
+      // Columns made with older splines are out of date, so make them again.
+      let columns = if tile.params_id == self.params.id {
+        tile.columns
+      } else {
+        let p = &self.params;
+        Grid::tile_columns(&tile.raw, &p.splines, p.layer, p.flatten_water)
+      };
+
+      for upload in grid.set_tile(tile.tx, tile.tz, &tile.raw, &columns) {
         renderer.queue(upload);
       }
-      received += 1;
     }
 
     // There might be more waiting, so come back next frame.

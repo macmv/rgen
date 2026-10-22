@@ -11,7 +11,19 @@ use std::sync::{
 use eframe::egui;
 use rgen_biome::{RawNoise, TerrainNoise};
 
-use crate::grid::TILE_BLOCKS;
+use crate::{
+  Splines,
+  grid::{Grid, Layer, TILE_BLOCKS, TileColumns},
+};
+
+/// What the workers need to turn noise into heights and colors. Whenever any of
+/// this changes, it gets a new `id`.
+pub struct Params {
+  pub id:            u64,
+  pub splines:       Splines,
+  pub layer:         Layer,
+  pub flatten_water: bool,
+}
 
 /// One chunk to generate.
 pub struct Job {
@@ -29,6 +41,9 @@ pub struct TileResult {
   pub tz:    usize,
   /// `TILE_BLOCKS * TILE_BLOCKS` samples, with x changing fastest.
   pub raw:   Vec<RawNoise>,
+  /// The columns, made with the params with this id.
+  pub params_id: u64,
+  pub columns:   TileColumns,
 }
 
 struct Queue {
@@ -36,6 +51,8 @@ struct Queue {
   ready: Condvar,
   /// Jobs from any other epoch are stale, and are skipped.
   epoch: AtomicU64,
+  /// What new jobs are made with.
+  params: Mutex<Arc<Params>>,
 }
 
 pub struct Pool {
@@ -43,11 +60,12 @@ pub struct Pool {
 }
 
 impl Pool {
-  pub fn new(ctx: &egui::Context, results: mpsc::Sender<TileResult>) -> Pool {
+  pub fn new(ctx: &egui::Context, results: mpsc::Sender<TileResult>, params: Arc<Params>) -> Pool {
     let queue = Arc::new(Queue {
       jobs:  Mutex::new(vec![]),
       ready: Condvar::new(),
       epoch: AtomicU64::new(0),
+      params: Mutex::new(params),
     });
 
     let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
@@ -81,7 +99,19 @@ impl Pool {
             }
           }
 
-          if results.send(TileResult { epoch: job.epoch, tx: job.tx, tz: job.tz, raw }).is_err() {
+          let params = queue.params.lock().unwrap().clone();
+          let columns =
+            Grid::tile_columns(&raw, &params.splines, params.layer, params.flatten_water);
+
+          let result = TileResult {
+            epoch: job.epoch,
+            tx: job.tx,
+            tz: job.tz,
+            raw,
+            params_id: params.id,
+            columns,
+          };
+          if results.send(result).is_err() {
             return;
           }
           ctx.request_repaint();
@@ -91,6 +121,9 @@ impl Pool {
 
     Pool { queue }
   }
+
+  /// Changes what chunks that haven't started yet are made with.
+  pub fn set_params(&self, params: Arc<Params>) { *self.queue.params.lock().unwrap() = params; }
 
   /// Throws away any queued chunks, and queues every chunk of a new region.
   /// The chunks closest to the middle are generated first.
