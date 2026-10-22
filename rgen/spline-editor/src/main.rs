@@ -1,28 +1,37 @@
 use std::{
   ops::RangeInclusive,
-  sync::{Arc, mpsc},
+  sync::{Arc, Mutex, mpsc},
 };
 
+use eframe::egui_glow;
 use eframe::egui::{
-  self, Align2, Color32, DragValue, FontId, Mesh, Pos2, Rect, Sense, Shape, Stroke, Vec2,
-  epaint::Vertex,
+  self, Align2, Color32, DragValue, FontId, Pos2, Rect, Sense, Stroke, Vec2,
 };
 use egui_plot::{HLine, Legend, Line, Plot, Points, VLine};
 use rgen_biome::{HeightParts, RawNoise, TerrainNoise};
 use rgen_spline::{Cosine, Spline};
 
 mod camera;
+mod gl;
 mod grid;
 
 use camera::Camera;
-use grid::{Grid, Layer, N, SEA_LEVEL};
+use grid::{Grid, Layer, SEA_LEVEL};
 
 fn main() -> Result<(), eframe::Error> {
   let options = eframe::NativeOptions {
     viewport: egui::ViewportBuilder::default().with_inner_size([1500.0, 900.0]),
     ..Default::default()
   };
-  eframe::run_native("Terrain Inspector", options, Box::new(|_cc| Box::<App>::default()))
+  eframe::run_native(
+    "Terrain Inspector",
+    options,
+    Box::new(|cc| {
+      let gl = cc.gl.as_ref().expect("the terrain view needs OpenGL");
+      let renderer = gl::Renderer::new(gl).expect("failed to build the terrain shader");
+      Box::new(App::new(Arc::new(Mutex::new(renderer))))
+    }),
+  )
 }
 
 type Keys = Spline<Vec<(f64, f64)>>;
@@ -126,10 +135,13 @@ struct App {
 
   seed:   u64,
   center: [f64; 2],
-  step:   f64,
+  /// Columns along each side of the terrain.
+  n:      usize,
+  /// Blocks along each side of a column.
+  step:   u32,
 
   noise:      Arc<TerrainNoise>,
-  requested:  Option<(u64, [i64; 2], i64)>,
+  requested:  Option<(u64, [i64; 2], usize, u32)>,
   request_id: u64,
   tx:         mpsc::Sender<(u64, Vec<RawNoise>)>,
   rx:         mpsc::Receiver<(u64, Vec<RawNoise>)>,
@@ -141,16 +153,17 @@ struct App {
 
   layer:         Layer,
   flatten_water: bool,
-  vscale:        f32,
   camera:        Camera,
   /// The grid vertex under the mouse, from the last frame.
   hover:         Option<usize>,
 
+  renderer: Arc<Mutex<gl::Renderer>>,
+
   section: Section,
 }
 
-impl Default for App {
-  fn default() -> Self {
+impl App {
+  fn new(renderer: Arc<Mutex<gl::Renderer>>) -> Self {
     let (tx, rx) = mpsc::channel();
     App {
       splines: Splines::from_game(),
@@ -159,7 +172,8 @@ impl Default for App {
 
       seed: 0,
       center: [0.0, 0.0],
-      step: 8.0,
+      n: 512,
+      step: 4,
 
       noise: Arc::new(TerrainNoise::new(0)),
       requested: None,
@@ -172,9 +186,10 @@ impl Default for App {
 
       layer: Layer::Height,
       flatten_water: true,
-      vscale: 1.0,
       camera: Camera::default(),
       hover: None,
+
+      renderer,
 
       section: Section { a: None, b: None, picking: false, samples: vec![] },
     }
@@ -185,7 +200,7 @@ impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     while let Ok((id, raw)) = self.rx.try_recv() {
       if id == self.request_id {
-        self.grid = Some(Grid::new(raw, self.center, self.step));
+        self.grid = Some(Grid::new(raw, self.n, self.center, f64::from(self.step)));
         self.dirty = true;
       }
     }
@@ -196,7 +211,14 @@ impl eframe::App for App {
     if self.dirty {
       let splines = if self.compare_saved { self.saved.clone() } else { self.splines.clone() };
       if let Some(grid) = &mut self.grid {
-        grid.recompute(&splines, self.layer, self.flatten_water, self.vscale);
+        grid.recompute(&splines, self.layer, self.flatten_water);
+
+        let colors = grid.colors.iter().flat_map(|c| c.to_array()).collect();
+        self.renderer.lock().unwrap().set_terrain(gl::Upload {
+          n: grid.n,
+          heights: grid.height.clone(),
+          colors,
+        });
       }
       self.dirty = false;
     }
@@ -217,8 +239,7 @@ impl App {
 
   /// Starts sampling the noise in the background if the parameters changed.
   fn request_grid(&mut self, ctx: &egui::Context) {
-    let key =
-      (self.seed, [self.center[0] as i64, self.center[1] as i64], (self.step * 100.0) as i64);
+    let key = (self.seed, [self.center[0] as i64, self.center[1] as i64], self.n, self.step);
     if self.requested == Some(key) {
       return;
     }
@@ -227,19 +248,31 @@ impl App {
 
     let id = self.request_id;
     let noise = self.noise.clone();
-    let (center, step) = (self.center, self.step);
+    let (center, n, step) = (self.center, self.n, f64::from(self.step));
     let tx = self.tx.clone();
     let ctx = ctx.clone();
 
     std::thread::spawn(move || {
-      let mut raw = Vec::with_capacity(N * N);
-      for i in 0..N {
-        for j in 0..N {
-          let x = center[0] + (i as f64 - N as f64 / 2.0) * step;
-          let z = center[1] + (j as f64 - N as f64 / 2.0) * step;
-          raw.push(noise.sample(x, z));
+      let mut raw = vec![RawNoise { continentalness: 0.0, peaks_valleys: 0.0, erosion: 0.0 }; n * n];
+
+      // Split the rows between all the cores, as a large grid is a lot of noise.
+      let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
+      let rows_per_thread = n.div_ceil(threads);
+      std::thread::scope(|scope| {
+        for (chunk_index, chunk) in raw.chunks_mut(rows_per_thread * n).enumerate() {
+          let noise = &noise;
+          scope.spawn(move || {
+            for (k, out) in chunk.iter_mut().enumerate() {
+              let idx = chunk_index * rows_per_thread * n + k;
+              let (i, j) = (idx / n, idx % n);
+              let x = center[0] + (i as f64 - n as f64 / 2.0) * step;
+              let z = center[1] + (j as f64 - n as f64 / 2.0) * step;
+              *out = noise.sample(x, z);
+            }
+          });
         }
-      }
+      });
+
       let _ = tx.send((id, raw));
       ctx.request_repaint();
     });
@@ -258,18 +291,34 @@ impl App {
 
       ui.label("Center x, z");
       ui.horizontal(|ui| {
-        let speed = self.step * 4.0;
+        let speed = f64::from(self.step) * 4.0;
         ui.add(DragValue::new(&mut self.center[0]).speed(speed));
         ui.add(DragValue::new(&mut self.center[1]).speed(speed));
       });
       ui.end_row();
 
-      ui.label("Blocks per sample");
-      ui.add(egui::Slider::new(&mut self.step, 1.0..=64.0).logarithmic(true));
+      ui.label("Block size");
+      egui::ComboBox::from_id_source("step")
+        .selected_text(format!("{0}x{0}x{0}", self.step))
+        .show_ui(ui, |ui| {
+          for step in [1, 2, 4, 8, 16, 32] {
+            ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
+          }
+        });
       ui.end_row();
 
-      ui.label("Vertical scale");
-      self.dirty |= ui.add(egui::Slider::new(&mut self.vscale, 0.5..=4.0)).changed();
+      ui.label("Columns");
+      egui::ComboBox::from_id_source("columns")
+        .selected_text(format!("{0}x{0}", self.n))
+        .show_ui(ui, |ui| {
+          for n in [128, 256, 512, 1024] {
+            ui.selectable_value(&mut self.n, n, format!("{n}x{n}"));
+          }
+        });
+      ui.end_row();
+
+      ui.label("Width");
+      ui.label(format!("{} blocks", self.n * self.step as usize));
       ui.end_row();
     });
 
@@ -345,16 +394,6 @@ impl App {
     let rect = response.rect;
     painter.rect_filled(rect, 0.0, Color32::from_rgb(28, 30, 38));
 
-    if response.dragged() {
-      let d = response.drag_delta();
-      self.camera.yaw -= d.x * 0.008;
-      self.camera.pitch = (self.camera.pitch + d.y * 0.008).clamp(0.05, 1.5);
-    }
-    if response.hovered() {
-      let scroll = ui.input(|i| i.raw_scroll_delta.y);
-      self.camera.zoom = (self.camera.zoom * (-scroll * 0.002).exp()).clamp(0.1, 4.0);
-    }
-
     let Some(grid) = &self.grid else {
       painter.text(
         rect.center(),
@@ -369,71 +408,37 @@ impl App {
       return;
     }
 
-    let step = grid.step as f32;
-    let vscale = self.vscale;
-    let extent = N as f32 * step;
-    let view = self.camera.view(rect, extent, [0.0, SEA_LEVEL as f32 * vscale, 0.0]);
+    let extent = grid.extent();
 
-    let to_world = |i: usize, j: usize, h: f32| {
-      [(i as f32 - N as f32 / 2.0) * step, h * vscale, (j as f32 - N as f32 / 2.0) * step]
-    };
-
-    let projected: Vec<Option<(Pos2, f32)>> =
-      (0..N * N).map(|idx| view.project(to_world(idx / N, idx % N, grid.height[idx]))).collect();
-
-    // Draw the cells far to near, so nearer terrain covers farther terrain.
-    let eye = view.eye();
-    let order = |eye: f32| {
-      let mut v: Vec<usize> = (0..N - 1).collect();
-      if eye / step + (N as f32 / 2.0) < N as f32 / 2.0 {
-        v.reverse();
-      }
-      v
-    };
-
-    let mut mesh = Mesh::default();
-    mesh.vertices = projected
-      .iter()
-      .zip(&grid.colors)
-      .map(|(p, &color)| Vertex {
-        pos: p.map(|p| p.0).unwrap_or(Pos2::ZERO),
-        uv: egui::epaint::WHITE_UV,
-        color,
-      })
-      .collect();
-    for i in order(eye[0]) {
-      for j in order(eye[2]) {
-        let [a, b, c, d] =
-          [(i, j), (i + 1, j), (i, j + 1), (i + 1, j + 1)].map(|(i, j)| Grid::index(i, j));
-        if [a, b, c, d].iter().all(|&v| projected[v].is_some()) {
-          mesh.add_triangle(a as u32, b as u32, c as u32);
-          mesh.add_triangle(b as u32, d as u32, c as u32);
-        }
-      }
+    if response.dragged_by(egui::PointerButton::Primary) {
+      let d = response.drag_delta();
+      self.camera.yaw -= d.x * 0.008;
+      self.camera.pitch = (self.camera.pitch + d.y * 0.008).clamp(0.05, 1.5);
     }
-    painter.add(Shape::mesh(mesh));
+    if response.dragged_by(egui::PointerButton::Secondary) {
+      let d = response.drag_delta();
+      self.camera.drag_pan([d.x, d.y], extent, rect);
+    }
+    if response.hovered() {
+      let scroll = ui.input(|i| i.raw_scroll_delta.y);
+      self.camera.zoom = (self.camera.zoom * (-scroll * 0.002).exp()).clamp(0.02, 4.0);
+    }
 
-    // Find the vertex under the mouse, preferring the one closest to the
-    // camera.
+    // The camera works in grid space: one unit is one block, and the terrain
+    // covers 0..extent on x and z.
+    let target = [extent / 2.0 + self.camera.pan[0], SEA_LEVEL as f32, extent / 2.0 + self.camera.pan[1]];
+    let view = self.camera.view(rect, extent, target);
+
+    // Find the column under the mouse.
     self.hover = None;
     if let Some(mouse) = response.hover_pos() {
-      let mut best: Option<(usize, f32)> = None;
-      for (idx, p) in projected.iter().enumerate() {
-        let Some((pos, depth)) = p else { continue };
-        if pos.distance(mouse) < 8.0 && best.is_none_or(|(_, d)| *depth < d) {
-          best = Some((idx, *depth));
-        }
-      }
-      self.hover = best.map(|(idx, _)| idx);
+      let (origin, dir) = view.ray(mouse);
+      self.hover = grid.raycast(origin, dir);
     }
 
     if let Some(idx) = self.hover {
-      if let Some((pos, _)) = projected[idx] {
-        painter.circle_stroke(pos, 6.0, Stroke::new(2.0f32, Color32::WHITE));
-      }
-
       if self.section.picking && response.clicked() {
-        let point = grid.world(idx / N, idx % N);
+        let point = grid.world(idx / grid.n, idx % grid.n);
         if self.section.a.is_none() || self.section.b.is_some() {
           self.section.a = Some(point);
           self.section.b = None;
@@ -445,19 +450,42 @@ impl App {
       }
     }
 
+    let frame = gl::Frame {
+      eye:        view.eye(),
+      forward:    view.forward(),
+      right:      view.right_scaled(rect.aspect_ratio()),
+      up:         view.up_scaled(),
+      pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
+      step:       grid.step as f32,
+      max_height: grid.max_height() + 1.0,
+      hover:      self.hover.map(|idx| ((idx / grid.n) as i32, (idx % grid.n) as i32)),
+    };
+    let renderer = self.renderer.clone();
+    painter.add(egui::PaintCallback {
+      rect,
+      callback: Arc::new(egui_glow::CallbackFn::new(move |info, painter| {
+        renderer.lock().unwrap().paint(&info, painter.gl(), &frame);
+      })),
+    });
+
     // The section line, following the terrain.
     let splines = self.active_splines();
+    let snap = |h: f64| ((h / grid.step).floor() * grid.step) as f32;
     let line: Vec<Option<Pos2>> = self
       .section
       .samples
       .iter()
       .map(|s| {
-        let mut h = splines.parts(s.noise).height as f32;
+        let mut h = snap(splines.parts(s.noise).height);
         if self.flatten_water {
-          h = h.max(SEA_LEVEL as f32);
+          h = h.max(snap(SEA_LEVEL));
         }
         view
-          .project([(s.x - grid.center[0]) as f32, h * vscale + 1.0, (s.z - grid.center[1]) as f32])
+          .project([
+            (s.x - grid.center[0]) as f32 + extent / 2.0,
+            h + grid.step as f32,
+            (s.z - grid.center[1]) as f32 + extent / 2.0,
+          ])
           .map(|p| p.0)
       })
       .collect();
@@ -482,7 +510,8 @@ impl App {
     // Readout.
     let text = match self.hovered() {
       Some((r, p)) => {
-        let [x, z] = grid.world(self.hover.unwrap() / N, self.hover.unwrap() % N);
+        let idx = self.hover.unwrap();
+        let [x, z] = grid.world(idx / grid.n, idx % grid.n);
         format!(
           "x {x:.0}  z {z:.0}\n\
            continentalness {:.3} -> c {:.1}\n\
@@ -493,7 +522,7 @@ impl App {
           r.continentalness, p.c, r.erosion, p.e, r.peaks_valleys, p.p, p.impact, p.height,
         )
       }
-      None => "drag: orbit   scroll: zoom   hover: inspect".to_string(),
+      None => "drag: orbit   right drag: pan   scroll: zoom   hover: inspect".to_string(),
     };
     let galley = painter.layout_no_wrap(text, FontId::monospace(13.0), Color32::from_gray(235));
     let pos = rect.left_top() + Vec2::splat(14.0);
