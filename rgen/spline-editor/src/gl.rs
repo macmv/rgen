@@ -1,5 +1,7 @@
 use eframe::{egui::PaintCallbackInfo, glow, glow::HasContext};
 
+use crate::grid::Upload;
+
 const VERTEX: &str = "#version 330 core
 void main() {
   // One triangle that covers the whole viewport.
@@ -9,14 +11,6 @@ void main() {
 ";
 
 const FRAGMENT: &str = include_str!("voxel.glsl");
-
-/// New terrain to upload to the GPU.
-pub struct Upload {
-  pub n:          usize,
-  pub heights:    Vec<f32>,
-  /// RGBA, one per column.
-  pub colors:     Vec<u8>,
-}
 
 /// Everything the shader needs to draw one frame.
 #[derive(Clone, Copy)]
@@ -40,7 +34,7 @@ pub struct Renderer {
   colors:  glow::Texture,
 
   n:       i32,
-  pending: Option<Upload>,
+  pending: Vec<Upload>,
 }
 
 impl Renderer {
@@ -83,45 +77,84 @@ impl Renderer {
         heights: make_texture(gl)?,
         colors: make_texture(gl)?,
         n: 0,
-        pending: None,
+        pending: vec![],
       })
     }
   }
 
-  /// Queues new terrain, which is uploaded on the next paint.
-  pub fn set_terrain(&mut self, upload: Upload) { self.pending = Some(upload); }
+  /// Queues new terrain, which is uploaded on the next paint. A full upload
+  /// replaces everything queued before it.
+  pub fn queue(&mut self, upload: Upload) {
+    if matches!(upload, Upload::Full { .. }) {
+      self.pending.clear();
+    }
+    self.pending.push(upload);
+  }
 
   pub fn paint(&mut self, info: &PaintCallbackInfo, gl: &glow::Context, frame: &Frame) {
     unsafe {
-      if let Some(upload) = self.pending.take() {
-        self.n = upload.n as i32;
-        gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+      gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+      for upload in std::mem::take(&mut self.pending) {
+        match upload {
+          Upload::Full { n, heights, colors } => {
+            self.n = n as i32;
 
-        gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
-        gl.tex_image_2d(
-          glow::TEXTURE_2D,
-          0,
-          glow::R32F as i32,
-          self.n,
-          self.n,
-          0,
-          glow::RED,
-          glow::FLOAT,
-          Some(bytes_of(&upload.heights)),
-        );
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
+            gl.tex_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              glow::R32F as i32,
+              self.n,
+              self.n,
+              0,
+              glow::RED,
+              glow::FLOAT,
+              Some(bytes_of(&heights)),
+            );
 
-        gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
-        gl.tex_image_2d(
-          glow::TEXTURE_2D,
-          0,
-          glow::RGBA8 as i32,
-          self.n,
-          self.n,
-          0,
-          glow::RGBA,
-          glow::UNSIGNED_BYTE,
-          Some(&upload.colors),
-        );
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+            gl.tex_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              glow::RGBA8 as i32,
+              self.n,
+              self.n,
+              0,
+              glow::RGBA,
+              glow::UNSIGNED_BYTE,
+              Some(&colors),
+            );
+          }
+          Upload::Tile { x, y, size, heights, colors } => {
+            let (x, y, size) = (x as i32, y as i32, size as i32);
+
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.heights));
+            gl.tex_sub_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              x,
+              y,
+              size,
+              size,
+              glow::RED,
+              glow::FLOAT,
+              glow::PixelUnpackData::Slice(bytes_of(&heights)),
+            );
+
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+            gl.tex_sub_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              x,
+              y,
+              size,
+              size,
+              glow::RGBA,
+              glow::UNSIGNED_BYTE,
+              glow::PixelUnpackData::Slice(&colors),
+            );
+          }
+        }
       }
       if self.n == 0 {
         return;

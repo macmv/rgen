@@ -1,9 +1,15 @@
 use eframe::egui::Color32;
-use rgen_biome::{HeightParts, RawNoise};
+use rgen_biome::RawNoise;
 
 use crate::Splines;
 
 pub const SEA_LEVEL: f64 = 64.0;
+
+/// The width of a chunk, in blocks. This is the same size as the regions in
+/// `rgen-viewer`.
+pub const TILE_BLOCKS: u32 = 128;
+/// The terrain is a square of this many chunks on each side.
+pub const TILES: usize = 21;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Layer {
@@ -45,7 +51,7 @@ impl Layer {
     }
   }
 
-  pub fn value(&self, raw: RawNoise, parts: HeightParts) -> f64 {
+  pub fn value(&self, raw: RawNoise, parts: rgen_biome::HeightParts) -> f64 {
     match self {
       Layer::Height => parts.height,
       Layer::RawContinentalness => raw.continentalness,
@@ -59,79 +65,203 @@ impl Layer {
       Layer::RiverDistance => ((raw.peaks_valleys - 0.5).abs() / 0.16).min(1.0),
     }
   }
+
+  /// The values that map to the ends of the color ramp. These are fixed, so
+  /// that colors stay put while chunks load and splines change.
+  pub fn range(&self) -> (f64, f64) {
+    match self {
+      Layer::Height => (30.0, 220.0),
+      Layer::Continentalness => (0.0, 128.0),
+      Layer::PeaksValleys => (-64.0, 256.0),
+      _ => (0.0, 1.0),
+    }
+  }
 }
 
-/// The sampled terrain. The noise is sampled in the background, and everything
-/// else is derived from it whenever the splines or the layer change.
+/// The sampled terrain: `TILES` x `TILES` chunks, each of which is generated on
+/// its own. Chunks that haven't been generated yet are empty.
 ///
-/// Each sample is a column of cubes, `step` blocks on each side.
+/// Each sample is a column of cubes, `step` blocks on each side. All the arrays
+/// are indexed with `index`, which matches how they're laid out in a texture.
 pub struct Grid {
-  /// Columns along each side.
+  /// Columns along each side of a chunk.
+  pub cols:   usize,
+  /// Columns along each side of the whole grid.
   pub n:      usize,
-  pub center: [f64; 2],
   pub step:   f64,
+  /// The world position of the grid's minimum corner.
+  pub origin: [f64; 2],
 
-  pub raw:   Vec<RawNoise>,
-  pub parts: Vec<HeightParts>,
-
+  pub raw:    Vec<RawNoise>,
   /// The top of each column, in blocks. This is a multiple of `step`, so that
-  /// the columns are made of whole cubes.
+  /// the columns are made of whole cubes. Columns with no terrain are -1.
   pub height: Vec<f32>,
-  /// The color of each column.
   pub colors: Vec<Color32>,
+
+  loaded:     Vec<bool>,
+  pub loaded_count: usize,
+  max_height: f32,
+}
+
+/// Terrain to copy into the GPU's textures.
+pub enum Upload {
+  /// Replaces both textures.
+  Full { n: usize, heights: Vec<f32>, colors: Vec<u8> },
+  /// Replaces one square of both textures.
+  Tile { x: usize, y: usize, size: usize, heights: Vec<f32>, colors: Vec<u8> },
 }
 
 impl Grid {
-  pub fn new(raw: Vec<RawNoise>, n: usize, center: [f64; 2], step: f64) -> Self {
-    Grid { n, center, step, raw, parts: vec![], height: vec![], colors: vec![] }
+  /// Makes a grid where nothing has been generated.
+  pub fn new(origin: [f64; 2], step: u32) -> Self {
+    let cols = (TILE_BLOCKS / step) as usize;
+    let n = cols * TILES;
+    Grid {
+      cols,
+      n,
+      step: f64::from(step),
+      origin,
+      raw: vec![RawNoise { continentalness: 0.0, peaks_valleys: 0.0, erosion: 0.0 }; n * n],
+      height: vec![-1.0; n * n],
+      colors: vec![Color32::BLACK; n * n],
+      loaded: vec![false; TILES * TILES],
+      loaded_count: 0,
+      max_height: 0.0,
+    }
   }
 
-  pub fn index(&self, i: usize, j: usize) -> usize { i * self.n + j }
+  /// The array index of a column. `i` is along x, and `j` is along z.
+  pub fn index(&self, i: usize, j: usize) -> usize { j * self.n + i }
+
+  /// The inverse of `index`.
+  pub fn coords(&self, idx: usize) -> (usize, usize) { (idx % self.n, idx / self.n) }
 
   /// The width of the grid, in blocks.
   pub fn extent(&self) -> f32 { self.n as f32 * self.step as f32 }
 
   /// The tallest column, in blocks.
-  pub fn max_height(&self) -> f32 { self.height.iter().copied().fold(0.0, f32::max) }
+  pub fn max_height(&self) -> f32 { self.max_height }
 
-  /// The world position of a grid vertex.
+  /// The world position of a column's minimum corner.
   pub fn world(&self, i: usize, j: usize) -> [f64; 2] {
-    [
-      self.center[0] + (i as f64 - self.n as f64 / 2.0) * self.step,
-      self.center[1] + (j as f64 - self.n as f64 / 2.0) * self.step,
-    ]
+    [self.origin[0] + i as f64 * self.step, self.origin[1] + j as f64 * self.step]
   }
 
-  pub fn recompute(&mut self, splines: &Splines, layer: Layer, flatten_water: bool) {
-    self.parts = self.raw.iter().map(|&r| splines.parts(r)).collect();
+  /// The upload for the entire grid.
+  pub fn full_upload(&self) -> Upload {
+    Upload::Full {
+      n:       self.n,
+      heights: self.height.clone(),
+      colors:  self.colors.iter().flat_map(|c| c.to_array()).collect(),
+    }
+  }
 
+  /// Stores a freshly generated chunk, and returns the upload for it.
+  /// `raw` is `cols * cols` samples, indexed like the grid.
+  pub fn set_tile(
+    &mut self,
+    tx: usize,
+    tz: usize,
+    raw: &[RawNoise],
+    splines: &Splines,
+    layer: Layer,
+    flatten_water: bool,
+  ) -> Upload {
+    let cols = self.cols;
+    let (mut heights, mut colors) = (Vec::with_capacity(cols * cols), Vec::with_capacity(cols * 4 * cols));
+
+    for tj in 0..cols {
+      for ti in 0..cols {
+        let idx = self.index(tx * cols + ti, tz * cols + tj);
+        let sample = raw[tj * cols + ti];
+        let (height, color) = Self::column(self.step, sample, splines, layer, flatten_water);
+
+        self.raw[idx] = sample;
+        self.height[idx] = height;
+        self.colors[idx] = color;
+        self.max_height = self.max_height.max(height);
+
+        heights.push(height);
+        colors.extend(color.to_array());
+      }
+    }
+
+    if !self.loaded[tz * TILES + tx] {
+      self.loaded[tz * TILES + tx] = true;
+      self.loaded_count += 1;
+    }
+
+    Upload::Tile { x: tx * cols, y: tz * cols, size: cols, heights, colors }
+  }
+
+  /// Recalculates every loaded column, after the splines or layer change.
+  pub fn recompute_all(&mut self, splines: &Splines, layer: Layer, flatten_water: bool) {
+    let n = self.n;
+    let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
+    let rows_per_thread = n.div_ceil(threads);
+
+    let (raw, loaded) = (&self.raw, &self.loaded);
     let step = self.step;
+    let cols = self.cols;
+
+    let max_height = std::thread::scope(|scope| {
+      let handles: Vec<_> = self
+        .height
+        .chunks_mut(rows_per_thread * n)
+        .zip(self.colors.chunks_mut(rows_per_thread * n))
+        .enumerate()
+        .map(|(chunk, (heights, colors))| {
+          scope.spawn(move || {
+            let mut max = 0.0f32;
+            for (r, (hrow, crow)) in heights.chunks_mut(n).zip(colors.chunks_mut(n)).enumerate() {
+              let j = chunk * rows_per_thread + r;
+              for i in 0..n {
+                if !loaded[(j / cols) * TILES + i / cols] {
+                  continue;
+                }
+                let (h, c) = Self::column(step, raw[j * n + i], splines, layer, flatten_water);
+                hrow[i] = h;
+                crow[i] = c;
+                max = max.max(h);
+              }
+            }
+            max
+          })
+        })
+        .collect();
+
+      handles.into_iter().map(|h| h.join().unwrap()).fold(0.0, f32::max)
+    });
+
+    self.max_height = max_height;
+  }
+
+  /// The height and color of one column.
+  fn column(
+    step: f64,
+    raw: RawNoise,
+    splines: &Splines,
+    layer: Layer,
+    flatten_water: bool,
+  ) -> (f32, Color32) {
+    let parts = splines.parts(raw);
+
     let snap = |h: f64| ((h / step).floor() * step) as f32;
-    let sea = snap(SEA_LEVEL);
-    self.height = self
-      .parts
-      .iter()
-      .map(|p| if flatten_water && p.height < SEA_LEVEL { sea } else { snap(p.height) })
-      .collect();
+    let height = if flatten_water && parts.height < SEA_LEVEL {
+      snap(SEA_LEVEL)
+    } else {
+      snap(parts.height)
+    };
 
-    let values: Vec<f64> =
-      self.raw.iter().zip(&self.parts).map(|(&r, &p)| layer.value(r, p)).collect();
-    let min = values.iter().copied().fold(f64::INFINITY, f64::min);
-    let max = values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
-    let range = (max - min).max(1e-9);
+    let color = if layer == Layer::Height {
+      let (lo, hi) = layer.range();
+      height_color(parts.height, lo, hi)
+    } else {
+      let (lo, hi) = layer.range();
+      gradient(&VIRIDIS, ((layer.value(raw, parts) - lo) / (hi - lo)) as f32)
+    };
 
-    let lo = self.parts.iter().map(|p| p.height).fold(f64::INFINITY, f64::min);
-    let hi = self.parts.iter().map(|p| p.height).fold(f64::NEG_INFINITY, f64::max);
-
-    self.colors = (0..self.n * self.n)
-      .map(|idx| {
-        if layer == Layer::Height {
-          height_color(self.parts[idx].height, lo, hi)
-        } else {
-          gradient(&VIRIDIS, ((values[idx] - min) / range) as f32)
-        }
-      })
-      .collect();
+    (height, color)
   }
 
   /// Casts a ray through the columns, and returns the first column it hits.

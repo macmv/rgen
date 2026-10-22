@@ -14,9 +14,11 @@ use rgen_spline::{Cosine, Spline};
 mod camera;
 mod gl;
 mod grid;
+mod pool;
 
 use camera::Camera;
-use grid::{Grid, Layer, SEA_LEVEL};
+use grid::{Grid, Layer, SEA_LEVEL, TILES, TILE_BLOCKS};
+use pool::{Pool, TileResult};
 
 fn main() -> Result<(), eframe::Error> {
   let options = eframe::NativeOptions {
@@ -29,7 +31,7 @@ fn main() -> Result<(), eframe::Error> {
     Box::new(|cc| {
       let gl = cc.gl.as_ref().expect("the terrain view needs OpenGL");
       let renderer = gl::Renderer::new(gl).expect("failed to build the terrain shader");
-      Box::new(App::new(Arc::new(Mutex::new(renderer))))
+      Box::new(App::new(&cc.egui_ctx, Arc::new(Mutex::new(renderer))))
     }),
   )
 }
@@ -133,19 +135,19 @@ struct App {
   saved:         Splines,
   compare_saved: bool,
 
-  seed:   u64,
-  center: [f64; 2],
-  /// The width of the terrain, in blocks. Changing the block size doesn't
-  /// change this, only how finely it's sampled.
-  width:  u32,
+  seed:        u64,
+  /// The chunk in the middle of the terrain.
+  center_tile: [i32; 2],
   /// Blocks along each side of a column.
-  step:   u32,
+  step:        u32,
 
-  noise:      Arc<TerrainNoise>,
-  requested:  Option<(u64, [i64; 2], u32, u32)>,
-  request_id: u64,
-  tx:         mpsc::Sender<(u64, Vec<RawNoise>)>,
-  rx:         mpsc::Receiver<(u64, Vec<RawNoise>)>,
+  noise:    Arc<TerrainNoise>,
+  pool:     Pool,
+  results:  mpsc::Receiver<TileResult>,
+  /// Bumped whenever a new region is started, so that stale chunks are ignored.
+  epoch:    u64,
+  /// What the current region was generated with.
+  requested: Option<(u64, [i32; 2], u32)>,
 
   grid:  Option<Grid>,
   /// Set when the splines or display options change, so the grid colors need to
@@ -164,7 +166,7 @@ struct App {
 }
 
 impl App {
-  fn new(renderer: Arc<Mutex<gl::Renderer>>) -> Self {
+  fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>) -> Self {
     let (tx, rx) = mpsc::channel();
     App {
       splines: Splines::from_game(),
@@ -172,15 +174,14 @@ impl App {
       compare_saved: false,
 
       seed: 0,
-      center: [0.0, 0.0],
-      width: 2048,
+      center_tile: [0, 0],
       step: 4,
 
       noise: Arc::new(TerrainNoise::new(0)),
+      pool: Pool::new(ctx, tx),
+      results: rx,
+      epoch: 0,
       requested: None,
-      request_id: 0,
-      tx,
-      rx,
 
       grid: None,
       dirty: false,
@@ -199,27 +200,16 @@ impl App {
 
 impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-    while let Ok((id, raw)) = self.rx.try_recv() {
-      if id == self.request_id {
-        self.grid = Some(Grid::new(raw, self.columns(), self.center, f64::from(self.step)));
-        self.dirty = true;
-      }
-    }
-    self.request_grid(ctx);
+    self.request_region();
+    self.receive_tiles(ctx);
 
     egui::SidePanel::left("controls").default_width(340.0).show(ctx, |ui| self.controls(ui));
 
     if self.dirty {
       let splines = if self.compare_saved { self.saved.clone() } else { self.splines.clone() };
       if let Some(grid) = &mut self.grid {
-        grid.recompute(&splines, self.layer, self.flatten_water);
-
-        let colors = grid.colors.iter().flat_map(|c| c.to_array()).collect();
-        self.renderer.lock().unwrap().set_terrain(gl::Upload {
-          n: grid.n,
-          heights: grid.height.clone(),
-          colors,
-        });
+        grid.recompute_all(&splines, self.layer, self.flatten_water);
+        self.renderer.lock().unwrap().queue(grid.full_upload());
       }
       self.dirty = false;
     }
@@ -233,62 +223,60 @@ impl eframe::App for App {
   }
 }
 
-/// The largest block size.
-const MAX_STEP: u32 = 32;
-/// The most columns along one side. A bigger grid is too slow to recolor
-/// while editing splines.
-const MAX_COLUMNS: u32 = 1024;
+/// The block sizes to pick from. Each chunk is `TILE_BLOCKS` wide, so these
+/// all divide it evenly.
+const STEPS: [u32; 6] = [1, 2, 4, 8, 16, 32];
+
+/// The most chunks that are copied into the grid each frame.
+const TILES_PER_FRAME: usize = 24;
 
 impl App {
-  /// Columns along each side of the terrain.
-  fn columns(&self) -> usize { (self.width / self.step) as usize }
-
-  /// The smallest block size that keeps the grid under `MAX_COLUMNS`.
-  fn min_step(&self) -> u32 { (self.width / MAX_COLUMNS).max(1) }
-
   fn active_splines(&self) -> &Splines {
     if self.compare_saved { &self.saved } else { &self.splines }
   }
 
-  /// Starts sampling the noise in the background if the parameters changed.
-  fn request_grid(&mut self, ctx: &egui::Context) {
-    let key = (self.seed, [self.center[0] as i64, self.center[1] as i64], self.width, self.step);
+  /// The world position of the terrain's minimum corner.
+  fn origin(&self) -> [f64; 2] {
+    let first = |c: i32| f64::from(c - TILES as i32 / 2) * f64::from(TILE_BLOCKS);
+    [first(self.center_tile[0]), first(self.center_tile[1])]
+  }
+
+  /// Starts generating a new region if the parameters changed.
+  fn request_region(&mut self) {
+    let key = (self.seed, self.center_tile, self.step);
     if self.requested == Some(key) {
       return;
     }
     self.requested = Some(key);
-    self.request_id += 1;
+    self.epoch += 1;
 
-    let id = self.request_id;
-    let noise = self.noise.clone();
-    let (center, n, step) = (self.center, self.columns(), f64::from(self.step));
-    let tx = self.tx.clone();
-    let ctx = ctx.clone();
+    let grid = Grid::new(self.origin(), self.step);
+    self.renderer.lock().unwrap().queue(grid.full_upload());
+    self.pool.start_region(self.epoch, &self.noise, grid.origin, grid.step, grid.cols);
+    self.grid = Some(grid);
+  }
 
-    std::thread::spawn(move || {
-      let mut raw = vec![RawNoise { continentalness: 0.0, peaks_valleys: 0.0, erosion: 0.0 }; n * n];
+  /// Copies the chunks the workers finished into the terrain.
+  fn receive_tiles(&mut self, ctx: &egui::Context) {
+    let Some(grid) = &mut self.grid else { return };
+    let splines = if self.compare_saved { &self.saved } else { &self.splines };
 
-      // Split the rows between all the cores, as a large grid is a lot of noise.
-      let threads = std::thread::available_parallelism().map_or(1, |t| t.get());
-      let rows_per_thread = n.div_ceil(threads);
-      std::thread::scope(|scope| {
-        for (chunk_index, chunk) in raw.chunks_mut(rows_per_thread * n).enumerate() {
-          let noise = &noise;
-          scope.spawn(move || {
-            for (k, out) in chunk.iter_mut().enumerate() {
-              let idx = chunk_index * rows_per_thread * n + k;
-              let (i, j) = (idx / n, idx % n);
-              let x = center[0] + (i as f64 - n as f64 / 2.0) * step;
-              let z = center[1] + (j as f64 - n as f64 / 2.0) * step;
-              *out = noise.sample(x, z);
-            }
-          });
-        }
-      });
+    let mut renderer = self.renderer.lock().unwrap();
+    let mut received = 0;
+    while received < TILES_PER_FRAME {
+      let Ok(tile) = self.results.try_recv() else { return };
+      if tile.epoch != self.epoch {
+        continue;
+      }
 
-      let _ = tx.send((id, raw));
-      ctx.request_repaint();
-    });
+      let upload =
+        grid.set_tile(tile.tx, tile.tz, &tile.raw, splines, self.layer, self.flatten_water);
+      renderer.queue(upload);
+      received += 1;
+    }
+
+    // There might be more waiting, so come back next frame.
+    ctx.request_repaint();
   }
 
   fn controls(&mut self, ui: &mut egui::Ui) {
@@ -302,41 +290,31 @@ impl App {
       }
       ui.end_row();
 
-      ui.label("Center x, z");
+      ui.label("Center chunk");
       ui.horizontal(|ui| {
-        let speed = f64::from(self.step) * 4.0;
-        ui.add(DragValue::new(&mut self.center[0]).speed(speed));
-        ui.add(DragValue::new(&mut self.center[1]).speed(speed));
+        ui.add(DragValue::new(&mut self.center_tile[0]).speed(0.2));
+        ui.add(DragValue::new(&mut self.center_tile[1]).speed(0.2));
       });
       ui.end_row();
-
-      ui.label("Width");
-      egui::ComboBox::from_id_source("width")
-        .selected_text(format!("{} blocks", self.width))
-        .show_ui(ui, |ui| {
-          for width in [512, 1024, 2048, 4096, 8192] {
-            ui.selectable_value(&mut self.width, width, format!("{width} blocks"));
-          }
-        });
-      ui.end_row();
-
-      // Keep the block size in range when the width changes.
-      self.step = self.step.clamp(self.min_step(), MAX_STEP);
 
       ui.label("Block size");
       egui::ComboBox::from_id_source("step")
         .selected_text(format!("{0}x{0}x{0}", self.step))
         .show_ui(ui, |ui| {
-          for step in (0..).map(|i| 1u32 << i).take_while(|&s| s <= MAX_STEP) {
-            if step >= self.min_step() {
-              ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
-            }
+          for step in STEPS {
+            ui.selectable_value(&mut self.step, step, format!("{step}x{step}x{step}"));
           }
         });
       ui.end_row();
 
-      ui.label("Columns");
-      ui.label(format!("{0}x{0}", self.columns()));
+      ui.label("Region");
+      let blocks = TILES as u32 * TILE_BLOCKS;
+      ui.label(format!("{TILES}x{TILES} chunks, {blocks} blocks"));
+      ui.end_row();
+
+      ui.label("Generated");
+      let (done, total) = (self.grid.as_ref().map_or(0, |g| g.loaded_count), TILES * TILES);
+      ui.label(if done == total { "done".to_string() } else { format!("{done} / {total}") });
       ui.end_row();
     });
 
@@ -403,8 +381,8 @@ impl App {
   /// The noise and height parts of the vertex the mouse was over last frame.
   fn hovered(&self) -> Option<(RawNoise, HeightParts)> {
     let grid = self.grid.as_ref()?;
-    let idx = self.hover?;
-    Some((*grid.raw.get(idx)?, *grid.parts.get(idx)?))
+    let raw = *grid.raw.get(self.hover?)?;
+    Some((raw, self.active_splines().parts(raw)))
   }
 
   fn terrain_view(&mut self, ui: &mut egui::Ui) {
@@ -456,7 +434,8 @@ impl App {
 
     if let Some(idx) = self.hover {
       if self.section.picking && response.clicked() {
-        let point = grid.world(idx / grid.n, idx % grid.n);
+        let (i, j) = grid.coords(idx);
+        let point = grid.world(i, j);
         if self.section.a.is_none() || self.section.b.is_some() {
           self.section.a = Some(point);
           self.section.b = None;
@@ -476,7 +455,10 @@ impl App {
       pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
       step:       grid.step as f32,
       max_height: grid.max_height() + 1.0,
-      hover:      self.hover.map(|idx| ((idx / grid.n) as i32, (idx % grid.n) as i32)),
+      hover:      self.hover.map(|idx| {
+        let (i, j) = grid.coords(idx);
+        (i as i32, j as i32)
+      }),
     };
     let renderer = self.renderer.clone();
     painter.add(egui::PaintCallback {
@@ -500,9 +482,9 @@ impl App {
         }
         view
           .project([
-            (s.x - grid.center[0]) as f32 + extent / 2.0,
+            (s.x - grid.origin[0]) as f32,
             h + grid.step as f32,
-            (s.z - grid.center[1]) as f32 + extent / 2.0,
+            (s.z - grid.origin[1]) as f32,
           ])
           .map(|p| p.0)
       })
@@ -529,7 +511,8 @@ impl App {
     let text = match self.hovered() {
       Some((r, p)) => {
         let idx = self.hover.unwrap();
-        let [x, z] = grid.world(idx / grid.n, idx % grid.n);
+        let (i, j) = grid.coords(idx);
+        let [x, z] = grid.world(i, j);
         format!(
           "x {x:.0}  z {z:.0}\n\
            continentalness {:.3} -> c {:.1}\n\
