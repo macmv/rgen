@@ -58,4 +58,18 @@ tile.mossy_stone.name=Mossy Stone
 item.debug_stick.name=Debug Stick
 item.green_cactus_fruit.name=Green Cactus Fruit
 
+tile.pink_orchid.name=Pink Orchid
+tile.passion_flower.name=Passion Flower
+tile.heliconia.name=Heliconia
+tile.pink_heart.name=Pink Heart
+tile.torch_ginger.name=Torch Ginger
+tile.orchidaceae.name=Orchidaceae
+tile.ipomoea.name=Ipomoea
+tile.bromeliads.name=Bromeliads
+tile.ficus_elastica.name=Ficus Elastica
+tile.yellow_jungle_rose.name=Yellow Jungle Rose
+tile.bird_of_paradise.name=Bird of Paradise
+tile.jungle_bush.name=Jungle Bush
+
+
 
