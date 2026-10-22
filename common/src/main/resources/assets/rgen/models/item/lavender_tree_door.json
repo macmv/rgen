@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "rgen:items/doors/lavender_tree_door"
+  }
+}

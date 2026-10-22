@@ -1,0 +1,7 @@
+{
+  "parent": "block/leaves",
+  "textures": {
+    "all": "rgen:blocks/wood/lavender_tree/lavender_tree_leaves"
+
+  }
+}

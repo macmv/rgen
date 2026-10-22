@@ -1,0 +1,6 @@
+{
+  "parent": "block/leaves",
+  "textures": {
+    "all": "rgen:blocks/wood/red_seasonal_tree/red_seasonal_tree_leaves"
+  }
+}

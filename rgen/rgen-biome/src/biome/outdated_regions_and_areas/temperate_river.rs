@@ -11,7 +11,7 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
   g.color = "#A3B5A0";
   g.set_top_block(block![grass]);
 
-  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Sakura::default());
+  g.place("Small Cherry Tree", PlacerStage::Tree, placer::Cherry::default());
   g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,

@@ -24,7 +24,9 @@ public class SaplingTwo extends Sapling {
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     for (LogType ty : LogType.values()) {
       if (ty.meta >= OFFSET && ty.meta < OFFSET + 8) {
-        items.add(new ItemStack(this, 1, ty.meta));
+        // Inventory metadata is the compact variant index (0..7). The block
+        // state adds OFFSET when translating that metadata to LogType values.
+        items.add(new ItemStack(this, 1, ty.meta - OFFSET));
       }
     }
   }

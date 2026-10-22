@@ -78,7 +78,7 @@ public class MossyLogBlock extends BlockLog {
     // TODO: Add models for these guys
     OAK(0, "oak", MapColor.WOOD),
     BIRCH(1, "birch", MapColor.OBSIDIAN);
-    // SAKURA(2, "sakura", MapColor.SAND),
+    // CHERRY(2, "cherry", MapColor.SAND),
     // DEAD(3, "dead", MapColor.SAND);
 
     public final int meta;
@@ -100,7 +100,7 @@ public class MossyLogBlock extends BlockLog {
       switch (meta) {
         case 0: return OAK;
         // case 1: return FIR;
-        // case 2: return SAKURA;
+        // case 2: return CHERRY;
         default: return BIRCH;
       }
     }
@@ -122,7 +122,7 @@ LOG 2
 Rgen 1
 - Fir
 - Palm
-- Sakura
+- Cherry
 - Cedar
 
 Rgen 2

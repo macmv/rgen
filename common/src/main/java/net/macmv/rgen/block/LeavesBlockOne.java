@@ -33,7 +33,7 @@ public class LeavesBlockOne extends LeavesBlock {
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
     items.add(new ItemStack(this, 1, LogType.FIR.meta));
     items.add(new ItemStack(this, 1, LogType.PALM.meta));
-    items.add(new ItemStack(this, 1, LogType.SAKURA.meta));
+    items.add(new ItemStack(this, 1, LogType.CHERRY.meta));
     items.add(new ItemStack(this, 1, LogType.CEDAR.meta));
   }
 

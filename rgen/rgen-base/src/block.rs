@@ -353,10 +353,10 @@ macro_rules! blocks {
 const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
 const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
 
-const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "sakura", "cedar"];
-const RGEN_WOOD_4_2_LOG: [&str; 2] = ["mangrove", "dead"];
-const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender", "seasonal"];
-const RGEN_WOOD_4_3: [&str; 1] = ["aspen"];
+const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "cherry", "cedar"];
+const RGEN_WOOD_4_2_LOG: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
+const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
+const RGEN_WOOD_4_3: [&str; 4] = ["aspen", "red_seasonal_tree", "orange_seasonal_tree", "yellow_seasonal_tree"];
 
 const COLOR: [&str; 16] = [
   "white",

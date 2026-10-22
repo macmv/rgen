@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
 public class LogBlockTwo extends BlockLog {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, (type) -> type == LogType.MANGROVE || type == LogType.DEAD);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type == LogType.MANGROVE || type == LogType.LAVENDER_TREE || type == LogType.DEAD);
 
   public LogBlockTwo(BlockSettings settings) {
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.MANGROVE).withProperty(LOG_AXIS, EnumAxis.Y));
@@ -24,6 +24,7 @@ public class LogBlockTwo extends BlockLog {
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     // TODO: Add these back
     items.add(new ItemStack(this, 1, LogType.MANGROVE.meta - 4));
+    items.add(new ItemStack(this, 1, LogType.LAVENDER_TREE.meta - 4));
     items.add(new ItemStack(this, 1, LogType.DEAD.meta - 4));
   }
 
@@ -34,7 +35,9 @@ public class LogBlockTwo extends BlockLog {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    IBlockState state = this.getDefaultState().withProperty(VARIANT, LogType.fromMeta((meta & 3) + 4));
+    int variantMeta = meta & 3;
+    LogType variant = variantMeta == 1 ? LogType.LAVENDER_TREE : variantMeta == 3 ? LogType.DEAD : LogType.MANGROVE;
+    IBlockState state = this.getDefaultState().withProperty(VARIANT, variant);
 
     switch (meta & 12) {
       case 0: return state.withProperty(LOG_AXIS, EnumAxis.Y);
