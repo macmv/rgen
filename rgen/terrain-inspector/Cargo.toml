@@ -1,5 +1,5 @@
 [package]
-name = "spline-editor"
+name = "terrain-inspector"
 version = "0.1.0"
 edition = "2024"
 

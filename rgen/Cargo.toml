@@ -11,7 +11,7 @@ members = [
   "rgen-jni-impl",
   "rgen-viewer",
 
-  "spline-editor",
+  "terrain-inspector",
 ]
 
 [workspace.dependencies]

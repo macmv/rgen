@@ -714,7 +714,7 @@ fn plot_spline(
           .collect::<Vec<_>>(),
       ));
       plot.points(
-        Points::new(spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>()).radius(4.0),
+        Points::new(spline.storage.iter().map(|k| [k.0, k.1]).collect::<Vec<_>>()).radius(4.0_f32),
       );
 
       if let Some(x) = marker {
@@ -722,7 +722,7 @@ fn plot_spline(
         plot.vline(VLine::new(x).color(Color32::from_rgb(255, 210, 40)));
         plot.points(
           Points::new(vec![[x, spline.sample::<Cosine>(x)]])
-            .radius(6.0)
+            .radius(6.0_f32)
             .color(Color32::from_rgb(255, 210, 40)),
         );
       }

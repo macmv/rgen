@@ -56,9 +56,9 @@ Splines are essentially a smoothed line. Given an input number, you can get a sm
 which is transformed in interesting ways. This is used frequently in `rgen-biome` to define height
 maps. It lets us build things like spiky mountains, smooth valleys, and sprawling rivers easily.
 
-### `spline-editor`
+### `terrain-inspector`
 
-This is an application that lets you create splines with a user interface.
+This is an application that shows the terrain in 3D, and lets you edit the height splines with a user interface.
 
 ### `rgen-viewer`
 
