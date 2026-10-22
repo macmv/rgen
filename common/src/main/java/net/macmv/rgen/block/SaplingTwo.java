@@ -9,7 +9,7 @@ import net.minecraft.util.NonNullList;
 
 public class SaplingTwo extends Sapling {
   private static final int OFFSET = 8;
-  public static final PropertyEnum<LogType> TYPE = PropertyEnum.create("type", LogType.class, ty -> ty.meta >= OFFSET && ty.meta < OFFSET + 8);
+  public static final PropertyEnum<LogType> TYPE = PropertyEnum.create("type", LogType.class, ty -> ty.meta >= OFFSET && ty.meta < OFFSET + 8 /* #fabric: || ty.meta == 7 */);
 
   public SaplingTwo(BlockSettings settings) {
     super(settings);
