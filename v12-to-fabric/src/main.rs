@@ -131,6 +131,24 @@ fn main() {
     "isFullCube",
     "getStateForPlacement",
     "onItemUse",
+    "neighborChanged",
+    "onBlockAdded",
+    "getDrops",
+    "isPassable",
+    "getActualState",
+    "setLightOpacity",
+    "onBlockPlacedBy",
+    "onEntityCollidedWithBlock",
+    "getAmbientOcclusionLightValue",
+    "isNormalCube",
+    "tickRate",
+    "canGrow",
+    "canUseBonemeal",
+    "Sapling::grow",
+    "Sapling::updateTick",
+    "Sapling::generateTree",
+    "LeavesBlock::updateTick",
+    "LeavesBlock::destroy",
   ]);
 
   let drop_annotations = HashSet::from(["SideOnly", "Nonnull", "Nullable", "SubscribeEvent"]);
@@ -182,6 +200,21 @@ impl Config {
     }
 
     if path.starts_with("net.minecraftforge") || path.starts_with("javax") {
+      return false;
+    }
+
+    // Packages that are gone. Anything that still uses these needs to be ported by hand.
+    const GONE: &[&str] = &[
+      "net.minecraft.init.",
+      "net.minecraft.tileentity.",
+      "net.minecraft.stats.",
+      "net.minecraft.block.properties.",
+      "net.minecraft.client.renderer.",
+      "net.minecraft.client.model.",
+      "net.minecraft.network.",
+      "net.minecraft.world.gen.feature.WorldGen",
+    ];
+    if GONE.iter().any(|g| path.starts_with(g)) {
       return false;
     }
 
@@ -316,10 +349,14 @@ impl Config {
           const SUFFIX: &str = "*/";
 
           let source = parser.slice();
-          let source_start = source.find(PREFIX).unwrap() + PREFIX.len();
+          let comment_start = source.find(PREFIX).unwrap();
+          let source_start = comment_start + PREFIX.len();
           let source_end = source.rfind(SUFFIX).unwrap();
 
-          output.replace(parser.range(), source[source_start..source_end].trim());
+          // Whitespace is included in the token, so only replace the comment itself.
+          let start = parser.range().start + comment_start;
+          let end = parser.range().start + source_end + SUFFIX.len();
+          output.replace(start..end, source[source_start..source_end].trim());
         }
         Token::V12Comment => {
           // The comment is formed like:
@@ -532,11 +569,14 @@ impl Config {
         }
 
         Token::Word
-          if self.drop_methods.contains(parser.slice())
+          if (self.drop_methods.contains(parser.slice())
+            || self.drop_methods.contains(format!("{class_name}::{}", parser.slice()).as_str()))
             && !source[..parser.range().start].trim_end().ends_with('.') =>
         {
+          let name = parser.slice();
           if let Some((range, end_parser)) = self.method_range(decl_start, &parser) {
-            output.replace(range, "");
+            // Leave a note, so these can be found and ported later.
+            output.replace(range, &format!("\n  // v12-to-fabric: dropped `{name}`\n"));
             parser = end_parser;
             decl_start = parser.range().end;
           }
@@ -685,7 +725,11 @@ impl Config {
                 let brace = look.range().end;
                 let mut first = look.clone();
                 let has_super = match first.next() {
-                  Some(Token::Word) => first.slice() == "super" || first.slice() == "this",
+                  Some(Token::Word) if matches!(first.slice(), "super" | "this") => {
+                    // `this.foo()` is not a constructor call.
+                    first.next() == Some(Token::Punct) && first.slice() == "("
+                  }
+                  Some(Token::Word) => false,
                   // A comment that gets replaced with the call.
                   Some(Token::V12Comment | Token::FabricComment) => true,
                   _ => false,

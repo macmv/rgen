@@ -102,7 +102,6 @@ impl<'a> Parser<'a> {
 
             while let Some(c) = self.char() {
               if self.src[comment_start..self.pos].trim() == "#v12-end" {
-                self.skip_whitespace();
                 return Some(Token::V12Comment);
               }
 

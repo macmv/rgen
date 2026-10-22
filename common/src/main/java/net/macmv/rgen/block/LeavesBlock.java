@@ -13,11 +13,13 @@ import java.util.Random;
 
 public abstract class LeavesBlock extends BlockLeaves {
 
-  public LeavesBlock() {
+  public LeavesBlock(BlockSettings settings) {
+    // #v12-start
     // always have fancy leaves.
     this.leavesFancy = true;
 
     this.setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
+    // #v12-end
   }
 
   private int[] surroundings;
