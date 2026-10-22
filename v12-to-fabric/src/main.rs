@@ -173,7 +173,8 @@ fn main() {
     (("MapColor", "ORANGE_STAINED_HARDENED_CLAY"), "TERRACOTTA_ORANGE"),
   ]);
 
-  let drop_props = HashSet::from(["LOG_AXIS", "CHECK_DECAY", "DECAYABLE"]);
+  // Properties with a single value can't exist anymore, so those are dropped for their class.
+  let drop_props = HashSet::from(["LOG_AXIS", "CHECK_DECAY", "DECAYABLE", "FlowerBlock::TYPE"]);
   let drop_calls = HashSet::from(["setHarvestLevel", "setTickRandomly", "setCreativeTab"]);
   let shape_methods = HashMap::from([
     ("getBoundingBox", "getOutlineShape"),
@@ -293,6 +294,10 @@ impl Config {
     Some((decl_start..look.range().end, look))
   }
 
+  fn drops_prop(&self, class_name: &str, prop: &str) -> bool {
+    self.drop_props.contains(prop) || self.drop_props.contains(format!("{class_name}::{prop}").as_str())
+  }
+
   fn process(&self, source: String) -> String {
     let mut imports = HashMap::<String, String>::new();
 
@@ -350,10 +355,6 @@ impl Config {
     let mut decl_start = parser.range().start;
 
     while let Some(tok) = parser.next() {
-      if tok == Token::Punct && matches!(parser.slice(), ";" | "{" | "}") {
-        decl_start = parser.range().end;
-      }
-
       match tok {
         Token::FabricComment => {
           // The comment is formed like:
@@ -503,7 +504,10 @@ impl Config {
           t!(Token::Punct, ";");
           t!(Token::Punct, "}");
 
-          props.retain(|p| !self.drop_props.contains(p.as_str()));
+          props.retain(|p| !self.drops_prop(&class_name, p));
+          for p in &mut props {
+            *p = p.replace("BlockHorizontal.", "net.minecraft.block.HorizontalFacingBlock.");
+          }
 
           let end = parser.range().end;
 
@@ -605,7 +609,7 @@ impl Config {
           if look.next() == Some(Token::Punct)
             && look.slice() == "("
             && look.next() == Some(Token::Word)
-            && self.drop_props.contains(look.slice())
+            && self.drops_prop(&class_name, look.slice())
           {
             let mut depth = 1;
             let mut inner = parser.clone();
@@ -842,6 +846,11 @@ impl Config {
           }
         }
         _ => {}
+      }
+
+      // Some of the arms above consume tokens, so check where the parser ended up.
+      if matches!(parser.slice(), ";" | "{" | "}") && parser.range().len() == 1 {
+        decl_start = parser.range().end;
       }
     }
 

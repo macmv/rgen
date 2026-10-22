@@ -30,6 +30,8 @@ dependencies {
   minecraft "com.mojang:minecraft:${stonecutter.current.version}"
   mappings "net.fabricmc:yarn:${property('yarn_mappings')}:v2"
   modImplementation "net.fabricmc:fabric-loader:0.16.10"
+  // Registering blocks needs the registries to be unfrozen, which the api does.
+  modImplementation "net.fabricmc.fabric-api:fabric-api:${property('fabric_api')}"
 }
 
 // Backports. Each flag is true on versions where vanilla has the feature, and the sources use it
@@ -50,6 +52,13 @@ tasks.withType(JavaCompile).configureEach {
 // has to happen before stonecutter processes the sources.
 tasks.matching { it.name.startsWith('stonecutter') }.configureEach {
   dependsOn ':mod-fabric:transformCommonSources'
+}
+
+// Gradle has to run on a newer java than minecraft can use (see the docs), so the game gets its own.
+tasks.withType(JavaExec).configureEach {
+  javaLauncher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
 }
 
 java {
