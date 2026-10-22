@@ -783,10 +783,17 @@ impl Config {
               "ItemBlock" | "ItemDoor" | "Item" => {
                 if let Some(args) = call_args(&look) {
                   let close = args.close;
-                  if class == "Item" && args.commas.is_empty() && source[args.open..close].trim().is_empty() {
-                    output.replace(close..close, "new net.minecraft.item.Item.Settings()");
-                  } else if class != "Item" {
-                    output.replace(close..close, ", new net.minecraft.item.Item.Settings()");
+                  if class == "Item" {
+                    if source[args.open..close].trim().is_empty() {
+                      output.replace(close..close, "net.macmv.rgen.compat.ItemSettings.create()");
+                    }
+                  } else {
+                    let first_end = args.commas.first().copied().unwrap_or(close);
+                    let block = source[args.open..first_end].trim();
+                    output.replace(
+                      close..close,
+                      &format!(", net.macmv.rgen.compat.ItemSettings.forBlock({block})"),
+                    );
                   }
                 }
               }
@@ -797,7 +804,7 @@ impl Config {
                   let block = source[args.open..first_end].trim();
                   output.replace(
                     start..args.close + 1,
-                    &format!("new net.minecraft.item.BlockItem({block}, new net.minecraft.item.Item.Settings())"),
+                    &format!("new net.minecraft.item.BlockItem({block}, net.macmv.rgen.compat.ItemSettings.forBlock({block}))"),
                   );
                   let mut after = look.clone();
                   after.skip_to(args.close + 1);

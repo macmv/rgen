@@ -1,11 +1,17 @@
 package net.macmv.rgen.block;
 
+import net.macmv.rgen.RGen;
 import net.macmv.rgen.compat.CreativeTabs;
 import net.macmv.rgen.compat.Material;
 import net.macmv.rgen.compat.SoundType;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.Identifier;
+//? if >=1.21.2 {
+/*import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;*/
+//?}
 
 import java.util.function.Function;
 
@@ -20,6 +26,13 @@ public class BlockSettings {
   public Material material = Material.ROCK;
   public CreativeTabs creativeTab = CreativeTabs.BUILDING_BLOCKS;
   public int lightValue = 0;
+  // Newer versions need to know the name of a block when it is created.
+  public String name = null;
+
+  public BlockSettings name(String name) {
+    this.name = name;
+    return this;
+  }
 
   public BlockSettings material(Material material) {
     this.material = material;
@@ -66,6 +79,12 @@ public class BlockSettings {
     settings.strength(this.hardness, this.resistance);
     settings.sounds(this.soundType);
     settings.luminance(state -> this.lightValue);
+    //? if >=1.21.2 {
+    /*if (this.name == null) {
+      throw new IllegalStateException("block settings must have a name");
+    }
+    settings.registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(RGen.MOD_ID, this.name)));*/
+    //?}
     return settings;
   }
 }

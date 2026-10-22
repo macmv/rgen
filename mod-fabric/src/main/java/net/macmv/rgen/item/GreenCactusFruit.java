@@ -1,6 +1,7 @@
 package net.macmv.rgen.item;
 
 import net.macmv.rgen.block.RBlocks;
+import net.macmv.rgen.compat.ItemSettings;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.item.Item;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 // The fabric version of the green cactus fruit. The 1.12 one is a `ItemFood` in `common/`.
 public class GreenCactusFruit extends Item {
   public GreenCactusFruit() {
-    super(new Item.Settings().food(new FoodComponent.Builder().nutrition(1).saturationModifier(0.3F).build()));
+    super(ItemSettings.create().food(new FoodComponent.Builder().nutrition(1).saturationModifier(0.3F).build()));
   }
 
   @Override
