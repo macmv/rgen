@@ -1,7 +1,31 @@
 # Advanced Setup
 This file is for users who have an understanding about git, forge, and rust
 
-## First time building
+## Build layout
+
+There are two separate gradle builds, because ForgeGradle (1.12.2) doesn't support new versions of
+gradle, and we don't want to hold everything else back:
+
+- `mod-v12/` is the 1.12.2 forge mod. Run `./gradlew` from inside that directory. It uses its own
+  (old) gradle wrapper, and builds with Java 8 or newer.
+- The root build is the fabric mod, in `mod-fabric/`. It needs Java 25 or newer to run gradle.
+  [Stonecutter](https://stonecutter.kikugie.dev) builds it for each version listed in
+  `settings.gradle` (and `mod-fabric/versions/<version>/gradle.properties`), with
+  `./gradlew :mod-fabric:1.21.5:build` for example.
+
+Both builds share the sources in `common/`. For fabric, `v12-to-fabric` translates them first (build
+it with `cargo build --release` in `v12-to-fabric/`), and the result is written to
+`mod-fabric/src/main/java` (ignored by git). Stonecutter then handles the differences between
+minecraft versions, using comments like `//? if vanilla_moss {`. These are just comments to 1.12.
+
+### Backporting blocks
+
+If vanilla added a block that we had to make ourselves (like moss), add a flag for it in
+`mod-fabric/build.gradle`, and use that flag to pick between the vanilla block and ours (see
+`MossBlock` and `RBlocks.MOSSY_BLOCK`). Rust and the rest of the mod keep using the `rgen:` name,
+which `RBlocks.byName` resolves to the vanilla block.
+
+## First time building (1.12.2 only)
 
 This mod compiles to both 1.12.2 and the latest version of fabric. This requires an extra step to build it:
 
