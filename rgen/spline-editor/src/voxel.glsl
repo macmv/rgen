@@ -30,33 +30,30 @@ float hash(vec3 p) {
   return fract((p.x + p.y) * p.z);
 }
 
-// What one spot on the ground near a hit looks like to a ray, without marching
-// a ray of its own. `p` is the spot, `yRay` is how high the ray is over it, `d`
-// is the ray direction, and `r` is how wide a pixel is there, in blocks. This
-// is for averaging the footprint of a pixel that covers several blocks.
-bool footprintSample(vec2 p, float yRay, vec3 d, float r, out vec3 albedo) {
+// What one spot on the ground near a hit looks like, without marching a ray of
+// its own. `p` is the spot, `hitY` is the height of the hit it's near, `d` is
+// the ray direction, and `r` is how wide a pixel is there, in blocks. This is
+// for averaging the footprint of a pixel that covers several blocks.
+//
+// look does this by comparing the ray's own height over the spot against the
+// column's top. That only works for rays that are close to level: a ray that
+// looks steeply down is far over or under every neighbor, so the result flips
+// between the top, the side and nothing at fixed angles, which shows up as
+// rings on the ground below the camera. Instead this goes by how much higher
+// the neighbor is than the hit, which doesn't depend on the viewing angle.
+bool footprintSample(vec2 p, float hitY, vec3 d, float r, out vec3 albedo) {
   ivec2 c = ivec2(floor(p));
   if (c.x < 0 || c.y < 0 || c.x >= uSize.x || c.y >= uSize.y) return false;
 
   float h = texelFetch(uHeight, c, 0).r;
   if (h < 0.0) return false;
 
-  // How far under the top the ray is.
-  float depth = h - yRay;
   vec3 base = texelFetch(uColor, c, 0).rgb;
-
-  if (depth < -r) {
-    // Well above the column, so the ray is looking at something behind it.
-    return false;
-  } else if (depth <= r) {
-    // Close to the top, so this is the top of the column.
-    albedo = base;
-  } else if (depth < 3.0 + 2.0 * r) {
-    // Below the top, so the ray is looking at the side of the column.
+  if (h - hitY > max(1.0, r)) {
+    // The neighbor stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
   } else {
-    // Deep inside the column, where the ray wouldn't get to.
-    return false;
+    albedo = base;
   }
   return true;
 }
@@ -169,11 +166,8 @@ void main() {
           for (int k = 0; k < 4; k++) {
             float sg = (k & 1) == 0 ? -0.5 : 0.5;
             vec2 offset = k < 2 ? along * (sg * alongLen) : across * (sg * footprint);
-            // How far along the ray the spot is, which changes how high the ray is over it.
-            float dt = k < 2 ? sg * alongLen / lh : 0.0;
-
             vec3 other;
-            if (footprintSample(pos.xz + offset, pos.y + dir.y * dt, dir, footprint, other)) {
+            if (footprintSample(pos.xz + offset, pos.y, dir, footprint, other)) {
               sum += other;
               weight += 1.0;
             }
