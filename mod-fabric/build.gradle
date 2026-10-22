@@ -54,6 +54,28 @@ tasks.matching { it.name.startsWith('stonecutter') }.configureEach {
   dependsOn ':mod-fabric:transformCommonSources'
 }
 
+// The assets are shared with 1.12, with a few things renamed (`blocks` is `block` now). The item
+// models and the language file only exist for fabric, see `tools/gen_fabric_assets.py`.
+processResources {
+  from(rootProject.file('common/src/main/resources/assets')) {
+    into 'assets'
+    exclude '**/*.lang', '**/*DELETEME*'
+
+    eachFile { details ->
+      details.path = details.path.replace('/textures/blocks/', '/textures/block/').replace('/textures/items/', '/textures/item/')
+    }
+
+    // Blockstates are relative to `models/block` on 1.12.
+    filesMatching('**/blockstates/*.json') {
+      filter { line -> line.replaceAll('"model": *"rgen:', '"model": "rgen:block/') }
+    }
+
+    filesMatching('**/*.json') {
+      filter { line -> line.replaceAll('"(rgen:|minecraft:)?blocks/', '"$1block/').replaceAll('"(rgen:|minecraft:)?items/', '"$1item/') }
+    }
+  }
+}
+
 // Gradle has to run on a newer java than minecraft can use (see the docs), so the game gets its own.
 tasks.withType(JavaExec).configureEach {
   javaLauncher = javaToolchains.launcherFor {
