@@ -56,8 +56,8 @@ fn main() {
   renames.insert("net.minecraft.block.BlockDoor", "net.minecraft.block.DoorBlock");
   renames.insert("net.minecraft.block.BlockTrapDoor", "net.minecraft.block.TrapdoorBlock");
   renames.insert("net.minecraft.block.BlockStairs", "net.minecraft.block.StairsBlock");
-  renames.insert("net.minecraft.block.BlockLeaves", "net.minecraft.block.LeavesBlock");
-  renames.insert("net.minecraft.block.BlockFalling", "net.minecraft.block.FallingBlock");
+  renames.insert("net.minecraft.block.BlockLeaves", "net.macmv.rgen.compat.LeavesBase");
+  renames.insert("net.minecraft.block.BlockFalling", "net.macmv.rgen.compat.FallingBase");
   renames.insert("net.minecraft.block.BlockHorizontal", "net.minecraft.block.HorizontalFacingBlock");
   renames.insert("net.minecraft.block.BlockSapling", "net.minecraft.block.SaplingBlock");
   renames.insert("net.minecraft.block.BlockDoublePlant", "net.minecraft.block.TallPlantBlock");
@@ -164,7 +164,7 @@ fn main() {
 
   let drop_annotations = HashSet::from(["SideOnly", "Nonnull", "Nullable", "SubscribeEvent"]);
 
-  let qualified = HashSet::from(["net.minecraft.block.PlantBlock", "net.minecraft.block.LeavesBlock"]);
+  let qualified = HashSet::from(["net.minecraft.block.PlantBlock"]);
 
   let members = HashMap::from([
     (("MapColor", "OBSIDIAN"), "BLACK"),
@@ -182,7 +182,7 @@ fn main() {
   let codec_parents = HashSet::from([
     "net.minecraft.block.Block",
     "net.minecraft.block.PlantBlock",
-    "net.minecraft.block.FallingBlock",
+    "net.macmv.rgen.compat.FallingBase",
     "net.minecraft.block.HorizontalFacingBlock",
   ]);
 
