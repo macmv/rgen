@@ -21,7 +21,13 @@ Building is a bit of a pain. If all you want is the client jar, just set your ja
 ./gradlew build
 ```
 
-The resulting jar is in `./build/libs/rgen-1.0.jar`. This can be loaded into a Minecraft instance, and the mod will work as normal, but the RGen terrain option will not work.
+The resulting jar is in `./build/libs/rgen-1.0.jar`. This is a dev jar: it has no rust code in it, so the RGen terrain option only works if you put the dev libraries on your library path (see "Developing Terrain Generation" below).
+
+To build a jar to ship, add `-Prelease`:
+```
+./gradlew build -Prelease
+```
+This runs `cargo build --release -p rgen-jni-impl` and bundles the library into the jar under `natives/<os>-<arch>/`, and the jar loads it directly. It only contains the library for the machine that built it. The `release` GitHub workflow builds every platform and bundles them all into one jar. Release jars can't use `/reload`.
 
 ### Developing Assets
 
@@ -38,7 +44,7 @@ cd rgen
 cargo build
 ```
 
-Then, you'll need to add the built binary into your library path. Add something like this to your JVM options:
+Then, you'll need to add the built binaries into your library path (dev jars load `rgen_jni` from there). Both `librgen_jni.so` and `librgen_jni_impl.so` must be in that directory, and hot reloading expects the `release` profile. Add something like this to your JVM options:
 ```
 -Djava.library.path=/path/to/repo/rgen/target/debug
 ```

@@ -17,6 +17,7 @@ public class BlockSettings {
   public Material material = Material.ROCK;
   public CreativeTabs creativeTab = CreativeTabs.BUILDING_BLOCKS;
   public int lightValue = 0;
+  public int variant = 1;
 
   public <T extends Block> T createMat(Function<Material, T> constructor) {
     T block = constructor.apply(this.material);

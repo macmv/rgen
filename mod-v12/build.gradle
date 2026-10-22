@@ -105,6 +105,42 @@ sourceSets.main.java {
 
 sourceSets.main.resources {
   srcDir '../common/src/main/resources'
+  srcDir "$buildDir/generated/natives"
+}
+
+// --- Rust native library ---------------------------------------------------------------------
+//
+// Dev build (default): nothing is bundled. Put `rgen/target/release` on `java.library.path` and
+// the hot-reloading shim is used. See docs/advanced_setup.md.
+//
+// Release build (`-Prelease`): builds `rgen-jni-impl` for this machine and bundles it into the jar
+// under `/natives/<os>-<arch>/`. The release workflow builds every platform on its own runner,
+// drops the libraries into `build/generated/natives`, and adds `-PprebuiltNatives` to skip cargo.
+
+def osName = System.getProperty('os.name').toLowerCase()
+def archName = System.getProperty('os.arch').toLowerCase()
+
+def nativeOs = osName.contains('win') ? 'windows' : osName.contains('mac') ? 'macos' : 'linux'
+def nativeArch = (archName == 'aarch64' || archName == 'arm64') ? 'aarch64' : 'x86_64'
+def nativeFile = nativeOs == 'windows' ? 'rgen_jni_impl.dll'
+    : nativeOs == 'macos' ? 'librgen_jni_impl.dylib' : 'librgen_jni_impl.so'
+
+def releaseBuild = project.hasProperty('release')
+def prebuiltNatives = project.hasProperty('prebuiltNatives')
+
+def cargoBuild = tasks.register('cargoBuild', Exec) {
+  workingDir file('../rgen')
+  commandLine 'cargo', 'build', '--release', '-p', 'rgen-jni-impl'
+}
+
+def stageNatives = tasks.register('stageNatives', Copy) {
+  dependsOn cargoBuild
+  from file("../rgen/target/release/$nativeFile")
+  into "$buildDir/generated/natives/natives/$nativeOs-$nativeArch"
+}
+
+if (releaseBuild && !prebuiltNatives) {
+  processResources.dependsOn stageNatives
 }
 
 // Example configuration to allow publishing using the maven-publish task

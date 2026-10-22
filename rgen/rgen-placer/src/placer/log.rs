@@ -3,6 +3,7 @@ use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
 
+/// Places a mossy tree stump and a fallen log, optionally with mushrooms.
 pub struct LogAndStump {
   pub log:            BlockState,
   pub moss_log:       BlockState,
@@ -16,11 +17,11 @@ pub struct LogAndStump {
 
 impl Default for LogAndStump {
   fn default() -> Self {
-    LogAndStump {
+    Self {
       log:            block![log[variant = "oak"]],
       moss_log:       block![rgen:mossy_stump[variant = "oak"]],
       ground:         block![grass],
-      plants:         block![stone].into(),
+      plants:         block![red_flower].into(),
       avg_per_chunk:  0.5,
       chance_of_moss: 8,
       is_shrooms:     true,
@@ -30,27 +31,23 @@ impl Default for LogAndStump {
 }
 
 impl Placer for LogAndStump {
-  //log_moss
-  //chance_of_moss
-  //plants
-
   fn radius(&self) -> u8 { 9 }
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    // Checks to make sure is in open space
-    for rel_x in -1..=1_i32 {
-      for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
+    // Ensure a 3x3 area is free for the stump
+    for dx in -1..=1 {
+      for dz in -1..=1 {
+        if world.get(pos + Pos::new(dx, 0, dz)) != block![air] {
           return Err(UndoError);
         }
       }
     }
 
-    // Checks if on ground
-    let below_pos = pos + Pos::new(0, -1, 0);
-    if world.get(below_pos) != self.ground {
+    // Ensure the stump sits on the correct ground type
+    let below = pos + Pos::new(0, -1, 0);
+    if world.get(below) != self.ground {
       return Err(UndoError);
     }
 
@@ -64,107 +61,108 @@ impl Placer for LogAndStump {
 
 impl LogAndStump {
   fn place_stump(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
-    for rel_x in -1..=1_i32 {
-      for rel_z in -1..=1_i32 {
-        if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
+    // Check for air in a 3x3 area
+    for dx in -1..=1 {
+      for dz in -1..=1 {
+        if world.get(pos + Pos::new(dx, 0, dz)) != block![air] {
           return false;
         }
       }
     }
+
     world.set(pos, self.moss_log);
 
     if self.is_shrooms {
-      for rel_x in -1..=1_i32 {
-        for rel_z in -1..=1_i32 {
-          if world.get(pos + Pos::new(rel_x, 0, rel_z)) != block![air] {
+      for dx in -1..=1 {
+        for dz in -1..=1 {
+          let offset = Pos::new(dx, 0, dz);
+          let target_pos = pos + offset;
+
+          if world.get(target_pos) != block![air] {
             continue;
           }
+
           if rng.range(0..9) < 3 {
-            //sets mushroom varients (this is exclusive so state 0, 1, or 2)
-            let mut mushroom_state = rng.range(0..3) as u8;
-
-            // Clears the rotation rotation -> 00, block kind -> 11 // no longer nessesary
-            mushroom_state &= 0b0011;
-
-            // This removes the coners and the center
-            if (rel_x == 0 && rel_z == 0) || (rel_x.abs() == rel_z.abs()) {
+            // Avoid corners and center
+            if (dx == 0 && dz == 0) || dx.abs() == dz.abs() {
               continue;
             }
 
-            // 0-3 +Z   4-7 -Z   8-11 -X   12-15 +X
-            if rel_x == 1 {
-              // 8
-              mushroom_state |= 0b1000;
-            } else if rel_x == -1 {
-              // 12
-              mushroom_state |= 0b1100;
-            } else if rel_z == 1 {
-              // 4
-              mushroom_state |= 0b0100;
-            } else if rel_z == -1 {
-              // 0
-              mushroom_state |= 0b0000;
-            }
+            let mut data = rng.range(0..3) as u8;
 
-            world.set(pos + Pos::new(rel_x, 0, rel_z), self.shroom.with_data(mushroom_state))
+            // Encode orientation
+            data |= match (dx, dz) {
+              (1, 0) => 0b1000,
+              (-1, 0) => 0b1100,
+              (0, 1) => 0b0100,
+              (0, -1) => 0b0000,
+              _ => continue,
+            };
+
+            world.set(target_pos, self.shroom.with_data(data));
           }
-          // ()
         }
       }
     }
+
     true
   }
 
   fn place_log(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> bool {
-    let mut dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-    rng.shuffle(&mut dirs);
+    let mut directions = [((-1, 0), "x"), ((1, 0), "x"), ((0, -1), "z"), ((0, 1), "z")];
+    rng.shuffle(&mut directions);
 
-    for (dx, dz) in dirs {
-      let mut buildable = true;
+    for &((dx, dz), direction_name) in &directions {
+      // You can now use `direction_name` in debug output or for orientation-based
+      // logic
       let length = rng.range(4..=6);
-      let pos_st = pos + Pos::new(dx * (length - (length - 2)), -1, dz * (length - (length - 2)));
-      let pos_nd = pos + Pos::new(dx * length, -1, dz * length);
-      if (world.get(pos_st) != block![air])
-        && (world.get(pos_st) != block![water])
-        && (world.get(pos_nd) != block![air])
-        && (world.get(pos_nd) != block![water])
-      {
-        for i in 1..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-          if world.get(i_pos) != block![air] {
-            buildable = false;
-            break;
-          }
-        }
-      } else {
-        buildable = false;
-      }
+      let start = pos + Pos::new(dx * 2, -1, dz * 2);
+      let end = pos + Pos::new(dx * length, -1, dz * length);
 
-      if !buildable {
+      // Ensure both ends are not air or water
+      let valid_ground = |p: Pos| {
+        let block = world.get(p);
+        block != block![air] && block != block![water]
+      };
+      if !valid_ground(start) || !valid_ground(end) {
         continue;
-      } else {
-        for i in 2..=length {
-          let i_pos = pos + Pos::new(i * dx, 0, i * dz);
-
-          let log_block =
-            if self.chance_of_moss < rng.range(0..=10) { self.moss_log } else { self.log };
-          let mut log_state = log_block.state.state().unwrap_or_default();
-
-          log_state &= 0b0011; //reset
-
-          if dx != 0 {
-            // x axis be it (5, 6)
-            log_state |= 0b0100;
-          } else {
-            // z axis be it (9, 10)
-            log_state |= 0b1000;
-          }
-
-          world.set(i_pos, log_block.with_data(log_state));
-        }
-        return true;
       }
+
+      // Make sure log path is clear
+      let mut path_clear = true;
+      for i in 1..=length {
+        let path_pos = pos + Pos::new(i * dx, 0, i * dz);
+        if world.get(path_pos) != block![air] {
+          path_clear = false;
+          break;
+        }
+      }
+
+      if !path_clear {
+        continue;
+      }
+
+      // Place the log
+      for i in 2..=length {
+        let log_pos = pos + Pos::new(i * dx, 0, i * dz);
+        let is_mossy = self.chance_of_moss < rng.range(0..=10);
+        //let mut base_block =
+        if is_mossy {
+          let mut base_block = self.moss_log;
+          base_block.set_prop("axis", direction_name);
+          world.set(log_pos, base_block);
+          println!("dir: {direction_name} on mossy");
+        } else {
+          let mut base_block = self.log;
+          base_block.set_prop("axis", direction_name);
+          world.set(log_pos, base_block);
+          println!("dir: {direction_name} on loggy");
+        };
+      }
+
+      return true;
     }
+
     false
   }
 }
