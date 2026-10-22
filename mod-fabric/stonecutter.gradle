@@ -3,9 +3,9 @@ plugins {
 }
 
 // Stonecutter leaves the sources of the active version alone, and only processes the other ones.
-// The generated sources are always in their 1.12.2 state, so 1.12.2 is the active version (and a
-// placeholder, see build.gradle). That way every version we build gets processed.
-stonecutter.active "1.12.2"
+// The generated sources are in their 1.12 state, which isn't a version we build, so there is no
+// active version. That way every version we build gets processed.
+stonecutter.active null
 
 // Translates the 1.12 sources in `common/` into fabric (yarn) sources. This runs once for all
 // versions: stonecutter then handles the differences between minecraft versions, by processing the
