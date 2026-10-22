@@ -21,10 +21,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class LeavesBlockThree extends LeavesBlock {
-  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type == LogType.SEASONAL || type == LogType.ASPEN);
+  public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type.meta >= LogType.ASPEN.meta && type.meta <= LogType.YELLOW_SEASONAL_TREE.meta);
 
   public LeavesBlockThree(BlockSettings settings) {
-    setDefaultState(blockState.getBaseState().withProperty(VARIANT, LogType.SEASONAL).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
+    setDefaultState(blockState.getBaseState().withProperty(VARIANT, LogType.ASPEN).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 
   @Override
@@ -39,8 +39,9 @@ public class LeavesBlockThree extends LeavesBlock {
 
   @Override
   public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-    items.add(new ItemStack(this, 1, 0));
-    items.add(new ItemStack(this, 1, 1));
+    for (int meta = 0; meta < 4; meta++) {
+      items.add(new ItemStack(this, 1, meta));
+    }
   }
 
   @Nonnull
@@ -74,9 +75,9 @@ public class LeavesBlockThree extends LeavesBlock {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    LogType type = (meta & 3) == 1 ? LogType.ASPEN : LogType.SEASONAL;
+    LogType type = LogType.fromMeta((meta & 3) + LogType.ASPEN.meta);
     return getDefaultState().withProperty(VARIANT, type).withProperty(DECAYABLE, (meta & 4) == 0).withProperty(CHECK_DECAY, (meta & 8) > 0);
   }
 
-  private static int stateVariantIndex(LogType type) { return type == LogType.ASPEN ? 1 : 0; }
+  private static int stateVariantIndex(LogType type) { return type.meta - LogType.ASPEN.meta; }
 }

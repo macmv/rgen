@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemMultiTexture;
+import net.minecraft.item.ItemSlab;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -28,7 +29,7 @@ public class RItems {
 
   public static final Item LEAVES = registerBlockItem(RBlocks.LEAVES, new ItemMultiTexture(RBlocks.LEAVES, RBlocks.LEAVES, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LEAVES2 = registerBlockItem(RBlocks.LEAVES2, new ItemMultiTexture(RBlocks.LEAVES2, RBlocks.LEAVES2, it -> LogType.fromMeta(it.getMetadata() + 4).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
-  public static final Item LEAVES3 = registerBlockItem(RBlocks.LEAVES3, new ItemMultiTexture(RBlocks.LEAVES3, RBlocks.LEAVES3, it -> it.getMetadata() == 0 ? LogType.SEASONAL.name : LogType.ASPEN.name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item LEAVES3 = registerBlockItem(RBlocks.LEAVES3, new ItemMultiTexture(RBlocks.LEAVES3, RBlocks.LEAVES3, it -> LogType.fromMeta(it.getMetadata() + LogType.ASPEN.meta).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
 
   public static final Item SAPLING = registerBlockItem(RBlocks.SAPLING, new ItemMultiTexture(RBlocks.SAPLING, RBlocks.SAPLING, it -> LogType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item SAPLING2 = registerBlockItem(RBlocks.SAPLING2, new ItemMultiTexture(RBlocks.SAPLING2, RBlocks.SAPLING2, it -> LogType.fromMeta(it.getMetadata() + 8).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
@@ -37,6 +38,23 @@ public class RItems {
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  public static final Item PLANK_SLAB = registerBlockItem(RBlocks.PLANK_SLAB, new ItemSlab(RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_DOUBLE_SLAB).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+
+  public static final Item FIR_FENCE = registerBlockItem(RBlocks.FIR_FENCE);
+  public static final Item PALM_FENCE = registerBlockItem(RBlocks.PALM_FENCE);
+  public static final Item CHERRY_FENCE = registerBlockItem(RBlocks.CHERRY_FENCE);
+  public static final Item CEDAR_FENCE = registerBlockItem(RBlocks.CEDAR_FENCE);
+  public static final Item MANGROVE_FENCE = registerBlockItem(RBlocks.MANGROVE_FENCE);
+  public static final Item LAVENDER_TREE_FENCE = registerBlockItem(RBlocks.LAVENDER_TREE_FENCE);
+  public static final Item DEAD_FENCE = registerBlockItem(RBlocks.DEAD_FENCE);
+
+  public static final Item FIR_FENCE_GATE = registerBlockItem(RBlocks.FIR_FENCE_GATE);
+  public static final Item PALM_FENCE_GATE = registerBlockItem(RBlocks.PALM_FENCE_GATE);
+  public static final Item CHERRY_FENCE_GATE = registerBlockItem(RBlocks.CHERRY_FENCE_GATE);
+  public static final Item CEDAR_FENCE_GATE = registerBlockItem(RBlocks.CEDAR_FENCE_GATE);
+  public static final Item MANGROVE_FENCE_GATE = registerBlockItem(RBlocks.MANGROVE_FENCE_GATE);
+  public static final Item LAVENDER_TREE_FENCE_GATE = registerBlockItem(RBlocks.LAVENDER_TREE_FENCE_GATE);
+  public static final Item DEAD_FENCE_GATE = registerBlockItem(RBlocks.DEAD_FENCE_GATE);
 
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
@@ -162,8 +180,10 @@ public class RItems {
         registerModel(i, LogType.LAVENDER_TREE.meta - 4, "rgen:lavender_tree_leaves");
         registerModel(i, LogType.DEAD.meta - 4, "rgen:dead_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:leaves3")) {
-        registerModel(i, 0, "rgen:seasonal_leaves");
-        registerModel(i, 1, "rgen:aspen_leaves");
+        registerModel(i, 0, "rgen:aspen_leaves");
+        registerModel(i, 1, "rgen:red_seasonal_tree_leaves");
+        registerModel(i, 2, "rgen:orange_seasonal_tree_leaves");
+        registerModel(i, 3, "rgen:yellow_seasonal_tree_leaves");
       } else if (i.getRegistryName().toString().equals("rgen:sapling")) {
         registerModel(i, LogType.FIR.meta, "rgen:fir_sapling");
         registerModel(i, LogType.PALM.meta, "rgen:palm_sapling");
@@ -175,6 +195,9 @@ public class RItems {
         registerModel(i, LogType.DEAD.meta, "rgen:dead_sapling");
       } else if (i.getRegistryName().toString().equals("rgen:sapling2")) {
         registerModel(i, LogType.ASPEN.meta - 8, "rgen:aspen_sapling");
+        registerModel(i, LogType.RED_SEASONAL_TREE.meta - 8, "rgen:red_seasonal_tree_sapling");
+        registerModel(i, LogType.ORANGE_SEASONAL_TREE.meta - 8, "rgen:orange_seasonal_tree_sapling");
+        registerModel(i, LogType.YELLOW_SEASONAL_TREE.meta - 8, "rgen:yellow_seasonal_tree_sapling");
       } else if (i.getRegistryName().toString().equals("rgen:planks")) {
         registerModel(i, LogType.FIR.meta, "rgen:fir_planks");
         registerModel(i, LogType.PALM.meta, "rgen:palm_planks");
@@ -183,6 +206,14 @@ public class RItems {
         registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_planks");
         registerModel(i, LogType.LAVENDER_TREE.meta, "rgen:lavender_tree_planks");
         registerModel(i, LogType.DEAD.meta, "rgen:dead_planks");
+      } else if (i.getRegistryName().toString().equals("rgen:plank_slab")) {
+        registerModel(i, LogType.FIR.meta, "rgen:fir_plank_slab");
+        registerModel(i, LogType.PALM.meta, "rgen:palm_plank_slab");
+        registerModel(i, LogType.CHERRY.meta, "rgen:cherry_plank_slab");
+        registerModel(i, LogType.CEDAR.meta, "rgen:cedar_plank_slab");
+        registerModel(i, LogType.MANGROVE.meta, "rgen:mangrove_plank_slab");
+        registerModel(i, LogType.LAVENDER_TREE.meta, "rgen:lavender_tree_plank_slab");
+        registerModel(i, LogType.DEAD.meta, "rgen:dead_plank_slab");
       } else if (i.getRegistryName().toString().equals("rgen:flower")) {
         registerModel(i, FlowerBlock.FlowerType.FORGETMENOT.meta, "rgen:forgetmenot");
       } else if (i.getRegistryName().toString().equals("rgen:mossy_stump")) {

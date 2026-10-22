@@ -23,7 +23,7 @@ public class SaplingOne extends Sapling {
   @Override
   public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
     for (LogType ty : LogType.values()) {
-      if (ty.meta >= OFFSET && ty.meta < OFFSET + 8) {
+      if (ty.meta >= OFFSET && ty.meta < OFFSET + 8 && ty != LogType.SEASONAL) {
         items.add(new ItemStack(this, 1, ty.meta));
       }
     }

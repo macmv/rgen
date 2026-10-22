@@ -35,10 +35,16 @@ public class RCreativeTabs {
       addTree(items, organizedWoodItems, LogType.DEAD);
       addTree(items, organizedWoodItems, LogType.LAVENDER_TREE);
 
-      addItem(items, organizedWoodItems, RItems.LEAVES3, 0); // Seasonal leaves
-      addItem(items, organizedWoodItems, RItems.SAPLING, LogType.SEASONAL.meta);
-      addItem(items, organizedWoodItems, RItems.LEAVES3, 1); // Aspen leaves
-      addItem(items, organizedWoodItems, RItems.SAPLING2, 0); // Aspen sapling
+      for (LogType type : new LogType[] {
+          LogType.ASPEN,
+          LogType.RED_SEASONAL_TREE,
+          LogType.ORANGE_SEASONAL_TREE,
+          LogType.YELLOW_SEASONAL_TREE
+      }) {
+        int variant = type.meta - LogType.ASPEN.meta;
+        addItem(items, organizedWoodItems, RItems.LEAVES3, variant);
+        addItem(items, organizedWoodItems, RItems.SAPLING2, variant);
+      }
 
       // Other wood-related blocks that do not belong to one of the three tree groups.
       addItem(items, organizedWoodItems, RItems.MOSSY_STUMP, 0);
@@ -67,42 +73,59 @@ public class RCreativeTabs {
       }
       addItem(items, organizedWoodItems, RItems.SAPLING, type.meta);
       addItem(items, organizedWoodItems, RItems.PLANKS, type.meta);
+      if (type.meta <= LogType.DEAD.meta && type != LogType.SEASONAL) {
+        addItem(items, organizedWoodItems, RItems.PLANK_SLAB, type.meta);
+      }
 
       switch (type) {
         case FIR:
           addItem(items, organizedWoodItems, RItems.FIR_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.FIR_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.FIR_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.FIR_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.FIR_FENCE_GATE, 0);
           break;
         case PALM:
           addItem(items, organizedWoodItems, RItems.PALM_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.PALM_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.PALM_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.PALM_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.PALM_FENCE_GATE, 0);
           break;
         case CHERRY:
           addItem(items, organizedWoodItems, RItems.CHERRY_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.CHERRY_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.CHERRY_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.CHERRY_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.CHERRY_FENCE_GATE, 0);
           break;
         case CEDAR:
           addItem(items, organizedWoodItems, RItems.CEDAR_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.CEDAR_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.CEDAR_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.CEDAR_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.CEDAR_FENCE_GATE, 0);
           break;
         case MANGROVE:
           addItem(items, organizedWoodItems, RItems.MANGROVE_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.MANGROVE_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.MANGROVE_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.MANGROVE_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.MANGROVE_FENCE_GATE, 0);
           break;
         case DEAD:
           addItem(items, organizedWoodItems, RItems.DEAD_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.DEAD_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.DEAD_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.DEAD_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.DEAD_FENCE_GATE, 0);
           break;
         case LAVENDER_TREE:
           addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_STAIRS, 0);
           addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_DOOR, 0);
           addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_TRAPDOOR, 0);
+          addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_FENCE, 0);
+          addItem(items, organizedWoodItems, RItems.LAVENDER_TREE_FENCE_GATE, 0);
           break;
         default:
           break;

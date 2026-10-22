@@ -1,7 +1,6 @@
 package net.macmv.rgen.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -17,7 +16,10 @@ public class PlanksBlock extends Block {
 
   public PlanksBlock(BlockSettings settings) {
     super(settings.material);
-    this.setSoundType(SoundType.WOOD);
+    this.setHardness(settings.hardness);
+    this.setResistance(settings.resistance);
+    this.setSoundType(settings.soundType);
+    this.setCreativeTab(settings.creativeTab);
     this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LogType.FIR));
   }
 

@@ -19,7 +19,6 @@ tile.leaves.cherry.name=Cherry Leaves
 tile.leaves.cedar.name=Cedar Leaves
 tile.leaves2.mangrove.name=Mangrove Leaves
 tile.leaves2.lavender_tree.name=Lavender Tree Leaves
-tile.leaves3.seasonal.name=Seasonal Leaves
 
 tile.sapling.fir.name=Fir Sapling
 tile.sapling.palm.name=Palm Sapling
@@ -27,7 +26,7 @@ tile.sapling.cherry.name=Cherry Sapling
 tile.sapling.cedar.name=Cedar Sapling
 tile.sapling.mangrove.name=Mangrove Sapling
 tile.sapling.lavender_tree.name=Lavender Tree Sapling
-tile.sapling.seasonal.name=Seasonal Sapling
+tile.sapling.seasonal.name=Red Seasonal Tree Sapling
 tile.sapling.dead.name=Dead Sapling
 tile.sapling2.aspen.name=Aspen Sapling
 
@@ -100,3 +99,38 @@ item.dead_door.name=Dead Door
 tile.dead_stairs.name=Dead Stairs
 tile.dead_trapdoor.name=Dead Trapdoor
 item.bamboo_door.name=Bamboo Door
+tile.leaves3.red_seasonal_tree.name=Red Seasonal Tree Leaves
+tile.sapling2.red_seasonal_tree.name=Red Seasonal Tree Sapling
+tile.leaves3.orange_seasonal_tree.name=Orange Seasonal Tree Leaves
+tile.sapling2.orange_seasonal_tree.name=Orange Seasonal Tree Sapling
+tile.leaves3.yellow_seasonal_tree.name=Yellow Seasonal Tree Leaves
+tile.sapling2.yellow_seasonal_tree.name=Yellow Seasonal Tree Sapling
+
+tile.plank_slab.fir.name=Fir Plank Slab
+tile.plank_slab.palm.name=Palm Plank Slab
+tile.plank_slab.cherry.name=Cherry Plank Slab
+tile.plank_slab.cedar.name=Cedar Plank Slab
+tile.plank_slab.mangrove.name=Mangrove Plank Slab
+tile.plank_slab.lavender_tree.name=Lavender Tree Plank Slab
+tile.plank_slab.dead.name=Dead Plank Slab
+
+tile.fir_fence.name=Fir Fence
+tile.fir_fence_gate.name=Fir Fence Gate
+
+tile.palm_fence.name=Palm Fence
+tile.palm_fence_gate.name=Palm Fence Gate
+
+tile.cherry_fence.name=Cherry Fence
+tile.cherry_fence_gate.name=Cherry Fence Gate
+
+tile.cedar_fence.name=Cedar Fence
+tile.cedar_fence_gate.name=Cedar Fence Gate
+
+tile.mangrove_fence.name=Mangrove Fence
+tile.mangrove_fence_gate.name=Mangrove Fence Gate
+
+tile.lavender_tree_fence.name=Lavender Tree Fence
+tile.lavender_tree_fence_gate.name=Lavender Tree Fence Gate
+
+tile.dead_fence.name=Dead Fence
+tile.dead_fence_gate.name=Dead Fence Gate

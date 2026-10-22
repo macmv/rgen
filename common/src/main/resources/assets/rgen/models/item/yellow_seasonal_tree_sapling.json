@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "rgen:blocks/wood/yellow_seasonal_tree/yellow_seasonal_tree_sapling"
+  }
+}

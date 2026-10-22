@@ -19,7 +19,6 @@ tile.leaves.cherry.name=Cherry Foliage
 tile.leaves.cedar.name=Cedar Foliage
 tile.leaves2.mangrove.name=Mangrove Foliage
 tile.leaves2.lavender_tree.name=Lavender Tree Foliage
-tile.leaves3.seasonal.name=Seasonal Foliage
 
 tile.bamboo.name=Bamboo Stick
 tile.glow_vine.name=Glowin' Vines
@@ -66,3 +65,40 @@ tile.yellow_jungle_rose.name=Golden Rose Bush
 tile.bird_of_paradise.name=Feathered Bird Flower
 tile.jungle_bush.name=Wild Scrubbery
 
+tile.leaves3.aspen.name=Aspen Leaves
+tile.sapling2.aspen.name=Aspen Sapling
+tile.leaves3.red_seasonal_tree.name=Red Seasonal Tree Leaves
+tile.sapling2.red_seasonal_tree.name=Red Seasonal Tree Sapling
+tile.leaves3.orange_seasonal_tree.name=Orange Seasonal Tree Leaves
+tile.sapling2.orange_seasonal_tree.name=Orange Seasonal Tree Sapling
+tile.leaves3.yellow_seasonal_tree.name=Yellow Seasonal Tree Leaves
+tile.sapling2.yellow_seasonal_tree.name=Yellow Seasonal Tree Sapling
+
+tile.plank_slab.fir.name=Fir Plank Slab
+tile.plank_slab.palm.name=Palm Plank Slab
+tile.plank_slab.cherry.name=Cherry Plank Slab
+tile.plank_slab.cedar.name=Cedar Plank Slab
+tile.plank_slab.mangrove.name=Mangrove Plank Slab
+tile.plank_slab.lavender_tree.name=Lavender Tree Plank Slab
+tile.plank_slab.dead.name=Dead Plank Slab
+
+tile.fir_fence.name=Fir Fence
+tile.fir_fence_gate.name=Fir Fence Gate
+
+tile.palm_fence.name=Palm Fence
+tile.palm_fence_gate.name=Palm Fence Gate
+
+tile.cherry_fence.name=Cherry Fence
+tile.cherry_fence_gate.name=Cherry Fence Gate
+
+tile.cedar_fence.name=Cedar Fence
+tile.cedar_fence_gate.name=Cedar Fence Gate
+
+tile.mangrove_fence.name=Mangrove Fence
+tile.mangrove_fence_gate.name=Mangrove Fence Gate
+
+tile.lavender_tree_fence.name=Lavender Tree Fence
+tile.lavender_tree_fence_gate.name=Lavender Tree Fence Gate
+
+tile.dead_fence.name=Dead Fence
+tile.dead_fence_gate.name=Dead Fence Gate

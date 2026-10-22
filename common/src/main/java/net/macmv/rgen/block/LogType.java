@@ -12,7 +12,10 @@ public enum LogType implements IStringSerializable {
   LAVENDER_TREE(5, "lavender_tree", MapColor.PURPLE),
   SEASONAL(6, "seasonal", MapColor.ORANGE_STAINED_HARDENED_CLAY),
   DEAD(7, "dead", MapColor.BROWN),
-  ASPEN(8, "aspen", MapColor.SAND);
+  ASPEN(8, "aspen", MapColor.SAND),
+  RED_SEASONAL_TREE(9, "red_seasonal_tree", MapColor.RED),
+  ORANGE_SEASONAL_TREE(10, "orange_seasonal_tree", MapColor.ORANGE_STAINED_HARDENED_CLAY),
+  YELLOW_SEASONAL_TREE(11, "yellow_seasonal_tree", MapColor.SAND);
 
 
   public final int meta;
@@ -40,6 +43,10 @@ public enum LogType implements IStringSerializable {
       case 5: return LAVENDER_TREE;
       case 6: return SEASONAL;
       case 7: return DEAD;
+      case 8: return ASPEN;
+      case 9: return RED_SEASONAL_TREE;
+      case 10: return ORANGE_SEASONAL_TREE;
+      case 11: return YELLOW_SEASONAL_TREE;
       default: return ASPEN;
     }
   }

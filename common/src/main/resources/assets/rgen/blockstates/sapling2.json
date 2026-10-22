@@ -1,6 +1,28 @@
 {
   "variants": {
-    "stage=0,type=aspen": { "model": "rgen:wood/aspen/aspen_sapling" },
-    "stage=1,type=aspen": { "model": "rgen:wood/aspen/aspen_sapling" }
+    "stage=0,type=aspen": {
+      "model": "rgen:wood/aspen/aspen_sapling"
+    },
+    "stage=1,type=aspen": {
+      "model": "rgen:wood/aspen/aspen_sapling"
+    },
+    "stage=0,type=red_seasonal_tree": {
+      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_sapling"
+    },
+    "stage=1,type=red_seasonal_tree": {
+      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_sapling"
+    },
+    "stage=0,type=orange_seasonal_tree": {
+      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_sapling"
+    },
+    "stage=1,type=orange_seasonal_tree": {
+      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_sapling"
+    },
+    "stage=0,type=yellow_seasonal_tree": {
+      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_sapling"
+    },
+    "stage=1,type=yellow_seasonal_tree": {
+      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_sapling"
+    }
   }
 }
