@@ -157,7 +157,7 @@ public final class RBlocks {
 
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier) {
-    Block block = blockSupplier.apply(new BlockSettings());
+    Block block = blockSupplier.apply(new BlockSettings() /* #fabric: .name(name) */);
     // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);
@@ -168,7 +168,7 @@ public final class RBlocks {
   }
 
   private static Block register(String name, Function<BlockSettings, Block> blockSupplier, BlockSettings settings) {
-    Block block = blockSupplier.apply(settings);
+    Block block = blockSupplier.apply(settings /* #fabric: .name(name) */);
     // #v12-start
     block.setRegistryName(RGen.MOD_ID, name);
     block.setUnlocalizedName(name);

@@ -123,14 +123,14 @@ public class RItems {
   public static final Item COVERED_DEAD_LOG = registerBlockItem(RBlocks.COVERED_DEAD_LOG);
 
 
-  public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-  public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
-  public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
-  public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item DEBUG_STICK = registerItem("debug_stick", () -> new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
+  public static final Item MOSS_COMPASS = registerItem("moss_compass", () -> new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", () -> new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", () -> new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
   public static final Item SALT = registerBlockItem(RBlocks.SALT);
   public static final Item SALT_ON_SAND = registerBlockItem(RBlocks.SALT_ON_SAND);
-  public static final Item SALT_DUST = registerItem("salt_dust", new Item());
+  public static final Item SALT_DUST = registerItem("salt_dust", () -> new Item());
 
   public static final Item PINK_ORCHID =  registerBlockItem(RBlocks.PINK_ORCHID).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item PASSION_FLOWER = registerBlockItem(RBlocks.PASSION_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
@@ -174,6 +174,14 @@ public class RItems {
     /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.ITEM, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), item); */
     items.add(item);
     return item;
+  }
+
+  // Items are created by the supplier, as newer versions need the name of an item to create it.
+  private static Item registerItem(String name, java.util.function.Supplier<Item> item) {
+    // #v12-start
+    return registerItem(name, item.get());
+    // #v12-end
+    /* #fabric: return registerItem(name, net.macmv.rgen.compat.ItemSettings.build(name, item)); */
   }
 
   // Loads this class, which registers the items on fabric.
