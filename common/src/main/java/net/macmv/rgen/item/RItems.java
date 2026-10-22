@@ -59,8 +59,11 @@ public class RItems {
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
 
+  // Backported: where vanilla has moss, the items come from vanilla as well.
+  //? if !vanilla_moss {
   public static final Item MOSSY_CARPET = registerBlockItem(RBlocks.MOSSY_CARPET);
   public static final Item MOSSY_BLOCK = registerBlockItem(RBlocks.MOSSY_BLOCK);
+  //?}
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
   public static final Item MOSSY_STONE = registerBlockItem(RBlocks.MOSSY_STONE);
   public static final Item BAMBOO = registerBlockItem(RBlocks.BAMBOO);

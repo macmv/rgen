@@ -1,6 +1,7 @@
 package net.macmv.rgen.rust;
 
 import net.macmv.rgen.RGen;
+import net.macmv.rgen.block.RBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -40,7 +41,7 @@ public class RustGenerator {
 
   // Block name to block ID. This does not include the 4 metadata bits.
   private static int block_name_to_id(String name) {
-    Block block = Block.getBlockFromName(name);
+    Block block = RBlocks.byName(name);
     if (block == null) {
       return 0;
     }
