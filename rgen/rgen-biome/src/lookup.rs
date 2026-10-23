@@ -133,11 +133,11 @@ impl WorldBiomes {
   }
 
   fn choose_surface_biome_from_key(&self, key: BiomeKey) -> &BiomeBuilder {
-    if crate::feature::BIOME_OVERRIDE {
-      return &self.composition_lookup.blank[0];
-    }
-
-    let biomes = self.composition_lookup.choose(key.geographic, key.climate);
+    let biomes = if crate::feature::BIOME_OVERRIDE {
+      &self.composition_lookup.blank
+    } else {
+      self.composition_lookup.choose(key.geographic, key.climate)
+    };
 
     let total = biomes.iter().map(|b| b.rarity).sum::<u32>();
     let mut variance = key.variance % total;
