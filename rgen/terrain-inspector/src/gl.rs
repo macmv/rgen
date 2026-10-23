@@ -43,6 +43,8 @@ pub struct Renderer {
   program: glow::Program,
   vao:     glow::VertexArray,
   colors:  glow::Texture,
+  /// The color of every palette index of the real terrain, 256 texels wide.
+  palette: glow::Texture,
   /// One `u32` per chunk: empty, solid, or the chunk's slot in the atlas.
   table:   glow::Texture,
   /// The blocks of every chunk that has any, in slots of `CHUNK` cubed.
@@ -63,6 +65,11 @@ pub struct Renderer {
   allocated_side: i32,
   /// The most slots along a side that the driver allows.
   max_side:       i32,
+  /// Set when the blocks are the real terrain's, which are colored by `palette`
+  /// instead of by column.
+  real:           bool,
+  /// A new palette to copy to `palette` on the next paint.
+  palette_data:   Option<Vec<u8>>,
   pending:        Vec<Upload>,
   /// Repainted while uploads are waiting, so that they keep going.
   ctx:            egui::Context,
@@ -121,6 +128,9 @@ impl Renderer {
         program,
         vao,
         colors: make_texture(gl)?,
+        palette: make_texture(gl)?,
+        real: false,
+        palette_data: None,
         table: make_volume(gl)?,
         bricks,
         table_data: vec![],
@@ -171,6 +181,13 @@ impl Renderer {
         None,
       );
     }
+  }
+
+  /// Switches between heightmap terrain, which is colored by column, and real
+  /// terrain, which is colored by block with this palette (RGBA8, 256 texels).
+  pub fn set_palette(&mut self, palette: Option<Vec<u8>>) {
+    self.real = palette.is_some();
+    self.palette_data = palette;
   }
 
   /// Queues new terrain, which is uploaded on the next paint. Emptying the
@@ -230,6 +247,20 @@ impl Renderer {
         self.allocated_side = self.side;
       }
       gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+      if let Some(palette) = self.palette_data.take() {
+        gl.bind_texture(glow::TEXTURE_2D, Some(self.palette));
+        gl.tex_image_2d(
+          glow::TEXTURE_2D,
+          0,
+          glow::RGBA8 as i32,
+          256,
+          1,
+          0,
+          glow::RGBA,
+          glow::UNSIGNED_BYTE,
+          Some(&palette),
+        );
+      }
       let mut budget = BRICKS_PER_FRAME;
       let mut queue = std::mem::take(&mut self.pending).into_iter();
       while let Some(upload) = queue.next() {
@@ -349,11 +380,15 @@ impl Renderer {
       gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
       gl.active_texture(glow::TEXTURE2);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
+      gl.active_texture(glow::TEXTURE3);
+      gl.bind_texture(glow::TEXTURE_2D, Some(self.palette));
 
       let uniform = |name: &str| gl.get_uniform_location(self.program, name);
       gl.uniform_1_i32(uniform("uColor").as_ref(), 0);
       gl.uniform_1_i32(uniform("uTable").as_ref(), 1);
       gl.uniform_1_i32(uniform("uBricks").as_ref(), 2);
+      gl.uniform_1_i32(uniform("uPalette").as_ref(), 3);
+      gl.uniform_1_i32(uniform("uReal").as_ref(), self.real as i32);
       gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
       gl.uniform_1_i32(uniform("uAtlasSide").as_ref(), self.side);
       gl.uniform_2_i32(uniform("uShift").as_ref(), frame.shift[0], frame.shift[1]);

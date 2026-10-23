@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 rgen-spline.workspace = true
-rgen-biome.workspace = true
+rgen-biome = { workspace = true, features = ["inspector"] }
 rgen-base.workspace = true
 rgen-world.workspace = true
 

@@ -16,6 +16,7 @@ use rgen_biome::{RawNoise, TerrainNoise, WorldBiomes};
 use crate::{
   Splines,
   grid::{Grid, Layer, TILE_BLOCKS, TileColumns, distance_sq},
+  real::{RealTerrain, TileBlocks},
 };
 
 /// What the workers need to turn noise into heights and colors. Whenever any of
@@ -32,6 +33,8 @@ pub struct Job {
   pub epoch: u64,
   pub noise: Arc<TerrainNoise>,
   pub world: Arc<WorldBiomes>,
+  /// Set to generate the blocks of the chunk with the real generator.
+  pub real:  Option<Arc<RealTerrain>>,
   /// The chunk's position, in chunks.
   pub tile:  [i32; 2],
 }
@@ -47,6 +50,8 @@ pub struct TileResult {
   /// The columns, made with the params with this id.
   pub params_id: u64,
   pub columns:   TileColumns,
+  /// The blocks from the real generator, if it was asked for.
+  pub blocks:    Option<TileBlocks>,
 }
 
 struct Queue {
@@ -111,6 +116,8 @@ impl Pool {
           let columns =
             Grid::tile_columns(&raw, &biomes, &params.splines, params.layer, params.flatten_water);
 
+          let blocks = job.real.as_ref().map(|real| real.generate(&job.world, job.tile));
+
           let result = TileResult {
             epoch: job.epoch,
             tile: job.tile,
@@ -118,6 +125,7 @@ impl Pool {
             biomes,
             params_id: params.id,
             columns,
+            blocks,
           };
           if results.send(result).is_err() {
             return;
@@ -148,6 +156,7 @@ impl Pool {
     epoch: u64,
     noise: &Arc<TerrainNoise>,
     world: &Arc<WorldBiomes>,
+    real: &Option<Arc<RealTerrain>>,
     center: [i32; 2],
     radius: i32,
     new: &[[i32; 2]],
@@ -158,6 +167,7 @@ impl Pool {
       epoch,
       noise: noise.clone(),
       world: world.clone(),
+      real: real.clone(),
       tile,
     }));
     // The workers pop from the end, so put the closest chunks last.

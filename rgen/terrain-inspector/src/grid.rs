@@ -6,6 +6,7 @@ use rgen_biome::RawNoise;
 use crate::{
   Splines,
   chunks::{CHUNK, ChunkUpdate, Chunks},
+  real::TileBlocks,
 };
 
 pub const SEA_LEVEL: f64 = 64.0;
@@ -105,11 +106,16 @@ pub const SIDE: usize = 2 * (MAX_RADIUS + UNLOAD_MARGIN) as usize + 1;
 /// on most terrain, and more on cliffs.
 const SLOTS_PER_COLUMN: usize = 3;
 
+/// The same, for real terrain, where caves, ores and trees give many more
+/// chunks blocks of their own.
+const REAL_SLOTS_PER_COLUMN: usize = 6;
+
 /// The atlas slots needed to hold the terrain at a view distance, including the
 /// chunks that are kept past it.
-pub fn slots_for(radius: i32) -> usize {
+pub fn slots_for(radius: i32, real: bool) -> usize {
   let columns = (TILE_BLOCKS / CHUNK).pow(2);
-  tiles_in_range([0, 0], radius + UNLOAD_MARGIN).count() * columns * SLOTS_PER_COLUMN
+  let per_column = if real { REAL_SLOTS_PER_COLUMN } else { SLOTS_PER_COLUMN };
+  tiles_in_range([0, 0], radius + UNLOAD_MARGIN).count() * columns * per_column
 }
 
 /// The squared distance between two chunks, in chunks.
@@ -161,6 +167,10 @@ pub struct Grid {
 
   /// The same terrain as 3D chunks, for the ray marcher.
   pub chunks: Chunks,
+
+  /// Whether the chunks are the blocks of the real generator, instead of being
+  /// made from the heights.
+  real: bool,
 }
 
 /// The height and color of every column of a tile.
@@ -199,9 +209,15 @@ fn colors_bytes(colors: &[Color32]) -> Vec<u8> {
 impl Grid {
   /// Makes a grid where nothing has been generated. `brick_capacity` is the
   /// number of chunks the GPU can hold blocks for.
-  pub fn new(brick_capacity: usize) -> Self {
+  pub fn new(brick_capacity: usize, real: bool) -> Self {
     let size = [SIDE * TILE_BLOCKS; 2];
-    Grid { size, window: [0, 0], tiles: HashMap::new(), chunks: Chunks::new(size, brick_capacity) }
+    Grid {
+      size,
+      window: [0, 0],
+      tiles: HashMap::new(),
+      chunks: Chunks::new(size, brick_capacity),
+      real,
+    }
   }
 
   /// Where a chunk is on the torus, in chunks.
@@ -265,6 +281,7 @@ impl Grid {
     raw: &[RawNoise],
     biomes: &[u32],
     columns: &TileColumns,
+    blocks: Option<TileBlocks>,
   ) -> Vec<Upload> {
     let data = TileData {
       raw:     raw.iter().map(|&r| pack(r)).collect(),
@@ -276,7 +293,10 @@ impl Grid {
     self.tiles.insert(tile, data);
 
     let mut updates = vec![];
-    self.rebuild_chunks(tile, &mut updates);
+    match blocks {
+      Some(blocks) => self.set_blocks(tile, blocks, &mut updates),
+      None => self.rebuild_chunks(tile, &mut updates),
+    }
     vec![upload, Upload::Chunks(updates)]
   }
 
@@ -310,8 +330,22 @@ impl Grid {
     updates
   }
 
-  /// Rebuilds the chunks above one tile of columns.
+  /// Replaces the chunks above one tile of columns with real blocks.
+  fn set_blocks(&mut self, tile: [i32; 2], blocks: TileBlocks, out: &mut Vec<ChunkUpdate>) {
+    let [tx, tz] = Self::torus(tile);
+    let per_tile = TILE_BLOCKS / CHUNK;
+    for (i, column) in blocks.columns.into_iter().enumerate() {
+      let (cx, cz) = (i % per_tile, i / per_tile);
+      self.chunks.set_column(tx * per_tile + cx, tz * per_tile + cz, column, out);
+    }
+  }
+
+  /// Rebuilds the chunks above one tile of columns from their heights. Real
+  /// terrain doesn't have heights to rebuild from, so it's left alone.
   fn rebuild_chunks(&mut self, tile: [i32; 2], out: &mut Vec<ChunkUpdate>) {
+    if self.real {
+      return;
+    }
     let Some(data) = self.tiles.get(&tile) else { return };
     let [tx, tz] = Self::torus(tile);
     let per_tile = TILE_BLOCKS / CHUNK;

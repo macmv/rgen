@@ -19,10 +19,12 @@ mod chunks;
 mod gl;
 mod grid;
 mod pool;
+mod real;
 
 use camera::Camera;
 use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
 use pool::{Params, Pool, TileResult};
+use real::RealTerrain;
 
 /// The seed from the first argument, or a random one.
 fn initial_seed() -> u64 {
@@ -90,6 +92,16 @@ impl Splines {
       &self.height_impact,
       raw,
     )
+  }
+
+  /// The same splines, for the generator.
+  fn to_game(&self) -> rgen_biome::Splines {
+    rgen_biome::Splines {
+      continentalness: self.continentalness.clone(),
+      erosion:         self.erosion.clone(),
+      peaks_valleys:   self.peaks_valleys.clone(),
+      height_impact:   self.height_impact.clone(),
+    }
   }
 
   /// Formats the splines as the statics in `rgen-biome/src/lib.rs`.
@@ -164,6 +176,13 @@ struct App {
   seed:          u64,
   /// How many chunks around the camera are generated.
   view_distance: i32,
+  /// Generates the blocks with the real terrain generator, instead of making
+  /// them from the heights. The heights are still made, for the layers.
+  real:          bool,
+  real_terrain:  Option<Arc<RealTerrain>>,
+  /// Set when the splines change in real mode. The terrain is generated again
+  /// once the mouse is let go, as it's too slow to follow a drag.
+  regen_pending: bool,
   /// Set while the view distance slider is being dragged. The atlas is only
   /// resized once it's let go, as that restarts the world.
   dragging_view: bool,
@@ -209,8 +228,8 @@ impl App {
       layer:         Layer::Height,
       flatten_water: true,
     });
-    renderer.lock().unwrap().set_slots(slots_for(10));
-    let grid = Grid::new(renderer.lock().unwrap().brick_capacity());
+    renderer.lock().unwrap().set_slots(slots_for(10, false));
+    let grid = Grid::new(renderer.lock().unwrap().brick_capacity(), false);
     renderer.lock().unwrap().queue(grid.reset_upload());
     App {
       splines: Splines::from_game(),
@@ -219,6 +238,9 @@ impl App {
 
       seed,
       view_distance: 10,
+      real: false,
+      real_terrain: None,
+      regen_pending: false,
       dragging_view: false,
 
       noise: Arc::new(TerrainNoise::new(seed)),
@@ -249,10 +271,16 @@ impl App {
 impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     if !self.dragging_view {
-      let resized = self.renderer.lock().unwrap().set_slots(slots_for(self.view_distance));
+      let resized =
+        self.renderer.lock().unwrap().set_slots(slots_for(self.view_distance, self.real));
       if resized {
         self.restart();
       }
+    }
+    if self.real && self.regen_pending && !ctx.input(|i| i.pointer.any_down()) {
+      self.regen_pending = false;
+      rgen_biome::set_splines(self.active_splines().to_game());
+      self.restart();
     }
     self.plan_chunks();
     self.receive_tiles(ctx);
@@ -304,6 +332,25 @@ impl App {
     self.camera.target.map(|t| (t / TILE_BLOCKS as f64).floor() as i32)
   }
 
+  /// Switches between the heightmap and the real generator.
+  fn set_real(&mut self) {
+    let mut renderer = self.renderer.lock().unwrap();
+    if self.real {
+      let real = Arc::new(RealTerrain::new(self.seed));
+      renderer.set_palette(Some(real.palette().texture()));
+      self.real_terrain = Some(real);
+      rgen_biome::set_splines(self.active_splines().to_game());
+      // Real terrain takes a lot longer to make than a heightmap does.
+      self.view_distance = self.view_distance.min(4);
+    } else {
+      renderer.set_palette(None);
+      self.real_terrain = None;
+    }
+    self.regen_pending = false;
+    drop(renderer);
+    self.restart();
+  }
+
   /// Throws away all the terrain, and starts generating it again.
   fn restart(&mut self) {
     self.epoch += 1;
@@ -311,7 +358,7 @@ impl App {
     self.planned = None;
     self.pool.reset(self.epoch);
 
-    self.grid = Grid::new(self.renderer.lock().unwrap().brick_capacity());
+    self.grid = Grid::new(self.renderer.lock().unwrap().brick_capacity(), self.real);
     self.renderer.lock().unwrap().queue(self.grid.reset_upload());
   }
 
@@ -338,7 +385,7 @@ impl App {
     let new: Vec<[i32; 2]> =
       grid::tiles_in_range(center, radius).filter(|t| !self.requested.contains(t)).collect();
     self.requested.extend(new.iter().copied());
-    self.pool.plan(self.epoch, &self.noise, &self.world, center, radius, &new);
+    self.pool.plan(self.epoch, &self.noise, &self.world, &self.real_terrain, center, radius, &new);
   }
 
   /// Copies the chunks the workers finished into the terrain.
@@ -361,7 +408,7 @@ impl App {
         Grid::tile_columns(&tile.raw, &tile.biomes, &p.splines, p.layer, p.flatten_water)
       };
 
-      for upload in self.grid.set_tile(tile.tile, &tile.raw, &tile.biomes, &columns) {
+      for upload in self.grid.set_tile(tile.tile, &tile.raw, &tile.biomes, &columns, tile.blocks) {
         renderer.queue(upload);
       }
     }
@@ -378,6 +425,9 @@ impl App {
       if ui.add(DragValue::new(&mut self.seed)).changed() {
         self.noise = Arc::new(TerrainNoise::new(self.seed));
         self.world = make_world(self.seed);
+        if self.real {
+          self.real_terrain = Some(Arc::new(RealTerrain::new(self.seed)));
+        }
         self.section.resample(&self.noise);
         self.restart();
       }
@@ -422,9 +472,21 @@ impl App {
       }
     });
 
+    if ui
+      .checkbox(&mut self.real, "Real terrain generator")
+      .on_hover_text(
+        "Runs the game's generator, with decorations. The splines apply when the mouse is let go.",
+      )
+      .changed()
+    {
+      self.set_real();
+    }
     self.dirty |= ui.checkbox(&mut self.flatten_water, "Flatten below sea level").changed();
     ui.checkbox(&mut self.chunk_borders, "Show chunk borders");
-    self.dirty |= ui.checkbox(&mut self.compare_saved, "Show splines saved in the game").changed();
+    if ui.checkbox(&mut self.compare_saved, "Show splines saved in the game").changed() {
+      self.dirty = true;
+      self.regen_pending = true;
+    }
 
     ui.horizontal(|ui| {
       if ui.button("Copy as Rust").clicked() {
@@ -433,6 +495,7 @@ impl App {
       if ui.button("Reset splines").clicked() {
         self.splines = self.saved.clone();
         self.dirty = true;
+        self.regen_pending = true;
       }
     });
 
@@ -474,6 +537,7 @@ impl App {
       );
 
       self.dirty |= changed;
+      self.regen_pending |= changed;
     });
   }
 

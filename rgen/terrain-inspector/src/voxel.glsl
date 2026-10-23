@@ -8,6 +8,8 @@
 uniform sampler2D uColor;   // RGBA8, the color of each column
 uniform usampler3D uTable;  // R32UI, one per chunk: 0 empty, 1 solid, else slot + 2
 uniform usampler3D uBricks; // R8UI, the atlas. Texels are laid out as (y, x, z).
+uniform sampler2D uPalette; // RGBA8, 256 texels: the color of every block of the real terrain
+uniform bool uReal;         // whether blocks are colored by uPalette instead of by column
 
 uniform vec3 uEye;
 uniform vec3 uForward;
@@ -24,6 +26,8 @@ uniform ivec2 uHover; // the highlighted column, or (-1, -1)
 out vec4 outColor;
 
 const int CHUNK = 32;
+// Table values with this bit set are chunks that are all one block, which is the value's low byte.
+const uint UNIFORM = 0x80000000u;
 
 vec3 sky(vec3 dir) {
   float t = clamp(dir.y * 1.5 + 0.2, 0.0, 1.0);
@@ -56,15 +60,27 @@ ivec2 wrapColumn(ivec2 v) {
   return (v + uShift) % (uChunks.xz * CHUNK);
 }
 
-bool solidAt(ivec3 v) {
-  if (any(lessThan(v, ivec3(0))) || any(greaterThanEqual(v, uChunks * CHUNK))) return false;
+// The block at a spot: 0 for air, else its palette index. (Heightmap terrain
+// has only one kind of block, which is 1.)
+uint blockAt(ivec3 v) {
+  if (any(lessThan(v, ivec3(0))) || any(greaterThanEqual(v, uChunks * CHUNK))) return 0u;
 
   ivec3 c = v / CHUNK;
   uint state = texelFetch(uTable, wrapCell(c), 0).r;
-  if (state < 2u) return state == 1u;
+  if (state < 2u) return state;
+  if (state >= UNIFORM) return state & 255u;
 
   ivec3 l = v - c * CHUNK;
-  return texelFetch(uBricks, atlasOrigin(int(state) - 2) + ivec3(l.y, l.x, l.z), 0).r != 0u;
+  return texelFetch(uBricks, atlasOrigin(int(state) - 2) + ivec3(l.y, l.x, l.z), 0).r;
+}
+
+bool solidAt(ivec3 v) { return blockAt(v) != 0u; }
+
+// The color of a block, before any shading. `column` is where it is, for the
+// heightmap terrain's colors.
+vec3 blockColor(uint block, ivec2 column) {
+  if (uReal) return texelFetch(uPalette, ivec2(int(block), 0), 0).rgb;
+  return texelFetch(uColor, wrapColumn(column), 0).rgb;
 }
 
 // How bright a face is, by the axis it points along.
@@ -113,7 +129,7 @@ bool footprintSample(vec2 spot, float hitY, vec3 d, float r, out vec3 albedo) {
   }
   top = float(s.y + 1);
 
-  vec3 base = texelFetch(uColor, wrapColumn(s.xz), 0).rgb;
+  vec3 base = blockColor(blockAt(s), s.xz);
   if (top - hitY > max(1.0, r)) {
     // The neighbor stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
@@ -167,6 +183,7 @@ void main() {
 
     bool found = false;
     float tHit = 0.0;
+    uint hitBlock = 0u;
     int hitAxis = 0;
     ivec3 voxel = ivec3(0);
 
@@ -179,9 +196,10 @@ void main() {
         vec3 p = origin + safe * (tCur + 1e-3);
         ivec3 v = clamp(ivec3(floor(p)), lo, lo + (CHUNK - 1));
 
-        if (state == 1u) {
-          // The whole chunk is solid, so the ray hits where it enters.
+        if (state == 1u || state >= UNIFORM) {
+          // The whole chunk is one block, so the ray hits where it enters.
           found = true;
+          hitBlock = state == 1u ? 1u : state & 255u;
           tHit = tCur;
           hitAxis = lastAxis;
           voxel = v;
@@ -199,8 +217,10 @@ void main() {
           ivec3 l = v - lo;
           if (any(lessThan(l, ivec3(0))) || any(greaterThanEqual(l, ivec3(CHUNK)))) break;
 
-          if (texelFetch(uBricks, atlas + ivec3(l.y, l.x, l.z), 0).r != 0u) {
+          uint block = texelFetch(uBricks, atlas + ivec3(l.y, l.x, l.z), 0).r;
+          if (block != 0u) {
             found = true;
+            hitBlock = block;
             tHit = tF;
             hitAxis = fAxis;
             voxel = v;
@@ -234,7 +254,7 @@ void main() {
       vec3 block = vec3(voxel);
       vec3 local = clamp(pos - block, 0.0, 1.0);
 
-      vec3 base = texelFetch(uColor, wrapColumn(voxel.xz), 0).rgb;
+      vec3 base = blockColor(hitBlock, voxel.xz);
 
       // How much of a block one pixel covers. Blocks smaller than a few
       // pixels can't show any detail, so their detail fades out.
