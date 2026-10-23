@@ -79,8 +79,9 @@ impl Placer for MossBoulder {
           if rel_y == -1 {
             if rel_x == 0 || rel_z == 0 {
               if !self.place_above.contains(world.get(pos + Pos::new(rel_x, rel_y - 1, rel_z))) {
-                // The block below the bottom block is not in the list of place above i.e. the
-                // boulder is floating and cannot be built thus the build is canceled
+                // The block below the bottom block is not in the list of place
+                // above i.e. the boulder is floating and cannot
+                // be built thus the build is canceled
 
                 return Err(UndoError);
               }

@@ -121,8 +121,8 @@ impl<'a> Village<'a> {
           let y = highest_block(chunk, rel).y();
 
           let replacing = info.decode(chunk.get(rel.with_y(y)));
-          // Intersections get placed multiple times, so we need to check for planks here
-          // too.
+          // Intersections get placed multiple times, so we need to check for
+          // planks here too.
           let placing = if replacing == block![water] || replacing == block![planks] {
             block![planks]
           } else {
@@ -138,10 +138,10 @@ impl<'a> Village<'a> {
     for building in &self.buildings {
       let structure = &self.generator.buildings[building.building_id as usize];
 
-      // If the building is in this chunk, we place it. Because this is part of the
-      // decoration pass, we can modify blocks in neighboring chunks. So we'll
-      // place the entire building at once, and we can consistently find ground
-      // level at the same time.
+      // If the building is in this chunk, we place it. Because this is part of
+      // the decoration pass, we can modify blocks in neighboring chunks.
+      // So we'll place the entire building at once, and we can
+      // consistently find ground level at the same time.
       if !building.pos.in_chunk(chunk_pos) {
         continue;
       }
@@ -175,8 +175,8 @@ impl<'a> Village<'a> {
 
       for rel_pos in structure.blocks() {
         let block = structure.get(rel_pos);
-        // NB: The building is placed at `max_height` to set it into the surface by 1
-        // block.
+        // NB: The building is placed at `max_height` to set it into the surface
+        // by 1 block.
         let pos = building.transform_to_world(structure, rel_pos + Pos::new(0, max_height, 0));
 
         if block != block![air] {
@@ -196,8 +196,8 @@ impl<'a> Village<'a> {
             y -= 1;
           }
 
-          // Set the layer below to dirt (this is usually grass, which we want to
-          // replace).
+          // Set the layer below to dirt (this is usually grass, which we want
+          // to replace).
           world.set(pos.with_y(y), block![dirt]);
         }
       }

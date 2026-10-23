@@ -88,7 +88,8 @@ fn noise_2(point: Vector2, perm: &PermutationTable) -> f64 {
   // Floor to get grid coordinates of rhombus (stretched square) cell origin.
   let stretched_floor = stretched.floor();
 
-  // Skew out to get actual coordinates of rhombus origin. We'll need these later.
+  // Skew out to get actual coordinates of rhombus origin. We'll need these
+  // later.
   let squish_offset = stretched_floor.sum() * SQUISH_CONSTANT;
   let origin = Vector2::new(stretched_floor.x + squish_offset, stretched_floor.y + squish_offset);
 

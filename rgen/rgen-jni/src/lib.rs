@@ -5,7 +5,7 @@
 
 use std::{
   ffi::{CStr, CString, OsStr},
-  os::unix::ffi::{OsStrExt},
+  os::unix::ffi::OsStrExt,
   path::Path,
   process::Command,
 };

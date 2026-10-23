@@ -148,8 +148,8 @@ impl NoodleCave<'_> {
       let max = chunk_pos.min_block_pos() + Pos::new(max_radius + 15, 0, max_radius + 15);
 
       if pos.x < min.x || pos.x > max.x || pos.z < min.z || pos.z > max.z {
-        // Skip this iteration. We're far enough away from the chunk that we don't need
-        // to bother looping below.
+        // Skip this iteration. We're far enough away from the chunk that we
+        // don't need to bother looping below.
         return false;
       }
 
@@ -174,8 +174,8 @@ impl NoodleCave<'_> {
                   + 0.6;
 
               if density > dist_to_center {
-                // TODO: This is pretty dumb. Maybe add a concept of "near water" so we can skip
-                // this sometimes?
+                // TODO: This is pretty dumb. Maybe add a concept of "near
+                // water" so we can skip this sometimes?
                 let mut near_water = false;
                 for offset in [
                   Pos::new(-1, 0, 0),
@@ -186,7 +186,8 @@ impl NoodleCave<'_> {
                   Pos::new(0, -1, 0),
                 ] {
                   let pos = pos + offset;
-                  // Chunk borders: we don't care! We can let a bit of floating water exist.
+                  // Chunk borders: we don't care! We can let a bit of floating
+                  // water exist.
                   if !pos.in_chunk(chunk_pos) {
                     continue;
                   }

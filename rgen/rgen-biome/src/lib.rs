@@ -190,8 +190,8 @@ impl WorldBiomes {
   }
 
   pub fn sample_river_distance(&self, pos: Pos) -> f64 {
-    // This will be between 0.0 and 0.02 when there is a river, and any value higher
-    // will be outside of a river.
+    // This will be between 0.0 and 0.02 when there is a river, and any value
+    // higher will be outside of a river.
     let distance_to_river = (self.sample_peaks_valleys(pos) - 0.5).abs();
 
     // So, return a value from 0.0 to 1.0 for the range 0.0 to 0.16, so that
@@ -261,8 +261,8 @@ impl Generator for WorldBiomes {
       return;
     }
 
-    // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
-    // anything.
+    // TODO: Maybe make this 3D as well? Not sure if we want underground trees
+    // or anything.
 
     if feature::VILLAGES {
       self.structure.decorate(world, chunk_pos);
@@ -282,8 +282,9 @@ impl Generator for WorldBiomes {
         let biome = self.choose_biome(pos);
         biome_names[x as usize][z as usize] = biome.name;
 
-        // `biome_set` acts like a set, so we need to check if this is a new biome or
-        // not. Note that this means every biome name _must_ be unique.
+        // `biome_set` acts like a set, so we need to check if this is a new
+        // biome or not. Note that this means every biome name _must_ be
+        // unique.
         if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
           && biome_index < biome_set.len()
         {
@@ -435,8 +436,9 @@ impl WorldBiomes {
               chunk.add_surface(rel_pos);
             }
 
-            // Special case: if the top layer is grass, always place grass if there is air
-            // above (this makes cave entrances look nice.)
+            // Special case: if the top layer is grass, always place grass if
+            // there is air above (this makes cave entrances look
+            // nice.)
             if biome.top_block().block == block![grass]
               && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
@@ -475,10 +477,11 @@ impl WorldBiomes {
 
       for x in 0..16 {
         for z in 0..16 {
-          // This is kinda restrictive, but helps performance a _lot_. We also don't
-          // really want biomes to change on the Y axis, as that causes weirdness when
-          // building with grass and such. So we can limit ourselves to a single surface
-          // biome and a single cave biome per column.
+          // This is kinda restrictive, but helps performance a _lot_. We also
+          // don't really want biomes to change on the Y axis, as that
+          // causes weirdness when building with grass and such. So we
+          // can limit ourselves to a single surface biome and a
+          // single cave biome per column.
           let surface_biome =
             self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
           let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));

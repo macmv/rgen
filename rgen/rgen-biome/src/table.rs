@@ -109,20 +109,32 @@ biome_categories!(
 
     // Tropical vvv
 
-    let (GeographicType::Standard, ClimateType::Tropical) = 
-    &[ b!(5, canopied_jungle),b!(5, flower_canopied_jungle), b!(5, light_jungle_wood), b!(5, terraced_jungle),];
+    let (GeographicType::Standard, ClimateType::Tropical) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
 
-    let (GeographicType::River, ClimateType::Tropical) = 
-    &[b!(5, canopied_jungle),b!(5, flower_canopied_jungle),b!(5, light_jungle_wood),b!(5, terraced_jungle),];
+    let (GeographicType::River, ClimateType::Tropical) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
 
-    let (GeographicType::Canyon, ClimateType::Tropical) = 
-    &[b!(5, canopied_jungle),b!(5, flower_canopied_jungle),b!(5, light_jungle_wood),b!(5, terraced_jungle),];
+    let (GeographicType::Canyon, ClimateType::Tropical) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
 
-    let (GeographicType::Hills, ClimateType::Tropical) = 
-    &[b!(10, terraced_jungle),b!(10, light_jungle_wood),];
+    let (GeographicType::Hills, ClimateType::Tropical) =
+      &[b!(10, terraced_jungle), b!(10, light_jungle_wood)];
 
-    let (GeographicType::Mountains, ClimateType::Tropical) = 
-    &[b!(10, terraced_jungle),b!(10, light_jungle_wood),];
+    let (GeographicType::Mountains, ClimateType::Tropical) =
+      &[b!(10, terraced_jungle), b!(10, light_jungle_wood)];
 
     let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
 

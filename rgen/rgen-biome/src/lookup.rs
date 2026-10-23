@@ -199,9 +199,9 @@ impl WorldBiomes {
 
     let v = if peaks_valleys > 0.5 { 1.0 - peaks_valleys } else { peaks_valleys };
 
-    // This is a bit odd, but its required for rivers. We need to modify the border
-    // of the valley edge given the continentalness, so that river edges line up
-    // correctly.
+    // This is a bit odd, but its required for rivers. We need to modify the
+    // border of the valley edge given the continentalness, so that river
+    // edges line up correctly.
     //
     // Also these numbers are really fine-tuned. Change at your own risk.
     let river_edge = 0.445 + (continentalness - 0.3) * 0.2;

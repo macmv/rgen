@@ -202,8 +202,10 @@ impl CachedWorld {
   }
 
   pub fn generate<R>(&self, pos: ChunkPos, f: impl FnOnce(&Chunk) -> R) -> R {
-    // The minimum radius required to generate a neighbor decorated chunk is `RADIUS
-    // + 2`. However, this leads to very low parallelism when generating a region of
+    // The minimum radius required to generate a neighbor decorated chunk is
+    // `RADIUS
+    // + 2`. However, this leads to very low parallelism when generating a
+    //   region of
     // chunks next to each other. Increasing this by 1 leads to much better real
     // world performance (~15x), where chunks are generated next to each other
     // often. Increasing this any more only has negligible speed improvements.
@@ -221,8 +223,8 @@ impl CachedWorld {
 
     let mut i = 0;
     loop {
-      // If the GC runs while we're waiting, the chunk might not get generated. This
-      // is here to make sure it always gets generated.
+      // If the GC runs while we're waiting, the chunk might not get generated.
+      // This is here to make sure it always gets generated.
       if i % 10 == 0 {
         self.request(pos, Stage::NeighborDecorated);
       }
@@ -313,8 +315,8 @@ impl CachedWorld {
 
   fn generate_base(&self, ctx: &Context, generator: &impl Generator, pos: ChunkPos) {
     // Lock this chunk for building. Until this point, everything has been
-    // optimistic. This is the first real lock. If this does not return, this thread
-    // is the sole generator of this chunk.
+    // optimistic. This is the first real lock. If this does not return, this
+    // thread is the sole generator of this chunk.
     {
       let mut w = self.base_chunks.lock();
       match w.get(&pos) {

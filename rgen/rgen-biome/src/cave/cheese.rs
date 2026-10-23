@@ -38,16 +38,16 @@ impl CheeseCarver {
           let noise =
             self.cave_map.generate_3d(pos.x as f64, pos.y as f64 * 4.0, pos.z as f64) * 0.5 + 0.5;
 
-          // Scale down caves towards the surface, to make narrow entraces that widen into
-          // larger caves.
+          // Scale down caves towards the surface, to make narrow entraces that
+          // widen into larger caves.
           let surface_modifier = match y as f64 - height {
             -8.0.. => 0.0,
             v @ -16.0..=-8.0 => 1.0 - (v + 16.0) / 8.0,
             _ => 1.0,
           };
 
-          // Scale down caves towards bedrock, because bedrock is ugly, and we'd like to
-          // hide it under normal stone.
+          // Scale down caves towards bedrock, because bedrock is ugly, and we'd
+          // like to hide it under normal stone.
           let bedrock_modifier = if y < 10 { y as f64 / 10.0 } else { 1.0 };
 
           // Rivers have more impact the higher the cave is.
@@ -71,7 +71,8 @@ impl CheeseCarver {
               Pos::new(0, -1, 0),
             ] {
               let pos = pos + offset;
-              // Chunk borders: we don't care! We can let a bit of floating water exist.
+              // Chunk borders: we don't care! We can let a bit of floating
+              // water exist.
               if !pos.in_chunk(chunk_pos) {
                 continue;
               }
