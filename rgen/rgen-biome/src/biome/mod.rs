@@ -28,7 +28,7 @@ mod cave;
 #[allow(unused_imports)]
 pub use cave::*;
 
-use crate::builder::{BiomeBuilder, PlacerStage};
+use crate::builder::BiomeBuilder;
 
 pub type BiomeFn = fn(&mut BiomeBuilder);
 

@@ -28,9 +28,9 @@ impl ChunkPlacer for Ore {
     let ore_max_x = ((min_pos.x + 16 + radius) as f64) / scale;
     let ore_max_z = ((min_pos.z + 16 + radius) as f64) / scale;
 
-    // FIXME: This is always given the same random number generator, so we can pick
-    // a seed off it by just grabbing the next number. This can't be relied on
-    // though! Need to rework the `ChunkPlacer` api a bit.
+    // FIXME: This is always given the same random number generator, so we can
+    // pick a seed off it by just grabbing the next number. This can't be
+    // relied on though! Need to rework the `ChunkPlacer` api a bit.
     let seed = rng.next();
     let points = PointGrid.points_in_area(seed, ore_min_x, ore_min_z, ore_max_x, ore_max_z);
 

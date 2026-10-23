@@ -25,6 +25,7 @@ pub struct GrassClumps {
   pub avg_per_chunk: f64,
 }
 
+#[allow(dead_code)]
 pub struct PlantClumps {
   pub place_above: BlockFilter,
 

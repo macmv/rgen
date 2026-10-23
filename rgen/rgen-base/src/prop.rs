@@ -11,9 +11,15 @@ pub struct PropMap {
 /// Stores a property value. The bits are:
 /// - 0 and 1: bools.
 /// - 2 through 17: ints (vanilla only uses integers from 0 to 16).
-/// - 18 through 166: enums.
+/// - 18 and up: enums, as an index into `PropEnum::ALL`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct PropValueCompact(u8);
+
+const ENUM_OFFSET: usize = 18;
+
+// Enums are stored as `ENUM_OFFSET + index`, which must fit in a `u8`.
+const _: () =
+  assert!(ENUM_OFFSET + PropEnum::ALL.len() <= 256, "too many prop enums for PropValueCompact");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PropValue<'a> {
@@ -156,7 +162,7 @@ impl PropMap {
   pub fn len(&self) -> usize { self.entries.partition_point(|(e, _)| e.is_some()) }
   pub fn is_empty(&self) -> bool { self.len() == 0 }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&'_ str, PropValue<'_>)> + '_ {
     self.entries[0..self.len()]
       .iter()
       .copied()
@@ -234,7 +240,7 @@ impl PropMapOwned {
     PropMapOwned { entries: [const { (String::new(), PropValueOwned::Bool(false)) }; 8] }
   }
 
-  pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue)> + '_ {
+  pub fn entries(&self) -> impl Iterator<Item = (&str, PropValue<'_>)> + '_ {
     self.entries.iter().filter_map(|(key, value)| {
       if key.is_empty() { None } else { Some((&**key, value.as_value())) }
     })
@@ -262,8 +268,9 @@ impl PropMapOwned {
     for entry in self.entries.iter_mut() {
       if entry.0.is_empty() {
         *entry = (key, value);
-        // FIXME: Insert this key in the right spot, instead of just sorting. This is a
-        // somewhat hot path, so probably with optimizing at some point.
+        // FIXME: Insert this key in the right spot, instead of just sorting.
+        // This is a somewhat hot path, so probably with optimizing at
+        // some point.
         self.entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
         return;
       }
@@ -288,7 +295,7 @@ impl PartialEq<PropMapOwned> for PropMapOwned {
 }
 
 impl PropValueOwned {
-  pub fn as_value(&self) -> PropValue {
+  pub fn as_value(&self) -> PropValue<'_> {
     match self {
       PropValueOwned::Bool(value) => PropValue::Bool(*value),
       PropValueOwned::Int(value) => PropValue::Int(*value),
@@ -588,7 +595,7 @@ impl PropValueCompact {
       PropValue::Enum(value) => {
         let value =
           PropEnum::for_name(value).unwrap_or_else(|| panic!("unknown enum value: {}", value));
-        PropValueCompact(18 + value as u8)
+        PropValueCompact(ENUM_OFFSET as u8 + value as u8)
       }
     }
   }
@@ -597,8 +604,10 @@ impl PropValueCompact {
     match self.0 {
       0..=1 => PropValue::Bool(self.0 != 0),
       2..=17 => PropValue::Int(self.0 as i32 - 2),
-      18..=166 => PropValue::Enum(PropEnum::ALL[(self.0 - 18) as usize].name()),
-      _ => panic!("invalid compact prop value: {}", self.0),
+      _ => match PropEnum::ALL.get(self.0 as usize - ENUM_OFFSET) {
+        Some(value) => PropValue::Enum(value.name()),
+        None => panic!("invalid compact prop value: {}", self.0),
+      },
     }
   }
 }

@@ -208,7 +208,7 @@ pub struct BlockInfo<'a> {
 
 impl BlockInfo<'_> {
   // NB: Do not use! Only meant for `rgen-world` to construct.
-  pub fn new(data: &BlockData, state: StateId) -> BlockInfo { BlockInfo { data, state } }
+  pub fn new(data: &BlockData, state: StateId) -> BlockInfo<'_> { BlockInfo { data, state } }
 
   pub fn block_kind(&self) -> BlockKind { self.data.block.unwrap_or(BlockKind::Air) }
   pub fn meta(&self) -> u8 { self.state.meta() }
@@ -356,7 +356,8 @@ const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_o
 const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "cherry", "cedar"];
 const RGEN_WOOD_4_2_LOG: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
 const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
-const RGEN_WOOD_4_3: [&str; 4] = ["aspen", "red_seasonal_tree", "orange_seasonal_tree", "yellow_seasonal_tree"];
+const RGEN_WOOD_4_3: [&str; 4] =
+  ["aspen", "red_seasonal_tree", "orange_seasonal_tree", "yellow_seasonal_tree"];
 
 const COLOR: [&str; 16] = [
   "white",

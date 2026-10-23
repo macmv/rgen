@@ -113,8 +113,8 @@ impl LogAndStump {
     rng.shuffle(&mut directions);
 
     for &((dx, dz), direction_name) in &directions {
-      // You can now use `direction_name` in debug output or for orientation-based
-      // logic
+      // You can now use `direction_name` in debug output or for
+      // orientation-based logic
       let length = rng.range(4..=6);
       let start = pos + Pos::new(dx * 2, -1, dz * 2);
       let end = pos + Pos::new(dx * length, -1, dz * length);

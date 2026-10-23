@@ -7,7 +7,7 @@ use rgen_placer::{
     ShiftedNoise, VoronoiNoise,
   },
 };
-use rgen_spline::{Cosine, Spline};
+use rgen_spline::Spline;
 use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
 use structure::StructureGenerator;
 use table::CompositionLookup;
@@ -19,8 +19,10 @@ mod feature;
 mod lookup;
 mod structure;
 mod table;
+mod terrain;
 
 pub use builder::BiomeBuilder;
+pub use terrain::{HeightParts, RawNoise, TerrainNoise, height_parts};
 
 #[macro_use]
 extern crate puffin;
@@ -40,39 +42,9 @@ pub struct WorldBiomes {
   temperature_map: OctavedNoise<PerlinNoise, 8>,
   humidity_map:    OctavedNoise<PerlinNoise, 8>,
 
-  /// Defines how far inland or how far into the sea any given block is.
-  ///
-  /// In order:
-  /// - Sea (ocean, deep ocean)
-  /// - Coast (beach)
-  /// - Near Inland (plains)
-  /// - Mid Inland (forest, small mountains)
-  /// - Far Inland (mountains)
-  continentalness_map: OctavedNoise<OpenSimplexNoise, 8>,
-
-  /// Defines the approximate height of the type of biome. Note that this isn't
-  /// the height map, its almost the height goal of the biome that is chosen.
-  ///
-  /// Note that the low/mid/high slices can also change based on the
-  /// continalness.
-  ///
-  /// In order:
-  /// - Valley (rivers, swamps)
-  /// - Low Slice (plains?)
-  /// - Mid Slice (forest, small mountains)
-  /// - High Slice (mountains)
-  /// - Peak (extreme hills)
-  peaks_valleys_map: OctavedNoise<OpenSimplexNoise, 6>,
-
-  /// Defines how erroded the land is.
-  ///
-  /// Note that this is heavily affected by the peaks and valleys map.
-  ///
-  /// In order:
-  /// - Not eroded (mountains)
-  /// - Somewhat eroded (forests, plains)
-  /// - most eroded (swamps, deserts)
-  erosion_map: OctavedNoise<OpenSimplexNoise, 8>,
+  /// The continentalness, peaks and valleys, and erosion maps. See the docs on
+  /// the sample functions below for what each one means.
+  terrain: TerrainNoise,
 
   /// Variance determines which biome to pick out of a list. Its basically
   /// random.
@@ -146,9 +118,7 @@ impl WorldBiomes {
       temperature_map: OctavedNoise::new(seed, 1.0 / 2048.0),
       humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
 
-      continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
-      peaks_valleys_map: OctavedNoise::new(seed, 1.0 / 256.0),
-      erosion_map: OctavedNoise::new(seed, 1.0 / 2048.0),
+      terrain: TerrainNoise::new(seed),
       variance_map: ShiftedNoise::new(
         VoronoiNoise::new(seed, 128),
         OpenSimplexNoise::new(seed),
@@ -208,20 +178,20 @@ impl WorldBiomes {
   }
 
   pub fn sample_continentalness(&self, pos: Pos) -> f64 {
-    (self.continentalness_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
+    self.terrain.sample_continentalness(pos.x as f64, pos.z as f64)
   }
 
   pub fn sample_peaks_valleys(&self, pos: Pos) -> f64 {
-    (self.peaks_valleys_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
+    self.terrain.sample_peaks_valleys(pos.x as f64, pos.z as f64)
   }
 
   pub fn sample_erosion(&self, pos: Pos) -> f64 {
-    (self.erosion_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5).clamp(0.0, 1.0)
+    self.terrain.sample_erosion(pos.x as f64, pos.z as f64)
   }
 
   pub fn sample_river_distance(&self, pos: Pos) -> f64 {
-    // This will be between 0.0 and 0.02 when there is a river, and any value higher
-    // will be outside of a river.
+    // This will be between 0.0 and 0.02 when there is a river, and any value
+    // higher will be outside of a river.
     let distance_to_river = (self.sample_peaks_valleys(pos) - 0.5).abs();
 
     // So, return a value from 0.0 to 1.0 for the range 0.0 to 0.16, so that
@@ -230,16 +200,14 @@ impl WorldBiomes {
   }
 
   pub fn sample_height(&self, pos: Pos) -> f64 {
-    let c = CONTINENTALNESS.sample::<Cosine>(self.sample_continentalness(pos));
-    let impact = HEIGHT_IMPACT.sample::<Cosine>(c / 128.0);
-    let p = PEAKS_VALLEYS.sample::<Cosine>(self.sample_peaks_valleys(pos));
-    let e = EROSION.sample::<Cosine>(self.sample_erosion(pos));
-
-    fn lerp(a: f64, b: f64, t: f64) -> f64 { a * (1.0 - t) + b * t }
-    let e = lerp(0.2, e, impact);
-    let p = lerp(8.0, p, impact);
-
-    ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0
+    height_parts(
+      &*CONTINENTALNESS,
+      &*EROSION,
+      &*PEAKS_VALLEYS,
+      &*HEIGHT_IMPACT,
+      self.terrain.sample(pos.x as f64, pos.z as f64),
+    )
+    .height
   }
 }
 
@@ -293,8 +261,8 @@ impl Generator for WorldBiomes {
       return;
     }
 
-    // TODO: Maybe make this 3D as well? Not sure if we want underground trees or
-    // anything.
+    // TODO: Maybe make this 3D as well? Not sure if we want underground trees
+    // or anything.
 
     if feature::VILLAGES {
       self.structure.decorate(world, chunk_pos);
@@ -314,8 +282,9 @@ impl Generator for WorldBiomes {
         let biome = self.choose_biome(pos);
         biome_names[x as usize][z as usize] = biome.name;
 
-        // `biome_set` acts like a set, so we need to check if this is a new biome or
-        // not. Note that this means every biome name _must_ be unique.
+        // `biome_set` acts like a set, so we need to check if this is a new
+        // biome or not. Note that this means every biome name _must_ be
+        // unique.
         if !biome_set[..biome_index].iter().any(|b| b.is_some_and(|b| b.name == biome.name))
           && biome_index < biome_set.len()
         {
@@ -467,8 +436,9 @@ impl WorldBiomes {
               chunk.add_surface(rel_pos);
             }
 
-            // Special case: if the top layer is grass, always place grass if there is air
-            // above (this makes cave entrances look nice.)
+            // Special case: if the top layer is grass, always place grass if
+            // there is air above (this makes cave entrances look
+            // nice.)
             if biome.top_block().block == block![grass]
               && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
@@ -507,10 +477,11 @@ impl WorldBiomes {
 
       for x in 0..16 {
         for z in 0..16 {
-          // This is kinda restrictive, but helps performance a _lot_. We also don't
-          // really want biomes to change on the Y axis, as that causes weirdness when
-          // building with grass and such. So we can limit ourselves to a single surface
-          // biome and a single cave biome per column.
+          // This is kinda restrictive, but helps performance a _lot_. We also
+          // don't really want biomes to change on the Y axis, as that
+          // causes weirdness when building with grass and such. So we
+          // can limit ourselves to a single surface biome and a
+          // single cave biome per column.
           let surface_biome =
             self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
           let cave_biome = self.choose_cave_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
@@ -545,7 +516,7 @@ impl WorldBiomes {
     }
   }
 
-  pub fn height_info(&self, pos: Pos) -> HeightInfo {
+  pub fn height_info(&self, pos: Pos) -> HeightInfo<'_> {
     let mut info =
       HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, underground: None };
     info.change_xz();

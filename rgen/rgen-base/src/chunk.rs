@@ -25,8 +25,8 @@ impl Chunk {
       use std::alloc::{Layout, alloc_zeroed};
 
       let layout = Layout::array::<u16>(65536).unwrap();
-      // Pointer casts from a *mut u8 to a *mut u16. This is safe because the layout
-      // is u16 aligned.
+      // Pointer casts from a *mut u8 to a *mut u16. This is safe because the
+      // layout is u16 aligned.
       let ptr = alloc_zeroed(layout).cast();
       // Builds a raw slice from the given pointer, which was just allocated and
       // aligned correctly.

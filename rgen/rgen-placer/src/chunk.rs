@@ -78,7 +78,7 @@ impl<'a> BiomeCachedChunk<'a> {
 
 // Block impls
 impl<'a> BiomeCachedChunk<'a> {
-  pub fn get(&self, pos: ChunkRelPos) -> BlockInfo { self.info.decode(self.chunk.get(pos)) }
+  pub fn get(&self, pos: ChunkRelPos) -> BlockInfo<'_> { self.info.decode(self.chunk.get(pos)) }
   pub fn set(&mut self, pos: ChunkRelPos, state: impl Into<BlockState>) {
     self.chunk.set(pos, self.info.encode(state.into()))
   }

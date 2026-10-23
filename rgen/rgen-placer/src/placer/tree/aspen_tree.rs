@@ -131,8 +131,8 @@ impl AspenTree {
       }
 
       drape.rotate(rotation);
-      // Listen. I don't want to know why this works. I shouldn't need to know why
-      // this works. But it does.
+      // Listen. I don't want to know why this works. I shouldn't need to know
+      // why this works. But it does.
       if is_long_drape && rng.range(0..=2) != 0 {
         world.set(pos + long_side_pos[rotation as usize] + Pos::new(0, -2, 0), self.leaves);
       }

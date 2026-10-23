@@ -1,7 +1,6 @@
 //use core::random;
-use std::hint;
 
-use crate::{Placer, Random, Result, Rng, rng};
+use crate::{Placer, Random, Result, Rng};
 use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
@@ -241,7 +240,10 @@ impl WideCanopyJungle {
           }
 
           let pos = center + Pos::new(dx, 0, dz);
-          if world.get(pos) == block![air] || world.get(pos) == self.leaves ||  world.get(pos) == self.vine {
+          if world.get(pos) == block![air]
+            || world.get(pos) == self.leaves
+            || world.get(pos) == self.vine
+          {
             world.set(pos, self.leaves);
           }
         }
@@ -256,7 +258,10 @@ impl WideCanopyJungle {
           }
 
           let pos = center + Pos::new(dx, 1, dz);
-          if world.get(pos) == block![air] || world.get(pos) == self.leaves ||  world.get(pos) == self.vine {
+          if world.get(pos) == block![air]
+            || world.get(pos) == self.leaves
+            || world.get(pos) == self.vine
+          {
             world.set(pos, self.leaves);
           }
         }
@@ -271,7 +276,10 @@ impl WideCanopyJungle {
           }
 
           let pos = center + Pos::new(dx, 1, dz);
-          if world.get(pos) == block![air] || world.get(pos) == self.leaves ||  world.get(pos) == self.vine {
+          if world.get(pos) == block![air]
+            || world.get(pos) == self.leaves
+            || world.get(pos) == self.vine
+          {
             //world.set(pos, self.leaves);
           }
         }
@@ -339,16 +347,14 @@ impl WideCanopyJungle {
 
   // WALLS
   fn place_rotating_walls(&self, world: &mut PartialWorld, rng: &mut Rng, base: Pos) {
-    let mut pos = base;
-
     for rotate in 0..4 {
-      let mut pos = Pos::new(2, 0, 0); // Local direction (east)
+      let pos = Pos::new(2, 0, 0); // Local direction (east)
       let maxtower = rng.range(2..=4);
       for z in -2i32..=2 {
         for x in 0..=1 {
           let spread = z.abs(); // spread is 0 to 2
           let mut height_ajust = 0;
-          for j in 0..spread {
+          for _j in 0..spread {
             //println!("z: {}, j: {}", z, j);
             height_ajust = height_ajust + rng.range(1..2)
           }
@@ -431,7 +437,7 @@ impl WideCanopyJungle {
       _ => local,
     };
 
-    return (base + rotated);
+    return base + rotated;
   }
 
   // ROOTS
@@ -455,8 +461,8 @@ impl WideCanopyJungle {
       for _ in 0..5 {
         pos = pos + Pos::new(dx, 0, dz);
         if world.get(pos + Pos::new(0, -1, 0)) == block![air]
-          || world.get(pos + Pos::new(0, -1, 0)) == block![water] 
-          || world.get(pos + Pos::new(0, -1, 0)) == self.leaves 
+          || world.get(pos + Pos::new(0, -1, 0)) == block![water]
+          || world.get(pos + Pos::new(0, -1, 0)) == self.leaves
         {
           elevation_score -= 1;
           pos = pos + Pos::new(0, -1, 0);
@@ -467,7 +473,10 @@ impl WideCanopyJungle {
           self.ground_seeker(world, pos, rng);
           continue 'outer;
         }
-        if world.get(pos) == block![air] || world.get(pos) == block![grass] || world.get(pos) == self.leaves{
+        if world.get(pos) == block![air]
+          || world.get(pos) == block![grass]
+          || world.get(pos) == self.leaves
+        {
           world.set(pos, self.roots);
         }
       }
@@ -496,13 +505,16 @@ impl WideCanopyJungle {
         if elevation_score < -1
           && (world.get(pos + Pos::new(0, -1, 0)) == block![air]
             || world.get(pos + Pos::new(0, -1, 0)) == block![water]
-            ||  world.get(pos + Pos::new(0, -1, 0)) == self.leaves)
+            || world.get(pos + Pos::new(0, -1, 0)) == self.leaves)
         {
           self.ground_seeker(world, pos, rng);
           continue 'outer;
         }
         // Place next portion
-        if world.get(pos) == block![air] || world.get(pos) == block![grass] ||  world.get(pos) == self.vine{
+        if world.get(pos) == block![air]
+          || world.get(pos) == block![grass]
+          || world.get(pos) == self.vine
+        {
           if world.get(pos + Pos::new(0, 1, 0)) == block![air] {
             world.set(pos, self.moss_roots);
           } else {
@@ -513,7 +525,8 @@ impl WideCanopyJungle {
         }
       }
       if world.get(Pos::new(0, -1, 0)) == block![air]
-        || world.get(pos + Pos::new(0, -1, 0)) == block![water] ||  world.get(pos + Pos::new(0, -1, 0)) == self.vine 
+        || world.get(pos + Pos::new(0, -1, 0)) == block![water]
+        || world.get(pos + Pos::new(0, -1, 0)) == self.vine
       {
         self.ground_seeker(world, pos, rng);
         continue 'outer;
@@ -531,7 +544,7 @@ impl WideCanopyJungle {
 
     pos = pos + Pos::new(0, -1, 0);
     let mut depth = 0;
-    for i in 5..=rng.range(5..35) {
+    for _i in 5..=rng.range(5..35) {
       // check if its part of big set of roots
       depth += 1;
       if depth > rng.range(3..5) {

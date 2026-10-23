@@ -80,7 +80,8 @@ impl BetterTallerSnow {
           let local_pos = pos + Pos::new(rel_x, 0, rel_z);
           if self.block.contains(world.get(local_pos)) {
             let height = world.get(local_pos).meta();
-            // Check if the snow is low enough if it is it needs to be made taller
+            // Check if the snow is low enough if it is it needs to be made
+            // taller
             if height < 4 {
               //world.set()
               self.snow_builder(local_pos, world, height + 3);

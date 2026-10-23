@@ -103,9 +103,9 @@ impl RenderQueue {
           if let Some(region_pos) = slf.pop_render() {
             view.render_chunk(&world, region_pos);
           } else {
-            // If there's nothing to do, it means the screen is full. So wait around for a
-            // while, as it usually means nothing is happening, so we don't want to spin a
-            // bunch.
+            // If there's nothing to do, it means the screen is full. So wait
+            // around for a while, as it usually means nothing is
+            // happening, so we don't want to spin a bunch.
             std::thread::sleep(std::time::Duration::from_millis(100));
           }
         }

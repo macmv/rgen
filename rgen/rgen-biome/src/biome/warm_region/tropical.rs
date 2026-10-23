@@ -12,7 +12,11 @@ pub fn canopied_jungle(g: &mut BiomeBuilder) {
   g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
   g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
   g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
-  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::CanopiedJungle))
+  g.place(
+    "Jungle Floor",
+    PlacerStage::Tree,
+    placer::JungleFloorPlace::style(placer::FloorStyle::CanopiedJungle),
+  )
 }
 
 pub fn flower_canopied_jungle(g: &mut BiomeBuilder) {
@@ -24,7 +28,11 @@ pub fn flower_canopied_jungle(g: &mut BiomeBuilder) {
   g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
   g.place("Large Jungle Tree", PlacerStage::Tree, placer::WideCanopyJungle::default());
   g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
-  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::FlowerCanopiedJungle))
+  g.place(
+    "Jungle Floor",
+    PlacerStage::Tree,
+    placer::JungleFloorPlace::style(placer::FloorStyle::FlowerCanopiedJungle),
+  )
 }
 
 // light_jungle_wood
@@ -36,7 +44,11 @@ pub fn light_jungle_wood(g: &mut BiomeBuilder) {
 
   g.place("Small Jungle Tree", PlacerStage::Tree, placer::BasicJungle::default());
   g.place("Jungle Bush", PlacerStage::Tree, placer::BetterBush::default());
-  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::LightJungle));
+  g.place(
+    "Jungle Floor",
+    PlacerStage::Tree,
+    placer::JungleFloorPlace::style(placer::FloorStyle::LightJungle),
+  );
 
   g.place(
     "jungle log",
@@ -56,7 +68,6 @@ pub fn light_jungle_wood(g: &mut BiomeBuilder) {
 //jungle_beach
 //jungle_rocks
 
-
 // terraced_jungle_wood
 
 pub fn terraced_jungle(g: &mut BiomeBuilder) {
@@ -66,7 +77,11 @@ pub fn terraced_jungle(g: &mut BiomeBuilder) {
   g.add_layer(block![dirt], 5, 8);
 
   g.place("Large Jungle Tree", PlacerStage::Tree, placer::TerraceJungleTree::default());
-  g.place("Jungle Floor", PlacerStage::Tree, placer::JungleFloorPlace::style(placer::FloorStyle::TerracedJungle));
+  g.place(
+    "Jungle Floor",
+    PlacerStage::Tree,
+    placer::JungleFloorPlace::style(placer::FloorStyle::TerracedJungle),
+  );
 
   g.place(
     "Jungle bushes",
@@ -79,6 +94,5 @@ pub fn terraced_jungle(g: &mut BiomeBuilder) {
       radius:        3..=5,
     },
   );
-
 }
 //flowered_terraced_jungle
