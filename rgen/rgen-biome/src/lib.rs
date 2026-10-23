@@ -456,7 +456,9 @@ impl WorldBiomes {
             // Special case: if the top layer is grass, always place grass if
             // there is air above (this makes cave entrances look
             // nice.)
-            if biome.top_block().block == block![grass]
+            if !enabled!(SurfaceLayers) {
+              // Leave the stone.
+            } else if biome.top_block().block == block![grass]
               && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
             {

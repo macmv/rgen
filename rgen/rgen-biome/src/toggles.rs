@@ -44,6 +44,8 @@ toggles! {
   CheeseBedrockTaper => "Shrink towards bedrock", Some(Toggle::CheeseCaves);
   CheeseRivers => "Rivers shrink caves", Some(Toggle::CheeseCaves);
   CheeseWaterGuard => "Don't carve next to water", Some(Toggle::CheeseCaves);
+  Biomes => "Biome variety (off: one biome everywhere)", None;
+  SurfaceLayers => "Surface layers (grass, dirt, sand...)", None;
 }
 
 static STATE: [AtomicBool; Toggle::ALL.len()] =
