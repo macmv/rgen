@@ -23,7 +23,8 @@ fn generates_a_region_and_follows_the_splines() {
   let before = top(&region, pos);
   assert!(before > 0);
 
-  // Raise the whole world by 40 blocks, by changing what continentalness maps to.
+  // Raise the whole world by 40 blocks, by changing what continentalness maps
+  // to.
   let mut splines = Splines::game();
   for key in &mut splines.continentalness.storage {
     key.1 += 40.0;

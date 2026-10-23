@@ -12,6 +12,21 @@ use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
 use structure::StructureGenerator;
 use table::CompositionLookup;
 
+/// Whether a part of the generator is on. This is always `true` unless the
+/// `inspector` feature is on, which lets tools turn parts off.
+#[cfg(feature = "inspector")]
+macro_rules! enabled {
+  ($toggle:ident) => {
+    $crate::toggles::enabled($crate::toggles::Toggle::$toggle)
+  };
+}
+#[cfg(not(feature = "inspector"))]
+macro_rules! enabled {
+  ($toggle:ident) => {
+    true
+  };
+}
+
 mod biome;
 mod builder;
 mod cave;
@@ -21,6 +36,8 @@ mod splines;
 mod structure;
 mod table;
 mod terrain;
+#[cfg(feature = "inspector")]
+pub mod toggles;
 
 pub use builder::BiomeBuilder;
 #[cfg(feature = "inspector")]
@@ -569,6 +586,9 @@ impl HeightInfo<'_> {
         true
       } else if self.pos.y >= self.max_height as i32 {
         false
+      } else if !enabled!(Noise3d) {
+        // Everything under the height is solid.
+        true
       } else {
         let noise = self.world.density_map.generate_3d(
           self.pos.x as f64,
