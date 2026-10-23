@@ -36,6 +36,14 @@ macro_rules! toggles {
 
 toggles! {
   Noise3d => "3D density noise (overhangs and floating land)", None;
+  Caves => "Caves", None;
+  NoodleCaves => "Noodle caves (winding tunnels)", Some(Toggle::Caves);
+  NoodleWaterGuard => "Stop at water", Some(Toggle::NoodleCaves);
+  CheeseCaves => "Cheese caves (large caverns)", Some(Toggle::Caves);
+  CheeseSurfaceTaper => "Narrow entrances near the surface", Some(Toggle::CheeseCaves);
+  CheeseBedrockTaper => "Shrink towards bedrock", Some(Toggle::CheeseCaves);
+  CheeseRivers => "Rivers shrink caves", Some(Toggle::CheeseCaves);
+  CheeseWaterGuard => "Don't carve next to water", Some(Toggle::CheeseCaves);
 }
 
 static STATE: [AtomicBool; Toggle::ALL.len()] =

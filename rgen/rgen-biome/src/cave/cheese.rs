@@ -41,6 +41,7 @@ impl CheeseCarver {
           // Scale down caves towards the surface, to make narrow entraces that
           // widen into larger caves.
           let surface_modifier = match y as f64 - height {
+            _ if !enabled!(CheeseSurfaceTaper) => 1.0,
             -8.0.. => 0.0,
             v @ -16.0..=-8.0 => 1.0 - (v + 16.0) / 8.0,
             _ => 1.0,
@@ -48,10 +49,11 @@ impl CheeseCarver {
 
           // Scale down caves towards bedrock, because bedrock is ugly, and we'd
           // like to hide it under normal stone.
-          let bedrock_modifier = if y < 10 { y as f64 / 10.0 } else { 1.0 };
+          let bedrock_modifier =
+            if y < 10 && enabled!(CheeseBedrockTaper) { y as f64 / 10.0 } else { 1.0 };
 
           // Rivers have more impact the higher the cave is.
-          let river_modifier = if y < 40 {
+          let river_modifier = if y < 40 || !enabled!(CheeseRivers) {
             0.0
           } else {
             let height_modifier = (y as f64 - 40.0) / (height - 40.0);
@@ -69,7 +71,10 @@ impl CheeseCarver {
               Pos::new(0, 0, 1),
               Pos::new(0, 1, 0),
               Pos::new(0, -1, 0),
-            ] {
+            ]
+            .into_iter()
+            .filter(|_| enabled!(CheeseWaterGuard))
+            {
               let pos = pos + offset;
               // Chunk borders: we don't care! We can let a bit of floating
               // water exist.
