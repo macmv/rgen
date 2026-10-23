@@ -2,9 +2,9 @@
     "textures": {
         "particle": "blocks/log_oak",
         "bottom": "blocks/grass_top",
-        "top": "rgen:blocks/wood/covered/moss_top",
+        "top": "rgen:blocks/wood/covered_log/moss_top",
         "side": "blocks/log_oak",
-        "overlay": "rgen:blocks/wood/covered/moss_side"
+        "overlay": "rgen:blocks/wood/covered_log/moss_side"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],

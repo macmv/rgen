@@ -1,10 +1,10 @@
 {   "parent": "block/block",
     "textures": {
         "particle": "rgen:blocks/wood/cedar/cedar_log",
-        "top": "rgen:blocks/wood/covered/moss_top",
+        "top": "rgen:blocks/wood/covered_log/moss_top",
         "side": "rgen:blocks/wood/cedar/cedar_log",
         "front": "rgen:blocks/wood/cedar/cedar_log_top",
-        "overlay": "rgen:blocks/wood/covered/moss_side"
+        "overlay": "rgen:blocks/wood/covered_log/moss_side"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],

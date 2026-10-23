@@ -84,9 +84,9 @@ public class RClientProxy extends RCommonProxy {
         return tintIndex == 0 ? ColorizerGrass.getGrassColor(0.5D, 1.0D) : 0xFFFFFF;
       }
     };
-    itemColors.registerItemColorHandler(coveredJungleLogItemColor, RItems.COVERED_JUNGLE_LOG);
+    itemColors.registerItemColorHandler(coveredJungleLogItemColor, RItems.COVERED_JUNGLE_LOG, RItems.COVERED_ACACIA_LOG);
 
     // Register block color handler for the LavenderPlant block
-    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER, RBlocks.HANGING_VINES, RBlocks.COVERED_JUNGLE_LOG);
+    blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER, RBlocks.HANGING_VINES, RBlocks.COVERED_JUNGLE_LOG, RBlocks.COVERED_ACACIA_LOG);
   }
 }

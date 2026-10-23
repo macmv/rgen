@@ -1,0 +1,17 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "rgen:wood/covered/covered_log_y_fir"
+    },
+    "axis=z": {
+      "model": "rgen:wood/covered/covered_log_xz_fir"
+    },
+    "axis=x": {
+      "model": "rgen:wood/covered/covered_log_xz_fir",
+      "y": 90
+    },
+    "axis=none": {
+      "model": "rgen:wood/covered/covered_log_none_fir"
+    }
+  }
+}

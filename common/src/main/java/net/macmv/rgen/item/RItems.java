@@ -66,6 +66,7 @@ public class RItems {
   public static final Item MOSSY_BLOCK = registerBlockItem(RBlocks.MOSSY_BLOCK);
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
   public static final Item MOSSY_STONE = registerBlockItem(RBlocks.MOSSY_STONE);
+  public static final Item GRAVE_DIRT = registerBlockItem(RBlocks.GRAVE_DIRT);
   public static final Item BAMBOO = registerBlockItem(RBlocks.BAMBOO);
   public static final Item GLOW_VINE = registerBlockItem(RBlocks.GLOW_VINE);
   public static final Item LAVENDER_PLANT = registerBlockItem(RBlocks.LAVENDER_PLANT, new ItemBlock(RBlocks.LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
@@ -110,6 +111,13 @@ public class RItems {
   public static final Item COVERED_SPRUCE_LOG = registerBlockItem(RBlocks.COVERED_SPRUCE_LOG);
   public static final Item COVERED_BIRCH_LOG = registerBlockItem(RBlocks.COVERED_BIRCH_LOG);
   public static final Item COVERED_JUNGLE_LOG = registerBlockItem(RBlocks.COVERED_JUNGLE_LOG);
+  public static final Item COVERED_ACACIA_LOG = registerBlockItem(RBlocks.COVERED_ACACIA_LOG);
+  public static final Item COVERED_DARK_OAK_LOG = registerBlockItem(RBlocks.COVERED_DARK_OAK_LOG);
+  public static final Item COVERED_FIR_LOG = registerBlockItem(RBlocks.COVERED_FIR_LOG);
+  public static final Item COVERED_PALM_LOG = registerBlockItem(RBlocks.COVERED_PALM_LOG);
+  public static final Item COVERED_CHERRY_LOG = registerBlockItem(RBlocks.COVERED_CHERRY_LOG);
+  public static final Item COVERED_CEDAR_LOG = registerBlockItem(RBlocks.COVERED_CEDAR_LOG);
+  public static final Item COVERED_DEAD_LOG = registerBlockItem(RBlocks.COVERED_DEAD_LOG);
 
 
   public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);

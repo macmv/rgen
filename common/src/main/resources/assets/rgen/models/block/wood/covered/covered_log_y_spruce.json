@@ -4,6 +4,6 @@
         "bottom": "blocks/log_spruce",
         "top": "blocks/snow",
         "side": "blocks/log_spruce",
-        "overlay": "rgen:blocks/wood/covered/snow_side"
+        "overlay": "rgen:blocks/wood/covered_log/snow_side"
     }
 }

@@ -28,12 +28,17 @@ public class RCreativeTabs {
 
       Set<Item> organizedWoodItems = new HashSet<>();
       addTree(items, organizedWoodItems, LogType.FIR);
+      addItem(items, organizedWoodItems, RItems.COVERED_FIR_LOG, 0);
       addTree(items, organizedWoodItems, LogType.PALM);
+      addItem(items, organizedWoodItems, RItems.COVERED_PALM_LOG, 0);
       addTree(items, organizedWoodItems, LogType.CHERRY);
+      addItem(items, organizedWoodItems, RItems.COVERED_CHERRY_LOG, 0);
       addTree(items, organizedWoodItems, LogType.CEDAR);
+      addItem(items, organizedWoodItems, RItems.COVERED_CEDAR_LOG, 0);
 
       addTree(items, organizedWoodItems, LogType.MANGROVE);
       addTree(items, organizedWoodItems, LogType.DEAD);
+      addItem(items, organizedWoodItems, RItems.COVERED_DEAD_LOG, 0);
       addTree(items, organizedWoodItems, LogType.LAVENDER_TREE);
       addTree(items, organizedWoodItems, LogType.BURNED_TREE);
 
@@ -55,6 +60,8 @@ public class RCreativeTabs {
       addItem(items, organizedWoodItems, RItems.COVERED_SPRUCE_LOG, 0);
       addItem(items, organizedWoodItems, RItems.COVERED_BIRCH_LOG, 0);
       addItem(items, organizedWoodItems, RItems.COVERED_JUNGLE_LOG, 0);
+      addItem(items, organizedWoodItems, RItems.COVERED_ACACIA_LOG, 0);
+      addItem(items, organizedWoodItems, RItems.COVERED_DARK_OAK_LOG, 0);
       addItem(items, organizedWoodItems, RItems.BAMBOO, 0);
       addItem(items, organizedWoodItems, RItems.BAMBOO_DOOR, 0);
 

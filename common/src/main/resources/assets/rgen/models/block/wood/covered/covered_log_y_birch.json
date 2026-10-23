@@ -2,8 +2,8 @@
     "textures": {
         "particle": "blocks/log_birch",
         "bottom": "blocks/log_birch",
-        "top": "rgen:blocks/wood/covered/moss_top",
+        "top": "rgen:blocks/wood/covered_log/moss_top",
         "side": "blocks/log_birch",
-        "overlay": "rgen:blocks/wood/covered/moss_side"
+        "overlay": "rgen:blocks/wood/covered_log/moss_side"
     }
 }

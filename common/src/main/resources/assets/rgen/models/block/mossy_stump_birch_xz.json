@@ -3,7 +3,7 @@
   "textures": {
     "top": "rgen:blocks/mossy_block",
     "bottom": "blocks/log_birch",
-    "front": "rgen:blocks/mossy_stump_birch_front_xz",
-    "side": "rgen:blocks/mossy_stump_birch_side_xz"
+    "front": "rgen:blocks/wood/covered_log/mossy_stump_birch_front_xz",
+    "side": "rgen:blocks/wood/covered_log/mossy_stump_birch_side_xz"
   }
 }

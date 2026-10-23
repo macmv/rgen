@@ -3,6 +3,7 @@ package net.macmv.rgen.block;
 import net.macmv.rgen.RGen;
 import net.macmv.rgen.tab.RCreativeTabs;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.SoundType;
@@ -29,6 +30,7 @@ public final class RBlocks {
   public static final Block MOSSY_BLOCK = register("mossy_block", MossBlock::new, new BlockSettings().material(Material.GROUND));
   public static final Block MOSSY_COBBLESTONE_RGEN = register("mossy_cobblestone_rgen", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
   public static final Block MOSSY_STONE = register("mossy_stone", PlantableStone::new, new BlockSettings().material(Material.ROCK).creativeTab(CreativeTabs.DECORATIONS));
+  public static final Block GRAVE_DIRT = register("grave_dirt", GraveDirtBlock::new, new BlockSettings().material(Material.GROUND).creativeTab(RCreativeTabs.BUILDING_BLOCKS).hardness(0.5f).resistance(2.5f).soundType(SoundType.GROUND));
   public static final Block POLYPORE = register("polypore", PolyporeBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
   public static final Block RED_POLYPORE = register("red_polypore", PolyporeBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
 
@@ -92,6 +94,13 @@ public final class RBlocks {
   public static final Block COVERED_SPRUCE_LOG = register("covered_spruce_log", s -> new RCoveredLog(s, false), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block COVERED_BIRCH_LOG = register("covered_birch_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
   public static final Block COVERED_JUNGLE_LOG = register("covered_jungle_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_ACACIA_LOG = register("covered_acacia_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_DARK_OAK_LOG = register("covered_dark_oak_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_FIR_LOG = register("covered_fir_log", s -> new RCoveredLog(s, false), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_PALM_LOG = register("covered_palm_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_CHERRY_LOG = register("covered_cherry_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_CEDAR_LOG = register("covered_cedar_log", s -> new RCoveredLog(s, true), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
+  public static final Block COVERED_DEAD_LOG = register("covered_dead_log", s -> new RCoveredLog(s, false), new BlockSettings().hardness(3.0f).resistance(5.0f).soundType(SoundType.WOOD));
 
   // This block is to be deprecated do not USE
   public static final Block MOSSY_STUMP = register("mossy_stump", MossyLogBlock::new, new BlockSettings().creativeTab(RCreativeTabs.BUILDING_BLOCKS));
@@ -162,6 +171,7 @@ public final class RBlocks {
 
   @SideOnly(Side.CLIENT)
   public static void registerModels() {
+    ModelLoader.setCustomStateMapper(GRAVE_DIRT, (new StateMap.Builder()).ignore(BlockDirt.SNOWY).build());
     // Ignores powered metadata alongside the rest of the metadata on the client side.
     ModelLoader.setCustomStateMapper(DEAD_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
     ModelLoader.setCustomStateMapper(BURNED_TREE_DOOR, (new StateMap.Builder()).ignore(BlockDoor.POWERED).build());
