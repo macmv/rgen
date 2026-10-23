@@ -46,6 +46,8 @@ toggles! {
   CheeseWaterGuard => "Don't carve next to water", Some(Toggle::CheeseCaves);
   Biomes => "Biome variety (off: one biome everywhere)", None;
   SurfaceLayers => "Surface layers (grass, dirt, sand...)", None;
+  BiomeChunkPlacers => "Biome patches (sand, gravel, clay...)", None;
+  Ores => "Ores", None;
 }
 
 static STATE: [AtomicBool; Toggle::ALL.len()] =

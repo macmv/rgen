@@ -521,6 +521,9 @@ impl WorldBiomes {
     {
       profile_scope!("biome chunk placers");
       for (biome, id) in biome_set.set.into_iter().flatten() {
+        if !enabled!(BiomeChunkPlacers) {
+          break;
+        }
         let mut rng = Rng::new(self.seed);
         chunk.set_active(id);
         biome.generate(&mut rng, &mut chunk, chunk_pos);
@@ -529,7 +532,7 @@ impl WorldBiomes {
 
     {
       profile_scope!("global chunk placers");
-      for placer in &self.global_chunk_placers {
+      for placer in self.global_chunk_placers.iter().filter(|_| enabled!(Ores)) {
         placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
       }
     }
