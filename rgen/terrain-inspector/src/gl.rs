@@ -42,8 +42,7 @@ pub struct Frame {
 pub struct Renderer {
   program: glow::Program,
   vao:     glow::VertexArray,
-  colors:  glow::Texture,
-  /// The color of every palette index of the real terrain, 256 texels wide.
+  /// The color of every palette index, 256 texels wide.
   palette: glow::Texture,
   /// One `u32` per chunk: empty, solid, or the chunk's slot in the atlas.
   table:   glow::Texture,
@@ -65,9 +64,6 @@ pub struct Renderer {
   allocated_side: i32,
   /// The most slots along a side that the driver allows.
   max_side:       i32,
-  /// Set when the blocks are the real terrain's, which are colored by `palette`
-  /// instead of by column.
-  real:           bool,
   /// A new palette to copy to `palette` on the next paint.
   palette_data:   Option<Vec<u8>>,
   pending:        Vec<Upload>,
@@ -127,9 +123,7 @@ impl Renderer {
       Ok(Renderer {
         program,
         vao,
-        colors: make_texture(gl)?,
         palette: make_texture(gl)?,
-        real: false,
         palette_data: None,
         table: make_volume(gl)?,
         bricks,
@@ -183,12 +177,8 @@ impl Renderer {
     }
   }
 
-  /// Switches between heightmap terrain, which is colored by column, and real
-  /// terrain, which is colored by block with this palette (RGBA8, 256 texels).
-  pub fn set_palette(&mut self, palette: Option<Vec<u8>>) {
-    self.real = palette.is_some();
-    self.palette_data = palette;
-  }
+  /// Sets the color of every block, as RGBA8 with 256 texels.
+  pub fn set_palette(&mut self, palette: Vec<u8>) { self.palette_data = Some(palette); }
 
   /// Queues new terrain, which is uploaded on the next paint. Emptying the
   /// chunks replaces everything.
@@ -267,18 +257,6 @@ impl Renderer {
         match upload {
           Upload::Reset { size, dims } => {
             self.size = [size[0] as i32, size[1] as i32];
-            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
-            gl.tex_image_2d(
-              glow::TEXTURE_2D,
-              0,
-              glow::RGBA8 as i32,
-              self.size[0],
-              self.size[1],
-              0,
-              glow::RGBA,
-              glow::UNSIGNED_BYTE,
-              None,
-            );
 
             self.chunks = dims.map(|d| d as i32);
             let [w, h, d] = self.chunks;
@@ -322,22 +300,6 @@ impl Renderer {
               break;
             }
           }
-          Upload::Tile { x, y, size, colors } => {
-            let (x, y, size) = (x as i32, y as i32, size as i32);
-
-            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
-            gl.tex_sub_image_2d(
-              glow::TEXTURE_2D,
-              0,
-              x,
-              y,
-              size,
-              size,
-              glow::RGBA,
-              glow::UNSIGNED_BYTE,
-              glow::PixelUnpackData::Slice(&colors),
-            );
-          }
         }
       }
 
@@ -375,20 +337,16 @@ impl Renderer {
       gl.bind_vertex_array(Some(self.vao));
 
       gl.active_texture(glow::TEXTURE0);
-      gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+      gl.bind_texture(glow::TEXTURE_2D, Some(self.palette));
       gl.active_texture(glow::TEXTURE1);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
       gl.active_texture(glow::TEXTURE2);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
-      gl.active_texture(glow::TEXTURE3);
-      gl.bind_texture(glow::TEXTURE_2D, Some(self.palette));
 
       let uniform = |name: &str| gl.get_uniform_location(self.program, name);
-      gl.uniform_1_i32(uniform("uColor").as_ref(), 0);
+      gl.uniform_1_i32(uniform("uPalette").as_ref(), 0);
       gl.uniform_1_i32(uniform("uTable").as_ref(), 1);
       gl.uniform_1_i32(uniform("uBricks").as_ref(), 2);
-      gl.uniform_1_i32(uniform("uPalette").as_ref(), 3);
-      gl.uniform_1_i32(uniform("uReal").as_ref(), self.real as i32);
       gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
       gl.uniform_1_i32(uniform("uAtlasSide").as_ref(), self.side);
       gl.uniform_2_i32(uniform("uShift").as_ref(), frame.shift[0], frame.shift[1]);

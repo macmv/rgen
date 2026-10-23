@@ -1,9 +1,9 @@
 //! The terrain as 3D chunks of blocks, for the ray marcher.
 //!
-//! Only chunks that cross the surface store any blocks. Every other chunk is
-//! either all air or all solid, and is a single value in an indirection table.
-//! The bricks of the chunks that do store blocks live in slots, which are the
-//! same slots as in the GPU's atlas. This all lives on the CPU too, so that
+//! Only chunks with a mix of blocks store any. A chunk that is all air or all
+//! one block is a single value in an indirection table. The bricks of the
+//! chunks that do store blocks live in slots, which are the same slots as in
+//! the GPU's atlas. This all lives on the CPU too, so that
 //! hovering can ray cast without reading anything back.
 //!
 //! The world wraps around in x and z, like a torus: the chunk at `(cx, cz)` in
@@ -23,10 +23,8 @@ const VOLUME: usize = CHUNK * CHUNK * CHUNK;
 
 /// A chunk with nothing in it.
 pub const EMPTY: u32 = 0;
-/// A chunk that is all solid.
-pub const SOLID: u32 = 1;
 /// Table values from here up are `FIRST_SLOT + slot`.
-pub const FIRST_SLOT: u32 = 2;
+pub const FIRST_SLOT: u32 = 1;
 /// Table values with this bit set are a chunk that is all one block, which is
 /// `UNIFORM | palette index`. The real terrain uses these for the chunks of
 /// solid stone and water, which would otherwise each take up a slot.
@@ -188,83 +186,6 @@ impl Chunks {
     }
   }
 
-  /// Rebuilds the chunks above one square of columns from their heights, and
-  /// pushes the changes. `heights` is indexed with `width` columns per row, and
-  /// the square starts at `start` in it. A column's blocks are the ones below
-  /// its height.
-  pub fn rebuild_column(
-    &mut self,
-    cx: usize,
-    cz: usize,
-    heights: &[f32],
-    width: usize,
-    start: [usize; 2],
-    out: &mut Vec<ChunkUpdate>,
-  ) {
-    let mut column = [0i32; CHUNK * CHUNK];
-    let (mut lowest, mut highest) = (i32::MAX, 0);
-    for lz in 0..CHUNK {
-      for lx in 0..CHUNK {
-        let h = heights[(start[1] + lz) * width + start[0] + lx] as i32;
-        let h = h.clamp(0, WORLD_HEIGHT as i32);
-        column[lz * CHUNK + lx] = h;
-        lowest = lowest.min(h);
-        highest = highest.max(h);
-      }
-    }
-
-    let mut scratch = vec![0u8; VOLUME];
-
-    for cy in 0..self.dims[1] {
-      let chunk = [cx, cy, cz];
-      let idx = self.table_index(chunk);
-      let old = self.table[idx];
-      let base = (cy * CHUNK) as i32;
-
-      if base >= highest || base + CHUNK as i32 <= lowest {
-        let value = if base >= highest { EMPTY } else { SOLID };
-        if let Some(slot) = slot_of(old) {
-          self.free.push(slot);
-        }
-        if old != value {
-          self.table[idx] = value;
-          out.push(ChunkUpdate { chunk, value, brick: None });
-        }
-        continue;
-      }
-
-      scratch.fill(0);
-      for lz in 0..CHUNK {
-        for lx in 0..CHUNK {
-          let local = (column[lz * CHUNK + lx] - base).clamp(0, CHUNK as i32) as usize;
-          let first = brick_index(lx, 0, lz);
-          scratch[first..first + local].fill(1);
-        }
-      }
-
-      let slot = slot_of(old).or_else(|| self.alloc());
-      let Some(slot) = slot else {
-        self.overflowed = true;
-        if old != EMPTY {
-          self.table[idx] = EMPTY;
-          out.push(ChunkUpdate { chunk, value: EMPTY, brick: None });
-        }
-        continue;
-      };
-
-      let value = FIRST_SLOT + slot;
-      let same = old == value && *self.bricks[slot as usize] == scratch[..];
-      if same {
-        continue;
-      }
-
-      let brick: Arc<[u8]> = Arc::from(&scratch[..]);
-      self.bricks[slot as usize] = brick.clone();
-      self.table[idx] = value;
-      out.push(ChunkUpdate { chunk, value, brick: Some(brick) });
-    }
-  }
-
   /// Casts a ray through the blocks, and returns the first block it hits. The
   /// ray is in grid space: one unit is one block. This is the same walk the
   /// shader does: step through the chunks, and through the blocks of the ones
@@ -303,7 +224,7 @@ impl Chunks {
         let p = [0, 1, 2].map(|a| origin[a] + safe[a] * (t_cur + 1e-3));
         let v = [0, 1, 2].map(|a| (p[a].floor() as i32).clamp(lo[a], lo[a] + CHUNK as i32 - 1));
 
-        if state == SOLID || state >= UNIFORM {
+        if state >= UNIFORM {
           return Some(v.map(|v| v as usize));
         }
         if let Some(hit) = self.march_brick(origin, safe, step, lo, v, state - FIRST_SLOT) {
@@ -371,16 +292,48 @@ fn argmin(v: [f32; 3]) -> usize {
 mod tests {
   use super::*;
 
+  /// The bricks above one `CHUNK` wide square of columns, where the blocks
+  /// below each column's height are block 1. `heights` has `width` columns per
+  /// row, and the square starts at `start` in it.
+  fn bricks(heights: &[f32], width: usize, start: [usize; 2]) -> Vec<Brick> {
+    (0..WORLD_HEIGHT / CHUNK)
+      .map(|cy| {
+        let mut blocks = vec![0u8; VOLUME];
+        for lz in 0..CHUNK {
+          for lx in 0..CHUNK {
+            let h = heights[(start[1] + lz) * width + start[0] + lx] as usize;
+            for ly in 0..CHUNK {
+              blocks[brick_index(lx, ly, lz)] = (cy * CHUNK + ly < h) as u8;
+            }
+          }
+        }
+        match blocks[0] {
+          first if blocks.iter().all(|&b| b == first) => {
+            if first == 0 {
+              Brick::Empty
+            } else {
+              Brick::Uniform(first)
+            }
+          }
+          _ => Brick::Blocks(Arc::from(blocks)),
+        }
+      })
+      .collect()
+  }
+
+  fn fill(chunks: &mut Chunks, heights: &[f32], size: usize, out: &mut Vec<ChunkUpdate>) {
+    for cz in 0..size / CHUNK {
+      for cx in 0..size / CHUNK {
+        chunks.set_column(cx, cz, bricks(heights, size, [cx * CHUNK, cz * CHUNK]), out);
+      }
+    }
+  }
+
   /// A world of `size` columns, where the height of each is `f(x, z)`.
   fn world(size: usize, f: impl Fn(usize, usize) -> f32) -> (Chunks, Vec<f32>) {
     let heights: Vec<f32> = (0..size * size).map(|i| f(i % size, i / size)).collect();
     let mut chunks = Chunks::new([size, size], 1024);
-    let mut out = vec![];
-    for cz in 0..size / CHUNK {
-      for cx in 0..size / CHUNK {
-        chunks.rebuild_column(cx, cz, &heights, size, [cx * CHUNK, cz * CHUNK], &mut out);
-      }
-    }
+    fill(&mut chunks, &heights, size, &mut vec![]);
     (chunks, heights)
   }
 
@@ -388,8 +341,8 @@ mod tests {
   fn classifies_chunks() {
     let (chunks, _) = world(64, |_, _| 40.0);
     // y 0..32 is solid, and y 32..64 crosses the surface at 40.
-    assert_eq!(chunks.table[chunks.table_index([0, 0, 0])], SOLID);
-    assert!(chunks.table[chunks.table_index([0, 1, 0])] >= FIRST_SLOT);
+    assert_eq!(chunks.table[chunks.table_index([0, 0, 0])], UNIFORM | 1);
+    assert!(slot_of(chunks.table[chunks.table_index([0, 1, 0])]).is_some());
     assert_eq!(chunks.table[chunks.table_index([0, 2, 0])], EMPTY);
   }
 
@@ -418,10 +371,10 @@ mod tests {
   }
 
   #[test]
-  fn rebuild_only_reports_changes() {
+  fn setting_the_same_column_reports_nothing() {
     let (mut chunks, heights) = world(32, |_, _| 40.0);
     let mut out = vec![];
-    chunks.rebuild_column(0, 0, &heights, 32, [0, 0], &mut out);
+    fill(&mut chunks, &heights, 32, &mut out);
     assert!(out.is_empty());
   }
 
@@ -492,7 +445,7 @@ mod tests {
   fn running_out_of_slots_is_reported() {
     let mut chunks = Chunks::new([32, 32], 0);
     let heights = vec![40.0; 32 * 32];
-    chunks.rebuild_column(0, 0, &heights, 32, [0, 0], &mut vec![]);
+    fill(&mut chunks, &heights, 32, &mut vec![]);
     assert!(chunks.overflowed);
   }
 }

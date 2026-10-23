@@ -10,7 +10,10 @@ use eframe::{
 };
 use egui_plot::{HLine, Legend, Line, Plot, Points, VLine};
 use rgen_base::Pos;
-use rgen_biome::{HeightParts, RawNoise, TerrainNoise, WorldBiomes};
+use rgen_biome::{
+  HeightParts, RawNoise, TerrainNoise, WorldBiomes,
+  toggles::{self, Toggle},
+};
 use rgen_spline::{Cosine, Spline};
 use rgen_world::Context;
 
@@ -22,9 +25,13 @@ mod pool;
 mod real;
 
 use camera::Camera;
-use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
-use pool::{Params, Pool, TileResult};
+use grid::{Grid, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
+use pool::{Pool, TileResult};
 use real::RealTerrain;
+
+/// How many chunks around the camera are generated to start with. The real
+/// generator is much slower than the noise alone, so this is small.
+const VIEW_DISTANCE: i32 = 4;
 
 /// The seed from the first argument, or a random one.
 fn initial_seed() -> u64 {
@@ -176,12 +183,13 @@ struct App {
   seed:          u64,
   /// How many chunks around the camera are generated.
   view_distance: i32,
-  /// Generates the blocks with the real terrain generator, instead of making
-  /// them from the heights. The heights are still made, for the layers.
-  real:          bool,
-  real_terrain:  Option<Arc<RealTerrain>>,
-  /// Set when the splines change in real mode. The terrain is generated again
-  /// once the mouse is let go, as it's too slow to follow a drag.
+  /// Makes the blocks of each chunk with the game's generator.
+  real:          Arc<RealTerrain>,
+  /// The name of every decoration, for toggling them.
+  decorations:   Vec<&'static str>,
+  /// Set when the splines or the generator's toggles change. The terrain is
+  /// generated again once the mouse is let go, as it's too slow to follow a
+  /// drag.
   regen_pending: bool,
   /// Set while the view distance slider is being dragged. The atlas is only
   /// resized once it's let go, as that restarts the world.
@@ -191,8 +199,6 @@ struct App {
   /// The full generator, which is what picks biomes.
   world:     Arc<WorldBiomes>,
   pool:      Pool,
-  /// What the workers are making columns with.
-  params:    Arc<Params>,
   results:   mpsc::Receiver<TileResult>,
   /// Bumped whenever the world starts over, so that stale chunks are ignored.
   epoch:     u64,
@@ -201,13 +207,8 @@ struct App {
   /// The center and view distance that chunks were last queued for.
   planned:   Option<([i32; 2], i32)>,
 
-  grid:  Grid,
-  /// Set when the splines or display options change, so the grid colors need to
-  /// be rebuilt.
-  dirty: bool,
+  grid: Grid,
 
-  layer:         Layer,
-  flatten_water: bool,
   /// Draws the borders of the chunks around the camera.
   chunk_borders: bool,
   camera:        Camera,
@@ -222,14 +223,14 @@ struct App {
 impl App {
   fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>, seed: u64) -> Self {
     let (tx, rx) = mpsc::channel();
-    let params = Arc::new(Params {
-      id:            0,
-      splines:       Splines::from_game(),
-      layer:         Layer::Height,
-      flatten_water: true,
-    });
-    renderer.lock().unwrap().set_slots(slots_for(10, false));
-    let grid = Grid::new(renderer.lock().unwrap().brick_capacity(), false);
+    let real = Arc::new(RealTerrain::new(seed));
+    let world = make_world(seed);
+    {
+      let mut renderer = renderer.lock().unwrap();
+      renderer.set_palette(real.palette().texture());
+      renderer.set_slots(slots_for(VIEW_DISTANCE));
+    }
+    let grid = Grid::new(renderer.lock().unwrap().brick_capacity());
     renderer.lock().unwrap().queue(grid.reset_upload());
     App {
       splines: Splines::from_game(),
@@ -237,26 +238,22 @@ impl App {
       compare_saved: false,
 
       seed,
-      view_distance: 10,
-      real: false,
-      real_terrain: None,
+      view_distance: VIEW_DISTANCE,
+      decorations: world.decoration_names(),
+      real,
       regen_pending: false,
       dragging_view: false,
 
       noise: Arc::new(TerrainNoise::new(seed)),
-      world: make_world(seed),
-      pool: Pool::new(ctx, tx, params.clone()),
-      params,
+      world,
+      pool: Pool::new(ctx, tx),
       results: rx,
       epoch: 0,
       requested: HashSet::new(),
       planned: None,
 
       grid,
-      dirty: false,
 
-      layer: Layer::Height,
-      flatten_water: true,
       chunk_borders: false,
       camera: Camera::default(),
       hover: None,
@@ -271,13 +268,12 @@ impl App {
 impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     if !self.dragging_view {
-      let resized =
-        self.renderer.lock().unwrap().set_slots(slots_for(self.view_distance, self.real));
+      let resized = self.renderer.lock().unwrap().set_slots(slots_for(self.view_distance));
       if resized {
         self.restart();
       }
     }
-    if self.real && self.regen_pending && !ctx.input(|i| i.pointer.any_down()) {
+    if self.regen_pending && !ctx.input(|i| i.pointer.any_down()) {
       self.regen_pending = false;
       rgen_biome::set_splines(self.active_splines().to_game());
       self.restart();
@@ -286,23 +282,6 @@ impl eframe::App for App {
     self.receive_tiles(ctx);
 
     egui::SidePanel::left("controls").default_width(340.0).show(ctx, |ui| self.controls(ui));
-
-    if self.dirty {
-      self.params = Arc::new(Params {
-        id:            self.params.id + 1,
-        splines:       self.active_splines().clone(),
-        layer:         self.layer,
-        flatten_water: self.flatten_water,
-      });
-      self.pool.set_params(self.params.clone());
-      let uploads =
-        self.grid.recompute_all(&self.params.splines, self.params.layer, self.params.flatten_water);
-      let mut renderer = self.renderer.lock().unwrap();
-      for upload in uploads {
-        renderer.queue(upload);
-      }
-      self.dirty = false;
-    }
 
     egui::TopBottomPanel::bottom("section")
       .resizable(true)
@@ -332,25 +311,6 @@ impl App {
     self.camera.target.map(|t| (t / TILE_BLOCKS as f64).floor() as i32)
   }
 
-  /// Switches between the heightmap and the real generator.
-  fn set_real(&mut self) {
-    let mut renderer = self.renderer.lock().unwrap();
-    if self.real {
-      let real = Arc::new(RealTerrain::new(self.seed));
-      renderer.set_palette(Some(real.palette().texture()));
-      self.real_terrain = Some(real);
-      rgen_biome::set_splines(self.active_splines().to_game());
-      // Real terrain takes a lot longer to make than a heightmap does.
-      self.view_distance = self.view_distance.min(4);
-    } else {
-      renderer.set_palette(None);
-      self.real_terrain = None;
-    }
-    self.regen_pending = false;
-    drop(renderer);
-    self.restart();
-  }
-
   /// Throws away all the terrain, and starts generating it again.
   fn restart(&mut self) {
     self.epoch += 1;
@@ -358,7 +318,7 @@ impl App {
     self.planned = None;
     self.pool.reset(self.epoch);
 
-    self.grid = Grid::new(self.renderer.lock().unwrap().brick_capacity(), self.real);
+    self.grid = Grid::new(self.renderer.lock().unwrap().brick_capacity());
     self.renderer.lock().unwrap().queue(self.grid.reset_upload());
   }
 
@@ -385,7 +345,7 @@ impl App {
     let new: Vec<[i32; 2]> =
       grid::tiles_in_range(center, radius).filter(|t| !self.requested.contains(t)).collect();
     self.requested.extend(new.iter().copied());
-    self.pool.plan(self.epoch, &self.noise, &self.world, &self.real_terrain, center, radius, &new);
+    self.pool.plan(self.epoch, &self.noise, &self.world, &self.real, center, radius, &new);
   }
 
   /// Copies the chunks the workers finished into the terrain.
@@ -400,15 +360,7 @@ impl App {
         continue;
       }
 
-      // Columns made with older splines are out of date, so make them again.
-      let columns = if tile.params_id == self.params.id {
-        tile.columns
-      } else {
-        let p = &self.params;
-        Grid::tile_columns(&tile.raw, &tile.biomes, &p.splines, p.layer, p.flatten_water)
-      };
-
-      for upload in self.grid.set_tile(tile.tile, &tile.raw, &tile.biomes, &columns, tile.blocks) {
+      for upload in self.grid.set_tile(tile.tile, &tile.raw, tile.blocks) {
         renderer.queue(upload);
       }
     }
@@ -425,9 +377,7 @@ impl App {
       if ui.add(DragValue::new(&mut self.seed)).changed() {
         self.noise = Arc::new(TerrainNoise::new(self.seed));
         self.world = make_world(self.seed);
-        if self.real {
-          self.real_terrain = Some(Arc::new(RealTerrain::new(self.seed)));
-        }
+        self.real = Arc::new(RealTerrain::new(self.seed));
         self.section.resample(&self.noise);
         self.restart();
       }
@@ -466,25 +416,8 @@ impl App {
       }
     });
 
-    egui::ComboBox::from_label("Layer").selected_text(self.layer.name()).show_ui(ui, |ui| {
-      for layer in Layer::ALL {
-        self.dirty |= ui.selectable_value(&mut self.layer, layer, layer.name()).changed();
-      }
-    });
-
-    if ui
-      .checkbox(&mut self.real, "Real terrain generator")
-      .on_hover_text(
-        "Runs the game's generator, with decorations. The splines apply when the mouse is let go.",
-      )
-      .changed()
-    {
-      self.set_real();
-    }
-    self.dirty |= ui.checkbox(&mut self.flatten_water, "Flatten below sea level").changed();
     ui.checkbox(&mut self.chunk_borders, "Show chunk borders");
     if ui.checkbox(&mut self.compare_saved, "Show splines saved in the game").changed() {
-      self.dirty = true;
       self.regen_pending = true;
     }
 
@@ -494,10 +427,11 @@ impl App {
       }
       if ui.button("Reset splines").clicked() {
         self.splines = self.saved.clone();
-        self.dirty = true;
         self.regen_pending = true;
       }
     });
+
+    self.generator_toggles(ui);
 
     ui.separator();
 
@@ -536,9 +470,69 @@ impl App {
         hovered.map(|(_, p)| p.c / 128.0),
       );
 
-      self.dirty |= changed;
       self.regen_pending |= changed;
     });
+  }
+
+  /// The parts of the generator that can be turned off, in the order the
+  /// generator applies them, so that the terrain can be peeled back one layer
+  /// at a time.
+  fn generator_toggles(&mut self, ui: &mut egui::Ui) {
+    egui::CollapsingHeader::new("Terrain generator").default_open(true).show(ui, |ui| {
+      for &toggle in Toggle::ALL.iter().filter(|t| t.parent().is_none()) {
+        self.toggle_tree(ui, toggle);
+      }
+
+      if ui.button("Turn everything on").clicked() {
+        for &toggle in Toggle::ALL {
+          toggles::set(toggle, true);
+        }
+        for &name in &self.decorations {
+          toggles::set_placer(name, true);
+        }
+        self.regen_pending = true;
+      }
+    });
+  }
+
+  /// A toggle's checkbox, with the toggles that are parts of it under it.
+  fn toggle_tree(&mut self, ui: &mut egui::Ui, toggle: Toggle) {
+    let parts: Vec<Toggle> =
+      Toggle::ALL.iter().copied().filter(|t| t.parent() == Some(toggle)).collect();
+    let decorations = toggle == Toggle::Decorations;
+
+    let mut on = toggles::is_set(toggle);
+    let mut changed = false;
+
+    if parts.is_empty() && !decorations {
+      changed |= ui.checkbox(&mut on, toggle.name()).changed();
+    } else {
+      let id = ui.make_persistent_id(("generator toggle", toggle as usize));
+      egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, false)
+        .show_header(ui, |ui| changed |= ui.checkbox(&mut on, toggle.name()).changed())
+        .body(|ui| {
+          // The parts of something that is off do nothing.
+          ui.add_enabled_ui(on, |ui| {
+            for part in parts {
+              self.toggle_tree(ui, part);
+            }
+            if decorations {
+              for name in self.decorations.clone() {
+                let mut on = toggles::placer_enabled(name);
+                if ui.checkbox(&mut on, name).changed() {
+                  toggles::set_placer(name, on);
+                  self.regen_pending = true;
+                }
+              }
+            }
+          });
+        });
+    }
+
+    if changed {
+      toggles::set(toggle, on);
+      self.regen_pending = true;
+    }
   }
 
   /// The noise and height parts of the vertex the mouse was over last frame.
@@ -648,10 +642,8 @@ impl App {
       .samples
       .iter()
       .map(|s| {
-        let mut h = splines.parts(s.noise).height.floor() as f32;
-        if self.flatten_water {
-          h = h.max(SEA_LEVEL.floor() as f32);
-        }
+        // Where the splines say the ground is, with water on top of it.
+        let h = (splines.parts(s.noise).height.floor() as f32).max(SEA_LEVEL.floor() as f32);
         view.project([(s.x - window[0]) as f32, h + 1.0, (s.z - window[1]) as f32]).map(|p| p.0)
       })
       .collect();
