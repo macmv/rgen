@@ -89,7 +89,7 @@ impl Layer {
 
 /// The largest view distance. Chunks are generated in a circle of this many
 /// chunks around the camera.
-pub const MAX_RADIUS: i32 = 16;
+pub const MAX_RADIUS: i32 = 32;
 
 /// How many chunks past the view distance a generated chunk is kept for. This
 /// keeps chunks from being thrown out while panning back and forth.
@@ -99,6 +99,18 @@ pub const UNLOAD_MARGIN: i32 = 3;
 /// window around the camera at the largest view distance, plus the chunks that
 /// are kept past it.
 pub const SIDE: usize = 2 * (MAX_RADIUS + UNLOAD_MARGIN) as usize + 1;
+
+/// How many atlas slots to budget for each column of chunks. A column only
+/// needs a slot for the chunks the surface passes through, which is one or two
+/// on most terrain, and more on cliffs.
+const SLOTS_PER_COLUMN: usize = 3;
+
+/// The atlas slots needed to hold the terrain at a view distance, including the
+/// chunks that are kept past it.
+pub fn slots_for(radius: i32) -> usize {
+  let columns = (TILE_BLOCKS / CHUNK).pow(2);
+  tiles_in_range([0, 0], radius + UNLOAD_MARGIN).count() * columns * SLOTS_PER_COLUMN
+}
 
 /// The squared distance between two chunks, in chunks.
 pub fn distance_sq(a: [i32; 2], b: [i32; 2]) -> i32 {

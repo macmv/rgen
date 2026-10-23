@@ -4,11 +4,11 @@ use crate::grid::{dot, normalize};
 
 /// An orbit camera looking at a point on the ground.
 pub struct Camera {
-  pub yaw:   f32,
-  pub pitch: f32,
+  pub yaw:    f32,
+  pub pitch:  f32,
   /// Distance from the target, as a multiple of the extent that the camera is
   /// given.
-  pub zoom:  f32,
+  pub zoom:   f32,
   /// The world position the camera looks at, in blocks.
   pub target: [f64; 2],
 }
@@ -86,6 +86,17 @@ impl View {
       self.forward[2] * self.focal + self.right[2] * x + self.up[2] * y,
     ]);
     (self.eye, dir)
+  }
+
+  /// The x and z of the point where the ray through a screen position crosses
+  /// the horizontal plane at height `y`.
+  pub fn ground_at(&self, pos: Pos2, y: f32) -> Option<[f32; 2]> {
+    let (origin, dir) = self.ray(pos);
+    if dir[1] >= 0.0 {
+      return None;
+    }
+    let t = (y - origin[1]) / dir[1];
+    Some([origin[0] + dir[0] * t, origin[2] + dir[2] * t])
   }
 
   /// Projects a point to the screen. Returns the position and the depth, or

@@ -56,8 +56,13 @@ pub struct Renderer {
   size:    [i32; 2],
   /// The number of chunks along x, y and z.
   chunks:  [i32; 3],
-  /// The number of slots along each side of the atlas.
+  /// The number of slots along each side of the atlas. The atlas is
+  /// reallocated to this size on the next paint.
   side:    i32,
+  /// The number of slots along each side of the atlas that is allocated now.
+  allocated_side: i32,
+  /// The most slots along a side that the driver allows.
+  max_side: i32,
   pending: Vec<Upload>,
   /// Repainted while uploads are waiting, so that they keep going.
   ctx:     egui::Context,
@@ -105,13 +110,53 @@ impl Renderer {
         Ok(texture)
       };
 
-      // The atlas is a cube of slots, as big as the driver allows, up to 32
-      // slots along a side (1 GiB).
-      let max = gl.get_parameter_i32(glow::MAX_3D_TEXTURE_SIZE);
-      let side = (max / CHUNK as i32).clamp(1, 32);
-      let edge = side * CHUNK as i32;
+      // The atlas starts out tiny, and is sized by `set_slots` once the view
+      // distance is known.
+      let max_side = (gl.get_parameter_i32(glow::MAX_3D_TEXTURE_SIZE) / CHUNK as i32).max(1);
 
       let bricks = make_volume(gl)?;
+      Self::alloc_atlas(gl, bricks, 1);
+
+      Ok(Renderer {
+        program,
+        vao,
+        colors: make_texture(gl)?,
+        table: make_volume(gl)?,
+        bricks,
+        table_data: vec![],
+        table_dirty: false,
+        size: [0, 0],
+        chunks: [0, 0, 0],
+        side: 1,
+        allocated_side: 1,
+        max_side,
+        pending: vec![],
+        ctx,
+      })
+    }
+  }
+
+  /// The number of chunks the atlas has room for blocks of.
+  pub fn brick_capacity(&self) -> usize { (self.side as usize).pow(3) }
+
+  /// The video memory the atlas takes, in bytes.
+  pub fn atlas_bytes(&self) -> usize { self.brick_capacity() * CHUNK.pow(3) }
+
+  /// Sizes the atlas to hold at least `slots` chunks, or as many as the driver
+  /// allows. Returns whether the size changed, in which case the atlas is
+  /// emptied, and the grid has to start over.
+  pub fn set_slots(&mut self, slots: usize) -> bool {
+    let side = ((slots as f64).cbrt().ceil() as i32).clamp(1, self.max_side);
+    let changed = side != self.side;
+    self.side = side;
+    changed
+  }
+
+  /// Allocates storage for an atlas that is `side` slots along each edge.
+  unsafe fn alloc_atlas(gl: &glow::Context, bricks: glow::Texture, side: i32) {
+    unsafe {
+      let edge = side * CHUNK as i32;
+      gl.bind_texture(glow::TEXTURE_3D, Some(bricks));
       gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
       gl.tex_image_3d(
         glow::TEXTURE_3D,
@@ -125,26 +170,8 @@ impl Renderer {
         glow::UNSIGNED_BYTE,
         None,
       );
-
-      Ok(Renderer {
-        program,
-        vao,
-        colors: make_texture(gl)?,
-        table: make_volume(gl)?,
-        bricks,
-        table_data: vec![],
-        table_dirty: false,
-        size: [0, 0],
-        chunks: [0, 0, 0],
-        side,
-        pending: vec![],
-        ctx,
-      })
     }
   }
-
-  /// The number of chunks the atlas has room for blocks of.
-  pub fn brick_capacity(&self) -> usize { (self.side as usize).pow(3) }
 
   /// Queues new terrain, which is uploaded on the next paint. Emptying the
   /// chunks replaces everything.
@@ -196,6 +223,12 @@ impl Renderer {
 
   pub fn paint(&mut self, info: &PaintCallbackInfo, gl: &glow::Context, frame: &Frame) {
     unsafe {
+      if self.side != self.allocated_side {
+        // Reallocating the texture drops its old storage. Whatever was in the
+        // atlas is gone, but the grid restarts whenever the size changes.
+        Self::alloc_atlas(gl, self.bricks, self.side);
+        self.allocated_side = self.side;
+      }
       gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
       let mut budget = BRICKS_PER_FRAME;
       let mut queue = std::mem::take(&mut self.pending).into_iter();

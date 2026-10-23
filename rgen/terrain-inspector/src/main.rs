@@ -11,8 +11,8 @@ use eframe::{
 use egui_plot::{HLine, Legend, Line, Plot, Points, VLine};
 use rgen_base::Pos;
 use rgen_biome::{HeightParts, RawNoise, TerrainNoise, WorldBiomes};
-use rgen_world::Context;
 use rgen_spline::{Cosine, Spline};
+use rgen_world::Context;
 
 mod camera;
 mod chunks;
@@ -21,7 +21,7 @@ mod grid;
 mod pool;
 
 use camera::Camera;
-use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN};
+use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
 use pool::{Params, Pool, TileResult};
 
 /// The seed from the first argument, or a random one.
@@ -55,7 +55,8 @@ fn main() -> Result<(), eframe::Error> {
     options,
     Box::new(move |cc| {
       let gl = cc.gl.as_ref().expect("the terrain view needs OpenGL");
-      let renderer = gl::Renderer::new(gl, cc.egui_ctx.clone()).expect("failed to build the terrain shader");
+      let renderer =
+        gl::Renderer::new(gl, cc.egui_ctx.clone()).expect("failed to build the terrain shader");
       Box::new(App::new(&cc.egui_ctx, Arc::new(Mutex::new(renderer)), seed))
     }),
   )
@@ -163,6 +164,9 @@ struct App {
   seed:          u64,
   /// How many chunks around the camera are generated.
   view_distance: i32,
+  /// Set while the view distance slider is being dragged. The atlas is only
+  /// resized once it's let go, as that restarts the world.
+  dragging_view: bool,
 
   noise:     Arc<TerrainNoise>,
   /// The full generator, which is what picks biomes.
@@ -205,6 +209,7 @@ impl App {
       layer:         Layer::Height,
       flatten_water: true,
     });
+    renderer.lock().unwrap().set_slots(slots_for(10));
     let grid = Grid::new(renderer.lock().unwrap().brick_capacity());
     renderer.lock().unwrap().queue(grid.reset_upload());
     App {
@@ -214,6 +219,7 @@ impl App {
 
       seed,
       view_distance: 10,
+      dragging_view: false,
 
       noise: Arc::new(TerrainNoise::new(seed)),
       world: make_world(seed),
@@ -242,6 +248,12 @@ impl App {
 
 impl eframe::App for App {
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    if !self.dragging_view {
+      let resized = self.renderer.lock().unwrap().set_slots(slots_for(self.view_distance));
+      if resized {
+        self.restart();
+      }
+    }
     self.plan_chunks();
     self.receive_tiles(ctx);
 
@@ -255,11 +267,8 @@ impl eframe::App for App {
         flatten_water: self.flatten_water,
       });
       self.pool.set_params(self.params.clone());
-      let uploads = self.grid.recompute_all(
-        &self.params.splines,
-        self.params.layer,
-        self.params.flatten_water,
-      );
+      let uploads =
+        self.grid.recompute_all(&self.params.splines, self.params.layer, self.params.flatten_water);
       let mut renderer = self.renderer.lock().unwrap();
       for upload in uploads {
         renderer.queue(upload);
@@ -280,8 +289,8 @@ impl eframe::App for App {
 /// when the view distance does.
 const CAMERA_EXTENT: f32 = 21.0 * TILE_BLOCKS as f32;
 
-/// How long a frame spends copying chunks into the grid, once it has copied one.
-/// Past that, the rest wait for the next frame, so that the window stays
+/// How long a frame spends copying chunks into the grid, once it has copied
+/// one. Past that, the rest wait for the next frame, so that the window stays
 /// responsive.
 const TILE_BUDGET: std::time::Duration = std::time::Duration::from_millis(6);
 
@@ -382,7 +391,13 @@ impl App {
       ui.end_row();
 
       ui.label("View distance");
-      ui.add(egui::Slider::new(&mut self.view_distance, 1..=MAX_RADIUS).suffix(" chunks"));
+      let slider = ui.add(egui::Slider::new(&mut self.view_distance, 1..=MAX_RADIUS).suffix(" chunks"));
+      self.dragging_view = slider.dragged();
+      ui.end_row();
+
+      ui.label("Atlas memory");
+      let mib = self.renderer.lock().unwrap().atlas_bytes() / (1 << 20);
+      ui.label(format!("{mib} MiB"));
       ui.end_row();
 
       ui.label("Generated");
@@ -484,19 +499,40 @@ impl App {
       let d = response.drag_delta();
       self.camera.drag_pan([d.x, d.y], longest, rect);
     }
-    if response.hovered() {
-      let scroll = ui.input(|i| i.raw_scroll_delta.y);
-      self.camera.zoom = (self.camera.zoom * (-scroll * 0.002).exp()).clamp(0.02, 4.0);
-    }
 
     // The camera works in window space: one unit is one block, and the window
     // covers 0..size on x and z.
     let window = grid.window_origin();
-    let target = [
-      (self.camera.target[0] - window[0]) as f32,
-      SEA_LEVEL as f32,
-      (self.camera.target[1] - window[1]) as f32,
-    ];
+    let target_of = |camera: &Camera| {
+      [
+        (camera.target[0] - window[0]) as f32,
+        SEA_LEVEL as f32,
+        (camera.target[1] - window[1]) as f32,
+      ]
+    };
+
+    if response.hovered() {
+      let scroll = ui.input(|i| i.raw_scroll_delta.y);
+      if scroll != 0.0 {
+        // Zoom towards the mouse, by keeping the ground under it in place.
+        let mouse = response.hover_pos();
+        let before = mouse.and_then(|m| {
+          self.camera.view(rect, longest, target_of(&self.camera)).ground_at(m, SEA_LEVEL as f32)
+        });
+
+        self.camera.zoom = (self.camera.zoom * (-scroll * 0.002).exp()).clamp(0.02, 4.0);
+
+        let after = mouse.and_then(|m| {
+          self.camera.view(rect, longest, target_of(&self.camera)).ground_at(m, SEA_LEVEL as f32)
+        });
+        if let (Some(before), Some(after)) = (before, after) {
+          self.camera.target[0] += f64::from(before[0] - after[0]);
+          self.camera.target[1] += f64::from(before[1] - after[1]);
+        }
+      }
+    }
+
+    let target = target_of(&self.camera);
     let view = self.camera.view(rect, longest, target);
 
     // Find the column under the mouse.
@@ -521,13 +557,13 @@ impl App {
     }
 
     let frame = gl::Frame {
-      eye:        view.eye(),
-      forward:    view.forward(),
-      right:      view.right_scaled(rect.aspect_ratio()),
-      up:         view.up_scaled(),
-      pixel:      2.0 * 22.5f32.to_radians().tan() / rect.height(),
-      shift:      grid.shift(),
-      hover:      self.hover.map(|idx| {
+      eye:     view.eye(),
+      forward: view.forward(),
+      right:   view.right_scaled(rect.aspect_ratio()),
+      up:      view.up_scaled(),
+      pixel:   2.0 * 22.5f32.to_radians().tan() / rect.height(),
+      shift:   grid.shift(),
+      hover:   self.hover.map(|idx| {
         let [i, j] = grid.to_window(idx);
         (i, j)
       }),
@@ -551,9 +587,7 @@ impl App {
         if self.flatten_water {
           h = h.max(SEA_LEVEL.floor() as f32);
         }
-        view
-          .project([(s.x - window[0]) as f32, h + 1.0, (s.z - window[1]) as f32])
-          .map(|p| p.0)
+        view.project([(s.x - window[0]) as f32, h + 1.0, (s.z - window[1]) as f32]).map(|p| p.0)
       })
       .collect();
     for w in line.windows(2) {
@@ -687,7 +721,9 @@ impl App {
         plot.line(Line::new(series(&|p| p.p)).name("peaks/valleys (p)"));
         plot.line(Line::new(series(&|p| p.e * 128.0)).name("erosion (e x 128)"));
         plot.line(Line::new(series(&|p| p.impact * 128.0)).name("height impact (x 128)"));
-        plot.line(Line::new(series(&|p| p.height)).name("height").width(3.0_f32).color(Color32::WHITE));
+        plot.line(
+          Line::new(series(&|p| p.height)).name("height").width(3.0_f32).color(Color32::WHITE),
+        );
       });
   }
 }
