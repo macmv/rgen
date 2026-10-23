@@ -25,8 +25,8 @@ mod pool;
 mod real;
 
 use camera::Camera;
-use grid::{Grid, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
-use pool::{Pool, TileResult};
+use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN, slots_for};
+use pool::{Params, Pool, TileResult};
 use real::RealTerrain;
 
 /// How many chunks around the camera are generated to start with. The real
@@ -199,6 +199,8 @@ struct App {
   /// The full generator, which is what picks biomes.
   world:     Arc<WorldBiomes>,
   pool:      Pool,
+  /// What the workers are coloring columns with.
+  params:    Arc<Params>,
   results:   mpsc::Receiver<TileResult>,
   /// Bumped whenever the world starts over, so that stale chunks are ignored.
   epoch:     u64,
@@ -207,8 +209,13 @@ struct App {
   /// The center and view distance that chunks were last queued for.
   planned:   Option<([i32; 2], i32)>,
 
-  grid: Grid,
+  grid:  Grid,
+  /// Set when the splines or the layer change, so the column colors need to be
+  /// made again.
+  dirty: bool,
 
+  /// What the blocks are colored by.
+  layer:         Layer,
   /// Draws the borders of the chunks around the camera.
   chunk_borders: bool,
   camera:        Camera,
@@ -223,6 +230,8 @@ struct App {
 impl App {
   fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>, seed: u64) -> Self {
     let (tx, rx) = mpsc::channel();
+    let params =
+      Arc::new(Params { id: 0, splines: Splines::from_game(), layer: Layer::Blocks });
     let real = Arc::new(RealTerrain::new(seed));
     let world = make_world(seed);
     {
@@ -246,14 +255,17 @@ impl App {
 
       noise: Arc::new(TerrainNoise::new(seed)),
       world,
-      pool: Pool::new(ctx, tx),
+      pool: Pool::new(ctx, tx, params.clone()),
+      params,
       results: rx,
       epoch: 0,
       requested: HashSet::new(),
       planned: None,
 
       grid,
+      dirty: false,
 
+      layer: Layer::Blocks,
       chunk_borders: false,
       camera: Camera::default(),
       hover: None,
@@ -282,6 +294,21 @@ impl eframe::App for App {
     self.receive_tiles(ctx);
 
     egui::SidePanel::left("controls").default_width(340.0).show(ctx, |ui| self.controls(ui));
+
+    if self.dirty {
+      self.params = Arc::new(Params {
+        id:      self.params.id + 1,
+        splines: self.active_splines().clone(),
+        layer:   self.layer,
+      });
+      self.pool.set_params(self.params.clone());
+      let uploads = self.grid.recolor_all(&self.params.splines, self.params.layer);
+      let mut renderer = self.renderer.lock().unwrap();
+      for upload in uploads {
+        renderer.queue(upload);
+      }
+      self.dirty = false;
+    }
 
     egui::TopBottomPanel::bottom("section")
       .resizable(true)
@@ -360,7 +387,15 @@ impl App {
         continue;
       }
 
-      for upload in self.grid.set_tile(tile.tile, &tile.raw, tile.blocks) {
+      // Colors made with older splines are out of date, so make them again.
+      let colors = if tile.params_id == self.params.id {
+        tile.colors
+      } else {
+        let p = &self.params;
+        Grid::tile_colors(&tile.raw, &tile.biomes, &p.splines, p.layer)
+      };
+
+      for upload in self.grid.set_tile(tile.tile, &tile.raw, &tile.biomes, colors, tile.blocks) {
         renderer.queue(upload);
       }
     }
@@ -396,11 +431,6 @@ impl App {
       self.dragging_view = slider.dragged();
       ui.end_row();
 
-      ui.label("Atlas memory");
-      let mib = self.renderer.lock().unwrap().atlas_bytes() / (1 << 20);
-      ui.label(format!("{mib} MiB"));
-      ui.end_row();
-
       ui.label("Generated");
       let center = self.center_tile();
       let in_view = || grid::tiles_in_range(center, self.view_distance);
@@ -416,8 +446,15 @@ impl App {
       }
     });
 
+    egui::ComboBox::from_label("Color by").selected_text(self.layer.name()).show_ui(ui, |ui| {
+      for layer in Layer::ALL {
+        self.dirty |= ui.selectable_value(&mut self.layer, layer, layer.name()).changed();
+      }
+    });
+
     ui.checkbox(&mut self.chunk_borders, "Show chunk borders");
     if ui.checkbox(&mut self.compare_saved, "Show splines saved in the game").changed() {
+      self.dirty = true;
       self.regen_pending = true;
     }
 
@@ -427,6 +464,7 @@ impl App {
       }
       if ui.button("Reset splines").clicked() {
         self.splines = self.saved.clone();
+        self.dirty = true;
         self.regen_pending = true;
       }
     });
@@ -470,6 +508,7 @@ impl App {
         hovered.map(|(_, p)| p.c / 128.0),
       );
 
+      self.dirty |= changed;
       self.regen_pending |= changed;
     });
   }
@@ -616,16 +655,17 @@ impl App {
     }
 
     let frame = gl::Frame {
-      eye:     view.eye(),
-      forward: view.forward(),
-      right:   view.right_scaled(rect.aspect_ratio()),
-      up:      view.up_scaled(),
-      pixel:   2.0 * 22.5f32.to_radians().tan() / rect.height(),
-      shift:   grid.shift(),
-      hover:   self.hover.map(|idx| {
+      eye:          view.eye(),
+      forward:      view.forward(),
+      right:        view.right_scaled(rect.aspect_ratio()),
+      up:           view.up_scaled(),
+      pixel:        2.0 * 22.5f32.to_radians().tan() / rect.height(),
+      shift:        grid.shift(),
+      hover:        self.hover.map(|idx| {
         let [i, j] = grid.to_window(idx);
         (i, j)
       }),
+      layer_colors: self.layer != Layer::Blocks,
     };
     let renderer = self.renderer.clone();
     painter.add(egui::PaintCallback {

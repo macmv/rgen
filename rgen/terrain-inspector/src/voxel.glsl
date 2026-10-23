@@ -8,6 +8,8 @@
 uniform usampler3D uTable;  // R32UI, one per chunk: 0 empty, UNIFORM | block for a single block, else slot + 1
 uniform usampler3D uBricks; // R8UI, the atlas. Texels are laid out as (y, x, z).
 uniform sampler2D uPalette; // RGBA8, 256 texels: the color of every block
+uniform sampler2D uColor;   // RGBA8, the color of each column
+uniform bool uLayerColors;  // whether blocks are colored by their column, instead of by kind
 
 uniform vec3 uEye;
 uniform vec3 uForward;
@@ -53,6 +55,11 @@ ivec3 wrapCell(ivec3 c) {
   return c;
 }
 
+// The texel of the color texture for a column of the window.
+ivec2 wrapColumn(ivec2 v) {
+  return (v + uShift) % (uChunks.xz * CHUNK);
+}
+
 // The block at a spot: 0 for air, else its palette index.
 uint blockAt(ivec3 v) {
   if (any(lessThan(v, ivec3(0))) || any(greaterThanEqual(v, uChunks * CHUNK))) return 0u;
@@ -68,8 +75,10 @@ uint blockAt(ivec3 v) {
 
 bool solidAt(ivec3 v) { return blockAt(v) != 0u; }
 
-// The color of a block, before any shading.
-vec3 blockColor(uint block) {
+// The color of a block, before any shading. `column` is where it is, for
+// showing a layer.
+vec3 blockColor(uint block, ivec2 column) {
+  if (uLayerColors) return texelFetch(uColor, wrapColumn(column), 0).rgb;
   return texelFetch(uPalette, ivec2(int(block), 0), 0).rgb;
 }
 
@@ -119,7 +128,7 @@ bool footprintSample(vec2 spot, float hitY, vec3 d, float r, out vec3 albedo) {
   }
   top = float(s.y + 1);
 
-  vec3 base = blockColor(blockAt(s));
+  vec3 base = blockColor(blockAt(s), s.xz);
   if (top - hitY > max(1.0, r)) {
     // The neighbor stands above the hit, so the pixel sees its side.
     albedo = base * (abs(d.x) > abs(d.z) ? 0.62 : 0.8);
@@ -244,7 +253,7 @@ void main() {
       vec3 block = vec3(voxel);
       vec3 local = clamp(pos - block, 0.0, 1.0);
 
-      vec3 base = blockColor(hitBlock);
+      vec3 base = blockColor(hitBlock, voxel.xz);
 
       // How much of a block one pixel covers. Blocks smaller than a few
       // pixels can't show any detail, so their detail fades out.

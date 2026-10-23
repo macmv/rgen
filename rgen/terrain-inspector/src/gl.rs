@@ -27,14 +27,16 @@ const BRICKS_PER_FRAME: usize = 96;
 /// Everything the shader needs to draw one frame.
 #[derive(Clone, Copy)]
 pub struct Frame {
-  pub eye:     [f32; 3],
-  pub forward: [f32; 3],
-  pub right:   [f32; 3],
-  pub up:      [f32; 3],
-  pub pixel:   f32,
+  pub eye:          [f32; 3],
+  pub forward:      [f32; 3],
+  pub right:        [f32; 3],
+  pub up:           [f32; 3],
+  pub pixel:        f32,
   /// How far the grid is rotated to get the window, in blocks.
-  pub shift:   [i32; 2],
-  pub hover:   Option<(i32, i32)>,
+  pub shift:        [i32; 2],
+  pub hover:        Option<(i32, i32)>,
+  /// Colors blocks by the color of their column, instead of by their kind.
+  pub layer_colors: bool,
 }
 
 /// Draws the terrain with a fragment shader. Created once with the GL context,
@@ -42,6 +44,8 @@ pub struct Frame {
 pub struct Renderer {
   program: glow::Program,
   vao:     glow::VertexArray,
+  /// The color of each column, for showing a layer.
+  colors:  glow::Texture,
   /// The color of every palette index, 256 texels wide.
   palette: glow::Texture,
   /// One `u32` per chunk: empty, solid, or the chunk's slot in the atlas.
@@ -123,6 +127,7 @@ impl Renderer {
       Ok(Renderer {
         program,
         vao,
+        colors: make_texture(gl)?,
         palette: make_texture(gl)?,
         palette_data: None,
         table: make_volume(gl)?,
@@ -142,9 +147,6 @@ impl Renderer {
 
   /// The number of chunks the atlas has room for blocks of.
   pub fn brick_capacity(&self) -> usize { (self.side as usize).pow(3) }
-
-  /// The video memory the atlas takes, in bytes.
-  pub fn atlas_bytes(&self) -> usize { self.brick_capacity() * CHUNK.pow(3) }
 
   /// Sizes the atlas to hold at least `slots` chunks, or as many as the driver
   /// allows. Returns whether the size changed, in which case the atlas is
@@ -257,6 +259,18 @@ impl Renderer {
         match upload {
           Upload::Reset { size, dims } => {
             self.size = [size[0] as i32, size[1] as i32];
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+            gl.tex_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              glow::RGBA8 as i32,
+              self.size[0],
+              self.size[1],
+              0,
+              glow::RGBA,
+              glow::UNSIGNED_BYTE,
+              None,
+            );
 
             self.chunks = dims.map(|d| d as i32);
             let [w, h, d] = self.chunks;
@@ -300,6 +314,22 @@ impl Renderer {
               break;
             }
           }
+          Upload::Tile { x, y, size, colors } => {
+            let (x, y, size) = (x as i32, y as i32, size as i32);
+
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
+            gl.tex_sub_image_2d(
+              glow::TEXTURE_2D,
+              0,
+              x,
+              y,
+              size,
+              size,
+              glow::RGBA,
+              glow::UNSIGNED_BYTE,
+              glow::PixelUnpackData::Slice(&colors),
+            );
+          }
         }
       }
 
@@ -342,9 +372,13 @@ impl Renderer {
       gl.bind_texture(glow::TEXTURE_3D, Some(self.table));
       gl.active_texture(glow::TEXTURE2);
       gl.bind_texture(glow::TEXTURE_3D, Some(self.bricks));
+      gl.active_texture(glow::TEXTURE3);
+      gl.bind_texture(glow::TEXTURE_2D, Some(self.colors));
 
       let uniform = |name: &str| gl.get_uniform_location(self.program, name);
       gl.uniform_1_i32(uniform("uPalette").as_ref(), 0);
+      gl.uniform_1_i32(uniform("uColor").as_ref(), 3);
+      gl.uniform_1_i32(uniform("uLayerColors").as_ref(), frame.layer_colors as i32);
       gl.uniform_1_i32(uniform("uTable").as_ref(), 1);
       gl.uniform_1_i32(uniform("uBricks").as_ref(), 2);
       gl.uniform_3_i32(uniform("uChunks").as_ref(), self.chunks[0], self.chunks[1], self.chunks[2]);
