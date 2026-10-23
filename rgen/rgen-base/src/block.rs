@@ -502,7 +502,10 @@ blocks! {
   ],
   RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
   RgenMossyStone => rgen:mossy_stone,
-  RgenGraveDirt => rgen:grave_dirt,
+  RgenGraveDirt => rgen:grave_dirt[
+    snowy: PropType::Bool,
+    variant: ["dirt", "coarse_dirt", "podzol"],
+  ],
   RgenPlant => rgen:plant,
   RgenMoss => rgen:mossy_block,
   RgenLavender => rgen:lavender_plant[
