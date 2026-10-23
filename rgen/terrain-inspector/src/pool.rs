@@ -10,7 +10,8 @@ use std::sync::{
 };
 
 use eframe::egui;
-use rgen_biome::{RawNoise, TerrainNoise};
+use rgen_base::Pos;
+use rgen_biome::{RawNoise, TerrainNoise, WorldBiomes};
 
 use crate::{
   Splines,
@@ -30,6 +31,7 @@ pub struct Params {
 pub struct Job {
   pub epoch: u64,
   pub noise: Arc<TerrainNoise>,
+  pub world: Arc<WorldBiomes>,
   /// The chunk's position, in chunks.
   pub tile:  [i32; 2],
 }
@@ -39,6 +41,9 @@ pub struct TileResult {
   pub tile:  [i32; 2],
   /// `TILE_BLOCKS * TILE_BLOCKS` samples, with x changing fastest.
   pub raw:   Vec<RawNoise>,
+  /// The color of the biome of each column, as `0xrrggbb`, in the same order
+  /// as `raw`.
+  pub biomes: Vec<u32>,
   /// The columns, made with the params with this id.
   pub params_id: u64,
   pub columns:   TileColumns,
@@ -90,22 +95,26 @@ impl Pool {
 
           let min = job.tile.map(|t| f64::from(t) * TILE_BLOCKS as f64);
           let mut raw = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
+          let mut biomes = Vec::with_capacity(TILE_BLOCKS * TILE_BLOCKS);
           for j in 0..TILE_BLOCKS {
             for i in 0..TILE_BLOCKS {
               let x = min[0] + i as f64;
               let z = min[1] + j as f64;
               raw.push(job.noise.sample(x, z));
+              // The top of the world, to pick the surface biome.
+              biomes.push(job.world.choose_surface_biome(Pos::new(x as i32, 255, z as i32)).color());
             }
           }
 
           let params = queue.params.lock().unwrap().clone();
           let columns =
-            Grid::tile_columns(&raw, &params.splines, params.layer, params.flatten_water);
+            Grid::tile_columns(&raw, &biomes, &params.splines, params.layer, params.flatten_water);
 
           let result = TileResult {
             epoch: job.epoch,
             tile: job.tile,
             raw,
+            biomes,
             params_id: params.id,
             columns,
           };
@@ -137,13 +146,14 @@ impl Pool {
     &self,
     epoch: u64,
     noise: &Arc<TerrainNoise>,
+    world: &Arc<WorldBiomes>,
     center: [i32; 2],
     radius: i32,
     new: &[[i32; 2]],
   ) {
     let mut jobs = self.queue.jobs.lock().unwrap();
     jobs.retain(|job| job.epoch == epoch && crate::grid::in_range(center, radius, job.tile));
-    jobs.extend(new.iter().map(|&tile| Job { epoch, noise: noise.clone(), tile }));
+    jobs.extend(new.iter().map(|&tile| Job { epoch, noise: noise.clone(), world: world.clone(), tile }));
     // The workers pop from the end, so put the closest chunks last.
     jobs.sort_by_key(|job| std::cmp::Reverse(distance_sq(center, job.tile)));
     drop(jobs);

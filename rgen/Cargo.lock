@@ -2348,8 +2348,10 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui_plot",
+ "rgen-base",
  "rgen-biome",
  "rgen-spline",
+ "rgen-world",
 ]
 
 [[package]]

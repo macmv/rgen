@@ -9,7 +9,9 @@ use eframe::{
   egui_glow,
 };
 use egui_plot::{HLine, Legend, Line, Plot, Points, VLine};
-use rgen_biome::{HeightParts, RawNoise, TerrainNoise};
+use rgen_base::Pos;
+use rgen_biome::{HeightParts, RawNoise, TerrainNoise, WorldBiomes};
+use rgen_world::Context;
 use rgen_spline::{Cosine, Spline};
 
 mod camera;
@@ -22,7 +24,28 @@ use camera::Camera;
 use grid::{Grid, Layer, MAX_RADIUS, SEA_LEVEL, TILE_BLOCKS, UNLOAD_MARGIN};
 use pool::{Params, Pool, TileResult};
 
+/// The seed from the first argument, or a random one.
+fn initial_seed() -> u64 {
+  match std::env::args().nth(1) {
+    Some(arg) => arg.parse().unwrap_or_else(|e| {
+      eprintln!("Invalid seed: {e}");
+      std::process::exit(1);
+    }),
+    None => std::time::SystemTime::now()
+      .duration_since(std::time::UNIX_EPOCH)
+      .map_or(0, |d| d.as_nanos() as u64),
+  }
+}
+
+fn make_world(seed: u64) -> Arc<WorldBiomes> {
+  let context = Context::new_test(seed);
+  Arc::new(WorldBiomes::new(&context.blocks, context.seed))
+}
+
 fn main() -> Result<(), eframe::Error> {
+  let seed = initial_seed();
+  println!("Using seed {seed}");
+
   let options = eframe::NativeOptions {
     viewport: egui::ViewportBuilder::default().with_inner_size([1500.0, 900.0]),
     ..Default::default()
@@ -30,10 +53,10 @@ fn main() -> Result<(), eframe::Error> {
   eframe::run_native(
     "Terrain Inspector",
     options,
-    Box::new(|cc| {
+    Box::new(move |cc| {
       let gl = cc.gl.as_ref().expect("the terrain view needs OpenGL");
       let renderer = gl::Renderer::new(gl, cc.egui_ctx.clone()).expect("failed to build the terrain shader");
-      Box::new(App::new(&cc.egui_ctx, Arc::new(Mutex::new(renderer))))
+      Box::new(App::new(&cc.egui_ctx, Arc::new(Mutex::new(renderer)), seed))
     }),
   )
 }
@@ -142,6 +165,8 @@ struct App {
   view_distance: i32,
 
   noise:     Arc<TerrainNoise>,
+  /// The full generator, which is what picks biomes.
+  world:     Arc<WorldBiomes>,
   pool:      Pool,
   /// What the workers are making columns with.
   params:    Arc<Params>,
@@ -160,6 +185,8 @@ struct App {
 
   layer:         Layer,
   flatten_water: bool,
+  /// Draws the borders of the chunks around the camera.
+  chunk_borders: bool,
   camera:        Camera,
   /// The world position of the column under the mouse, from the last frame.
   hover:         Option<[i32; 2]>,
@@ -170,7 +197,7 @@ struct App {
 }
 
 impl App {
-  fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>) -> Self {
+  fn new(ctx: &egui::Context, renderer: Arc<Mutex<gl::Renderer>>, seed: u64) -> Self {
     let (tx, rx) = mpsc::channel();
     let params = Arc::new(Params {
       id:            0,
@@ -185,10 +212,11 @@ impl App {
       saved: Splines::from_game(),
       compare_saved: false,
 
-      seed: 0,
+      seed,
       view_distance: 10,
 
-      noise: Arc::new(TerrainNoise::new(0)),
+      noise: Arc::new(TerrainNoise::new(seed)),
+      world: make_world(seed),
       pool: Pool::new(ctx, tx, params.clone()),
       params,
       results: rx,
@@ -201,6 +229,7 @@ impl App {
 
       layer: Layer::Height,
       flatten_water: true,
+      chunk_borders: false,
       camera: Camera::default(),
       hover: None,
 
@@ -300,7 +329,7 @@ impl App {
     let new: Vec<[i32; 2]> =
       grid::tiles_in_range(center, radius).filter(|t| !self.requested.contains(t)).collect();
     self.requested.extend(new.iter().copied());
-    self.pool.plan(self.epoch, &self.noise, center, radius, &new);
+    self.pool.plan(self.epoch, &self.noise, &self.world, center, radius, &new);
   }
 
   /// Copies the chunks the workers finished into the terrain.
@@ -320,10 +349,10 @@ impl App {
         tile.columns
       } else {
         let p = &self.params;
-        Grid::tile_columns(&tile.raw, &p.splines, p.layer, p.flatten_water)
+        Grid::tile_columns(&tile.raw, &tile.biomes, &p.splines, p.layer, p.flatten_water)
       };
 
-      for upload in self.grid.set_tile(tile.tile, &tile.raw, &columns) {
+      for upload in self.grid.set_tile(tile.tile, &tile.raw, &tile.biomes, &columns) {
         renderer.queue(upload);
       }
     }
@@ -339,6 +368,7 @@ impl App {
       ui.label("Seed");
       if ui.add(DragValue::new(&mut self.seed)).changed() {
         self.noise = Arc::new(TerrainNoise::new(self.seed));
+        self.world = make_world(self.seed);
         self.section.resample(&self.noise);
         self.restart();
       }
@@ -377,6 +407,7 @@ impl App {
     });
 
     self.dirty |= ui.checkbox(&mut self.flatten_water, "Flatten below sea level").changed();
+    ui.checkbox(&mut self.chunk_borders, "Show chunk borders");
     self.dirty |= ui.checkbox(&mut self.compare_saved, "Show splines saved in the game").changed();
 
     ui.horizontal(|ui| {
@@ -543,12 +574,18 @@ impl App {
       }
     }
 
+    if self.chunk_borders {
+      self.paint_chunk_borders(&painter, &view, window);
+    }
+
     // Readout.
     let text = match self.hovered() {
       Some((r, p)) => {
         let [x, z] = self.hover.unwrap();
+        let biome = self.world.choose_surface_biome(Pos::new(x, 255, z)).name;
         format!(
           "x {x:.0}  z {z:.0}\n\
+           biome           {biome}\n\
            continentalness {:.3} -> c {:.1}\n\
            erosion         {:.3} -> e {:.3}\n\
            peaks/valleys   {:.3} -> p {:.1}\n\
@@ -567,6 +604,45 @@ impl App {
       Color32::from_black_alpha(170),
     );
     painter.galley(pos, galley, Color32::from_gray(235));
+  }
+
+  /// Draws the borders of the 16 block chunks around the camera in yellow, and
+  /// the borders of the generated 128 block chunks in orange, at sea level.
+  fn paint_chunk_borders(&self, painter: &egui::Painter, view: &camera::View, window: [f64; 2]) {
+    // How far from the camera the 16 block borders are drawn, in blocks.
+    const NEAR: i32 = 16 * 16;
+
+    let center = self.camera.target.map(|t| t.floor() as i32);
+    let y = SEA_LEVEL as f32;
+    let to_screen = |x: i32, z: i32| {
+      view.project([(f64::from(x) - window[0]) as f32, y, (f64::from(z) - window[1]) as f32])
+    };
+    let line = |a: [i32; 2], b: [i32; 2], stroke: Stroke| {
+      if let (Some(a), Some(b)) = (to_screen(a[0], a[1]), to_screen(b[0], b[1])) {
+        painter.line_segment([a.0, b.0], stroke);
+      }
+    };
+
+    let small = Stroke::new(1.0_f32, Color32::from_rgba_unmultiplied(255, 255, 0, 110));
+    let min = center.map(|c| (c - NEAR).div_euclid(16) * 16);
+    let max = center.map(|c| (c + NEAR).div_euclid(16) * 16);
+    for x in (min[0]..=max[0]).step_by(16) {
+      line([x, min[1]], [x, max[1]], small);
+    }
+    for z in (min[1]..=max[1]).step_by(16) {
+      line([min[0], z], [max[0], z], small);
+    }
+
+    let big = Stroke::new(1.5_f32, Color32::from_rgb(255, 140, 40));
+    let tile = TILE_BLOCKS as i32;
+    let radius = self.view_distance + 1;
+    let c = self.center_tile();
+    for t in -radius..=radius {
+      let (x, z) = ((c[0] + t) * tile, (c[1] + t) * tile);
+      let (lo, hi) = ((c[0] - radius) * tile, (c[0] + radius + 1) * tile);
+      line([x, (c[1] - radius) * tile], [x, (c[1] + radius + 1) * tile], big);
+      line([lo, z], [hi, z], big);
+    }
   }
 
   fn section_panel(&mut self, ui: &mut egui::Ui) {

@@ -26,10 +26,11 @@ pub enum Layer {
   PeaksValleys,
   HeightImpact,
   RiverDistance,
+  Biomes,
 }
 
 impl Layer {
-  pub const ALL: [Layer; 9] = [
+  pub const ALL: [Layer; 10] = [
     Layer::Height,
     Layer::RawContinentalness,
     Layer::RawErosion,
@@ -39,6 +40,7 @@ impl Layer {
     Layer::PeaksValleys,
     Layer::HeightImpact,
     Layer::RiverDistance,
+    Layer::Biomes,
   ];
 
   pub fn name(&self) -> &'static str {
@@ -52,6 +54,7 @@ impl Layer {
       Layer::PeaksValleys => "Peaks and valleys (spline, blended)",
       Layer::HeightImpact => "Height impact",
       Layer::RiverDistance => "River distance",
+      Layer::Biomes => "Biomes",
     }
   }
 
@@ -67,6 +70,8 @@ impl Layer {
       Layer::HeightImpact => parts.impact,
       // Matches `WorldBiomes::sample_river_distance`.
       Layer::RiverDistance => ((raw.peaks_valleys - 0.5).abs() / 0.16).min(1.0),
+      // Biomes are colored directly, in `Grid::column`.
+      Layer::Biomes => 0.0,
     }
   }
 
@@ -119,6 +124,8 @@ struct TileData {
   /// The noise at each column. This is `[continentalness, peaks_valleys,
   /// erosion]`, which is kept as `f32` to save memory.
   raw:     Vec<[f32; 3]>,
+  /// The color of each column's biome, as `0xrrggbb`.
+  biomes:  Vec<u32>,
   /// The top of each column, in blocks.
   heights: Vec<f32>,
   colors:  Vec<Color32>,
@@ -233,19 +240,30 @@ impl Grid {
   /// need the grid, so the workers do it.
   pub fn tile_columns(
     raw: &[RawNoise],
+    biomes: &[u32],
     splines: &Splines,
     layer: Layer,
     flatten_water: bool,
   ) -> TileColumns {
-    let (heights, colors) =
-      raw.iter().map(|&sample| Self::column(sample, splines, layer, flatten_water)).unzip();
+    let (heights, colors) = raw
+      .iter()
+      .zip(biomes)
+      .map(|(&sample, &biome)| Self::column(sample, biome, splines, layer, flatten_water))
+      .unzip();
     TileColumns { heights, colors }
   }
 
   /// Stores a freshly generated chunk, and returns the uploads for it.
-  pub fn set_tile(&mut self, tile: [i32; 2], raw: &[RawNoise], columns: &TileColumns) -> Vec<Upload> {
+  pub fn set_tile(
+    &mut self,
+    tile: [i32; 2],
+    raw: &[RawNoise],
+    biomes: &[u32],
+    columns: &TileColumns,
+  ) -> Vec<Upload> {
     let data = TileData {
       raw:     raw.iter().map(|&r| pack(r)).collect(),
+      biomes:  biomes.to_vec(),
       heights: columns.heights.clone(),
       colors:  columns.colors.clone(),
     };
@@ -323,7 +341,8 @@ impl Grid {
         scope.spawn(move || {
           for data in group {
             for (i, &raw) in data.raw.iter().enumerate() {
-              let (h, c) = Self::column(unpack(raw), splines, layer, flatten_water);
+              let (h, c) =
+                Self::column(unpack(raw), data.biomes[i], splines, layer, flatten_water);
               data.heights[i] = h;
               data.colors[i] = c;
             }
@@ -344,7 +363,13 @@ impl Grid {
   }
 
   /// The height and color of one column.
-  fn column(raw: RawNoise, splines: &Splines, layer: Layer, flatten_water: bool) -> (f32, Color32) {
+  fn column(
+    raw: RawNoise,
+    biome: u32,
+    splines: &Splines,
+    layer: Layer,
+    flatten_water: bool,
+  ) -> (f32, Color32) {
     let parts = splines.parts(raw);
 
     let height = if flatten_water && parts.height < SEA_LEVEL {
@@ -356,6 +381,8 @@ impl Grid {
     let (lo, hi) = layer.range();
     let color = if layer == Layer::Height {
       height_color(parts.height, lo, hi)
+    } else if layer == Layer::Biomes {
+      Color32::from_rgb((biome >> 16) as u8, (biome >> 8) as u8, biome as u8)
     } else {
       gradient(&VIRIDIS, ((layer.value(raw, parts) - lo) / (hi - lo)) as f32)
     };

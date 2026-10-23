@@ -58,7 +58,13 @@ maps. It lets us build things like spiky mountains, smooth valleys, and sprawlin
 
 ### `terrain-inspector`
 
-This is an application that shows the terrain in 3D, and lets you edit the height splines with a user interface.
+This is an application that shows the terrain in 3D, and lets you edit the height splines with a
+user interface. It can color the terrain by height, by any of the noise maps, or by biome, and
+shows the biome and noise values of the block under the mouse. It can also draw chunk borders, and
+cut a cross section between two points.
+
+Pass a seed as the first argument to use that seed, otherwise a random one is picked. Zoom out and
+raise the view distance to look at the world on a large scale.
 
 ### `rgen-viewer`
 
