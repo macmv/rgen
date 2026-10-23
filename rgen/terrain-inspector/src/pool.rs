@@ -37,23 +37,23 @@ pub struct Job {
 }
 
 pub struct TileResult {
-  pub epoch: u64,
-  pub tile:  [i32; 2],
+  pub epoch:     u64,
+  pub tile:      [i32; 2],
   /// `TILE_BLOCKS * TILE_BLOCKS` samples, with x changing fastest.
-  pub raw:   Vec<RawNoise>,
+  pub raw:       Vec<RawNoise>,
   /// The color of the biome of each column, as `0xrrggbb`, in the same order
   /// as `raw`.
-  pub biomes: Vec<u32>,
+  pub biomes:    Vec<u32>,
   /// The columns, made with the params with this id.
   pub params_id: u64,
   pub columns:   TileColumns,
 }
 
 struct Queue {
-  jobs:  Mutex<Vec<Job>>,
-  ready: Condvar,
+  jobs:   Mutex<Vec<Job>>,
+  ready:  Condvar,
   /// Jobs from any other epoch are stale, and are skipped.
-  epoch: AtomicU64,
+  epoch:  AtomicU64,
   /// What new jobs are made with.
   params: Mutex<Arc<Params>>,
 }
@@ -65,9 +65,9 @@ pub struct Pool {
 impl Pool {
   pub fn new(ctx: &egui::Context, results: mpsc::Sender<TileResult>, params: Arc<Params>) -> Pool {
     let queue = Arc::new(Queue {
-      jobs:  Mutex::new(vec![]),
-      ready: Condvar::new(),
-      epoch: AtomicU64::new(0),
+      jobs:   Mutex::new(vec![]),
+      ready:  Condvar::new(),
+      epoch:  AtomicU64::new(0),
       params: Mutex::new(params),
     });
 
@@ -102,7 +102,8 @@ impl Pool {
               let z = min[1] + j as f64;
               raw.push(job.noise.sample(x, z));
               // The top of the world, to pick the surface biome.
-              biomes.push(job.world.choose_surface_biome(Pos::new(x as i32, 255, z as i32)).color());
+              biomes
+                .push(job.world.choose_surface_biome(Pos::new(x as i32, 255, z as i32)).color());
             }
           }
 
@@ -153,7 +154,12 @@ impl Pool {
   ) {
     let mut jobs = self.queue.jobs.lock().unwrap();
     jobs.retain(|job| job.epoch == epoch && crate::grid::in_range(center, radius, job.tile));
-    jobs.extend(new.iter().map(|&tile| Job { epoch, noise: noise.clone(), world: world.clone(), tile }));
+    jobs.extend(new.iter().map(|&tile| Job {
+      epoch,
+      noise: noise.clone(),
+      world: world.clone(),
+      tile,
+    }));
     // The workers pop from the end, so put the closest chunks last.
     jobs.sort_by_key(|job| std::cmp::Reverse(distance_sq(center, job.tile)));
     drop(jobs);

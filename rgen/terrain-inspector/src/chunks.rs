@@ -27,6 +27,24 @@ pub const EMPTY: u32 = 0;
 pub const SOLID: u32 = 1;
 /// Table values from here up are `FIRST_SLOT + slot`.
 pub const FIRST_SLOT: u32 = 2;
+/// Table values with this bit set are a chunk that is all one block, which is
+/// `UNIFORM | palette index`. The real terrain uses these for the chunks of
+/// solid stone and water, which would otherwise each take up a slot.
+pub const UNIFORM: u32 = 1 << 31;
+
+/// The slot that a table value points at, if it points at one.
+fn slot_of(value: u32) -> Option<u32> {
+  (FIRST_SLOT..UNIFORM).contains(&value).then(|| value - FIRST_SLOT)
+}
+
+/// The contents of one chunk of the real terrain.
+pub enum Brick {
+  Empty,
+  /// Every block is this palette index.
+  Uniform(u8),
+  /// The palette index of every block, in `brick_index` order.
+  Blocks(Arc<[u8]>),
+}
 
 /// The index of a block in a brick. This is the order the bricks are laid out
 /// in the atlas, where y is the fastest axis in the texture. That makes the
@@ -56,7 +74,7 @@ pub struct Chunks {
   capacity: usize,
 
   /// The chunk of the table that the window starts at, along x and z.
-  shift:    [usize; 2],
+  shift: [usize; 2],
 
   /// Set when there weren't enough slots, and some chunks are missing.
   pub overflowed: bool,
@@ -78,7 +96,9 @@ impl Chunks {
     }
   }
 
-  fn table_index(&self, c: [usize; 3]) -> usize { c[0] + self.dims[0] * (c[1] + self.dims[1] * c[2]) }
+  fn table_index(&self, c: [usize; 3]) -> usize {
+    c[0] + self.dims[0] * (c[1] + self.dims[1] * c[2])
+  }
 
   /// Sets which chunk of the table is at the window's minimum corner.
   pub fn set_shift(&mut self, shift: [usize; 2]) { self.shift = shift; }
@@ -109,12 +129,61 @@ impl Chunks {
       let chunk = [cx, cy, cz];
       let idx = self.table_index(chunk);
       let old = self.table[idx];
-      if old >= FIRST_SLOT {
-        self.free.push(old - FIRST_SLOT);
+      if let Some(slot) = slot_of(old) {
+        self.free.push(slot);
       }
       if old != EMPTY {
         self.table[idx] = EMPTY;
         out.push(ChunkUpdate { chunk, value: EMPTY, brick: None });
+      }
+    }
+  }
+
+  /// Replaces the chunks above one square of columns with chunks of the real
+  /// terrain, and pushes the changes. `column` has one brick for each chunk
+  /// going up.
+  pub fn set_column(
+    &mut self,
+    cx: usize,
+    cz: usize,
+    column: Vec<Brick>,
+    out: &mut Vec<ChunkUpdate>,
+  ) {
+    for (cy, brick) in column.into_iter().enumerate() {
+      let chunk = [cx, cy, cz];
+      let idx = self.table_index(chunk);
+      let old = self.table[idx];
+      let old_slot = slot_of(old);
+
+      let (value, blocks) = match brick {
+        Brick::Empty => (EMPTY, None),
+        Brick::Uniform(palette) => (UNIFORM | u32::from(palette), None),
+        Brick::Blocks(blocks) => match old_slot.or_else(|| self.alloc()) {
+          Some(slot) => (FIRST_SLOT + slot, Some(blocks)),
+          None => {
+            self.overflowed = true;
+            (EMPTY, None)
+          }
+        },
+      };
+
+      if let Some(slot) = old_slot {
+        if value != FIRST_SLOT + slot {
+          self.free.push(slot);
+        }
+      }
+
+      if let Some(blocks) = blocks {
+        let slot = (value - FIRST_SLOT) as usize;
+        if old == value && *self.bricks[slot] == *blocks {
+          continue;
+        }
+        self.bricks[slot] = blocks.clone();
+        self.table[idx] = value;
+        out.push(ChunkUpdate { chunk, value, brick: Some(blocks) });
+      } else if old != value {
+        self.table[idx] = value;
+        out.push(ChunkUpdate { chunk, value, brick: None });
       }
     }
   }
@@ -154,8 +223,8 @@ impl Chunks {
 
       if base >= highest || base + CHUNK as i32 <= lowest {
         let value = if base >= highest { EMPTY } else { SOLID };
-        if old >= FIRST_SLOT {
-          self.free.push(old - FIRST_SLOT);
+        if let Some(slot) = slot_of(old) {
+          self.free.push(slot);
         }
         if old != value {
           self.table[idx] = value;
@@ -173,7 +242,7 @@ impl Chunks {
         }
       }
 
-      let slot = if old >= FIRST_SLOT { Some(old - FIRST_SLOT) } else { self.alloc() };
+      let slot = slot_of(old).or_else(|| self.alloc());
       let Some(slot) = slot else {
         self.overflowed = true;
         if old != EMPTY {
@@ -234,7 +303,7 @@ impl Chunks {
         let p = [0, 1, 2].map(|a| origin[a] + safe[a] * (t_cur + 1e-3));
         let v = [0, 1, 2].map(|a| (p[a].floor() as i32).clamp(lo[a], lo[a] + CHUNK as i32 - 1));
 
-        if state == SOLID {
+        if state == SOLID || state >= UNIFORM {
           return Some(v.map(|v| v as usize));
         }
         if let Some(hit) = self.march_brick(origin, safe, step, lo, v, state - FIRST_SLOT) {
@@ -268,8 +337,7 @@ impl Chunks {
     slot: u32,
   ) -> Option<[usize; 3]> {
     let brick = &self.bricks[slot as usize];
-    let mut t_max =
-      [0, 1, 2].map(|a| ((v[a] + (step[a] + 1) / 2) as f32 - origin[a]) / safe[a]);
+    let mut t_max = [0, 1, 2].map(|a| ((v[a] + (step[a] + 1) / 2) as f32 - origin[a]) / safe[a]);
     let t_delta = safe.map(|d| 1.0 / d.abs());
 
     for _ in 0..3 * CHUNK + 2 {
@@ -305,8 +373,7 @@ mod tests {
 
   /// A world of `size` columns, where the height of each is `f(x, z)`.
   fn world(size: usize, f: impl Fn(usize, usize) -> f32) -> (Chunks, Vec<f32>) {
-    let heights: Vec<f32> =
-      (0..size * size).map(|i| f(i % size, i / size)).collect();
+    let heights: Vec<f32> = (0..size * size).map(|i| f(i % size, i / size)).collect();
     let mut chunks = Chunks::new([size, size], 1024);
     let mut out = vec![];
     for cz in 0..size / CHUNK {
@@ -378,6 +445,47 @@ mod tests {
     assert!(!out.is_empty());
     assert_eq!(chunks.raycast([0.5, 200.0, 0.5], [0.0, -1.0, 0.0]), None);
     assert_eq!(chunks.free.len(), 1);
+  }
+
+  #[test]
+  fn real_columns_use_slots_and_uniform_chunks() {
+    let mut chunks = Chunks::new([32, 32], 8);
+    let mut out = vec![];
+
+    let mut blocks = vec![0u8; VOLUME];
+    blocks[brick_index(3, 4, 5)] = 7;
+    let blocks: Arc<[u8]> = Arc::from(blocks);
+    let column = |blocks: &Arc<[u8]>| {
+      vec![
+        Brick::Uniform(2),
+        Brick::Blocks(blocks.clone()),
+        Brick::Empty,
+        Brick::Empty,
+        Brick::Empty,
+        Brick::Empty,
+        Brick::Empty,
+        Brick::Empty,
+      ]
+    };
+
+    chunks.set_column(0, 0, column(&blocks), &mut out);
+    assert_eq!(out.len(), 2);
+    assert_eq!(chunks.table[chunks.table_index([0, 0, 0])], UNIFORM | 2);
+
+    // Straight down hits the only block, in the second chunk.
+    assert_eq!(chunks.raycast([3.5, 200.0, 5.5], [0.0, -1.0, 0.0]), Some([3, 36, 5]));
+    // A ray that misses it lands on the uniform chunk below.
+    assert_eq!(chunks.raycast([10.5, 200.0, 10.5], [0.0, -1.0, 0.0]), Some([10, 31, 10]));
+
+    // The same column again changes nothing.
+    out.clear();
+    chunks.set_column(0, 0, column(&blocks), &mut out);
+    assert!(out.is_empty());
+
+    // Emptying it frees the slot.
+    chunks.set_column(0, 0, (0..8).map(|_| Brick::Empty).collect(), &mut out);
+    assert_eq!(chunks.free.len(), 1);
+    assert_eq!(chunks.raycast([3.5, 200.0, 5.5], [0.0, -1.0, 0.0]), None);
   }
 
   #[test]

@@ -192,19 +192,16 @@ fn unpack(raw: [f32; 3]) -> RawNoise {
   }
 }
 
-fn colors_bytes(colors: &[Color32]) -> Vec<u8> { colors.iter().flat_map(|c| c.to_array()).collect() }
+fn colors_bytes(colors: &[Color32]) -> Vec<u8> {
+  colors.iter().flat_map(|c| c.to_array()).collect()
+}
 
 impl Grid {
   /// Makes a grid where nothing has been generated. `brick_capacity` is the
   /// number of chunks the GPU can hold blocks for.
   pub fn new(brick_capacity: usize) -> Self {
     let size = [SIDE * TILE_BLOCKS; 2];
-    Grid {
-      size,
-      window: [0, 0],
-      tiles: HashMap::new(),
-      chunks: Chunks::new(size, brick_capacity),
-    }
+    Grid { size, window: [0, 0], tiles: HashMap::new(), chunks: Chunks::new(size, brick_capacity) }
   }
 
   /// Where a chunk is on the torus, in chunks.
@@ -222,9 +219,7 @@ impl Grid {
   pub fn window_origin(&self) -> [f64; 2] { self.window.map(|w| f64::from(w) * TILE_BLOCKS as f64) }
 
   /// How far the torus is rotated to get the window, in blocks.
-  pub fn shift(&self) -> [i32; 2] {
-    Self::torus(self.window).map(|s| (s * TILE_BLOCKS) as i32)
-  }
+  pub fn shift(&self) -> [i32; 2] { Self::torus(self.window).map(|s| (s * TILE_BLOCKS) as i32) }
 
   /// A world block, relative to the window.
   pub fn to_window(&self, world: [i32; 2]) -> [i32; 2] {
@@ -243,9 +238,7 @@ impl Grid {
 
   /// The upload for a new grid, which is all it needs, as the columns are
   /// uploaded as they are generated.
-  pub fn reset_upload(&self) -> Upload {
-    Upload::Reset { size: self.size, dims: self.chunks.dims }
-  }
+  pub fn reset_upload(&self) -> Upload { Upload::Reset { size: self.size, dims: self.chunks.dims } }
 
   /// The height and color of every column of a tile. `raw` is `TILE_BLOCKS *
   /// TILE_BLOCKS` samples. This is the slow part of `set_tile`, and doesn't
@@ -353,8 +346,7 @@ impl Grid {
         scope.spawn(move || {
           for data in group {
             for (i, &raw) in data.raw.iter().enumerate() {
-              let (h, c) =
-                Self::column(unpack(raw), data.biomes[i], splines, layer, flatten_water);
+              let (h, c) = Self::column(unpack(raw), data.biomes[i], splines, layer, flatten_water);
               data.heights[i] = h;
               data.colors[i] = c;
             }

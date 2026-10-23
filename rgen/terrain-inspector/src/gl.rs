@@ -27,14 +27,14 @@ const BRICKS_PER_FRAME: usize = 96;
 /// Everything the shader needs to draw one frame.
 #[derive(Clone, Copy)]
 pub struct Frame {
-  pub eye:        [f32; 3],
-  pub forward:    [f32; 3],
-  pub right:      [f32; 3],
-  pub up:         [f32; 3],
-  pub pixel:      f32,
+  pub eye:     [f32; 3],
+  pub forward: [f32; 3],
+  pub right:   [f32; 3],
+  pub up:      [f32; 3],
+  pub pixel:   f32,
   /// How far the grid is rotated to get the window, in blocks.
-  pub shift:      [i32; 2],
-  pub hover:      Option<(i32, i32)>,
+  pub shift:   [i32; 2],
+  pub hover:   Option<(i32, i32)>,
 }
 
 /// Draws the terrain with a fragment shader. Created once with the GL context,
@@ -53,19 +53,19 @@ pub struct Renderer {
   table_data:  Vec<u32>,
   table_dirty: bool,
 
-  size:    [i32; 2],
+  size:           [i32; 2],
   /// The number of chunks along x, y and z.
-  chunks:  [i32; 3],
+  chunks:         [i32; 3],
   /// The number of slots along each side of the atlas. The atlas is
   /// reallocated to this size on the next paint.
-  side:    i32,
+  side:           i32,
   /// The number of slots along each side of the atlas that is allocated now.
   allocated_side: i32,
   /// The most slots along a side that the driver allows.
-  max_side: i32,
-  pending: Vec<Upload>,
+  max_side:       i32,
+  pending:        Vec<Upload>,
   /// Repainted while uploads are waiting, so that they keep going.
-  ctx:     egui::Context,
+  ctx:            egui::Context,
 }
 
 impl Renderer {

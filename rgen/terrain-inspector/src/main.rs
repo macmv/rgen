@@ -391,7 +391,8 @@ impl App {
       ui.end_row();
 
       ui.label("View distance");
-      let slider = ui.add(egui::Slider::new(&mut self.view_distance, 1..=MAX_RADIUS).suffix(" chunks"));
+      let slider =
+        ui.add(egui::Slider::new(&mut self.view_distance, 1..=MAX_RADIUS).suffix(" chunks"));
       self.dragging_view = slider.dragged();
       ui.end_row();
 
