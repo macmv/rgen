@@ -354,8 +354,8 @@ const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
 const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
 
 const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "cherry", "cedar"];
-const RGEN_WOOD_4_2_LOG: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
-const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
+const RGEN_WOOD_4_2_LOG: [&str; 4] = ["mangrove", "lavender_tree", "dead", "burned_tree"];
+const RGEN_WOOD_4_2_LEAVES: [&str; 4] = ["mangrove", "lavender_tree", "dead", "burned_tree"];
 const RGEN_WOOD_4_3: [&str; 4] =
   ["aspen", "red_seasonal_tree", "orange_seasonal_tree", "yellow_seasonal_tree"];
 

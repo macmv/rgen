@@ -432,6 +432,7 @@ intern! { PropEnum, prop_enum
   Bottom               => bottom,
   Brick                => brick,
   Brown                => brown,
+  BurnedTree           => burned_tree,
   Cedar                => cedar,
   Center               => center,
   ChiseledBrick        => chiseled_brick,
