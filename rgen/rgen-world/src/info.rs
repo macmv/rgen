@@ -4,6 +4,7 @@
 
 use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
+#[cfg_attr(feature = "inspector", allow(unused_imports))]
 use rgen_base::{
   Biome, BiomeId, BlockData, BlockId, BlockInfo, BlockKind, BlockState, PropMap, PropType,
   PropValue, StateId, StateOrProps,
@@ -86,8 +87,8 @@ impl BlockInfoSupplier {
           .enumerate()
           .find_map(|(i, d)| if *d == props { Some(i) } else { None })
           .unwrap_or_else(|| {
-            // Tools without a block registry don't have real states, so they use the
-            // default one and don't complain about it.
+            // Tools without a block registry don't have real states, so they
+            // use the default one and don't complain about it.
             #[cfg(not(feature = "inspector"))]
             prop_error(data, props);
 

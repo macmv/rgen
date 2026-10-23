@@ -11,10 +11,13 @@ use rgen_base::{
 mod block;
 mod gc;
 mod info;
+mod region;
 
 pub use block::UndoError;
 pub use info::{BiomeInfoSupplier, BlockInfoSupplier};
+pub use region::Region;
 
+#[cfg_attr(feature = "inspector", allow(unused_imports))]
 #[macro_use]
 extern crate log;
 
