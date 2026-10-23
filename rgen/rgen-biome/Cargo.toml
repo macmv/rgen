@@ -16,6 +16,7 @@ puffin = "0.19.1"
 log = "0.4.22"
 
 [features]
-# Makes the height splines changeable at runtime, with `set_splines`. This is
-# for tools like the terrain inspector, and is off for the game.
-inspector = []
+# Everything the terrain inspector needs from the generator: the height splines
+# are changeable at runtime with `set_splines`, and blocks with unknown props
+# get their default state. Off for the game.
+inspector = ["rgen-world/inspector"]

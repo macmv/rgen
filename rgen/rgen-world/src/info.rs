@@ -86,9 +86,12 @@ impl BlockInfoSupplier {
           .enumerate()
           .find_map(|(i, d)| if *d == props { Some(i) } else { None })
           .unwrap_or_else(|| {
+            // Tools without a block registry don't have real states, so they use the
+            // default one and don't complain about it.
+            #[cfg(not(feature = "inspector"))]
             prop_error(data, props);
 
-            0
+            data.default_meta as usize
           }) as u8
       }
     };
@@ -96,6 +99,7 @@ impl BlockInfoSupplier {
   }
 }
 
+#[cfg(not(feature = "inspector"))]
 fn prop_error(data: &BlockData, props: PropMap) {
   error!("block {} does not have a state with the properties {props:?}", data.name);
 
