@@ -14,3 +14,8 @@ smallvec = "1.13.2"
 lru = "0.12.5"
 puffin = "0.19.1"
 log = "0.4.22"
+
+[features]
+# Makes the height splines changeable at runtime, with `set_splines`. This is
+# for tools like the terrain inspector, and is off for the game.
+inspector = []

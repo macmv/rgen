@@ -17,11 +17,15 @@ mod builder;
 mod cave;
 mod feature;
 mod lookup;
+mod splines;
 mod structure;
 mod table;
 mod terrain;
 
 pub use builder::BiomeBuilder;
+#[cfg(feature = "inspector")]
+pub use splines::set_splines;
+pub use splines::{Keys, Splines};
 pub use terrain::{HeightParts, RawNoise, TerrainNoise, height_parts};
 
 #[macro_use]
@@ -199,15 +203,11 @@ impl WorldBiomes {
     if distance_to_river > 0.16 { 1.0 } else { distance_to_river / 0.16 }
   }
 
-  pub fn sample_height(&self, pos: Pos) -> f64 {
-    height_parts(
-      &*CONTINENTALNESS,
-      &*EROSION,
-      &*PEAKS_VALLEYS,
-      &*HEIGHT_IMPACT,
-      self.terrain.sample(pos.x as f64, pos.z as f64),
-    )
-    .height
+  pub fn sample_height(&self, pos: Pos) -> f64 { self.height_parts(pos).height }
+
+  /// Every intermediate value of the height function at `pos`.
+  pub fn height_parts(&self, pos: Pos) -> HeightParts {
+    splines::current_height_parts(self.terrain.sample(pos.x as f64, pos.z as f64))
   }
 }
 
