@@ -27,6 +27,19 @@ macro_rules! enabled {
   };
 }
 
+#[cfg(feature = "inspector")]
+macro_rules! placer_enabled {
+  ($name:expr) => {
+    $crate::toggles::placer_enabled($name)
+  };
+}
+#[cfg(not(feature = "inspector"))]
+macro_rules! placer_enabled {
+  ($name:expr) => {
+    true
+  };
+}
+
 mod biome;
 mod builder;
 mod cave;
@@ -126,6 +139,22 @@ lazy_static::lazy_static! {
 }
 
 impl WorldBiomes {
+  /// The name of every decoration that biomes place, for toggling them. Each
+  /// one is turned on and off with `toggles::set_placer`.
+  #[cfg(feature = "inspector")]
+  pub fn decoration_names(&self) -> Vec<&'static str> {
+    let lookup = &self.composition_lookup;
+    let mut names: Vec<&'static str> = lookup
+      .blank
+      .iter()
+      .chain(lookup.lookup.values().flatten())
+      .flat_map(|biome| biome.placer_names())
+      .collect();
+    names.sort_unstable();
+    names.dedup();
+    names
+  }
+
   pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
@@ -311,7 +340,7 @@ impl Generator for WorldBiomes {
       }
     }
 
-    for biome in biome_set.into_iter().flatten() {
+    for biome in biome_set.into_iter().flatten().filter(|_| enabled!(Decorations)) {
       let mut rng = Rng::new(self.seed);
       biome.decorate(&mut rng, chunk_pos, world, |pos| {
         let rel_x = pos.x - chunk_pos.min_block_pos().x;
