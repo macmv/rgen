@@ -1,12 +1,12 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "rgen:blocks/wood/dead/dead_log",
-    "bottom": "rgen:blocks/wood/dead/dead_log",
-    "top": "rgen:blocks/grave_dirt",
-    "side": "rgen:blocks/wood/dead/dead_log",
-    "front": "rgen:blocks/wood/dead/dead_log_top",
-    "overlay": "rgen:blocks/wood/covered_log/grave_dirt_side"
+    "particle": "rgen:block/wood/dead/dead_log",
+    "bottom": "rgen:block/wood/dead/dead_log",
+    "top": "rgen:block/grave_dirt",
+    "side": "rgen:block/wood/dead/dead_log",
+    "front": "rgen:block/wood/dead/dead_log_top",
+    "overlay": "rgen:block/wood/covered_log/grave_dirt_side"
   },
   "elements": [
     {

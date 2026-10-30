@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "rgen:blocks/mossy_cobblestone_rgen"
+        "all": "rgen:block/mossy_cobblestone_rgen"
     }
 }

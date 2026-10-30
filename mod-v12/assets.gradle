@@ -1,0 +1,71 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+// The shared assets in `common/` use the modern layout (`block` and `item`, and blockstates that
+// name models with their full path). This turns them back into the 1.12 layout, see `build.gradle`.
+
+class V12Assets {
+  // `rgen:block/foo` -> `rgen:blocks/foo`
+  static String texture(String name) {
+    if (name.startsWith('#')) {
+      return name
+    }
+    return name
+      .replaceFirst(/^((?:rgen:|minecraft:)?)block\//, '$1blocks/')
+      .replaceFirst(/^((?:rgen:|minecraft:)?)item\//, '$1items/')
+  }
+
+  // Only textures are renamed. Models (like `parent`) keep their `block/` and `item/`.
+  static Object model(Object json, boolean textures) {
+    if (json instanceof Map) {
+      return json.collectEntries { key, value -> [(key): model(value, textures || key == 'textures')] }
+    } else if (json instanceof List) {
+      return json.collect { model(it, false) }
+    } else if (textures && json instanceof String) {
+      return texture(json)
+    }
+    return json
+  }
+
+  // Blockstates are relative to `models/block` on 1.12.
+  static Object blockstate(Object json, String key) {
+    if (json instanceof Map) {
+      return json.collectEntries { k, v -> [(k): blockstate(v, k)] }
+    } else if (json instanceof List) {
+      return json.collect { blockstate(it, key) }
+    } else if (key == 'model' && json instanceof String) {
+      return json.replaceFirst(/^rgen:block\//, 'rgen:')
+    }
+    return json
+  }
+
+  static String convert(Reader reader, Closure transform) {
+    return JsonOutput.prettyPrint(JsonOutput.toJson(transform(new JsonSlurper().parseText(reader.text))))
+  }
+}
+
+class V12ModelFilter extends FilterReader {
+  V12ModelFilter(Reader reader) {
+    super(new StringReader(V12Assets.convert(reader) { V12Assets.model(it, false) }))
+  }
+}
+
+class V12BlockstateFilter extends FilterReader {
+  V12BlockstateFilter(Reader reader) {
+    super(new StringReader(V12Assets.convert(reader) { V12Assets.blockstate(it, null) }))
+  }
+}
+
+// Adds the assets to `spec`, in the 1.12 layout.
+ext.v12Assets = { CopySpec spec, File assets ->
+  spec.from(assets) {
+    into 'assets'
+
+    eachFile { details ->
+      details.path = details.path.replace('/textures/block/', '/textures/blocks/').replace('/textures/item/', '/textures/items/')
+    }
+
+    filesMatching('**/blockstates/*.json') { filter(V12BlockstateFilter) }
+    filesMatching('**/models/**/*.json') { filter(V12ModelFilter) }
+  }
+}

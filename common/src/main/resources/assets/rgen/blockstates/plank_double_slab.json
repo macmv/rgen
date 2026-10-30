@@ -1,28 +1,28 @@
 {
   "variants": {
     "variant=fir": {
-      "model": "rgen:wood/fir/fir_plank_slab_double"
+      "model": "rgen:block/wood/fir/fir_plank_slab_double"
     },
     "variant=palm": {
-      "model": "rgen:wood/palm/palm_plank_slab_double"
+      "model": "rgen:block/wood/palm/palm_plank_slab_double"
     },
     "variant=cherry": {
-      "model": "rgen:wood/cherry/cherry_plank_slab_double"
+      "model": "rgen:block/wood/cherry/cherry_plank_slab_double"
     },
     "variant=cedar": {
-      "model": "rgen:wood/cedar/cedar_plank_slab_double"
+      "model": "rgen:block/wood/cedar/cedar_plank_slab_double"
     },
     "variant=mangrove": {
-      "model": "rgen:wood/mangrove/mangrove_plank_slab_double"
+      "model": "rgen:block/wood/mangrove/mangrove_plank_slab_double"
     },
     "variant=lavender_tree": {
-      "model": "rgen:wood/lavender_tree/lavender_tree_plank_slab_double"
+      "model": "rgen:block/wood/lavender_tree/lavender_tree_plank_slab_double"
     },
     "variant=dead": {
-      "model": "rgen:wood/dead/dead_plank_slab_double"
+      "model": "rgen:block/wood/dead/dead_plank_slab_double"
     },
     "variant=burned_tree": {
-      "model": "rgen:wood/burned_tree/burned_tree_plank_slab_double"
+      "model": "rgen:block/wood/burned_tree/burned_tree_plank_slab_double"
     }
   }
 }

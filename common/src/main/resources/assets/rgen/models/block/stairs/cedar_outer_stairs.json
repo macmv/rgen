@@ -1,8 +1,8 @@
 {
   "parent": "block/outer_stairs",
   "textures": {
-      "bottom": "rgen:blocks/wood/cedar/cedar_planks",
-      "top": "rgen:blocks/wood/cedar/cedar_planks",
-      "side": "rgen:blocks/wood/cedar/cedar_planks"
+      "bottom": "rgen:block/wood/cedar/cedar_planks",
+      "top": "rgen:block/wood/cedar/cedar_planks",
+      "side": "rgen:block/wood/cedar/cedar_planks"
   }
 }

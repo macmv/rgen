@@ -1,6 +1,6 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "blocks/grass_top"
+    "all": "block/grass_top"
   }
 }

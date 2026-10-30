@@ -1,11 +1,11 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "rgen:blocks/wood/fir/fir_log",
-    "bottom": "rgen:blocks/wood/fir/fir_log_top",
-    "top": "blocks/snow",
-    "side": "rgen:blocks/wood/fir/fir_log",
-    "overlay": "rgen:blocks/wood/covered_log/snow_side"
+    "particle": "rgen:block/wood/fir/fir_log",
+    "bottom": "rgen:block/wood/fir/fir_log_top",
+    "top": "block/snow",
+    "side": "rgen:block/wood/fir/fir_log",
+    "overlay": "rgen:block/wood/covered_log/snow_side"
   },
   "elements": [
     {

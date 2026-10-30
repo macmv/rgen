@@ -1,11 +1,11 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "rgen:blocks/wood/cedar/cedar_log",
-    "bottom": "rgen:blocks/wood/cedar/cedar_log_top",
-    "top": "blocks/dirt_podzol_top",
-    "side": "rgen:blocks/wood/cedar/cedar_log",
-    "overlay": "rgen:blocks/wood/covered_log/podzel_log_side"
+    "particle": "rgen:block/wood/cedar/cedar_log",
+    "bottom": "rgen:block/wood/cedar/cedar_log_top",
+    "top": "block/dirt_podzol_top",
+    "side": "rgen:block/wood/cedar/cedar_log",
+    "overlay": "rgen:block/wood/covered_log/podzel_log_side"
   },
   "elements": [
     {

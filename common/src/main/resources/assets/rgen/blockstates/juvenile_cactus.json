@@ -1,24 +1,24 @@
 {
   "variants": {
-    "age=0,color=blue": { "model": "rgen:wood/cactus/juvenile/blue/blu_0" },
-    "age=1,color=blue": { "model": "rgen:wood/cactus/juvenile/blue/blu_1" },
-    "age=2,color=blue": { "model": "rgen:wood/cactus/juvenile/blue/blu_2" },
-    "age=3,color=blue": { "model": "rgen:wood/cactus/juvenile/blue/blu_3" },
+    "age=0,color=blue": { "model": "rgen:block/wood/cactus/juvenile/blue/blu_0" },
+    "age=1,color=blue": { "model": "rgen:block/wood/cactus/juvenile/blue/blu_1" },
+    "age=2,color=blue": { "model": "rgen:block/wood/cactus/juvenile/blue/blu_2" },
+    "age=3,color=blue": { "model": "rgen:block/wood/cactus/juvenile/blue/blu_3" },
 
-    "age=0,color=green": { "model": "rgen:wood/cactus/juvenile/green/gre_0" },
-    "age=1,color=green": { "model": "rgen:wood/cactus/juvenile/green/gre_1" },
-    "age=2,color=green": { "model": "rgen:wood/cactus/juvenile/green/gre_2" },
-    "age=3,color=green": { "model": "rgen:wood/cactus/juvenile/green/gre_3" },
+    "age=0,color=green": { "model": "rgen:block/wood/cactus/juvenile/green/gre_0" },
+    "age=1,color=green": { "model": "rgen:block/wood/cactus/juvenile/green/gre_1" },
+    "age=2,color=green": { "model": "rgen:block/wood/cactus/juvenile/green/gre_2" },
+    "age=3,color=green": { "model": "rgen:block/wood/cactus/juvenile/green/gre_3" },
     
-    "age=0,color=orange": { "model": "rgen:wood/cactus/juvenile/orange/org_0" },
-    "age=1,color=orange": { "model": "rgen:wood/cactus/juvenile/orange/org_1" },
-    "age=2,color=orange": { "model": "rgen:wood/cactus/juvenile/orange/org_2" },
-    "age=3,color=orange": { "model": "rgen:wood/cactus/juvenile/orange/org_3" },
+    "age=0,color=orange": { "model": "rgen:block/wood/cactus/juvenile/orange/org_0" },
+    "age=1,color=orange": { "model": "rgen:block/wood/cactus/juvenile/orange/org_1" },
+    "age=2,color=orange": { "model": "rgen:block/wood/cactus/juvenile/orange/org_2" },
+    "age=3,color=orange": { "model": "rgen:block/wood/cactus/juvenile/orange/org_3" },
     
-    "age=0,color=yellow": { "model": "rgen:wood/cactus/juvenile/yellow/yel_0" },
-    "age=1,color=yellow": { "model": "rgen:wood/cactus/juvenile/yellow/yel_1" },
-    "age=2,color=yellow": { "model": "rgen:wood/cactus/juvenile/yellow/yel_2" },
-    "age=3,color=yellow": { "model": "rgen:wood/cactus/juvenile/yellow/yel_3" }
+    "age=0,color=yellow": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_0" },
+    "age=1,color=yellow": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_1" },
+    "age=2,color=yellow": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_2" },
+    "age=3,color=yellow": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_3" }
  }
 
 }

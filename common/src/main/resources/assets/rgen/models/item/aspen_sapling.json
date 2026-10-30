@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:blocks/wood/aspen/aspen_sapling"
+    "layer0": "rgen:block/wood/aspen/aspen_sapling"
   }
 }

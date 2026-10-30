@@ -3,7 +3,9 @@ package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
 import net.minecraft.block.Block;
+//? if <1.21.2 {
 import net.minecraft.block.properties.PropertyDirection;
+//?}
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -18,7 +20,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PinkFlowerbed extends Block {
+  // Direction properties are normal enum properties on newer versions.
+  //? if >=1.21.2 {
+  /*public static final net.minecraft.state.property.EnumProperty<net.minecraft.util.math.Direction> ROTATION = net.minecraft.state.property.EnumProperty.of("rotation", net.minecraft.util.math.Direction.class, net.minecraft.util.math.Direction.Type.HORIZONTAL);*/
+  //?} else {
   public static final PropertyDirection ROTATION = PropertyDirection.create("rotation", EnumFacing.Plane.HORIZONTAL);
+  //?}
   public static final PropertyInteger COUNT = PropertyInteger.create("count", 1, 4);
   protected static final AxisAlignedBB PLANT_AABB = MathUtil.aabb(0, 0, 0, 16, 3, 16);
 

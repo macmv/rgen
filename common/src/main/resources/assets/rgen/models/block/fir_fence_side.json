@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_side",
   "textures": {
-    "texture": "rgen:blocks/wood/fir/fir_planks"
+    "texture": "rgen:block/wood/fir/fir_planks"
   }
 }

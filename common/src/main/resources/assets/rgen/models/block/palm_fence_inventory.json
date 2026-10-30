@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_inventory",
   "textures": {
-    "texture": "rgen:blocks/wood/palm/palm_planks"
+    "texture": "rgen:block/wood/palm/palm_planks"
   }
 }

@@ -1,17 +1,17 @@
 {
   "variants": {
     "axis=y": {
-      "model": "rgen:wood/covered/covered_log_y_birch"
+      "model": "rgen:block/wood/covered/covered_log_y_birch"
     },
     "axis=z": {
-      "model": "rgen:wood/covered/covered_log_xz_birch"
+      "model": "rgen:block/wood/covered/covered_log_xz_birch"
     },
     "axis=x": {
-      "model": "rgen:wood/covered/covered_log_xz_birch",
+      "model": "rgen:block/wood/covered/covered_log_xz_birch",
       "y": 90
     },
     "axis=none": {
-      "model": "rgen:wood/covered/covered_log_none_birch"
+      "model": "rgen:block/wood/covered/covered_log_none_birch"
     }
   }
 }

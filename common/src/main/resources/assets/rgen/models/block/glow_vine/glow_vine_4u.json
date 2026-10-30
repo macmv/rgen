@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "rgen:blocks/glow_vine",
-    "vine": "rgen:blocks/glow_vine"
+    "particle": "rgen:block/glow_vine",
+    "vine": "rgen:block/glow_vine"
   },
   "elements": [
     {

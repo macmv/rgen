@@ -8,6 +8,7 @@ import net.minecraft.util.NonNullList;
 
 public class BurnedTreeSapling extends Sapling {
   public BurnedTreeSapling(BlockSettings settings) {
+    super(settings);
     this.setDefaultState(this.blockState.getBaseState().withProperty(STAGE, 0));
   }
 
