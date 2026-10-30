@@ -10,6 +10,7 @@
 !net/macmv/rgen/compat/*.java
 !net/macmv/rgen/block/
 !net/macmv/rgen/block/BlockSettings.java
+!net/macmv/rgen/block/GraveDirtBlock.java
 !net/macmv/rgen/tab/
 !net/macmv/rgen/tab/RCreativeTabs.java
 !net/macmv/rgen/item/

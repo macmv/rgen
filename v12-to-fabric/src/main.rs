@@ -250,6 +250,7 @@ impl Config {
     match path {
       "net.minecraft.block.state.BlockStateContainer"
       | "net.minecraft.block.BlockPlanks"
+      | "net.minecraft.block.BlockDirt"
       | "net.minecraft.creativetab.CreativeTabs"
       | "net.minecraft.util.BlockRenderLayer"
       | "net.minecraft.util.DamageSource"

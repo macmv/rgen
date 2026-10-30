@@ -63,19 +63,19 @@ fabricApi {
 // Loom adds the output as a resource directory, take that out again.
 sourceSets.main.resources.srcDirs -= [generated]
 
-jar {
-  from(generated)
-}
-
-tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
-  classpath += files(generated)
-}
+// The generated files go into the processed resources, which is what the jar and the dev client
+// both use. The generator itself must not see them, so they are left out when it runs.
+def runningDatagen = gradle.startParameter.taskNames.any { it.endsWith('runDatagen') }
 
 // The assets are shared with 1.12. They are in the modern layout in `common/`, and `mod-v12` converts
 // them back to the 1.12 one.
 processResources {
   // Stonecutter writes the resources too.
   dependsOn 'stonecutterGenerate'
+
+  if (!runningDatagen) {
+    from(generated)
+  }
 
   from(rootProject.file('common/src/main/resources/assets')) {
     into 'assets'
