@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_column",
   "textures": {
-    "end": "rgen:blocks/wood/palm/palm_log_top",
-    "side": "rgen:blocks/wood/palm/palm_log"
+    "end": "rgen:block/wood/palm/palm_log_top",
+    "side": "rgen:block/wood/palm/palm_log"
   }
 }

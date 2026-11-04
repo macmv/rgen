@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "rgen:items/bamboo_stick"
+    "layer0": "rgen:item/bamboo_stick"
   }
 }

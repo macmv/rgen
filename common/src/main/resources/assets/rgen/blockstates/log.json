@@ -1,20 +1,20 @@
 {
   "variants": {
-    "axis=y,variant=fir": { "model": "rgen:wood/fir/fir_log" },
-    "axis=z,variant=fir": { "model": "rgen:wood/fir/fir_log", "x": 90 },
-    "axis=x,variant=fir": { "model": "rgen:wood/fir/fir_log", "x": 90, "y": 90 },
-    "axis=none,variant=fir": { "model": "rgen:wood/fir/fir_log" },
-    "axis=y,variant=palm": { "model": "rgen:wood/palm/palm_log" },
-    "axis=z,variant=palm": { "model": "rgen:wood/palm/palm_log", "x": 90 },
-    "axis=x,variant=palm": { "model": "rgen:wood/palm/palm_log", "x": 90, "y": 90 },
-    "axis=none,variant=palm": { "model": "rgen:wood/palm/palm_log" },
-    "axis=y,variant=cherry": { "model": "rgen:wood/cherry/cherry_log" },
-    "axis=z,variant=cherry": { "model": "rgen:wood/cherry/cherry_log", "x": 90 },
-    "axis=x,variant=cherry": { "model": "rgen:wood/cherry/cherry_log", "x": 90, "y": 90 },
-    "axis=none,variant=cherry": { "model": "rgen:wood/cherry/cherry_log" },
-    "axis=y,variant=cedar": { "model": "rgen:wood/cedar/cedar_log" },
-    "axis=z,variant=cedar": { "model": "rgen:wood/cedar/cedar_log", "x": 90 },
-    "axis=x,variant=cedar": { "model": "rgen:wood/cedar/cedar_log", "x": 90, "y": 90 },
-    "axis=none,variant=cedar": { "model": "rgen:wood/cedar/cedar_log" }
+    "axis=y,variant=fir": { "model": "rgen:block/wood/fir/fir_log" },
+    "axis=z,variant=fir": { "model": "rgen:block/wood/fir/fir_log", "x": 90 },
+    "axis=x,variant=fir": { "model": "rgen:block/wood/fir/fir_log", "x": 90, "y": 90 },
+    "axis=none,variant=fir": { "model": "rgen:block/wood/fir/fir_log" },
+    "axis=y,variant=palm": { "model": "rgen:block/wood/palm/palm_log" },
+    "axis=z,variant=palm": { "model": "rgen:block/wood/palm/palm_log", "x": 90 },
+    "axis=x,variant=palm": { "model": "rgen:block/wood/palm/palm_log", "x": 90, "y": 90 },
+    "axis=none,variant=palm": { "model": "rgen:block/wood/palm/palm_log" },
+    "axis=y,variant=cherry": { "model": "rgen:block/wood/cherry/cherry_log" },
+    "axis=z,variant=cherry": { "model": "rgen:block/wood/cherry/cherry_log", "x": 90 },
+    "axis=x,variant=cherry": { "model": "rgen:block/wood/cherry/cherry_log", "x": 90, "y": 90 },
+    "axis=none,variant=cherry": { "model": "rgen:block/wood/cherry/cherry_log" },
+    "axis=y,variant=cedar": { "model": "rgen:block/wood/cedar/cedar_log" },
+    "axis=z,variant=cedar": { "model": "rgen:block/wood/cedar/cedar_log", "x": 90 },
+    "axis=x,variant=cedar": { "model": "rgen:block/wood/cedar/cedar_log", "x": 90, "y": 90 },
+    "axis=none,variant=cedar": { "model": "rgen:block/wood/cedar/cedar_log" }
   }
 }

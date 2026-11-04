@@ -6,6 +6,6 @@ import net.minecraft.block.BlockStairs;
 public class RStairs extends BlockStairs {
 
   public RStairs(BlockSettings settings, LogType type) {
-    super(RBlocks.PLANKS.getDefaultState().withProperty(PlanksBlock.VARIANT, type));
+    super(RBlocks.PLANKS.getDefaultState().withProperty(PlanksBlock.VARIANT, type) /* #fabric:, settings.vanilla() */);
   }
 }

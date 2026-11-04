@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/red_seasonal_tree/red_seasonal_tree_sapling"
+    "cross": "rgen:block/wood/red_seasonal_tree/red_seasonal_tree_sapling"
   }
 }

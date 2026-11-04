@@ -1,8 +1,8 @@
 {
   "parent": "block/thin_block",
   "textures": {
-    "texture": "rgen:blocks/trapdoors/cherry_trapdoor",
-    "particle": "rgen:blocks/trapdoors/cherry_trapdoor"
+    "texture": "rgen:block/trapdoors/cherry_trapdoor",
+    "particle": "rgen:block/trapdoors/cherry_trapdoor"
   },
   "elements": [
     {

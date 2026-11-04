@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_column",
   "textures": {
-    "end": "rgen:blocks/rock/basalt_top",
-    "side": "rgen:blocks/rock/basalt_side"
+    "end": "rgen:block/rock/basalt_top",
+    "side": "rgen:block/rock/basalt_side"
   }
 }

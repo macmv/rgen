@@ -103,9 +103,17 @@ sourceSets.main.java {
   srcDir '../common/src/main/java'
 }
 
+// The assets are in the modern layout, so they are converted. Everything else is used as is.
+apply from: 'assets.gradle'
+
 sourceSets.main.resources {
   srcDir '../common/src/main/resources'
   srcDir "$buildDir/generated/natives"
+  exclude 'assets/**'
+}
+
+processResources {
+  v12Assets(delegate, file('../common/src/main/resources/assets'))
 }
 
 // --- Rust native library ---------------------------------------------------------------------

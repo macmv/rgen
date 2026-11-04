@@ -1,3 +1,5 @@
+// # only v12 #
+
 package net.macmv.rgen.rust;
 
 import org.apache.logging.log4j.Level;

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/wall_gate_open",
   "textures": {
-    "texture": "rgen:blocks/wood/palm/palm_planks"
+    "texture": "rgen:block/wood/palm/palm_planks"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/burned_tree/burned_tree_sapling"
+    "cross": "rgen:block/wood/burned_tree/burned_tree_sapling"
   }
 }

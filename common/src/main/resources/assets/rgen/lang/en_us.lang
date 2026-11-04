@@ -151,3 +151,12 @@ item.burned_tree_door.name=Burned Tree Door
 tile.burned_tree_trapdoor.name=Burned Tree Trapdoor
 tile.burned_tree_fence.name=Burned Tree Fence
 tile.burned_tree_fence_gate.name=Burned Tree Fence Gate
+
+tile.covered_acacia_log.name=Grass Covered Acacia Log
+tile.covered_dark_oak_log.name=Moss Covered Dark Oak Log
+tile.covered_fir_log.name=Snow Covered Fir Log
+tile.covered_palm_log.name=Sand Covered Palm Log
+tile.covered_cherry_log.name=Vine Covered Cherry Log
+tile.covered_cedar_log.name=Podzol Covered Cedar Log
+tile.covered_dead_log.name=Grave Dirt Covered Dead Tree Log
+tile.grave_dirt.name=Grave Dirt

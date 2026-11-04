@@ -1,5 +1,5 @@
 {
   "variants": {
-    "normal": { "model": "rgen:flower/jungleflower/jun05" }
+    "normal": { "model": "rgen:block/flower/jungleflower/jun05" }
   }
 }

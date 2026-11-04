@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_column",
   "textures": {
-    "end": "rgen:blocks/wood/fir/fir_log_top",
-    "side": "rgen:blocks/wood/fir/fir_log"
+    "end": "rgen:block/wood/fir/fir_log_top",
+    "side": "rgen:block/wood/fir/fir_log"
   }
 }

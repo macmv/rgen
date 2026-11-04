@@ -1,7 +1,7 @@
 {
   "variants": {
     "normal": {
-      "model": "rgen:salt/salt"
+      "model": "rgen:block/salt/salt"
     }
   }
 }

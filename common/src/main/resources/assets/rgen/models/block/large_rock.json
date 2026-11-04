@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "rgen:blocks/medium_rock",
-    "particle": "rgen:blocks/medium_rock"
+    "0": "rgen:block/medium_rock",
+    "particle": "rgen:block/medium_rock"
   },
   "elements": [
     {

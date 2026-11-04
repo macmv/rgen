@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/mangrove/mangrove_sapling"
+    "cross": "rgen:block/wood/mangrove/mangrove_sapling"
   }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "normal": {
-      "model": "rgen:derp_dog"
+      "model": "rgen:block/derp_dog"
     }
   }
 }

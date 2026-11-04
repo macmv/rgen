@@ -1,5 +1,7 @@
 package net.macmv.rgen.block;
 
+// Backport: vanilla has moss from 1.17, so we only define our own before that.
+//? if !vanilla_moss {
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -26,3 +28,4 @@ public class MossBlock extends Block {
     return plantType == EnumPlantType.Plains;
   }
 }
+//?}

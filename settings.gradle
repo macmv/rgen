@@ -4,10 +4,29 @@ pluginManagement {
       name = 'Fabric'
       url = 'https://maven.fabricmc.net/'
     }
+    maven {
+      name = 'KikuGie'
+      url = 'https://maven.kikugie.dev/releases'
+    }
     mavenCentral()
     gradlePluginPortal()
   }
 }
 
+plugins {
+  id 'dev.kikugie.stonecutter' version '0.9.8'
+}
+
 rootProject.name = "rgen"
-include("mod-v12", "mod-fabric")
+
+// `mod-fabric` is a stonecutter project. Each version listed here gets its own subproject, which
+// reads its settings from `mod-fabric/versions/<version>/gradle.properties`.
+stonecutter {
+  kotlinController = false
+  centralScript = "build.gradle"
+
+  create(":mod-fabric") {
+    versions "1.21.1"
+    vcsVersion = "1.21.1"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:items/red_polypore"
+    "layer0": "rgen:item/red_polypore"
   }
 }

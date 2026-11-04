@@ -1,0 +1,61 @@
+plugins {
+  id 'dev.kikugie.stonecutter'
+}
+
+// Stonecutter leaves the sources of the active version alone, and only processes the other ones.
+// The generated sources are in their 1.12 state, which isn't a version we build, so there is no
+// active version. That way every version we build gets processed.
+stonecutter.active null
+
+// Translates the 1.12 sources in `common/` into fabric (yarn) sources. This runs once for all
+// versions: stonecutter then handles the differences between minecraft versions, by processing the
+// generated sources the same way it processes the handwritten ones.
+//
+// Stonecutter only processes `src/main/java`, so the output goes right next to the handwritten
+// sources. The generated files are ignored by git (see `src/main/java/.gitignore`), and are listed
+// in a manifest so they can be cleaned up without touching the handwritten ones.
+def commonSrc = rootProject.file("common/src/main/java")
+def transformer = rootProject.file("v12-to-fabric/target/release/v12-to-fabric")
+def javaSrc = file("src/main/java")
+def manifest = file("src/main/java/.generated-files")
+
+tasks.register('transformCommonSources') {
+  inputs.dir commonSrc
+  inputs.file transformer
+  outputs.file manifest
+
+  doLast {
+    if (manifest.exists()) {
+      manifest.readLines().each { delete new File(javaSrc, it) }
+    }
+
+    def written = []
+
+    commonSrc.eachFileRecurse { srcFile ->
+      if (!srcFile.name.endsWith(".java")) return
+
+      def relative = commonSrc.toPath().relativize(srcFile.toPath()).toString()
+      def destFile = new File(javaSrc, relative)
+
+      def process = new ProcessBuilder(transformer.absolutePath, srcFile.absolutePath).start()
+      // Drain both streams before waiting, so a large file can't fill the pipe and hang.
+      def out = new StringBuffer()
+      def err = new StringBuffer()
+      process.consumeProcessOutput(out, err)
+      process.waitFor()
+
+      if (process.exitValue() != 0) {
+        // FIXME: Fail the build here once the transformer handles every file.
+        logger.warn("Transformation failed for ${srcFile}: ${err}")
+      }
+
+      if (!out.toString().isEmpty()) {
+        destFile.parentFile.mkdirs()
+        destFile.text = out.toString()
+        written << relative
+      }
+    }
+
+    manifest.text = written.sort().join("\n") + "\n"
+  }
+}

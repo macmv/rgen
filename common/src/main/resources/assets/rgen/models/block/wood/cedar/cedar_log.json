@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_column",
   "textures": {
-    "end": "rgen:blocks/wood/cedar/cedar_log_top",
-    "side": "rgen:blocks/wood/cedar/cedar_log"
+    "end": "rgen:block/wood/cedar/cedar_log_top",
+    "side": "rgen:block/wood/cedar/cedar_log"
   }
 }

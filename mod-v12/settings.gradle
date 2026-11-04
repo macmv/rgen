@@ -1,0 +1,4 @@
+// This is a standalone build, separate from the root build. ForgeGradle 6 doesn't support Gradle 9,
+// so this build is pinned to the older Gradle in `gradle/wrapper`, while the root build is free to
+// update.
+rootProject.name = "rgen-v12"

@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/aspen/aspen_sapling"
+    "cross": "rgen:block/wood/aspen/aspen_sapling"
   }
 }

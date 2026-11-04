@@ -354,8 +354,8 @@ const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
 const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
 
 const RGEN_WOOD_4_1: [&str; 4] = ["fir", "palm", "cherry", "cedar"];
-const RGEN_WOOD_4_2_LOG: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
-const RGEN_WOOD_4_2_LEAVES: [&str; 3] = ["mangrove", "lavender_tree", "dead"];
+const RGEN_WOOD_4_2_LOG: [&str; 4] = ["mangrove", "lavender_tree", "dead", "burned_tree"];
+const RGEN_WOOD_4_2_LEAVES: [&str; 4] = ["mangrove", "lavender_tree", "dead", "burned_tree"];
 const RGEN_WOOD_4_3: [&str; 4] =
   ["aspen", "red_seasonal_tree", "orange_seasonal_tree", "yellow_seasonal_tree"];
 
@@ -475,6 +475,13 @@ blocks! {
   RgenJungleStump => rgen:covered_jungle_log[
     axis: ["x", "y", "z", "none"],
   ],
+  RgenAcaciaGrassLog => rgen:covered_acacia_log[axis: ["x", "y", "z", "none"]],
+  RgenDarkOakMossLog => rgen:covered_dark_oak_log[axis: ["x", "y", "z", "none"]],
+  RgenFirSnowLog => rgen:covered_fir_log[axis: ["x", "y", "z", "none"]],
+  RgenPalmSandLog => rgen:covered_palm_log[axis: ["x", "y", "z", "none"]],
+  RgenCherryVineLog => rgen:covered_cherry_log[axis: ["x", "y", "z", "none"]],
+  RgenCedarPodzolLog => rgen:covered_cedar_log[axis: ["x", "y", "z", "none"]],
+  RgenDeadGraveDirtLog => rgen:covered_dead_log[axis: ["x", "y", "z", "none"]],
   RgenMossyStump => rgen:mossy_stump[
     axis: ["x", "y", "z", "none"],
     variant: ["oak", "birch"],
@@ -495,6 +502,10 @@ blocks! {
   ],
   RgenMossyCobblestone => rgen:mossy_cobblestone_rgen,
   RgenMossyStone => rgen:mossy_stone,
+  RgenGraveDirt => rgen:grave_dirt[
+    snowy: PropType::Bool,
+    variant: ["dirt", "coarse_dirt", "podzol"],
+  ],
   RgenPlant => rgen:plant,
   RgenMoss => rgen:mossy_block,
   RgenLavender => rgen:lavender_plant[

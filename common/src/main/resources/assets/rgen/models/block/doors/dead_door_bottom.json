@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "1": "rgen:blocks/doors/dead_door_bottom",
-    "particle": "blocks/door_wood_lower"
+    "1": "rgen:block/doors/dead_door_bottom",
+    "particle": "block/door_wood_lower"
   },
   "elements": [
     {

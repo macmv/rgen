@@ -1,7 +1,7 @@
 {
   "parent": "block/leaves",
   "textures": {
-    "all": "rgen:blocks/wood/burned_tree/burned_tree_leaves"
+    "all": "rgen:block/wood/burned_tree/burned_tree_leaves"
 
   }
 }

@@ -1,5 +1,7 @@
 package net.macmv.rgen.block;
 
+// Backport: vanilla has moss from 1.17, so we only define our own before that.
+//? if !vanilla_moss {
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -59,3 +61,4 @@ public class MossCarpet extends Block {
   //    return PLANT_AABB;
   //}
 }
+//?}

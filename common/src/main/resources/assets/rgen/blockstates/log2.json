@@ -1,64 +1,64 @@
 {
   "variants": {
     "axis=y,variant=mangrove": {
-      "model": "rgen:wood/mangrove/mangrove_log"
+      "model": "rgen:block/wood/mangrove/mangrove_log"
     },
     "axis=z,variant=mangrove": {
-      "model": "rgen:wood/mangrove/mangrove_log",
+      "model": "rgen:block/wood/mangrove/mangrove_log",
       "x": 90
     },
     "axis=x,variant=mangrove": {
-      "model": "rgen:wood/mangrove/mangrove_log",
+      "model": "rgen:block/wood/mangrove/mangrove_log",
       "x": 90,
       "y": 90
     },
     "axis=none,variant=mangrove": {
-      "model": "rgen:wood/mangrove/mangrove_log"
+      "model": "rgen:block/wood/mangrove/mangrove_log"
     },
     "axis=y,variant=dead": {
-      "model": "rgen:wood/dead/dead_log"
+      "model": "rgen:block/wood/dead/dead_log"
     },
     "axis=z,variant=dead": {
-      "model": "rgen:wood/dead/dead_log",
+      "model": "rgen:block/wood/dead/dead_log",
       "x": 90
     },
     "axis=x,variant=dead": {
-      "model": "rgen:wood/dead/dead_log",
+      "model": "rgen:block/wood/dead/dead_log",
       "x": 90,
       "y": 90
     },
     "axis=none,variant=dead": {
-      "model": "rgen:wood/dead/dead_log"
+      "model": "rgen:block/wood/dead/dead_log"
     },
     "axis=y,variant=lavender_tree": {
-      "model": "rgen:wood/lavender_tree/lavender_tree_log"
+      "model": "rgen:block/wood/lavender_tree/lavender_tree_log"
     },
     "axis=z,variant=lavender_tree": {
-      "model": "rgen:wood/lavender_tree/lavender_tree_log",
+      "model": "rgen:block/wood/lavender_tree/lavender_tree_log",
       "x": 90
     },
     "axis=x,variant=lavender_tree": {
-      "model": "rgen:wood/lavender_tree/lavender_tree_log",
+      "model": "rgen:block/wood/lavender_tree/lavender_tree_log",
       "x": 90,
       "y": 90
     },
     "axis=none,variant=lavender_tree": {
-      "model": "rgen:wood/lavender_tree/lavender_tree_log"
+      "model": "rgen:block/wood/lavender_tree/lavender_tree_log"
     },
     "axis=y,variant=burned_tree": {
-      "model": "rgen:wood/burned_tree/burned_tree_log"
+      "model": "rgen:block/wood/burned_tree/burned_tree_log"
     },
     "axis=z,variant=burned_tree": {
-      "model": "rgen:wood/burned_tree/burned_tree_log",
+      "model": "rgen:block/wood/burned_tree/burned_tree_log",
       "x": 90
     },
     "axis=x,variant=burned_tree": {
-      "model": "rgen:wood/burned_tree/burned_tree_log",
+      "model": "rgen:block/wood/burned_tree/burned_tree_log",
       "x": 90,
       "y": 90
     },
     "axis=none,variant=burned_tree": {
-      "model": "rgen:wood/burned_tree/burned_tree_log"
+      "model": "rgen:block/wood/burned_tree/burned_tree_log"
     }
   }
 }

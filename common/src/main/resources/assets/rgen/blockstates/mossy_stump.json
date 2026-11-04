@@ -1,20 +1,20 @@
 {
   "variants": {
-    "axis=y,variant=oak": { "model": "rgen:mossy_stump_oak_y" },
-    "axis=z,variant=oak": { "model": "rgen:mossy_stump_oak_xz" },
-    "axis=x,variant=oak": { "model": "rgen:mossy_stump_oak_xz", "y": 90 },
-    "axis=none,variant=oak": { "model": "rgen:mossy_block" },
-    "axis=y,variant=birch": { "model": "rgen:mossy_stump_birch_y" },
-    "axis=z,variant=birch": { "model": "rgen:mossy_stump_birch_xz" },
-    "axis=x,variant=birch": { "model": "rgen:mossy_stump_birch_xz", "y": 90 },
-    "axis=none,variant=birch": { "model": "rgen:mossy_block" },
-    "axis=y,variant=cherry": { "model": "rgen:dead_log" },
-    "axis=z,variant=cherry": { "model": "rgen:dead_log", "x": 90 },
-    "axis=x,variant=cherry": { "model": "rgen:dead_log", "x": 90, "y": 90 },
-    "axis=none,variant=cherry": { "model": "rgen:dead_log" },
-    "axis=y,variant=dead": { "model": "rgen:dead_log" },
-    "axis=z,variant=dead": { "model": "rgen:dead_log", "x": 90 },
-    "axis=x,variant=dead": { "model": "rgen:dead_log", "x": 90, "y": 90 },
-    "axis=none,variant=dead": { "model": "rgen:dead_log" }
+    "axis=y,variant=oak": { "model": "rgen:block/mossy_stump_oak_y" },
+    "axis=z,variant=oak": { "model": "rgen:block/mossy_stump_oak_xz" },
+    "axis=x,variant=oak": { "model": "rgen:block/mossy_stump_oak_xz", "y": 90 },
+    "axis=none,variant=oak": { "model": "rgen:block/mossy_block" },
+    "axis=y,variant=birch": { "model": "rgen:block/mossy_stump_birch_y" },
+    "axis=z,variant=birch": { "model": "rgen:block/mossy_stump_birch_xz" },
+    "axis=x,variant=birch": { "model": "rgen:block/mossy_stump_birch_xz", "y": 90 },
+    "axis=none,variant=birch": { "model": "rgen:block/mossy_block" },
+    "axis=y,variant=cherry": { "model": "rgen:block/dead_log" },
+    "axis=z,variant=cherry": { "model": "rgen:block/dead_log", "x": 90 },
+    "axis=x,variant=cherry": { "model": "rgen:block/dead_log", "x": 90, "y": 90 },
+    "axis=none,variant=cherry": { "model": "rgen:block/dead_log" },
+    "axis=y,variant=dead": { "model": "rgen:block/dead_log" },
+    "axis=z,variant=dead": { "model": "rgen:block/dead_log", "x": 90 },
+    "axis=x,variant=dead": { "model": "rgen:block/dead_log", "x": 90, "y": 90 },
+    "axis=none,variant=dead": { "model": "rgen:block/dead_log" }
   }
 }

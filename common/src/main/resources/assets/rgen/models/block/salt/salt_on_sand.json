@@ -1,9 +1,9 @@
 {   "parent": "block/block",
     "textures": {
-        "particle": "rgen:blocks/salt/salt",
-        "top": "rgen:blocks/salt/salt",
-        "side": "rgen:blocks/salt/salt_sand",
-        "bottom": "blocks/sand"
+        "particle": "rgen:block/salt/salt",
+        "top": "rgen:block/salt/salt",
+        "side": "rgen:block/salt/salt_sand",
+        "bottom": "block/sand"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:blocks/wood/lavender_tree/lavender_tree_sapling"
+    "layer0": "rgen:block/wood/lavender_tree/lavender_tree_sapling"
   }
 }

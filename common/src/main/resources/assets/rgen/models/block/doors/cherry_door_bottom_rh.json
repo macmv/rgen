@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "rgen:blocks/doors/cherry_door_bottom",
-    "bottom": "rgen:blocks/doors/cherry_door_bottom"
+    "particle": "rgen:block/doors/cherry_door_bottom",
+    "bottom": "rgen:block/doors/cherry_door_bottom"
   },
   "elements": [
     {

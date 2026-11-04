@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "rgen:blocks/doors/lavender_tree_door_top",
-    "top": "rgen:blocks/doors/lavender_tree_door_top"
+    "particle": "rgen:block/doors/lavender_tree_door_top",
+    "top": "rgen:block/doors/lavender_tree_door_top"
   },
   "elements": [
     {

@@ -1,8 +1,8 @@
 {
   "texture_size": [32, 32],
   "textures": {
-    "0": "rgen:blocks/shrooms",
-    "particle": "rgen:blocks/shrooms"
+    "0": "rgen:block/shrooms",
+    "particle": "rgen:block/shrooms"
   },
   "elements": [
     {

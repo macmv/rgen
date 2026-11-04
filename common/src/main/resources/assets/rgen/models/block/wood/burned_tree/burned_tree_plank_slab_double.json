@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "rgen:blocks/wood/burned_tree/burned_tree_planks"
+    "all": "rgen:block/wood/burned_tree/burned_tree_planks"
   }
 }

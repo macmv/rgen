@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:items/moss_compass"
+    "layer0": "rgen:item/moss_compass"
   }
 }

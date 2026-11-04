@@ -1,8 +1,8 @@
 {
   "variants": {
-    "color=green": { "model": "rgen:rgen_cactus" },
-    "color=blue":  { "model": "rgen:wood/cactus/blue_cactus"},
-    "color=orange": {"model": "rgen:wood/cactus/orange_cactus"},
-    "color=yellow":  { "model": "rgen:rgen_cactus"}
+    "color=green": { "model": "rgen:block/rgen_cactus" },
+    "color=blue":  { "model": "rgen:block/wood/cactus/blue_cactus"},
+    "color=orange": {"model": "rgen:block/wood/cactus/orange_cactus"},
+    "color=yellow":  { "model": "rgen:block/rgen_cactus"}
   }
 }

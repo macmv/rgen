@@ -1,6 +1,6 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "rgen:blocks/wood/fir/fir_planks"
+    "all": "rgen:block/wood/fir/fir_planks"
   }
 }

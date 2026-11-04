@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "2": "rgen:blocks/doors/mangrove_door_bottom",
-    "particle": "blocks/door_wood_lower"
+    "2": "rgen:block/doors/mangrove_door_bottom",
+    "particle": "block/door_wood_lower"
   },
   "elements": [
     {

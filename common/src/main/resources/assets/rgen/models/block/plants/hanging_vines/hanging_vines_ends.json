@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "rgen:blocks/plants/hanging_vines_ends",
-    "particle": "rgen:blocks/plants/hanging_vines_ends"
+    "0": "rgen:block/plants/hanging_vines_ends",
+    "particle": "rgen:block/plants/hanging_vines_ends"
   },
   "elements": [
     {

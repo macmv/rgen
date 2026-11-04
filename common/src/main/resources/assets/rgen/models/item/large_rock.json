@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:items/large_rock"
+    "layer0": "rgen:item/large_rock"
   }
 }

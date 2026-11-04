@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_gate_open",
   "textures": {
-    "texture": "rgen:blocks/wood/mangrove/mangrove_planks"
+    "texture": "rgen:block/wood/mangrove/mangrove_planks"
   }
 }

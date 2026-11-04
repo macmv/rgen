@@ -1,3 +1,5 @@
+// # only v12 #
+
 package net.macmv.rgen.item;
 
 import net.minecraft.block.properties.IProperty;

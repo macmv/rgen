@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_post",
   "textures": {
-    "texture": "rgen:blocks/wood/cherry/cherry_planks"
+    "texture": "rgen:block/wood/cherry/cherry_planks"
   }
 }

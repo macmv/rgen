@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "rgen:blocks/wood/lavender_tree/lavender_tree_sapling"
+    "cross": "rgen:block/wood/lavender_tree/lavender_tree_sapling"
   }
 }

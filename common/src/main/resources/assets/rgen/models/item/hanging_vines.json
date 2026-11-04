@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rgen:items/hanging_vines"
+    "layer0": "rgen:item/hanging_vines"
   }
 }

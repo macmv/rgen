@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_gate_open",
   "textures": {
-    "texture": "rgen:blocks/wood/lavender_tree/lavender_tree_planks"
+    "texture": "rgen:block/wood/lavender_tree/lavender_tree_planks"
   }
 }

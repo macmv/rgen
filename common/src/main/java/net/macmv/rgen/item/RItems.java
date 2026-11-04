@@ -39,7 +39,10 @@ public class RItems {
   public static final Item FLOWER = registerBlockItem(RBlocks.FLOWER, new ItemMultiTexture(RBlocks.FLOWER, RBlocks.FLOWER, it -> FlowerBlock.FlowerType.fromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
 
   public static final Item PLANKS = registerBlockItem(RBlocks.PLANKS, new ItemMultiTexture(RBlocks.PLANKS, RBlocks.PLANKS, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  // #v12-start
   public static final Item PLANK_SLAB = registerBlockItem(RBlocks.PLANK_SLAB, new ItemSlab(RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_SLAB, (net.minecraft.block.BlockSlab) RBlocks.PLANK_DOUBLE_SLAB).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
+  // #v12-end
+  /* #fabric: public static final Item PLANK_SLAB = registerBlockItem(RBlocks.PLANK_SLAB); */
 
   public static final Item FIR_FENCE = registerBlockItem(RBlocks.FIR_FENCE);
   public static final Item PALM_FENCE = registerBlockItem(RBlocks.PALM_FENCE);
@@ -62,10 +65,14 @@ public class RItems {
   public static final Item LOOSE_ROCK = registerBlockItem(RBlocks.LOOSE_ROCK, new ItemMultiTexture(RBlocks.LOOSE_ROCK, RBlocks.LOOSE_ROCK, ty -> LooseRockBlock.RockSize.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item PLANT = registerBlockItem(RBlocks.PLANT).setCreativeTab(RCreativeTabs.DECORATIONS);
 
+  // Backported: where vanilla has moss, the items come from vanilla as well.
+  //? if !vanilla_moss {
   public static final Item MOSSY_CARPET = registerBlockItem(RBlocks.MOSSY_CARPET);
   public static final Item MOSSY_BLOCK = registerBlockItem(RBlocks.MOSSY_BLOCK);
+  //?}
   public static final Item MOSSY_COBBLESTONE_RGEN = registerBlockItem(RBlocks.MOSSY_COBBLESTONE_RGEN);
   public static final Item MOSSY_STONE = registerBlockItem(RBlocks.MOSSY_STONE);
+  public static final Item GRAVE_DIRT = registerBlockItem(RBlocks.GRAVE_DIRT);
   public static final Item BAMBOO = registerBlockItem(RBlocks.BAMBOO);
   public static final Item GLOW_VINE = registerBlockItem(RBlocks.GLOW_VINE);
   public static final Item LAVENDER_PLANT = registerBlockItem(RBlocks.LAVENDER_PLANT, new ItemBlock(RBlocks.LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
@@ -110,16 +117,23 @@ public class RItems {
   public static final Item COVERED_SPRUCE_LOG = registerBlockItem(RBlocks.COVERED_SPRUCE_LOG);
   public static final Item COVERED_BIRCH_LOG = registerBlockItem(RBlocks.COVERED_BIRCH_LOG);
   public static final Item COVERED_JUNGLE_LOG = registerBlockItem(RBlocks.COVERED_JUNGLE_LOG);
+  public static final Item COVERED_ACACIA_LOG = registerBlockItem(RBlocks.COVERED_ACACIA_LOG);
+  public static final Item COVERED_DARK_OAK_LOG = registerBlockItem(RBlocks.COVERED_DARK_OAK_LOG);
+  public static final Item COVERED_FIR_LOG = registerBlockItem(RBlocks.COVERED_FIR_LOG);
+  public static final Item COVERED_PALM_LOG = registerBlockItem(RBlocks.COVERED_PALM_LOG);
+  public static final Item COVERED_CHERRY_LOG = registerBlockItem(RBlocks.COVERED_CHERRY_LOG);
+  public static final Item COVERED_CEDAR_LOG = registerBlockItem(RBlocks.COVERED_CEDAR_LOG);
+  public static final Item COVERED_DEAD_LOG = registerBlockItem(RBlocks.COVERED_DEAD_LOG);
 
 
-  public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
-  public static final Item MOSS_COMPASS = registerItem("moss_compass", new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
-  public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
-  public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item DEBUG_STICK = registerItem("debug_stick", () -> new DebugStickItem()).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS);
+  public static final Item MOSS_COMPASS = registerItem("moss_compass", () -> new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", () -> new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", () -> new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
 
   public static final Item SALT = registerBlockItem(RBlocks.SALT);
   public static final Item SALT_ON_SAND = registerBlockItem(RBlocks.SALT_ON_SAND);
-  public static final Item SALT_DUST = registerItem("salt_dust", new Item());
+  public static final Item SALT_DUST = registerItem("salt_dust", () -> new Item());
 
   public static final Item PINK_ORCHID =  registerBlockItem(RBlocks.PINK_ORCHID).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item PASSION_FLOWER = registerBlockItem(RBlocks.PASSION_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
@@ -144,21 +158,43 @@ public class RItems {
   }
 
   private static Item registerBlockItem(Block block, Item item) {
+    // #v12-start
     ResourceLocation path = block.getRegistryName();
     if (path == null) {
       throw new IllegalArgumentException("block must have a registry name");
     }
 
     return registerItem(path.getResourcePath(), item);
+    // #v12-end
+    /* #fabric: return registerItem(net.minecraft.registry.Registries.BLOCK.getId(block).getPath(), item); */
   }
 
   private static Item registerItem(String name, Item item) {
+    // #v12-start
     item.setRegistryName(new ResourceLocation(RGen.MOD_ID, name));
     item.setUnlocalizedName(name);
+    // #v12-end
+    /* #fabric: net.minecraft.registry.Registry.register(net.minecraft.registry.Registries.ITEM, net.minecraft.util.Identifier.of(RGen.MOD_ID, name), item); */
     items.add(item);
     return item;
   }
 
+  // Items are created by the supplier, as newer versions need the name of an item to create it.
+  private static Item registerItem(String name, java.util.function.Supplier<Item> item) {
+    // #v12-start
+    return registerItem(name, item.get());
+    // #v12-end
+    /* #fabric: return registerItem(name, net.macmv.rgen.compat.ItemSettings.build(name, item)); */
+  }
+
+  // Loads this class, which registers the items on fabric.
+  public static void init() {}
+
+  public static Set<Item> all() {
+    return items;
+  }
+
+  // #v12-start
   public static void registerItems(IForgeRegistry<Item> reg) {
     for (Item i : items) {
       reg.register(i);
@@ -246,4 +282,5 @@ public class RItems {
     ModelResourceLocation location = new ModelResourceLocation(name, "inventory");
     ModelLoader.setCustomModelResourceLocation(item, meta, location);
   }
+  // #v12-end
 }

@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+#[derive(Clone)]
 pub struct Parser<'a> {
   pub src: &'a str,
   prev:    usize,
@@ -101,7 +102,6 @@ impl<'a> Parser<'a> {
 
             while let Some(c) = self.char() {
               if self.src[comment_start..self.pos].trim() == "#v12-end" {
-                self.skip_whitespace();
                 return Some(Token::V12Comment);
               }
 
@@ -123,6 +123,12 @@ impl<'a> Parser<'a> {
     }
 
     None
+  }
+
+  /// Moves to just after `pos`, which must be after the current position.
+  pub fn skip_to(&mut self, pos: usize) {
+    self.prev = pos;
+    self.pos = pos;
   }
 
   pub const fn range(&self) -> Range<usize> { self.prev..self.pos }
@@ -162,7 +168,21 @@ impl<'a> Parser<'a> {
       }
 
       '=' | ';' | '.' | ',' | '{' | '}' | '[' | ']' | '(' | ')' | '@' | ':' | '&' | '!' | '|'
-      | '?' | '+' | '-' | '*' | '/' | '%' | '^' | '<' | '>' => Some(Token::Punct),
+      | '?' | '+' | '-' | '*' | '/' | '%' | '^' | '<' | '>' | '~' | '$' | '#' | '\\' => Some(Token::Punct),
+
+      '\'' => {
+        while let Some(c) = self.char() {
+          if c == '\'' {
+            self.advance();
+            return Some(Token::String);
+          } else if c == '\\' {
+            self.advance();
+          }
+          self.advance();
+        }
+
+        panic!("unclosed char literal");
+      }
 
       '"' => {
         while let Some(c) = self.char() {

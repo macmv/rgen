@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "rgen:blocks/flower/jungleflower/jun2",
-    "particle": "rgen:blocks/flower/jungleflower/jun2"
+    "0": "rgen:block/flower/jungleflower/jun2",
+    "particle": "rgen:block/flower/jungleflower/jun2"
   },
   "elements": [
     {

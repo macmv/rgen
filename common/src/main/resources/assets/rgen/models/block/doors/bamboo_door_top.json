@@ -1,9 +1,9 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "rgen:blocks/doors/bamboo_door_top",
-    "top": "rgen:blocks/doors/bamboo_door_top",
-    "bottom": "rgen:blocks/doors/bamboo_door_bottom"
+    "particle": "rgen:block/doors/bamboo_door_top",
+    "top": "rgen:block/doors/bamboo_door_top",
+    "bottom": "rgen:block/doors/bamboo_door_bottom"
   },
   "elements": [
     {

@@ -39,7 +39,10 @@ public class FlowerBlock extends BlockBush {
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+    // #v12-start
     return super.getBoundingBox(state, source, pos).offset(state.getOffset(source, pos));
+    // #v12-end
+    /* #fabric: return super.getOutlineShape(state, source, pos, context); */
   }
 
   @Override

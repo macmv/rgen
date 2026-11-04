@@ -1,6 +1,6 @@
 {
     "parent": "block/cross",
     "textures": {
-        "cross": "rgen:blocks/mossy_bush"
+        "cross": "rgen:block/mossy_bush"
     }
 }

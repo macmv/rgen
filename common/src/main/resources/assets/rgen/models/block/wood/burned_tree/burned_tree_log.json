@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_column",
   "textures": {
-    "end": "rgen:blocks/wood/burned_tree/burned_tree_log_top",
-    "side": "rgen:blocks/wood/burned_tree/burned_tree_log"
+    "end": "rgen:block/wood/burned_tree/burned_tree_log_top",
+    "side": "rgen:block/wood/burned_tree/burned_tree_log"
   }
 }

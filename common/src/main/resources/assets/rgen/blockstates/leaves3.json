@@ -1,52 +1,52 @@
 {
   "variants": {
     "check_decay=true,decayable=true,variant=aspen": {
-      "model": "rgen:wood/aspen/aspen_leaves"
+      "model": "rgen:block/wood/aspen/aspen_leaves"
     },
     "check_decay=true,decayable=false,variant=aspen": {
-      "model": "rgen:wood/aspen/aspen_leaves"
+      "model": "rgen:block/wood/aspen/aspen_leaves"
     },
     "check_decay=false,decayable=true,variant=aspen": {
-      "model": "rgen:wood/aspen/aspen_leaves"
+      "model": "rgen:block/wood/aspen/aspen_leaves"
     },
     "check_decay=false,decayable=false,variant=aspen": {
-      "model": "rgen:wood/aspen/aspen_leaves"
+      "model": "rgen:block/wood/aspen/aspen_leaves"
     },
     "check_decay=true,decayable=true,variant=red_seasonal_tree": {
-      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_leaves"
+      "model": "rgen:block/wood/red_seasonal_tree/red_seasonal_tree_leaves"
     },
     "check_decay=true,decayable=false,variant=red_seasonal_tree": {
-      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_leaves"
+      "model": "rgen:block/wood/red_seasonal_tree/red_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=true,variant=red_seasonal_tree": {
-      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_leaves"
+      "model": "rgen:block/wood/red_seasonal_tree/red_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=false,variant=red_seasonal_tree": {
-      "model": "rgen:wood/red_seasonal_tree/red_seasonal_tree_leaves"
+      "model": "rgen:block/wood/red_seasonal_tree/red_seasonal_tree_leaves"
     },
     "check_decay=true,decayable=true,variant=orange_seasonal_tree": {
-      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
+      "model": "rgen:block/wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
     },
     "check_decay=true,decayable=false,variant=orange_seasonal_tree": {
-      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
+      "model": "rgen:block/wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=true,variant=orange_seasonal_tree": {
-      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
+      "model": "rgen:block/wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=false,variant=orange_seasonal_tree": {
-      "model": "rgen:wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
+      "model": "rgen:block/wood/orange_seasonal_tree/orange_seasonal_tree_leaves"
     },
     "check_decay=true,decayable=true,variant=yellow_seasonal_tree": {
-      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
+      "model": "rgen:block/wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
     },
     "check_decay=true,decayable=false,variant=yellow_seasonal_tree": {
-      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
+      "model": "rgen:block/wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=true,variant=yellow_seasonal_tree": {
-      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
+      "model": "rgen:block/wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
     },
     "check_decay=false,decayable=false,variant=yellow_seasonal_tree": {
-      "model": "rgen:wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
+      "model": "rgen:block/wood/yellow_seasonal_tree/yellow_seasonal_tree_leaves"
     }
   }
 }

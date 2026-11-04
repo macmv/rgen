@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "rgen:items/salt_dust"
+        "layer0": "rgen:item/salt_dust"
     }
 }

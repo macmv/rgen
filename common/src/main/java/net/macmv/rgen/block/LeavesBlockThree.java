@@ -24,6 +24,7 @@ public class LeavesBlockThree extends LeavesBlock {
   public static final PropertyEnum<LogType> VARIANT = PropertyEnum.create("variant", LogType.class, type -> type.meta >= LogType.ASPEN.meta && type.meta <= LogType.YELLOW_SEASONAL_TREE.meta);
 
   public LeavesBlockThree(BlockSettings settings) {
+    super(settings);
     setDefaultState(blockState.getBaseState().withProperty(VARIANT, LogType.ASPEN).withProperty(CHECK_DECAY, true).withProperty(DECAYABLE, true));
   }
 

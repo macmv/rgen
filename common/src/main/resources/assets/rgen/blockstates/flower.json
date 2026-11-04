@@ -1,5 +1,5 @@
 {
   "variants": {
-    "type=forgetmenot": { "model": "rgen:flower/forgetmenot/forgetmenot" }
+    "type=forgetmenot": { "model": "rgen:block/flower/forgetmenot/forgetmenot" }
   }
 }
