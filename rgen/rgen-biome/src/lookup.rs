@@ -133,6 +133,10 @@ impl WorldBiomes {
   }
 
   fn choose_surface_biome_from_key(&self, key: BiomeKey) -> &BiomeBuilder {
+    if !enabled!(Biomes) {
+      return &self.composition_lookup.blank[0];
+    }
+
     let biomes = if crate::feature::BIOME_OVERRIDE {
       &self.composition_lookup.blank
     } else {

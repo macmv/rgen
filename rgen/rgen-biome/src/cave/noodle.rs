@@ -184,7 +184,10 @@ impl NoodleCave<'_> {
                   Pos::new(0, 0, 1),
                   Pos::new(0, 1, 0),
                   Pos::new(0, -1, 0),
-                ] {
+                ]
+                .into_iter()
+                .filter(|_| enabled!(NoodleWaterGuard))
+                {
                   let pos = pos + offset;
                   // Chunk borders: we don't care! We can let a bit of floating
                   // water exist.

@@ -12,16 +12,50 @@ use rgen_world::{BlockInfoSupplier, Context, Generator, PartialWorld};
 use structure::StructureGenerator;
 use table::CompositionLookup;
 
+/// Whether a part of the generator is on. This is always `true` unless the
+/// `inspector` feature is on, which lets tools turn parts off.
+#[cfg(feature = "inspector")]
+macro_rules! enabled {
+  ($toggle:ident) => {
+    $crate::toggles::enabled($crate::toggles::Toggle::$toggle)
+  };
+}
+#[cfg(not(feature = "inspector"))]
+macro_rules! enabled {
+  ($toggle:ident) => {
+    true
+  };
+}
+
+#[cfg(feature = "inspector")]
+macro_rules! placer_enabled {
+  ($name:expr) => {
+    $crate::toggles::placer_enabled($name)
+  };
+}
+#[cfg(not(feature = "inspector"))]
+macro_rules! placer_enabled {
+  ($name:expr) => {
+    true
+  };
+}
+
 mod biome;
 mod builder;
 mod cave;
 mod feature;
 mod lookup;
+mod splines;
 mod structure;
 mod table;
 mod terrain;
+#[cfg(feature = "inspector")]
+pub mod toggles;
 
 pub use builder::BiomeBuilder;
+#[cfg(feature = "inspector")]
+pub use splines::set_splines;
+pub use splines::{Keys, Splines};
 pub use terrain::{HeightParts, RawNoise, TerrainNoise, height_parts};
 
 #[macro_use]
@@ -105,6 +139,22 @@ lazy_static::lazy_static! {
 }
 
 impl WorldBiomes {
+  /// The name of every decoration that biomes place, for toggling them. Each
+  /// one is turned on and off with `toggles::set_placer`.
+  #[cfg(feature = "inspector")]
+  pub fn decoration_names(&self) -> Vec<&'static str> {
+    let lookup = &self.composition_lookup;
+    let mut names: Vec<&'static str> = lookup
+      .blank
+      .iter()
+      .chain(lookup.lookup.values().flatten())
+      .flat_map(|biome| biome.placer_names())
+      .collect();
+    names.sort_unstable();
+    names.dedup();
+    names
+  }
+
   pub fn new(info: &BlockInfoSupplier, seed: u64) -> Self {
     WorldBiomes {
       // this is dumb but it makes rustfmt look nicer.
@@ -199,15 +249,11 @@ impl WorldBiomes {
     if distance_to_river > 0.16 { 1.0 } else { distance_to_river / 0.16 }
   }
 
-  pub fn sample_height(&self, pos: Pos) -> f64 {
-    height_parts(
-      &*CONTINENTALNESS,
-      &*EROSION,
-      &*PEAKS_VALLEYS,
-      &*HEIGHT_IMPACT,
-      self.terrain.sample(pos.x as f64, pos.z as f64),
-    )
-    .height
+  pub fn sample_height(&self, pos: Pos) -> f64 { self.height_parts(pos).height }
+
+  /// Every intermediate value of the height function at `pos`.
+  pub fn height_parts(&self, pos: Pos) -> HeightParts {
+    splines::current_height_parts(self.terrain.sample(pos.x as f64, pos.z as f64))
   }
 }
 
@@ -294,7 +340,7 @@ impl Generator for WorldBiomes {
       }
     }
 
-    for biome in biome_set.into_iter().flatten() {
+    for biome in biome_set.into_iter().flatten().filter(|_| enabled!(Decorations)) {
       let mut rng = Rng::new(self.seed);
       biome.decorate(&mut rng, chunk_pos, world, |pos| {
         let rel_x = pos.x - chunk_pos.min_block_pos().x;
@@ -439,7 +485,9 @@ impl WorldBiomes {
             // Special case: if the top layer is grass, always place grass if
             // there is air above (this makes cave entrances look
             // nice.)
-            if biome.top_block().block == block![grass]
+            if !enabled!(SurfaceLayers) {
+              // Leave the stone.
+            } else if biome.top_block().block == block![grass]
               && chunk.get(rel_pos.with_y(y + 1)) == StateId::AIR
               && !underwater
             {
@@ -502,6 +550,9 @@ impl WorldBiomes {
     {
       profile_scope!("biome chunk placers");
       for (biome, id) in biome_set.set.into_iter().flatten() {
+        if !enabled!(BiomeChunkPlacers) {
+          break;
+        }
         let mut rng = Rng::new(self.seed);
         chunk.set_active(id);
         biome.generate(&mut rng, &mut chunk, chunk_pos);
@@ -510,7 +561,7 @@ impl WorldBiomes {
 
     {
       profile_scope!("global chunk placers");
-      for placer in &self.global_chunk_placers {
+      for placer in self.global_chunk_placers.iter().filter(|_| enabled!(Ores)) {
         placer.place(&mut chunk, &mut Rng::new(self.seed), chunk_pos);
       }
     }
@@ -569,6 +620,9 @@ impl HeightInfo<'_> {
         true
       } else if self.pos.y >= self.max_height as i32 {
         false
+      } else if !enabled!(Noise3d) {
+        // Everything under the height is solid.
+        true
       } else {
         let noise = self.world.density_map.generate_3d(
           self.pos.x as f64,

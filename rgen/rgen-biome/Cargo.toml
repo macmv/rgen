@@ -14,3 +14,9 @@ smallvec = "1.13.2"
 lru = "0.12.5"
 puffin = "0.19.1"
 log = "0.4.22"
+
+[features]
+# Everything the terrain inspector needs from the generator: the height splines
+# are changeable at runtime with `set_splines`, and blocks with unknown props
+# get their default state. Off for the game.
+inspector = ["rgen-world/inspector"]

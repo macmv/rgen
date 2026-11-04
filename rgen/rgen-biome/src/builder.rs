@@ -100,6 +100,12 @@ impl BiomeBuilder {
     self.placers.push(PlacerBuilder::new(placer, name));
   }
 
+  /// The names of the placers that decorate this biome.
+  #[cfg(feature = "inspector")]
+  pub fn placer_names(&self) -> impl Iterator<Item = &'static str> + '_ {
+    self.placers.iter().map(|placer| placer.name)
+  }
+
   pub fn place_chunk(&mut self, placer: impl ChunkPlacer + 'static) {
     self.chunk_placers.push(Box::new(placer));
   }
@@ -149,7 +155,11 @@ impl BiomeBuilder {
             // This builds a unique seed for each placer. This gives the placer
             // the same seed if it crosses chunk boundaries.
             let seed = rng.next() ^ (pos.x as u64) << 32 ^ pos.z as u64;
-            world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
+            // A turned off placer still takes its random numbers, so that the
+            // other placers put things in the same places.
+            if placer_enabled!(placer.name) {
+              world.attempt(|world| placer.placer.place(world, &mut Rng::new(seed), pos));
+            }
           }
 
           i += 1;

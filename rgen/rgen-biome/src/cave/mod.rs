@@ -21,7 +21,11 @@ impl CaveCarver {
   pub fn carve(&self, world: &WorldBiomes, chunk: &mut Chunk, pos: ChunkPos) {
     profile_function!();
 
-    self.noodle.carve(chunk, pos);
-    self.cheese.carve(world, chunk, pos);
+    if enabled!(NoodleCaves) {
+      self.noodle.carve(chunk, pos);
+    }
+    if enabled!(CheeseCaves) {
+      self.cheese.carve(world, chunk, pos);
+    }
   }
 }

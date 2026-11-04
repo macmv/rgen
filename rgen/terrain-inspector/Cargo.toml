@@ -1,11 +1,13 @@
 [package]
-name = "spline-editor"
+name = "terrain-inspector"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 rgen-spline.workspace = true
-rgen-biome.workspace = true
+rgen-biome = { workspace = true, features = ["inspector"] }
+rgen-base.workspace = true
+rgen-world.workspace = true
 
 eframe = { version = "0.26.2", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
 egui_plot = "0.26.2"
