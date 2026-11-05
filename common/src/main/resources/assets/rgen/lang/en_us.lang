@@ -37,6 +37,8 @@ tile.flower.forget_me_not.name=Forget-me-not
 tile.lavender_plant.name=Lavender Plant
 tile.dried_grass.name=Dried Grass
 tile.double_tall_dried_grass.name=Double Tall Dried Grass
+tile.golden_grass.name=Golden Grass
+tile.yellow_wildflower_shrub.name=Yellow Wildflower Shrub
 
 tile.planks.fir.name=Fir Planks
 tile.planks.palm.name=Palm Planks

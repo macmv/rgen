@@ -1,0 +1,7 @@
+{
+  "parent": "rgen:block/plants/golden_grass/cross",
+  "textures": {
+    "plant": "rgen:block/plants/golden_grass/double/golden_grass_2_bottom",
+    "particle": "rgen:block/plants/golden_grass/double/golden_grass_2_bottom"
+  }
+}

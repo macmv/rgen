@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "half=lower,variant=short_1": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_1"
+    },
+    "half=upper,variant=short_1": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_1"
+    },
+    "half=lower,variant=short_2": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_2"
+    },
+    "half=upper,variant=short_2": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_2"
+    },
+    "half=lower,variant=short_3": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_3"
+    },
+    "half=upper,variant=short_3": {
+      "model": "rgen:block/plants/golden_grass/single/golden_grass_3"
+    },
+    "half=lower,variant=tall_1": {
+      "model": "rgen:block/plants/golden_grass/double/golden_grass_1_bottom"
+    },
+    "half=upper,variant=tall_1": {
+      "model": "rgen:block/plants/golden_grass/double/golden_grass_1_top"
+    },
+    "half=lower,variant=tall_2": {
+      "model": "rgen:block/plants/golden_grass/double/golden_grass_2_bottom"
+    },
+    "half=upper,variant=tall_2": {
+      "model": "rgen:block/plants/golden_grass/double/golden_grass_2_top"
+    }
+  }
+}

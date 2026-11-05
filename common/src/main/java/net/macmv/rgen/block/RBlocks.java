@@ -140,6 +140,8 @@ public final class RBlocks {
   public static final Block DOUBLE_TALL_LAVENDER_PLANT = register("double_tall_lavender_plant", DoubleTallLavenderPlant::new);
   public static final Block DRIED_GRASS = register("dried_grass", DriedGrassBlock::new, new BlockSettings().material(Material.PLANTS).soundType(SoundType.PLANT));
   public static final Block DOUBLE_TALL_DRIED_GRASS = register("double_tall_dried_grass", DoubleTallDriedGrassBlock::new, new BlockSettings().material(Material.PLANTS).soundType(SoundType.PLANT));
+  public static final Block GOLDEN_GRASS = register("golden_grass", GoldenGrassBlock::new, new BlockSettings().material(Material.PLANTS).soundType(SoundType.PLANT));
+  public static final Block YELLOW_WILDFLOWER_SHRUB = register("yellow_wildflower_shrub", JungleFlowerGrassType::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
   public static final Block BASALT = register("basalt", Basalt::new, new BlockSettings().hardness(1.25f).soundType(SoundType.STONE));
   public static final Block PINK_FLOWERBED = register("pink_flowerbed", PinkFlowerbed::new, new BlockSettings().material(Material.PLANTS));
   public static final Block HANGING_VINES = register("hanging_vines", HangingVines::new, new BlockSettings().material(Material.PLANTS));
