@@ -1,0 +1,31 @@
+{
+  "variants": {
+    "variant=brown_1": {
+      "model": "rgen:block/plants/dried_grass/single/brown_1"
+    },
+    "variant=brown_2": {
+      "model": "rgen:block/plants/dried_grass/single/brown_2"
+    },
+    "variant=brown_3": {
+      "model": "rgen:block/plants/dried_grass/single/brown_3"
+    },
+    "variant=green_1": {
+      "model": "rgen:block/plants/dried_grass/single/green_1"
+    },
+    "variant=green_2": {
+      "model": "rgen:block/plants/dried_grass/single/green_2"
+    },
+    "variant=green_3": {
+      "model": "rgen:block/plants/dried_grass/single/green_3"
+    },
+    "variant=yellow_1": {
+      "model": "rgen:block/plants/dried_grass/single/yellow_1"
+    },
+    "variant=yellow_2": {
+      "model": "rgen:block/plants/dried_grass/single/yellow_2"
+    },
+    "variant=yellow_3": {
+      "model": "rgen:block/plants/dried_grass/single/yellow_3"
+    }
+  }
+}

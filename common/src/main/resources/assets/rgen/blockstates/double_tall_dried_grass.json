@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "half=lower,variant=brown_1": {
+      "model": "rgen:block/plants/dried_grass/double/brown_1_bottom"
+    },
+    "half=upper,variant=brown_1": {
+      "model": "rgen:block/plants/dried_grass/double/brown_1_top"
+    },
+    "half=lower,variant=brown_2": {
+      "model": "rgen:block/plants/dried_grass/double/brown_2_bottom"
+    },
+    "half=upper,variant=brown_2": {
+      "model": "rgen:block/plants/dried_grass/double/brown_2_top"
+    },
+    "half=lower,variant=yellow_1": {
+      "model": "rgen:block/plants/dried_grass/double/yellow_1_bottom"
+    },
+    "half=upper,variant=yellow_1": {
+      "model": "rgen:block/plants/dried_grass/double/yellow_1_top"
+    },
+    "half=lower,variant=yellow_2": {
+      "model": "rgen:block/plants/dried_grass/double/yellow_2_bottom"
+    },
+    "half=upper,variant=yellow_2": {
+      "model": "rgen:block/plants/dried_grass/double/yellow_2_top"
+    },
+    "half=lower,variant=green_1": {
+      "model": "rgen:block/plants/dried_grass/double/green_1_bottom"
+    },
+    "half=upper,variant=green_1": {
+      "model": "rgen:block/plants/dried_grass/double/green_1_top"
+    },
+    "half=lower,variant=green_2": {
+      "model": "rgen:block/plants/dried_grass/double/green_2_bottom"
+    },
+    "half=upper,variant=green_2": {
+      "model": "rgen:block/plants/dried_grass/double/green_2_top"
+    }
+  }
+}
