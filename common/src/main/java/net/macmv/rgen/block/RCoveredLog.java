@@ -40,7 +40,7 @@ public class RCoveredLog extends BlockLog {
       return false;  // Block cannot sustain plants if growableSurface is false
     }
     net.minecraftforge.common.EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
-    return plantType == EnumPlantType.Plains;  // Only allow Plains-type plants if growableSurface is true
+    return plantType == EnumPlantType.Plains || plantType == EnumPlantType.Cave;
   }
 
   @Override

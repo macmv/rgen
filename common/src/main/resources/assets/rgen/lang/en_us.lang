@@ -164,3 +164,12 @@ tile.covered_cherry_log.name=Vine Covered Cherry Log
 tile.covered_cedar_log.name=Podzol Covered Cedar Log
 tile.covered_dead_log.name=Grave Dirt Covered Dead Tree Log
 tile.grave_dirt.name=Grave Dirt
+tile.rgen.mud.name=Mud
+tile.rgen.packed_mud.name=Packed Mud
+tile.rgen.mud_bricks.name=Mud Bricks
+tile.rgen.mud_brick_stairs.name=Mud Brick Stairs
+tile.rgen.mud_brick_slab.name=Mud Brick Slab
+tile.rgen.mud_brick_wall.name=Mud Brick Wall
+tile.rgen.reeds.name=Reeds
+
+tile.rgen.glasswort.name=Glasswort
