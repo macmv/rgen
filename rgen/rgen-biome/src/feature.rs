@@ -13,13 +13,12 @@ pub const DEBUG_ORES: bool = false;
 pub const VILLAGES: bool = false;
 
 /// Overrides the geographic type of the world.
-pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
+pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 //pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> =
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
-//Some(ClimateType::Tropical);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::GeoTest);
 
 /// Override the entire world to be a single biome (the blank biome).
 /// In table.rs To change the biome, modify the biome_categories macro, and
