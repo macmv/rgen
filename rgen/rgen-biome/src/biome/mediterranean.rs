@@ -1,4 +1,4 @@
-use rgen_base::{biome, block};
+use rgen_base::{biome, block, BlockFilter};
 use rgen_placer::placer;
 
 use crate::builder::PlacerStage;
@@ -42,11 +42,37 @@ pub fn coastal_dunes(g: &mut BiomeBuilder) {
   g.set_underwater_block(block![sand]);
 }
 
+/// Blocks considered Salt Marsh plants, shared by vegetation placers.
+pub fn salt_marsh_plants() -> BlockFilter {
+  [
+    block![tallgrass],
+    block![double_plant],
+    block![red_flower],
+    block![yellow_flower],
+    block![rgen:dried_grass],
+    block![rgen:double_tall_dried_grass],
+  ]
+  .into()
+}
+
 pub fn salt_marsh(g: &mut BiomeBuilder) {
   g.id = biome![savanna];
   g.color = "#A99A67";
   g.set_top_block(block![grass]);
   g.set_underwater_block(block![sand]);
+
+  g.place(
+    "Tall marsh bushes",
+    PlacerStage::Tree,
+    placer::TallBush {
+      ground: [block![grass], block![dirt], block![gravel], block![rgen:mud]].into(),
+      plantable: [block![grass], block![dirt], block![gravel]].into(),
+      plants: salt_marsh_plants(),
+      log: block![log[axis = "y", variant = "oak"]],
+      leaves: block![leaves[variant = "oak", check_decay = false, decayable = true]],
+      avg_per_chunk: 4.25,
+    },
+  );
 
   g.place(
     "Fallen oak logs",
@@ -134,7 +160,7 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     placer::Scatter {
       avg_per_chunk: 1.0,
       attempts: 320,
-      place_above: [block![grass]].into(),
+      place_above: [block![grass], block![dirt]].into(),
       place: block![tallgrass[type = "tall_grass"]],
     },
   );

@@ -14,6 +14,7 @@ mod longlog;
 mod oak_tree;
 mod palm;
 mod sequoia;
+mod tall_bush;
 mod wide_canopy_jungle;
 
 pub use aspen_tree::*;
@@ -32,4 +33,5 @@ pub use longlog::*;
 pub use oak_tree::*;
 pub use palm::*;
 pub use sequoia::*;
+pub use tall_bush::*;
 pub use wide_canopy_jungle::*;
