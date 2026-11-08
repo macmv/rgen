@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "variant=0": {
+      "model": "rgen:block/glasswort_0"
+    },
+    "variant=1": {
+      "model": "rgen:block/glasswort_1"
+    },
+    "variant=2": {
+      "model": "rgen:block/glasswort_2"
+    },
+    "variant=3": {
+      "model": "rgen:block/glasswort_3"
+    },
+    "variant=4": {
+      "model": "rgen:block/glasswort_4"
+    },
+    "variant=5": {
+      "model": "rgen:block/glasswort_5"
+    }
+  }
+}

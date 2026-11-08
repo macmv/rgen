@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "normal": { "model": "rgen:block/flower/yellow_wildflower_shrub" }
+  }
+}

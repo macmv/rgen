@@ -1,0 +1,54 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "flowers": "rgen:block/flower/yellow_wildflower_shrub/flowers",
+    "stalks": "rgen:block/flower/yellow_wildflower_shrub/stalks",
+    "particle": "rgen:block/flower/yellow_wildflower_shrub/flowers"
+  },
+  "elements": [
+    {
+      "name": "flower overlay A",
+      "from": [0.8, 0, 8],
+      "to": [15.2, 16, 8],
+      "rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8], "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#flowers"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#flowers"}
+      }
+    },
+    {
+      "name": "flower overlay B",
+      "from": [8, 0, 0.8],
+      "to": [8, 16, 15.2],
+      "rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8], "rescale": true},
+      "shade": false,
+      "faces": {
+        "west": {"uv": [0, 0, 16, 16], "texture": "#flowers"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#flowers"}
+      }
+    },
+    {
+      "name": "tinted stalk A",
+      "from": [0.8, 0, 8],
+      "to": [15.2, 16, 8],
+      "rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8], "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#stalks", "tintindex": 0},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#stalks", "tintindex": 0}
+      }
+    },
+    {
+      "name": "tinted stalk B",
+      "from": [8, 0, 0.8],
+      "to": [8, 16, 15.2],
+      "rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8], "rescale": true},
+      "shade": false,
+      "faces": {
+        "west": {"uv": [0, 0, 16, 16], "texture": "#stalks", "tintindex": 0},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#stalks", "tintindex": 0}
+      }
+    }
+  ]
+}

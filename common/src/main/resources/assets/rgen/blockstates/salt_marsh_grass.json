@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "rgen:block/plants/salt_marsh_grass"
+    }
+  }
+}

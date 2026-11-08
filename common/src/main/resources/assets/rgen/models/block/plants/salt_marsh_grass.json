@@ -1,0 +1,7 @@
+{
+  "parent": "block/cross",
+  "textures": {
+    "cross": "rgen:block/plants/salt_marsh_grass",
+    "particle": "rgen:block/plants/salt_marsh_grass"
+  }
+}

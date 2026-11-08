@@ -1,0 +1,6 @@
+{
+    "parent": "block/wall_side",
+    "textures": {
+        "wall": "rgen:block/mud/mud_bricks"
+    }
+}

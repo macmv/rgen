@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "variant=a": {
+      "model": "rgen:block/plants/dune_grass/a"
+    },
+    "variant=b": {
+      "model": "rgen:block/plants/dune_grass/b"
+    },
+    "variant=c": {
+      "model": "rgen:block/plants/dune_grass/c"
+    }
+  }
+}

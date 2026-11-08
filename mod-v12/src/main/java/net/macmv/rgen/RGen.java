@@ -6,6 +6,7 @@ import net.macmv.rgen.item.RItems;
 import net.macmv.rgen.rust.RustGenerator;
 import net.macmv.rgen.world.RGenWorldType;
 import net.minecraft.block.Block;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -58,6 +59,9 @@ public class RGen {
     IForgeRegistry<Block> reg = event.getRegistry();
 
     RBlocks.registerBlocks(reg);
+    MudContent.registerBlocks(reg);
+    ReedsContent.registerBlocks(reg);
+    GlasswortContent.registerBlocks(reg);
   }
 
   @SubscribeEvent
@@ -65,6 +69,9 @@ public class RGen {
     IForgeRegistry<Item> reg = event.getRegistry();
 
     RItems.registerItems(reg);
+    MudContent.registerItems(reg);
+    ReedsContent.registerItems(reg);
+    GlasswortContent.registerItems(reg);
   }
 
   @SideOnly(Side.CLIENT)
@@ -72,6 +79,9 @@ public class RGen {
   public static void registerModels(ModelRegistryEvent event) {
     RBlocks.registerModels();
     RItems.registerModels();
+    MudContent.registerModels();
+    ReedsContent.registerModels();
+    GlasswortContent.registerModels();
   }
 
   @SubscribeEvent
@@ -79,6 +89,11 @@ public class RGen {
     IForgeRegistry<EntityEntry> reg = event.getRegistry();
 
     REntities.registerEntities(reg);
+  }
+
+  @SubscribeEvent
+  public void registerRecipes(RegistryEvent.Register<IRecipe> event) {
+    event.getRegistry().register(new MudBottleRecipe());
   }
 
   @SideOnly(Side.CLIENT)

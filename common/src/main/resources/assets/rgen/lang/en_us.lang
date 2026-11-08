@@ -35,6 +35,12 @@ tile.glow_vine.name=Glow Vines
 
 tile.flower.forget_me_not.name=Forget-me-not
 tile.lavender_plant.name=Lavender Plant
+tile.dried_grass.name=Dried Grass
+tile.double_tall_dried_grass.name=Double Tall Dried Grass
+tile.golden_grass.name=Golden Grass
+tile.dune_grass.name=Dune Grass
+tile.salt_marsh_grass.name=Salt Marsh Grass
+tile.yellow_wildflower_shrub.name=Yellow Wildflower Shrub
 
 tile.planks.fir.name=Fir Planks
 tile.planks.palm.name=Palm Planks
@@ -160,3 +166,12 @@ tile.covered_cherry_log.name=Vine Covered Cherry Log
 tile.covered_cedar_log.name=Podzol Covered Cedar Log
 tile.covered_dead_log.name=Grave Dirt Covered Dead Tree Log
 tile.grave_dirt.name=Grave Dirt
+tile.rgen.mud.name=Mud
+tile.rgen.packed_mud.name=Packed Mud
+tile.rgen.mud_bricks.name=Mud Bricks
+tile.rgen.mud_brick_stairs.name=Mud Brick Stairs
+tile.rgen.mud_brick_slab.name=Mud Brick Slab
+tile.rgen.mud_brick_wall.name=Mud Brick Wall
+tile.rgen.reeds.name=Reeds
+
+tile.rgen.glasswort.name=Glasswort

@@ -77,6 +77,11 @@ public class RItems {
   public static final Item GLOW_VINE = registerBlockItem(RBlocks.GLOW_VINE);
   public static final Item LAVENDER_PLANT = registerBlockItem(RBlocks.LAVENDER_PLANT, new ItemBlock(RBlocks.LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item DOUBLE_TALL_LAVENDER_PLANT = registerBlockItem(RBlocks.DOUBLE_TALL_LAVENDER_PLANT, new ItemBlock(RBlocks.DOUBLE_TALL_LAVENDER_PLANT).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item DRIED_GRASS = registerBlockItem(RBlocks.DRIED_GRASS, new DriedGrassItem(RBlocks.DRIED_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item GOLDEN_GRASS = registerBlockItem(RBlocks.GOLDEN_GRASS, new GoldenGrassItem(RBlocks.GOLDEN_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item DUNE_GRASS = registerBlockItem(RBlocks.DUNE_GRASS, new DuneGrassItem((net.macmv.rgen.block.DuneGrassBlock) RBlocks.DUNE_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item SALT_MARSH_GRASS = registerBlockItem(RBlocks.SALT_MARSH_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item YELLOW_WILDFLOWER_SHRUB = registerBlockItem(RBlocks.YELLOW_WILDFLOWER_SHRUB).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BASALT = registerBlockItem(RBlocks.BASALT);
   public static final Item PINK_FLOWERBED = registerBlockItem(RBlocks.PINK_FLOWERBED);
   public static final Item HANGING_VINES = registerBlockItem(RBlocks.HANGING_VINES);
@@ -271,6 +276,12 @@ public class RItems {
         registerModel(i, 0, "rgen:small_rock");
         registerModel(i, 1, "rgen:medium_rock");
         registerModel(i, 2, "rgen:large_rock");
+      } else if (i.getRegistryName().toString().equals("rgen:dried_grass")) {
+        registerModel(i, 0, "rgen:dried_grass");
+      } else if (i.getRegistryName().toString().equals("rgen:golden_grass")) {
+        registerModel(i, 0, "rgen:golden_grass");
+      } else if (i.getRegistryName().toString().equals("rgen:dune_grass")) {
+        registerModel(i, 0, "rgen:dune_grass");
       } else {
         ModelResourceLocation location = new ModelResourceLocation(i.getRegistryName(), "inventory");
         ModelLoader.setCustomModelResourceLocation(i, 0, location);

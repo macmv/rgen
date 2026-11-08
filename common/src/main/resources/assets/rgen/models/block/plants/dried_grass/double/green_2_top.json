@@ -1,0 +1,7 @@
+{
+  "parent": "rgen:block/plants/dried_grass/cross",
+  "textures": {
+    "plant": "rgen:block/plants/dried_grass/double/green_2_top",
+    "particle": "rgen:block/plants/dried_grass/double/green_2_top"
+  }
+}

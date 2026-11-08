@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "rgen:mud" },
+    { "item": "minecraft:wheat" }
+  ],
+  "result": { "item": "rgen:packed_mud" }
+}
