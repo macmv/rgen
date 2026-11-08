@@ -1,8 +1,14 @@
-use std::{collections::HashMap, mem, time::Duration};
+use std::{
+  collections::HashMap,
+  mem,
+  sync::atomic::{AtomicBool, AtomicU64, Ordering},
+  time::Duration,
+};
 
 use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::Pos;
+use rgen_biome::{ClimateType, GeographicType};
 use rgen_placer::noise::{
   NoiseGenerator, OpenSimplexNoise, SeededNoise, ShiftedNoise, VoronoiNoise,
 };
@@ -15,14 +21,80 @@ use crate::{
   world::World,
 };
 
+pub const fn geography_legend() -> [(GeographicType, &'static str); 8] {
+  [
+    (GeographicType::MushroomIsland, "Mushroom Island"),
+    (GeographicType::Ocean, "Ocean"),
+    (GeographicType::Beach, "Beach"),
+    (GeographicType::Canyon, "Canyon"),
+    (GeographicType::River, "River"),
+    (GeographicType::Standard, "Standard"),
+    (GeographicType::Hills, "Hills"),
+    (GeographicType::Mountains, "Mountains"),
+  ]
+}
+
+pub const fn climate_legend() -> [(ClimateType, &'static str); 14] {
+  [
+    (ClimateType::IceCap, "Ice Cap"),
+    (ClimateType::Tundra, "Tundra"),
+    (ClimateType::SubArctic, "Sub-Arctic"),
+    (ClimateType::CoolTemperate, "Cool Temperate"),
+    (ClimateType::DryTemperate, "Dry Temperate"),
+    (ClimateType::WarmTemperate, "Warm Temperate"),
+    (ClimateType::WetTemperate, "Wet Temperate"),
+    (ClimateType::Mediterranean, "Mediterranean"),
+    (ClimateType::Monsoon, "Monsoon"),
+    (ClimateType::Savanna, "Savanna"),
+    (ClimateType::HotDesert, "Hot Desert"),
+    (ClimateType::BadLands, "Badlands"),
+    (ClimateType::Tropical, "Tropical"),
+    (ClimateType::DebugClimate, "Debug Climate"),
+  ]
+}
+
+pub fn geography_color(category: GeographicType) -> Color {
+  Color::from_hex(match category {
+    GeographicType::MushroomIsland => 0xb56acb,
+    GeographicType::Ocean => 0x2456a6,
+    GeographicType::Beach => 0xe8d47a,
+    GeographicType::Canyon => 0xa64b32,
+    GeographicType::River => 0x38b4d8,
+    GeographicType::Standard => 0x78ad55,
+    GeographicType::Hills => 0xb1bd55,
+    GeographicType::Mountains => 0x8999b0,
+  })
+}
+
+pub fn climate_color(category: ClimateType) -> Color {
+  Color::from_hex(match category {
+    ClimateType::IceCap => 0xe8f4ff,
+    ClimateType::Tundra => 0xc1d8d0,
+    ClimateType::SubArctic => 0x719e98,
+    ClimateType::CoolTemperate => 0x4b9b82,
+    ClimateType::DryTemperate => 0xb7ae67,
+    ClimateType::WarmTemperate => 0x80bd55,
+    ClimateType::WetTemperate => 0x299b83,
+    ClimateType::Mediterranean => 0xd7b64e,
+    ClimateType::Monsoon => 0x168b63,
+    ClimateType::Savanna => 0xd3a43b,
+    ClimateType::HotDesert => 0xe4772c,
+    ClimateType::BadLands => 0xb24d3c,
+    ClimateType::Tropical => 0x176b4b,
+    ClimateType::DebugClimate => 0xff00ff,
+  })
+}
+
 pub struct WorldViewer {
   pub mode: Mutex<RenderMode>,
 
   chunks:            RwLock<HashMap<RegionPos, RenderBuffer>>,
   other_mode_chunks: Mutex<HashMap<RenderMode, HashMap<RegionPos, RenderBuffer>>>,
+  water_hatch:       AtomicBool,
+  render_epoch:      AtomicU64,
 
-  pub completed_tx: Sender<(RegionPos, RenderMode, RenderBuffer)>,
-  pub completed_rx: Receiver<(RegionPos, RenderMode, RenderBuffer)>,
+  pub completed_tx: Sender<(RegionPos, RenderMode, u64, RenderBuffer)>,
+  pub completed_rx: Receiver<(RegionPos, RenderMode, u64, RenderBuffer)>,
 
   voronoi_noise: ShiftedNoise<VoronoiNoise, OpenSimplexNoise>,
 }
@@ -35,6 +107,8 @@ impl WorldViewer {
       mode:              Mutex::new(RenderMode::Biomes),
       chunks:            RwLock::new(HashMap::new()),
       other_mode_chunks: Mutex::new(HashMap::new()),
+      water_hatch:       AtomicBool::new(false),
+      render_epoch:      AtomicU64::new(0),
 
       completed_tx: ctx,
       completed_rx: crx,
@@ -53,13 +127,26 @@ impl WorldViewer {
     let Some(mut w) = self.chunks.try_write_for(Duration::from_millis(10)) else {
       return;
     };
-    for (pos, mode, chunk) in self.completed_rx.try_iter() {
+    let epoch = self.render_epoch.load(Ordering::SeqCst);
+    for (pos, mode, chunk_epoch, chunk) in self.completed_rx.try_iter() {
+      if chunk_epoch != epoch {
+        continue;
+      }
       if mode == self_mode {
         w.insert(pos, chunk);
       } else {
         self.other_mode_chunks.lock().entry(mode).or_default().insert(pos, chunk);
       }
     }
+  }
+
+  pub fn toggle_water_hatch(&self) -> bool {
+    let enabled = !self.water_hatch.load(Ordering::SeqCst);
+    self.water_hatch.store(enabled, Ordering::SeqCst);
+    self.render_epoch.fetch_add(1, Ordering::SeqCst);
+    self.chunks.write().clear();
+    self.other_mode_chunks.lock().clear();
+    enabled
   }
 
   pub fn set_mode(&self, mode: RenderMode) {
@@ -89,8 +176,14 @@ impl WorldViewer {
   }
 
   pub fn render_chunk(&self, world: &World, region_pos: RegionPos) {
-    let mut chunk = RenderBuffer::new(REGION_SIZE as u32, REGION_SIZE as u32);
     let mode = *self.mode.lock();
+    let epoch = self.render_epoch.load(Ordering::SeqCst);
+    let water_hatch = self.water_hatch.load(Ordering::SeqCst);
+    let scale = if water_hatch { 4 } else { 1 };
+    let mut chunk = RenderBuffer::new(
+      REGION_SIZE as u32 * scale as u32,
+      REGION_SIZE as u32 * scale as u32,
+    );
 
     for rel_x in 0..REGION_SIZE {
       for rel_z in 0..REGION_SIZE {
@@ -174,12 +267,41 @@ impl WorldViewer {
             x if x < 0.9 => Color::from_hex(0xff00aa),
             _ => Color::from_hex(0xffaaaa),
           },
+          RenderMode::Geography => {
+            height_color.fade(geography_color(world.generator.geographic_type(pos)), alpha)
+          }
+          RenderMode::Climate => {
+            height_color.fade(climate_color(world.generator.climate_type(pos)), alpha)
+          }
         };
 
-        chunk.set(rel_x, rel_z, color.to_sdl2());
+        let is_water = meter_height < 64.0;
+        let border_left = water_hatch && is_water && d >= 64.0;
+        let border_right = water_hatch && is_water && f >= 64.0;
+        let border_top = water_hatch && is_water && h >= 64.0;
+        let border_bottom = water_hatch && is_water && b >= 64.0;
+        for sub_x in 0..scale {
+          for sub_z in 0..scale {
+            let on_outline = (border_left && sub_x == 0)
+              || (border_right && sub_x == scale - 1)
+              || (border_top && sub_z == 0)
+              || (border_bottom && sub_z == scale - 1);
+            let on_hatch = water_hatch
+              && is_water
+              && (pos.x * scale + sub_x + pos.z * scale + sub_z).rem_euclid(12) < 2;
+            let pixel_color = if on_outline {
+              Color::from_hex(0x073b55)
+            } else if on_hatch {
+              color.fade(Color::from_hex(0x9be5ff), 0.35)
+            } else {
+              color
+            };
+            chunk.set(rel_x * scale + sub_x, rel_z * scale + sub_z, pixel_color.to_sdl2());
+          }
+        }
       }
     }
 
-    self.completed_tx.send((region_pos, mode, chunk)).unwrap();
+    self.completed_tx.send((region_pos, mode, epoch, chunk)).unwrap();
   }
 }

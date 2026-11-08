@@ -24,7 +24,7 @@ use crate::{
   queue::RenderQueue,
   region::{REGION_SIZE, RegionPos},
   render::{FontRender, Render},
-  view::WorldViewer,
+  view::{WorldViewer, climate_color, climate_legend, geography_color, geography_legend},
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -42,9 +42,15 @@ enum RenderMode {
 
   /// Funny thing for testing.
   Voronoi,
+
+  /// Geographic category used for surface biome selection.
+  Geography,
+
+  /// Climate category used for surface biome selection.
+  Climate,
 }
 
-const MIN_ZOOM: f64 = 0.5;
+const MIN_ZOOM: f64 = 0.125;
 const MAX_ZOOM: f64 = 32.0;
 
 pub fn main() -> Result<(), String> {
@@ -102,7 +108,7 @@ pub fn main() -> Result<(), String> {
 
   let mut last_frame = Instant::now();
 
-  let mut settings = Settings { chunk_borders: false };
+  let mut settings = Settings { chunk_borders: false, show_key: false };
 
   'main: loop {
     let mut redraw = false;
@@ -137,6 +143,21 @@ pub fn main() -> Result<(), String> {
           world_view.set_mode(RenderMode::Voronoi);
           redraw = true;
         }
+        Event::KeyDown { keycode: Some(Keycode::Num7), .. } => {
+          world_view.set_mode(RenderMode::Geography);
+          redraw = true;
+        }
+        Event::KeyDown { keycode: Some(Keycode::Num8), .. } => {
+          world_view.set_mode(RenderMode::Climate);
+          redraw = true;
+        }
+        Event::KeyDown { keycode: Some(Keycode::I), .. } => settings.show_key = !settings.show_key,
+
+        Event::KeyDown { keycode: Some(Keycode::W), .. } => {
+          let enabled = world_view.toggle_water_hatch();
+          println!("Water hatch: {}", if enabled { "on" } else { "off" });
+          redraw = true;
+        }
 
         Event::KeyDown { keycode: Some(Keycode::G), .. } => {
           settings.chunk_borders = !settings.chunk_borders;
@@ -145,9 +166,12 @@ pub fn main() -> Result<(), String> {
         Event::MouseButtonDown { x, y, .. } => drag_pos = Some((x, y)),
         Event::MouseButtonUp { .. } => drag_pos = None,
 
-        Event::MouseWheel { y, .. } => {
-          let zoom_after =
-            if y > 0 { (zoom * 2.0).min(MAX_ZOOM) } else { (zoom / 2.0).max(MIN_ZOOM) };
+        Event::MouseWheel { y, precise_y, direction, .. } => {
+          let mut scroll = if precise_y == 0.0 { y as f64 } else { precise_y as f64 };
+          if direction == sdl2::mouse::MouseWheelDirection::Flipped {
+            scroll = -scroll;
+          }
+          let zoom_after = (zoom * 2.0_f64.powf(scroll)).clamp(MIN_ZOOM, MAX_ZOOM);
 
           let mouse_block_x = view_coords.0 + mouse_pos.0 as f64 / zoom;
           let mouse_block_y = view_coords.1 + mouse_pos.1 as f64 / zoom;
@@ -226,8 +250,8 @@ pub fn main() -> Result<(), String> {
                 let mut tex = texture_creator
                   .create_texture_streaming(
                     Some(sdl2::pixels::PixelFormatEnum::ARGB8888),
-                    REGION_SIZE as u32,
-                    REGION_SIZE as u32,
+                    c.dimensions().0,
+                    c.dimensions().1,
                   )
                   .unwrap();
 
@@ -273,6 +297,35 @@ pub fn main() -> Result<(), String> {
         f.render(0, 72, format!("Continentalness: {:.5}", continentalness));
         f.render(0, 96, format!("Erosion: {:.5}", erosion));
         f.render(0, 120, format!("Peaks and Valleys: {:.5}", peaks_valleys));
+      }
+
+      if settings.show_key {
+        let mode = *world_view.mode.lock();
+        if let Some(font) = &font {
+          match mode {
+            RenderMode::Geography => draw_key(
+              &mut render,
+              font,
+              screen_width,
+              "Geography",
+              geography_legend()
+                .into_iter()
+                .map(|(category, label)| (geography_color(category), label))
+                .collect(),
+            )?,
+            RenderMode::Climate => draw_key(
+              &mut render,
+              font,
+              screen_width,
+              "Climate",
+              climate_legend()
+                .into_iter()
+                .map(|(category, label)| (climate_color(category), label))
+                .collect(),
+            )?,
+            _ => {}
+          }
+        }
       }
 
       render.canvas.set_draw_color(Color::RGB(0, 0, 255));
@@ -338,4 +391,35 @@ pub fn main() -> Result<(), String> {
 
 struct Settings {
   chunk_borders: bool,
+  show_key:      bool,
+}
+
+fn draw_key(
+  render: &mut Render,
+  font: &sdl2::ttf::Font<'_, '_>,
+  screen_width: u32,
+  title: &str,
+  entries: Vec<(crate::color::Color, &'static str)>,
+) -> Result<(), String> {
+  let panel_width = 230;
+  let row_height = 22;
+  let panel_height = 40 + entries.len() as i32 * row_height;
+  let left = screen_width as i32 - panel_width - 12;
+  let top = 12;
+
+  render.canvas.set_draw_color(Color::RGB(24, 24, 32));
+  render.canvas.fill_rect(Rect::new(left, top, panel_width as u32, panel_height as u32))?;
+  FontRender { font, render }.render(left + 10, top + 7, title);
+
+  for (index, (swatch, label)) in entries.into_iter().enumerate() {
+    let y = top + 34 + index as i32 * row_height;
+    render.canvas.set_draw_color(Color::RGB(
+      (swatch.r * 255.0) as u8,
+      (swatch.g * 255.0) as u8,
+      (swatch.b * 255.0) as u8,
+    ));
+    render.canvas.fill_rect(Rect::new(left + 10, y + 3, 16, 16))?;
+    FontRender { font, render }.render(left + 34, y, label);
+  }
+  Ok(())
 }

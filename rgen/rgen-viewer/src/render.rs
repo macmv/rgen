@@ -41,6 +41,8 @@ impl RenderBuffer {
     self.buffer[index + 3] = color.a;
   }
 
+  pub fn dimensions(&self) -> (u32, u32) { (self.width, self.height) }
+
   pub fn copy_to_sdl2(&self, texture: &mut sdl2::render::Texture) {
     // NB: Segfaults if you screw up the buffer size.
     texture.update(None, &self.buffer, (self.width * 4) as usize).unwrap();

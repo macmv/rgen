@@ -53,6 +53,7 @@ mod terrain;
 pub mod toggles;
 
 pub use builder::BiomeBuilder;
+pub use table::{ClimateType, GeographicType};
 #[cfg(feature = "inspector")]
 pub use splines::set_splines;
 pub use splines::{Keys, Splines};
