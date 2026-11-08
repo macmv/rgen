@@ -275,24 +275,6 @@ pub fn warm_delta(g: &mut BiomeBuilder) {
   );
 }
 
-/// A Mediterranean salt-marsh delta with sandy underwater deposits.
-pub fn salt_marsh(g: &mut BiomeBuilder) {
-  g.id = biome![swampland];
-  g.color = "#a99a67";
-  g.set_top_block(block![grass]);
-  g.set_underwater_block(block![sand]);
-
-  g.place(
-    "salt-marsh grasses",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      320,
-      place_above:   [block![grass]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
-}
 
 pub fn woodland(g: &mut BiomeBuilder) {
   g.id = biome![birch_forest_hills];

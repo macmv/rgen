@@ -132,8 +132,31 @@ biome_categories!(
     let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
 
     // Mediterranean vvv
-
-    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(20, salt_marsh)];
+    let (GeographicType::Standard, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+    ];
+    let (GeographicType::River, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+    ];
+    let (GeographicType::Canyon, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+    ];
+    let (GeographicType::Hills, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+    ];
+    let (GeographicType::Mountains, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+    ];
+    let (GeographicType::Beach, ClimateType::Mediterranean) = &[
+      b!(20, redwood_grove),
+      b!(45, coastal_dunes),
+      b!(35, coastal_dunes),
+    ];
+    let (GeographicType::Delta, ClimateType::Mediterranean) = &[
+      b!(20, riparian_woodland),
+      b!(45, salt_marsh),
+      b!(35, salt_marsh),
+    ];
 
     // Monsoon vvv
 

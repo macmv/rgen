@@ -4,6 +4,10 @@ mod cold_region;
 #[allow(unused_imports)]
 pub use cold_region::*;
 
+mod mediterranean;
+#[allow(unused_imports)]
+pub use mediterranean::*;
+
 mod frozen_region;
 #[allow(unused_imports)]
 pub use frozen_region::*;
