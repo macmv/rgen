@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.storage.RegionFileCache;
-import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.ThreadedFileIOBase;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
@@ -171,29 +171,51 @@ public class RustGenerator {
       // Step 1: Lookup the region files.
       WorldServer prevworld = server.getWorld(dimension);
       File save = prevworld.getChunkSaveLocation();
-      String saveName = save.getName();
       File region = new File(save, "region");
 
-      // Step 2: Kill the world.
-      DimensionManager.setWorld(dimension, null, server);
-
-      // Step 3: Remove the actual region files.
-      System.out.println("Removing region files in " + region);
-      RegionFileCache.clearRegionFileReferences();
-      for (File f : region.listFiles()) {
-        System.out.println("deleting " + f);
-        f.delete();
+      // Validate and finish pending writes while the old world is still attached.
+      // A missing region directory is normal after buildRgen or before the first save.
+      if (prevworld.playerEntities.isEmpty()) {
+        print_errors("Cannot reload without a player in the overworld.");
+        return;
+      }
+      EntityPlayerMP player = (EntityPlayerMP) prevworld.playerEntities.iterator().next();
+      WorldInfo info = prevworld.getWorldInfo();
+      try {
+        ThreadedFileIOBase.getThreadedIOInstance().waitForFinish();
+        RegionFileCache.clearRegionFileReferences();
+        File[] files = region.exists() ? region.listFiles() : new File[0];
+        if (files == null) {
+          print_errors("Cannot read region directory: " + region);
+          return;
+        }
+        for (File f : files) {
+          if (f.isFile() && f.getName().endsWith(".mca") && !f.delete()) {
+            print_errors("Cannot remove region file: " + f);
+            return;
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        print_errors("Reload interrupted while waiting for chunk saves.");
+        return;
       }
 
-      // Step 4: Load the server world again.
-      ISaveHandler saveHandler = server.getActiveAnvilConverter().getSaveLoader(saveName, true);
-      WorldInfo info = saveHandler.loadWorldInfo();
-      server.loadAllWorlds(server.getFolderName(), server.getWorldName(), info.getSeed(), info.getTerrainType(), info.getGeneratorOptions());
+      // Detach only after file operations succeed. Restore the old world if
+      // recreation fails, so the next server tick never sees a missing overworld.
+      DimensionManager.setWorld(dimension, null, server);
+      try {
+        server.loadAllWorlds(server.getFolderName(), server.getWorldName(), info.getSeed(), info.getTerrainType(), info.getGeneratorOptions());
+      } catch (RuntimeException e) {
+        DimensionManager.setWorld(dimension, prevworld, server);
+        RGen.LOG.error("Could not recreate the world during reload", e);
+        print_errors("Could not recreate the world; restart Minecraft before retrying.");
+        return;
+      }
       WorldServer overworld = server.getWorld(dimension);
 
       // This updates all the other things (players, the player list, the player chunk map, etc)
       // to use the new world.
-      EntityPlayerMP player = (EntityPlayerMP) prevworld.playerEntities.iterator().next();
       prevworld.removeEntityDangerously(player);
       player.isDead = false; // removeEntityDangerously sets `isDead` to true.
       player.setWorld(overworld);

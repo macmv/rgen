@@ -156,8 +156,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
   mut env: JNIEnv,
   class: JClass,
 ) -> jint {
-  match check() {
-    Ok(m) => print_warnings(&mut env, &m),
+  match recompile() {
+    Ok(_) => {},
     Err(m) => {
       print_errors(&mut env, &m);
       return 1;
@@ -170,10 +170,8 @@ pub extern "system" fn Java_net_macmv_rgen_rust_RustGenerator_reload_1generator(
     (s.rgen_deinit)();
 
     // We're holding onto the symbols lock, so nothing can access those symbols
-    // while we're messing with the file. Still, best practice is to unload them
-    // before messing with the file.
+    // while replacing the loaded implementation. Compilation already succeeded.
     unload(s);
-    recompile();
     *s = load();
 
     // And re-initialize the new generator.
@@ -260,46 +258,21 @@ unsafe fn sym(ptr: *mut c_void, name: &CStr) -> *mut c_void {
   }
 }
 
-fn check() -> Result<String, String> {
+fn recompile() -> Result<(), String> {
   let res = Command::new("cargo")
-    .arg("check")
-    .arg("-p")
-    .arg("rgen-jni-impl")
-    .current_dir(PROJECT_ROOT)
-    .output()
-    .unwrap();
-
-  if res.status.success() {
-    let stderr = String::from_utf8_lossy(&res.stderr);
-    Ok(stderr.to_string())
-  } else {
-    let stderr = String::from_utf8_lossy(&res.stderr);
-    Err(stderr.to_string())
-  }
-}
-
-fn recompile() {
-  Command::new("cargo")
     .arg("build")
     .arg("--release")
     .arg("-p")
     .arg("rgen-jni-impl")
     .current_dir(PROJECT_ROOT)
-    .status()
-    .unwrap();
-}
+    .output()
+    .map_err(|err| format!("Could not run cargo: {err}"))?;
 
-fn print_warnings(env: &mut JNIEnv, m: &str) {
-  let message = env.new_string(m).unwrap();
-
-  env
-    .call_static_method(
-      "net/macmv/rgen/rust/RustGenerator",
-      "print_warnings",
-      "(Ljava/lang/String;)V",
-      &[JValue::Object(&message.into())],
-    )
-    .unwrap();
+  if res.status.success() {
+    Ok(())
+  } else {
+    Err(String::from_utf8_lossy(&res.stderr).into_owned())
+  }
 }
 
 fn print_errors(env: &mut JNIEnv, m: &str) {
