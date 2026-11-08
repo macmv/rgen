@@ -58,6 +58,7 @@ biome_categories!(
       &[b!(7, ice_spikes), b!(5, boulder_field), b!(8, glacier)];
 
     let (GeographicType::River, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
+    let (GeographicType::Delta, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
 
     let (GeographicType::Canyon, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
 
@@ -75,6 +76,9 @@ biome_categories!(
 
     let (GeographicType::River, ClimateType::SubArctic) =
       &[b!(10, fir_river), b!(10, spruce_river)];
+    let (GeographicType::Delta, ClimateType::SubArctic) =
+      &[b!(10, fir_river), b!(10, spruce_river)];
+    let (GeographicType::Delta, ClimateType::Tundra) = &[b!(20, deep_snow_beach)];
 
     let (GeographicType::Canyon, ClimateType::SubArctic) =
       &[b!(10, windswept_fir_grove), b!(10, windswept_spruce_grove)];
@@ -94,6 +98,26 @@ biome_categories!(
 
     let (GeographicType::River, ClimateType::WarmTemperate) =
       &[b!(10, woodland_river), b!(3, birch_river), b!(2, birch_river), b!(5, birch_river)];
+
+    let (GeographicType::Delta, ClimateType::WarmTemperate) = &[b!(20, warm_delta)];
+    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(20, salt_marsh)];
+    let (GeographicType::Delta, ClimateType::CoolTemperate) = &[b!(20, warm_delta)];
+    let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
+    let (GeographicType::Delta, ClimateType::DryTemperate) = &[b!(20, salt_marsh)];
+    let (GeographicType::Delta, ClimateType::Savanna) = &[b!(20, warm_delta)];
+
+    let (GeographicType::Delta, ClimateType::Tropical) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
+    let (GeographicType::Delta, ClimateType::Monsoon) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
 
     let (GeographicType::Canyon, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
@@ -153,6 +177,7 @@ pub enum GeographicType {
   MushroomIsland,
   Ocean,
   Beach,
+  Delta,
   Canyon,
   River,
   Standard,

@@ -21,13 +21,14 @@ use crate::{
   world::World,
 };
 
-pub const fn geography_legend() -> [(GeographicType, &'static str); 8] {
+pub const fn geography_legend() -> [(GeographicType, &'static str); 9] {
   [
     (GeographicType::MushroomIsland, "Mushroom Island"),
     (GeographicType::Ocean, "Ocean"),
     (GeographicType::Beach, "Beach"),
     (GeographicType::Canyon, "Canyon"),
     (GeographicType::River, "River"),
+    (GeographicType::Delta, "Delta"),
     (GeographicType::Standard, "Standard"),
     (GeographicType::Hills, "Hills"),
     (GeographicType::Mountains, "Mountains"),
@@ -60,6 +61,7 @@ pub fn geography_color(category: GeographicType) -> Color {
     GeographicType::Beach => 0xe8d47a,
     GeographicType::Canyon => 0xa64b32,
     GeographicType::River => 0x38b4d8,
+    GeographicType::Delta => 0xe58a32,
     GeographicType::Standard => 0x78ad55,
     GeographicType::Hills => 0xb1bd55,
     GeographicType::Mountains => 0x8999b0,
