@@ -49,15 +49,17 @@ impl CompositionLookup {
 // === Biome categories ===
 biome_categories!(
   fn build() {
-    //debug biomes
+    // Debug Climate vvv
+
     let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, blank)];
 
-    // IceCap vvv
+    // Ice Cap vvv
 
     let (GeographicType::Standard, ClimateType::IceCap) =
       &[b!(7, ice_spikes), b!(5, boulder_field), b!(8, glacier)];
 
     let (GeographicType::River, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
+
     let (GeographicType::Delta, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
 
     let (GeographicType::Canyon, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
@@ -69,16 +71,20 @@ biome_categories!(
     let (GeographicType::Beach, ClimateType::IceCap) =
       &[b!(7, ice_spike_beach), b!(13, deep_snow_beach)];
 
-    // SubArtic vvv
+    // Tundra vvv
+
+    let (GeographicType::Delta, ClimateType::Tundra) = &[b!(20, deep_snow_beach)];
+
+    // Subarctic vvv
 
     let (GeographicType::Standard, ClimateType::SubArctic) =
       &[b!(10, fir_grove), b!(10, spruce_grove)];
 
     let (GeographicType::River, ClimateType::SubArctic) =
       &[b!(10, fir_river), b!(10, spruce_river)];
+
     let (GeographicType::Delta, ClimateType::SubArctic) =
       &[b!(10, fir_river), b!(10, spruce_river)];
-    let (GeographicType::Delta, ClimateType::Tundra) = &[b!(20, deep_snow_beach)];
 
     let (GeographicType::Canyon, ClimateType::SubArctic) =
       &[b!(10, windswept_fir_grove), b!(10, windswept_spruce_grove)];
@@ -91,7 +97,15 @@ biome_categories!(
 
     let (GeographicType::Beach, ClimateType::SubArctic) = &[b!(2, fir_grove), b!(3, mossy_shores)];
 
-    // WarmTemperate vvv
+    // Cool Temperate vvv
+
+    let (GeographicType::Delta, ClimateType::CoolTemperate) = &[b!(20, warm_delta)];
+
+    // Dry Temperate vvv
+
+    let (GeographicType::Delta, ClimateType::DryTemperate) = &[b!(20, salt_marsh)];
+
+    // Warm Temperate vvv
 
     let (GeographicType::Standard, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
@@ -100,24 +114,6 @@ biome_categories!(
       &[b!(10, woodland_river), b!(3, birch_river), b!(2, birch_river), b!(5, birch_river)];
 
     let (GeographicType::Delta, ClimateType::WarmTemperate) = &[b!(20, warm_delta)];
-    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(20, salt_marsh)];
-    let (GeographicType::Delta, ClimateType::CoolTemperate) = &[b!(20, warm_delta)];
-    let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
-    let (GeographicType::Delta, ClimateType::DryTemperate) = &[b!(20, salt_marsh)];
-    let (GeographicType::Delta, ClimateType::Savanna) = &[b!(20, warm_delta)];
-
-    let (GeographicType::Delta, ClimateType::Tropical) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-    let (GeographicType::Delta, ClimateType::Monsoon) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
 
     let (GeographicType::Canyon, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
@@ -131,18 +127,53 @@ biome_categories!(
     let (GeographicType::Beach, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
 
-    // Geographic type visualizer: one solid surface color for each landform.
-    let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
-    let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
-    let (GeographicType::Beach, ClimateType::GeoTest) = &[b!(1, geo_test_beach)];
-    let (GeographicType::Delta, ClimateType::GeoTest) = &[b!(1, geo_test_delta)];
-    let (GeographicType::Canyon, ClimateType::GeoTest) = &[b!(1, geo_test_canyon)];
-    let (GeographicType::River, ClimateType::GeoTest) = &[b!(1, geo_test_river)];
-    let (GeographicType::Standard, ClimateType::GeoTest) = &[b!(1, geo_test_standard)];
-    let (GeographicType::Hills, ClimateType::GeoTest) = &[b!(1, geo_test_hills)];
-    let (GeographicType::Mountains, ClimateType::GeoTest) = &[b!(1, geo_test_mountains)];
+    // Wet Temperate vvv
+
+    let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
+
+    // Mediterranean vvv
+
+    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(20, salt_marsh)];
+
+    // Monsoon vvv
+
+    let (GeographicType::Delta, ClimateType::Monsoon) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
+
+    // Savanna vvv
+
+    let (GeographicType::Delta, ClimateType::Savanna) = &[b!(20, warm_delta)];
+
+    // Hot Desert vvv
+
+    let (GeographicType::Standard, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::River, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Hills, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Mountains, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    let (GeographicType::Beach, ClimateType::HotDesert) = &[b!(20, blank)];
+
+    // Badlands vvv
+
+    // No biome mappings yet.
 
     // Tropical vvv
+
+    let (GeographicType::Delta, ClimateType::Tropical) = &[
+      b!(5, canopied_jungle),
+      b!(5, flower_canopied_jungle),
+      b!(5, light_jungle_wood),
+      b!(5, terraced_jungle),
+    ];
 
     let (GeographicType::Standard, ClimateType::Tropical) = &[
       b!(5, canopied_jungle),
@@ -173,13 +204,25 @@ biome_categories!(
 
     let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
 
-    // HotDesert vvv
-    let (GeographicType::Standard, ClimateType::HotDesert) = &[b!(20, blank)];
-    let (GeographicType::River, ClimateType::HotDesert) = &[b!(20, blank)];
-    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(20, blank)];
-    let (GeographicType::Hills, ClimateType::HotDesert) = &[b!(20, blank)];
-    let (GeographicType::Mountains, ClimateType::HotDesert) = &[b!(20, blank)];
-    let (GeographicType::Beach, ClimateType::HotDesert) = &[b!(20, blank)];
+    // GeoTest (geographic type visualizer) vvv
+
+    let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
+
+    let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
+
+    let (GeographicType::Beach, ClimateType::GeoTest) = &[b!(1, geo_test_beach)];
+
+    let (GeographicType::Delta, ClimateType::GeoTest) = &[b!(1, geo_test_delta)];
+
+    let (GeographicType::Canyon, ClimateType::GeoTest) = &[b!(1, geo_test_canyon)];
+
+    let (GeographicType::River, ClimateType::GeoTest) = &[b!(1, geo_test_river)];
+
+    let (GeographicType::Standard, ClimateType::GeoTest) = &[b!(1, geo_test_standard)];
+
+    let (GeographicType::Hills, ClimateType::GeoTest) = &[b!(1, geo_test_hills)];
+
+    let (GeographicType::Mountains, ClimateType::GeoTest) = &[b!(1, geo_test_mountains)];
   }
 );
 
