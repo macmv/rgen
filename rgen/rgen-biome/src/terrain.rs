@@ -53,7 +53,8 @@ impl TerrainNoise {
       peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
       erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
       delta_rarity_map:    OctavedNoise::new(seed.wrapping_add(0xD317_A001), 1.0 / 512.0),
-      delta_islands_map:   OctavedNoise::new(seed.wrapping_add(0xD317_A002), 1.0 / 3.2),
+      // Longer wavelengths create broader, smoother delta islands.
+      delta_islands_map:   OctavedNoise::new(seed.wrapping_add(0xD317_A002), 1.0 / 5.0),
     }
   }
 
@@ -240,10 +241,10 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   let blend = smoothstep(DELTA_GEOGRAPHY_THRESHOLD, 0.85, delta);
   if blend > 0.0 {
     let basin_height = lerp(height, 64.0, delta);
-    let delta_height = if noise.delta_islands >= 0.64 {
-      64.5 + (noise.delta_islands - 0.64) * 2.0
+    let delta_height = if noise.delta_islands >= 0.60 {
+      64.5 + (noise.delta_islands - 0.60) * 2.0
     } else {
-      60.5 + noise.delta_islands * (3.0 / 0.64)
+      60.5 + noise.delta_islands * (4.0 / 0.60)
     };
     let island_detail = smoothstep(0.25, 0.85, delta);
     let target = lerp(basin_height, delta_height, island_detail);
