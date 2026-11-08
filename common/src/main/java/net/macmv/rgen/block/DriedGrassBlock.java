@@ -3,9 +3,10 @@ package net.macmv.rgen.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.IStringSerializable;
@@ -13,6 +14,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.block.properties.PropertyEnum;
@@ -40,6 +42,18 @@ public class DriedGrassBlock extends BlockBush {
   @Override
   protected BlockStateContainer createBlockState() {
     return new BlockStateContainer(this, VARIANT);
+  }
+
+  @Override
+  public boolean canBlockStay(World world, BlockPos pos, IBlockState state) {
+    if (world.getBlockState(pos.down()).getBlock() == Blocks.SAND) return true;
+    return super.canBlockStay(world, pos, state);
+  }
+
+  @Override
+  public boolean canPlaceBlockAt(World world, BlockPos pos) {
+    if (world.isAirBlock(pos) && world.getBlockState(pos.down()).getBlock() == Blocks.SAND) return true;
+    return super.canPlaceBlockAt(world, pos);
   }
 
   @Override

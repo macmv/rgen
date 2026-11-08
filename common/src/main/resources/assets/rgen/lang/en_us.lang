@@ -38,6 +38,8 @@ tile.lavender_plant.name=Lavender Plant
 tile.dried_grass.name=Dried Grass
 tile.double_tall_dried_grass.name=Double Tall Dried Grass
 tile.golden_grass.name=Golden Grass
+tile.dune_grass.name=Dune Grass
+tile.salt_marsh_grass.name=Salt Marsh Grass
 tile.yellow_wildflower_shrub.name=Yellow Wildflower Shrub
 
 tile.planks.fir.name=Fir Planks

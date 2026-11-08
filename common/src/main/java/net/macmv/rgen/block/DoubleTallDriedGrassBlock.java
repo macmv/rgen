@@ -65,7 +65,14 @@ public class DoubleTallDriedGrassBlock extends BlockBush {
     }
 
     IBlockState soil = world.getBlockState(pos.down());
-    return soil.getBlock() == Blocks.GRASS || soil.getBlock() == Blocks.DIRT || soil.getBlock() == Blocks.FARMLAND;
+    return soil.getBlock() == Blocks.GRASS || soil.getBlock() == Blocks.DIRT
+        || soil.getBlock() == Blocks.FARMLAND || soil.getBlock() == Blocks.SAND;
+  }
+
+  @Override
+  public boolean canPlaceBlockAt(World world, BlockPos pos) {
+    if (world.isAirBlock(pos) && world.getBlockState(pos.down()).getBlock() == Blocks.SAND) return true;
+    return super.canPlaceBlockAt(world, pos);
   }
 
   @Override

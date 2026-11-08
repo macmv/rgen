@@ -70,7 +70,8 @@ public class GoldenGrassBlock extends BlockBush {
     }
 
     IBlockState soil = world.getBlockState(pos.down());
-    return soil.getBlock() == Blocks.GRASS || soil.getBlock() == Blocks.DIRT || soil.getBlock() == Blocks.FARMLAND;
+    return soil.getBlock() == Blocks.GRASS || soil.getBlock() == Blocks.DIRT
+        || soil.getBlock() == Blocks.FARMLAND || soil.getBlock() == Blocks.SAND;
   }
 
   @Override

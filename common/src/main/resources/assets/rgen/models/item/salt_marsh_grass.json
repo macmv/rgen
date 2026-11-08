@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "rgen:block/plants/salt_marsh_grass"
+  }
+}
