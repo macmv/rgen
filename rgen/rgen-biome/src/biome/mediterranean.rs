@@ -47,6 +47,87 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
   g.color = "#A99A67";
   g.set_top_block(block![grass]);
   g.set_underwater_block(block![sand]);
+
+  g.place(
+    "Fallen oak logs",
+    PlacerStage::Tree,
+    placer::LongLog {
+      avg_per_chunk: 0.6,
+      ground: block![grass].into(),
+      log: block![log[variant = "oak"]],
+    },
+  );
+  g.place(
+    "Mud patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: block![grass].into(),
+      place: block![rgen:mud],
+      radius: 2..=5,
+      avg_per_chunk: 1.2,
+    },
+  );
+  g.place(
+    "Gravel patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: block![grass].into(),
+      place: block![gravel],
+      radius: 2..=5,
+      avg_per_chunk: 1.5,
+    },
+  );
+  g.place(
+    "Rare sand patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: block![grass].into(),
+      place: block![sand],
+      radius: 1..=3,
+      avg_per_chunk: 0.08,
+    },
+  );
+
+  g.place(
+    "Brown dried grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: block![grass].into(),
+      place_short: block![rgen:dried_grass[variant = "brown_1"]],
+      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "brown_1"]],
+      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "brown_1"]],
+      radius: 4..=9,
+      attempts: 45,
+      avg_per_chunk: 1.0,
+    },
+  );
+  g.place(
+    "Yellow dried grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: block![grass].into(),
+      place_short: block![rgen:dried_grass[variant = "yellow_1"]],
+      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "yellow_1"]],
+      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "yellow_1"]],
+      radius: 4..=9,
+      attempts: 45,
+      avg_per_chunk: 0.8,
+    },
+  );
+  g.place(
+    "Green dried grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: block![grass].into(),
+      place_short: block![rgen:dried_grass[variant = "green_1"]],
+      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "green_1"]],
+      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "green_1"]],
+      radius: 4..=9,
+      attempts: 45,
+      avg_per_chunk: 0.5,
+    },
+  );
+
   g.place(
     "Salt marsh grasses",
     PlacerStage::Tree,

@@ -456,6 +456,14 @@ blocks! {
   EmeraldOre => minecraft:emerald_ore,
 
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
+  RgenMud => rgen:mud,
+  RgenDriedGrass => rgen:dried_grass[
+    variant: ["brown_1", "brown_2", "brown_3", "green_1", "green_2", "green_3", "yellow_1", "yellow_2", "yellow_3"],
+  ],
+  RgenDoubleTallDriedGrass => rgen:double_tall_dried_grass[
+    half: ["upper", "lower"],
+    variant: ["brown_1", "brown_2", "yellow_1", "yellow_2", "green_1", "green_2"],
+  ],
   RgenLog2 => rgen:log2[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_2_LOG],
   RgenLeaves => rgen:leaves[
     check_decay: PropType::Bool,
