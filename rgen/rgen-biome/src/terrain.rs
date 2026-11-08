@@ -143,11 +143,7 @@ pub fn is_delta(noise: RawNoise) -> bool {
 /// Continuous river-channel and bank mask shared by terrain and geography.
 /// The inner half is the water channel; the outer half forms dry banks.
 pub fn river_strength(noise: RawNoise) -> f64 {
-  if !(0.37..0.60).contains(&noise.continentalness) {
-    return 0.0;
-  }
-
-  let distance = (noise.peaks_valleys - 0.5).abs();
+  let distance = river_distance(noise);
   const CHANNEL_RADIUS: f64 = 0.0125;
   // Keep the dry River-classified bank roughly 7-8 blocks wide beyond the
   // water channel. The noise gradient varies, so this is an approximate width.
@@ -162,6 +158,25 @@ pub fn river_strength(noise: RawNoise) -> f64 {
   let t = (distance - CHANNEL_RADIUS) / (BANK_RADIUS - CHANNEL_RADIUS);
   1.0 - t * t * (3.0 - 2.0 * t)
 }
+
+// Round the ends of the river corridor instead of cutting both the channel
+// and its banks off at the continentalness boundaries. This distance is in
+// noise space; the resulting width in world blocks varies with the gradient.
+fn river_distance(noise: RawNoise) -> f64 {
+  let across = (noise.peaks_valleys - 0.5).abs();
+  let beyond_end = (0.37 - noise.continentalness)
+    .max(noise.continentalness - 0.60)
+    .max(0.0) * 2.0;
+  across.hypot(beyond_end)
+}
+
+/// Include the entire flat shelf, including around the rounded river ends.
+pub fn is_river(noise: RawNoise) -> bool {
+  river_distance(noise) <= RIVER_WATERLINE_RADIUS
+}
+
+const RIVER_WATERLINE_RADIUS: f64 = 0.06;
+const RIVER_SLOPE_RADIUS: f64 = 0.16;
 
 /// Every intermediate value of the height function.
 #[derive(Debug, Clone, Copy)]
@@ -202,10 +217,20 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   if river >= 0.5 {
     // Lower the central channel smoothly below sea level, reaching Y=60 at
     // its center so every geographically classified river has a water bed.
-    height = 63.5 - (river - 0.5) * 7.0;
-  } else if river > 0.0 {
-    // Keep the outer channel margin dry and raise it into a gentle bank.
-    height = height.max(64.0 + (0.5 - river) * 4.0);
+    height = height.min(64.0 - (river - 0.5) * 8.0);
+  } else {
+    let river_distance = river_distance(noise);
+    if river_distance <= RIVER_WATERLINE_RADIUS {
+      // Keep a short, flat shelf at the waterline before the bank rises.
+      height = height.min(64.0);
+    } else if river_distance < RIVER_SLOPE_RADIUS {
+      // Blend the shelf into the natural terrain over a broad, smooth bank.
+      let t = (river_distance - RIVER_WATERLINE_RADIUS)
+        / (RIVER_SLOPE_RADIUS - RIVER_WATERLINE_RADIUS);
+      let slope = smoothstep(0.0, 1.0, t);
+      let bank_height = 64.0 + (height - 64.0).max(0.0) * slope;
+      height = height.min(bank_height);
+    }
   }
 
   // Shape rivers and their banks first. Delta influence then fades in inside
@@ -250,6 +275,32 @@ mod tests {
       delta_rarity: rarity,
       delta_islands: 0.5,
     }
+  }
+
+  #[test]
+  fn river_endpoints_and_slopes_are_continuous() {
+    for boundary in [0.29, 0.34, 0.37, 0.60, 0.63, 0.68] {
+      for peaks in [0.5, 0.54, 0.58] {
+        let mut before = sample(peaks, 0.0);
+        before.continentalness = boundary - 0.0000001;
+        let mut after = before;
+        after.continentalness = boundary + 0.0000001;
+        assert!((height(before) - height(after)).abs() < 0.001,
+          "height jump at continentalness {boundary}, peaks {peaks}");
+      }
+    }
+  }
+
+  #[test]
+  fn river_end_has_classified_flat_bank_beyond_water() {
+    let mut bank = sample(0.5, 0.0);
+    bank.continentalness = 0.629;
+    assert_eq!(river_strength(bank), 0.0);
+    assert!(is_river(bank));
+    assert!((height(bank) - 64.0).abs() < 0.0001);
+    bank.continentalness = 0.65;
+    assert!(!is_river(bank));
+    assert!(height(bank) > 64.0);
   }
 
   #[test]

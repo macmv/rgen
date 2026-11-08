@@ -9,7 +9,7 @@ use crate::{
   builder::BiomeBuilder,
   feature,
   table::{CLIMATE_TABLE, ClimateType, GeographicType},
-  terrain::{is_delta, river_strength},
+  terrain::{is_delta, is_river},
 };
 
 #[derive(Debug)]
@@ -65,7 +65,7 @@ impl WorldBiomes {
     }
 
     // Include the dry bank around the water channel in the river region.
-    if river_strength(noise) > 0.0 {
+    if is_river(noise) {
       return GeographicType::River;
     }
 
