@@ -84,6 +84,7 @@ pub fn climate_color(category: ClimateType) -> Color {
     ClimateType::BadLands => 0xb24d3c,
     ClimateType::Tropical => 0x176b4b,
     ClimateType::DebugClimate => 0xff00ff,
+    ClimateType::GeoTest => 0xffffff,
   })
 }
 

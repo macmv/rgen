@@ -8,6 +8,10 @@ mod frozen_region;
 #[allow(unused_imports)]
 pub use frozen_region::*;
 
+mod geo_test;
+#[allow(unused_imports)]
+pub use geo_test::*;
+
 mod hot_region;
 #[allow(unused_imports)]
 pub use hot_region::*;

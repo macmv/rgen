@@ -131,6 +131,17 @@ biome_categories!(
     let (GeographicType::Beach, ClimateType::WarmTemperate) =
       &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
 
+    // Geographic type visualizer: one solid surface color for each landform.
+    let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
+    let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
+    let (GeographicType::Beach, ClimateType::GeoTest) = &[b!(1, geo_test_beach)];
+    let (GeographicType::Delta, ClimateType::GeoTest) = &[b!(1, geo_test_delta)];
+    let (GeographicType::Canyon, ClimateType::GeoTest) = &[b!(1, geo_test_canyon)];
+    let (GeographicType::River, ClimateType::GeoTest) = &[b!(1, geo_test_river)];
+    let (GeographicType::Standard, ClimateType::GeoTest) = &[b!(1, geo_test_standard)];
+    let (GeographicType::Hills, ClimateType::GeoTest) = &[b!(1, geo_test_hills)];
+    let (GeographicType::Mountains, ClimateType::GeoTest) = &[b!(1, geo_test_mountains)];
+
     // Tropical vvv
 
     let (GeographicType::Standard, ClimateType::Tropical) = &[
@@ -201,6 +212,7 @@ pub enum ClimateType {
   BadLands,
   Tropical,
   DebugClimate,
+  GeoTest,
 }
 
 use ClimateType::*;

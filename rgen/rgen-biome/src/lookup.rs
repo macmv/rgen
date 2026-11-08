@@ -131,6 +131,10 @@ impl WorldBiomes {
   }
 
   pub fn climate_type(&self, pos: Pos) -> ClimateType {
+    if let Some(climate) = feature::CLIMATE_TYPE_OVERRIDE {
+      return climate;
+    }
+
     let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
 
@@ -190,7 +194,7 @@ impl WorldBiomes {
 
     BiomeKey {
       geographic: feature::GEOGRAPHIC_TYPE_OVERRIDE.unwrap_or_else(|| self.geographic_type(pos)),
-      climate:    feature::CLIMATE_TYPE_OVERRIDE.unwrap_or_else(|| self.climate_type(pos)),
+      climate:    self.climate_type(pos),
       variance:   self.variance(pos),
     }
   }
