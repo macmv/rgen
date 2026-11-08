@@ -78,6 +78,29 @@ pub struct RawNoise {
   pub erosion:         f64,
 }
 
+/// Continuous river-channel and bank mask shared by terrain and geography.
+/// The inner half is the water channel; the outer half forms dry banks.
+pub fn river_strength(noise: RawNoise) -> f64 {
+  if !(0.37..0.60).contains(&noise.continentalness) {
+    return 0.0;
+  }
+
+  let distance = (noise.peaks_valleys - 0.5).abs();
+  const CHANNEL_RADIUS: f64 = 0.0125;
+  // Keep the dry River-classified bank roughly 7-8 blocks wide beyond the
+  // water channel. The noise gradient varies, so this is an approximate width.
+  const BANK_RADIUS: f64 = 0.055;
+  if distance <= CHANNEL_RADIUS {
+    return 1.0;
+  }
+  if distance >= BANK_RADIUS {
+    return 0.0;
+  }
+
+  let t = (distance - CHANNEL_RADIUS) / (BANK_RADIUS - CHANNEL_RADIUS);
+  1.0 - t * t * (3.0 - 2.0 * t)
+}
+
 /// Every intermediate value of the height function.
 #[derive(Debug, Clone, Copy)]
 pub struct HeightParts {
@@ -111,7 +134,17 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   let e = lerp(0.2, e, impact);
   let p = lerp(8.0, p, impact);
 
-  let height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
+  let mut height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
+
+  let river = river_strength(noise);
+  if river >= 0.5 {
+    // Lower the central channel smoothly below sea level, reaching Y=60 at
+    // its center so every geographically classified river has a water bed.
+    height = 63.5 - (river - 0.5) * 7.0;
+  } else if river > 0.0 {
+    // Keep the outer channel margin dry and raise it into a gentle bank.
+    height = height.max(64.0 + (0.5 - river) * 4.0);
+  }
 
   HeightParts { c, impact, p, e, height }
 }
