@@ -9,6 +9,7 @@ use crate::{
   builder::BiomeBuilder,
   feature,
   table::{CLIMATE_TABLE, ClimateType, GeographicType},
+  terrain::river_strength,
 };
 
 #[derive(Debug)]
@@ -58,6 +59,11 @@ impl WorldBiomes {
   }
 
   pub fn geographic_type(&self, pos: Pos) -> GeographicType {
+    // Include the dry bank around the water channel in the river region.
+    if river_strength(self.terrain.sample(pos.x as f64, pos.z as f64)) > 0.0 {
+      return GeographicType::River;
+    }
+
     let continentalness = self.continentalness_category(pos);
     let peaks_valleys = self.peaks_valleys_category(pos);
     let erosion = self.erosion_category(pos);
@@ -73,13 +79,13 @@ impl WorldBiomes {
       (Coast, _, _) => GeographicType::Beach,
 
       (NearInland, Valley, 0) => GeographicType::Standard,
-      (NearInland, Valley, 1..=6) => GeographicType::River,
+      (NearInland, Valley, 1..=6) => GeographicType::Standard,
       (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
-      (NearInland, LowSlice, 6) => GeographicType::River,
+      (NearInland, LowSlice, 6) => GeographicType::Standard,
       (NearInland, MidSlice, 0) => GeographicType::Mountains,
       (NearInland, MidSlice, 1..=3) => GeographicType::Hills,
       (NearInland, MidSlice, 4..=5) => GeographicType::Standard,
-      (NearInland, MidSlice, 6) => GeographicType::River,
+      (NearInland, MidSlice, 6) => GeographicType::Standard,
       (NearInland, HighSlice, 0..=1) => GeographicType::Mountains,
       (NearInland, HighSlice, 2..=3) => GeographicType::Hills,
       (NearInland, HighSlice, 4..=6) => GeographicType::Standard,
