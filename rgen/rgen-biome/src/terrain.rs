@@ -104,7 +104,8 @@ pub struct RawNoise {
 // likely to become deltas, while the seeded rarity field keeps occurrences
 // spatially clustered rather than turning every coast into one.
 const DELTA_RARITY_THRESHOLD: f64 = 0.52;
-const DELTA_GEOGRAPHY_THRESHOLD: f64 = 0.35;
+const DELTA_GEOGRAPHY_THRESHOLD: f64 = 0.60;
+const DELTA_TERRAIN_BLEND_START: f64 = 0.35;
 
 /// Potential delta mouths are coastal, valley-shaped, and highly eroded
 /// (flatter) terrain. A separate seeded noise gate makes only some candidates
@@ -213,6 +214,7 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   let p = lerp(8.0, p, impact);
 
   let mut height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
+  let terrain_height = height;
 
   let river = river_strength(noise);
   if river >= 0.5 {
@@ -234,21 +236,23 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
     }
   }
 
-  // Shape rivers and their banks first. Delta influence then fades in inside
-  // the classified delta boundary, so weak noise outside a delta cannot erase
+  // Shape rivers and their banks first. Inside a delta, blend from the
+  // uncarved terrain so the main river channel does not continue as a straight
+  // cut through the delta's independently shaped islands and water pockets.
+  // Weak delta noise outside its classified boundary still cannot erase
   // rivers or flatten distant coastal terrain.
   let delta = delta_strength(noise);
-  let blend = smoothstep(DELTA_GEOGRAPHY_THRESHOLD, 0.85, delta);
+  let blend = smoothstep(DELTA_TERRAIN_BLEND_START, 0.85, delta);
   if blend > 0.0 {
-    let basin_height = lerp(height, 64.0, delta);
-    let delta_height = if noise.delta_islands >= 0.60 {
-      64.5 + (noise.delta_islands - 0.60) * 2.0
+    let basin_height = lerp(terrain_height, 64.0, delta);
+    let delta_height = if noise.delta_islands >= 0.68 {
+      64.5 + (noise.delta_islands - 0.68) * 2.0
     } else {
-      60.5 + noise.delta_islands * (4.0 / 0.60)
+      60.5 + noise.delta_islands * (4.0 / 0.68)
     };
     let island_detail = smoothstep(0.25, 0.85, delta);
     let target = lerp(basin_height, delta_height, island_detail);
-    height = lerp(height, target, blend);
+    height = lerp(terrain_height, target, blend);
   }
 
   HeightParts { c, impact, p, e, height }
