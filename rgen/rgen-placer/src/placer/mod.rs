@@ -1,8 +1,10 @@
 mod clump;
 mod complexplants;
+mod glasswort;
 mod ice;
 mod log;
 mod rock;
+mod reeds;
 mod scatter;
 mod splatter;
 mod splotch;
@@ -12,10 +14,12 @@ mod water;
 
 pub use clump::{BushClumps, Clumps, GrassClumps};
 pub use complexplants::*;
+pub use glasswort::Glasswort;
 pub use ice::*;
 pub use log::LogAndStump;
 pub use rock::*;
-pub use scatter::Scatter;
+pub use reeds::Reeds;
+pub use scatter::{DoubleScatter, Scatter};
 pub use splatter::Splatter;
 pub use splotch::Splotch;
 pub use spread::Spread;

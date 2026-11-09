@@ -457,6 +457,12 @@ blocks! {
 
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
   RgenMud => rgen:mud,
+  RgenGlasswort => rgen:glasswort[variant: 0..=5],
+  RgenReeds => rgen:reeds[
+    age: 0..=3,
+    half: ["lower", "upper"],
+  ],
+  RgenSaltMarshGrass => rgen:salt_marsh_grass,
   RgenDriedGrass => rgen:dried_grass[
     variant: ["brown_1", "brown_2", "brown_3", "green_1", "green_2", "green_3", "yellow_1", "yellow_2", "yellow_3"],
   ],

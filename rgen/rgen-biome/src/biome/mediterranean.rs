@@ -49,6 +49,8 @@ pub fn salt_marsh_plants() -> BlockFilter {
     block![double_plant],
     block![red_flower],
     block![yellow_flower],
+    block![rgen:glasswort],
+    block![rgen:salt_marsh_grass],
     block![rgen:dried_grass],
     block![rgen:double_tall_dried_grass],
   ]
@@ -110,47 +112,66 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
       replace: block![grass].into(),
       place: block![sand],
       radius: 1..=3,
-      avg_per_chunk: 0.08,
+      avg_per_chunk: 0.5,
     },
   );
 
   g.place(
-    "Brown dried grass",
+    "Glasswort",
     PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above: block![grass].into(),
-      place_short: block![rgen:dried_grass[variant = "brown_1"]],
-      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "brown_1"]],
-      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "brown_1"]],
-      radius: 4..=9,
-      attempts: 45,
+    placer::Glasswort {
       avg_per_chunk: 1.0,
+      attempts: 320,
     },
   );
+
   g.place(
-    "Yellow dried grass",
+    "Reeds",
     PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above: block![grass].into(),
-      place_short: block![rgen:dried_grass[variant = "yellow_1"]],
-      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "yellow_1"]],
-      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "yellow_1"]],
-      radius: 4..=9,
-      attempts: 45,
-      avg_per_chunk: 0.8,
+    placer::Reeds {
+      avg_per_chunk: 6.0,
+      attempts: 64,
+      must_be_one_block_deep: true,
     },
   );
+
+  // Keep the clump placer, spreading each color's density across every short
+  // variant. The tall block has variants _1 and _2, so _3 clumps reuse _1.
+  for (name, short, tall, avg_per_chunk) in [
+    ("Brown dried grass 1", block![rgen:dried_grass[variant = "brown_1"]], "brown_1", 2.0 / 3.0),
+    ("Brown dried grass 2", block![rgen:dried_grass[variant = "brown_2"]], "brown_2", 2.0 / 3.0),
+    ("Brown dried grass 3", block![rgen:dried_grass[variant = "brown_3"]], "brown_1", 2.0 / 3.0),
+    ("Yellow dried grass 1", block![rgen:dried_grass[variant = "yellow_1"]], "yellow_1", 1.6 / 3.0),
+    ("Yellow dried grass 2", block![rgen:dried_grass[variant = "yellow_2"]], "yellow_2", 1.6 / 3.0),
+    ("Yellow dried grass 3", block![rgen:dried_grass[variant = "yellow_3"]], "yellow_1", 1.6 / 3.0),
+    ("Green dried grass 1", block![rgen:dried_grass[variant = "green_1"]], "green_1", 1.0 / 3.0),
+    ("Green dried grass 2", block![rgen:dried_grass[variant = "green_2"]], "green_2", 1.0 / 3.0),
+    ("Green dried grass 3", block![rgen:dried_grass[variant = "green_3"]], "green_1", 1.0 / 3.0),
+  ] {
+    g.place(
+      name,
+      PlacerStage::Tree,
+      placer::GrassClumps {
+        place_above: [block![sand], block![grass]].into(),
+        place_short: short,
+        place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = tall]],
+        place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = tall]],
+        radius: 3..=5,
+        attempts: 45,
+        avg_per_chunk,
+      },
+    );
+  }
+
   g.place(
-    "Green dried grass",
+    "Salt marsh grass clumps",
     PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above: block![grass].into(),
-      place_short: block![rgen:dried_grass[variant = "green_1"]],
-      place_tall_lower: block![rgen:double_tall_dried_grass[half = "lower", variant = "green_1"]],
-      place_tall_upper: block![rgen:double_tall_dried_grass[half = "upper", variant = "green_1"]],
-      radius: 4..=9,
+    placer::Clumps {
+      place_above: [block![sand], block![grass]].into(),
+      place: block![rgen:salt_marsh_grass],
+      radius: 2..=5,
       attempts: 45,
-      avg_per_chunk: 0.5,
+      avg_per_chunk: 2.0,
     },
   );
 
@@ -160,8 +181,20 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     placer::Scatter {
       avg_per_chunk: 1.0,
       attempts: 320,
-      place_above: [block![grass], block![dirt]].into(),
+      place_above: [block![grass]].into(),
       place: block![tallgrass[type = "tall_grass"]],
+    },
+  );
+  g.place(
+    "Double tall grass",
+    PlacerStage::Tree,
+    placer::DoubleScatter {
+      avg_per_chunk: 0.2,
+      attempts: 320,
+      place_above: [block![grass]].into(),
+      // Vanilla metadata 2 is lower double-grass; 10 is upper.
+      place_lower: block![double_plant[2]],
+      place_upper: block![double_plant[10]],
     },
   );
 }
