@@ -43,6 +43,8 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::BasicDryBush {
       place_above:   [block![sand]].into(),
+      ground:        [block![sand]].into(),
+      plants:        [block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower]].into(),
       trunk:         block![log],
       leaves:        block![leaves],
       avg_per_chunk: 1.0,

@@ -133,19 +133,19 @@ biome_categories!(
 
     // Mediterranean vvv
     let (GeographicType::Standard, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_standard),
     ];
     let (GeographicType::River, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_river),
     ];
     let (GeographicType::Canyon, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_canyon),
     ];
     let (GeographicType::Hills, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_hills),
     ];
     let (GeographicType::Mountains, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains),
+      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_mountains),
     ];
     let (GeographicType::Beach, ClimateType::Mediterranean) = &[
       b!(20, redwood_grove),

@@ -466,6 +466,7 @@ blocks! {
   RgenDriedGrass => rgen:dried_grass[
     variant: ["brown_1", "brown_2", "brown_3", "green_1", "green_2", "green_3", "yellow_1", "yellow_2", "yellow_3"],
   ],
+  RgenYellowWildflowerShrub => rgen:yellow_wildflower_shrub,
   RgenDoubleTallDriedGrass => rgen:double_tall_dried_grass[
     half: ["upper", "lower"],
     variant: ["brown_1", "brown_2", "yellow_1", "yellow_2", "green_1", "green_2"],

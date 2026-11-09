@@ -13,7 +13,7 @@ mod tree;
 mod water;
 mod waterbed_patches;
 
-pub use clump::{BushClumps, Clumps, GrassClumps};
+pub use clump::{BushClumps, Clumps, DriedGrassClumps, GrassClumps};
 pub use complexplants::*;
 pub use glasswort::Glasswort;
 pub use ice::*;

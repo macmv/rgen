@@ -168,6 +168,8 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
       avg_per_chunk: 13_f64,
       leaves:        block![rgen:leaves3],
       place_above:   block![grass].into(),
+      ground:        [block![grass], block![dirt]].into(),
+      plants:        [block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower]].into(),
       trunk:         block![log[variant = "birch"]],
     },
   );
