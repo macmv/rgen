@@ -11,6 +11,7 @@ mod splotch;
 mod spread;
 mod tree;
 mod water;
+mod waterbed_patches;
 
 pub use clump::{BushClumps, Clumps, GrassClumps};
 pub use complexplants::*;
@@ -25,3 +26,4 @@ pub use splotch::Splotch;
 pub use spread::Spread;
 pub use tree::*;
 pub use water::*;
+pub use waterbed_patches::WaterbedPatches;

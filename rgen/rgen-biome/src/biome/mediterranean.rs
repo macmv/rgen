@@ -126,6 +126,18 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
   );
 
   g.place(
+    "Gravel patches under marsh channels",
+    PlacerStage::Sand,
+    placer::WaterbedPatches {
+      replace: [block![sand], block![rgen:mud], block![clay]].into(),
+      place: block![gravel],
+      radius: 2..=4,
+      attempts: 36,
+      avg_per_chunk: 1.0,
+    },
+  );
+
+  g.place(
     "Reeds",
     PlacerStage::Tree,
     placer::Reeds {
