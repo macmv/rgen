@@ -404,6 +404,15 @@ blocks! {
   Concrete => minecraft:concrete[color: COLOR],
   Cobblestone => minecraft:cobblestone,
   MossyCobblestone => minecraft:mossy_cobblestone,
+  StoneSlab => minecraft:stone_slab[
+    half: ["top", "bottom"],
+    variant: ["stone", "sandstone", "wood_old", "cobblestone", "brick", "stone_brick", "nether_brick", "quartz"],
+  ],
+  StoneStairs => minecraft:stone_stairs[
+    facing: ["north", "south", "west", "east"],
+    half: ["top", "bottom"],
+    shape: ["straight", "inner_left", "inner_right", "outer_left", "outer_right"],
+  ],
   Ice => minecraft:ice,
   PackedIce => minecraft:packed_ice,
   Tallgrass => minecraft:tallgrass[type: ["dead_bush", "tall_grass", "fern"]],

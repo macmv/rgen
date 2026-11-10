@@ -7,13 +7,14 @@ use crate::{Placer, Random, Result, Rng};
 pub struct Reeds {
   pub avg_per_chunk: f64,
   pub attempts: u32,
-  /// If true, require exactly one water block above the supporting soil.
+  /// Default rule: reeds sit above one water block, with ground directly
+  /// below that water (reeds / water / ground). Deeper water is opt-in.
   pub must_be_one_block_deep: bool,
 }
 
 impl Default for Reeds {
   fn default() -> Self {
-    Reeds { avg_per_chunk: 1.0, attempts: 64, must_be_one_block_deep: false }
+    Reeds { avg_per_chunk: 1.0, attempts: 64, must_be_one_block_deep: true }
   }
 }
 

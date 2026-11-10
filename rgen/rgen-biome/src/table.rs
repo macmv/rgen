@@ -132,31 +132,14 @@ biome_categories!(
     let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
 
     // Mediterranean vvv
-    let (GeographicType::Standard, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_standard),
-    ];
-    let (GeographicType::River, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_river),
-    ];
-    let (GeographicType::Canyon, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_canyon),
-    ];
-    let (GeographicType::Hills, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_hills),
-    ];
-    let (GeographicType::Mountains, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove), b!(45, chaparral_flats), b!(35, open_plains_mountains),
-    ];
-    let (GeographicType::Beach, ClimateType::Mediterranean) = &[
-      b!(20, redwood_grove),
-      b!(45, coastal_dunes),
-      b!(35, coastal_dunes),
-    ];
-    let (GeographicType::Delta, ClimateType::Mediterranean) = &[
-      b!(20, riparian_woodland),
-      b!(45, salt_marsh),
-      b!(35, salt_marsh),
-    ];
+    let (GeographicType::Standard, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland)];
+    let (GeographicType::River, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_river)];
+    let (GeographicType::Canyon, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_canyon)];
+    let (GeographicType::Hills, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_hills)];
+    let (GeographicType::Mountains, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_mountains)];
+    let (GeographicType::Beach, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_beach)];
+    // No cedar delta child exists yet; use its river variant for the temporary test lock.
+    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_river)];
 
     // Monsoon vvv
 

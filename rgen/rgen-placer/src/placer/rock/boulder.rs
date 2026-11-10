@@ -1,147 +1,226 @@
-use rgen_base::{BlockFilter, BlockState, Pos};
+use rgen_base::{BlockInfo, BlockState, Pos, block};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
 
-macro_rules! bool {
-  (x) => {
-    true
-  };
-  (.) => {
-    false
-  };
-}
-macro_rules! bools {
-  ($($x:tt)*) => {
-    [$( bool!($x) ),*]
-  };
-}
+/// Builds a compact, irregular boulder from selectable rock, slab, and stair
+/// materials.
 pub struct MossBoulder {
-  pub place_above:      BlockFilter,
-  pub phobic:           BlockFilter,
-  pub material:         BlockState,
-  pub avg_per_chunk:    f64,
-  pub plant_a:          BlockState,
-  pub plant_b:          BlockState,
-  pub use_large_plants: bool,
-  pub large_plants:     BlockFilter,
+  pub structure_mix: Vec<BlockState>,
+  pub slab_mix:      Vec<BlockState>,
+  pub stair_mix:     Vec<BlockState>,
+  pub small_weight:  u8,
+  pub medium_weight: u8,
+  pub medium_plus_weight: u8,
+  pub avg_per_chunk: f64,
 }
 
 impl Default for MossBoulder {
   fn default() -> Self {
-    MossBoulder {
-      place_above:      [block![stone], block![dirt]].into(),
-      phobic:           block![grass].into(),
-      material:         block![rgen:mossy_cobblestone_rgen],
-      avg_per_chunk:    2.0,
-      plant_a:          block![tallgrass[2]],
-      plant_b:          block![tallgrass[1]],
-      use_large_plants: false,
-      large_plants:     [block![double_plant[3]], block![double_plant[2]]].into(),
+    Self {
+      structure_mix: vec![
+        block![stone],
+        block![stone[variant = "andesite"]],
+        block![cobblestone],
+        block![mossy_cobblestone],
+        block![rgen:mossy_stone],
+      ],
+      slab_mix: vec![block![stone_slab[variant = "cobblestone", half = "bottom"]]],
+      stair_mix: vec![block![stone_stairs[half = "bottom", shape = "straight"]]],
+      small_weight: 50,
+      medium_weight: 35,
+      medium_plus_weight: 15,
+      avg_per_chunk: 2.0,
     }
   }
 }
 
 impl Placer for MossBoulder {
-  fn radius(&self) -> u8 { 16 }
+  fn radius(&self) -> u8 { 3 }
 
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    // Checks if tree will breach build height
-    let mut bolder_map = [
-      [bools!(. . .), bools!(. . .), bools!(. . .)],
-      [bools!(. . .), bools!(. . .), bools!(. . .)],
-      [bools!(. . .), bools!(. . .), bools!(. . .)],
-    ];
-
-    if pos.y + 20 >= 255 || pos.y <= 1 {
+    if pos.y <= 1
+      || pos.y + 3 >= 255
+      || self.structure_mix.is_empty()
+      || self.slab_mix.is_empty()
+      || self.stair_mix.is_empty()
+      || (self.small_weight as u16 + self.medium_weight as u16 + self.medium_plus_weight as u16) == 0
+      || world.get(pos) != block![air]
+      || world.get(pos + Pos::new(0, -1, 0)) == block![air]
+      || world.get(pos + Pos::new(0, -1, 0)) == block![water]
+    {
       return Err(UndoError);
     }
 
-    // Checks if tree will be built on air
-    let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return Err(UndoError);
-    }
-
-    //let min_y = rng.range(4..=6);
-
-    // Check to see if the boulder can be built
-    for (y, col) in bolder_map.iter_mut().enumerate() {
-      for (x, row) in col.iter_mut().enumerate() {
-        for (z, cell) in row.iter_mut().enumerate() {
-          let rel_y = y as i32 - 1;
-          let rel_x = x as i32 - 1;
-          let rel_z = z as i32 - 1;
-
-          // Underground part of the bolder
-          if rel_y == -1 {
-            if rel_x == 0 || rel_z == 0 {
-              if !self.place_above.contains(world.get(pos + Pos::new(rel_x, rel_y - 1, rel_z))) {
-                // The block below the bottom block is not in the list of place
-                // above i.e. the boulder is floating and cannot
-                // be built thus the build is canceled
-
-                return Err(UndoError);
-              }
-
-              *cell = true;
-            } else if rng.range(0..=3) == 0 {
-              *cell = true;
-            }
-
-          // Middle of boulder
-          } else if rel_y == 0 {
-            if rel_x == 0 && rel_z == 0 {
-              *cell = true;
-            } else if rel_x == 0 || rel_z == 0 {
-              if rng.range(0..=15) != 0 {
-                *cell = true;
-              }
-            } else if rng.range(0..=6) != 0 {
-              *cell = true;
-            }
-
-          // Top of boulder
-          } else if rel_y == 1 {
-            if rel_x == 0 && rel_z == 0 {
-              *cell = true;
-            } else if rel_x == 0 || rel_z == 0 {
-              if rng.range(0..=6) != 0 {
-                *cell = true;
-              }
-            } else if rng.range(0..=3) == 0 {
-              *cell = true;
-            }
+    let total = self.small_weight as i32 + self.medium_weight as i32 + self.medium_plus_weight as i32;
+    let shape_roll = rng.range(0..total);
+    let small = shape_roll < self.small_weight as i32;
+    let medium = !small && shape_roll < self.small_weight as i32 + self.medium_weight as i32;
+    let mut first_layer = vec![Pos::new(0, -1, 0), Pos::new(0, 1, 0)];
+    let mut core_positions = vec![Pos::new(0, 0, 0)];
+    let mut arm_positions = Vec::new();
+    let mut stair_corners = Vec::new();
+    if small {
+      first_layer.extend([
+        Pos::new(0, 0, 0),
+        Pos::new(-1, 0, 0),
+        Pos::new(1, 0, 0),
+        Pos::new(0, 0, -1),
+        Pos::new(0, 0, 1),
+      ]);
+      // Keep the original small boulder's extension and corner detail.
+      if rng.range(0..4) == 0 {
+        let axis_x = rng.range(0..2) == 0;
+        let sign = if rng.range(0..2) == 0 { -1 } else { 1 };
+        first_layer.push(if axis_x { Pos::new(sign * 2, 0, 0) } else { Pos::new(0, 0, sign * 2) });
+      }
+      for &(x, z) in &[(-1, -1), (-1, 1), (1, -1), (1, 1)] {
+        match rng.range(0..4) {
+          0 => first_layer.push(Pos::new(x, 0, z)),
+          1 => stair_corners.push((x, z)),
+          _ => {}
+        }
+      }
+    } else {
+      // A is an arm and C is a core. The medium shape has two cores;
+      // medium-plus adds a third core and its surrounding arms.
+      let rows: &[&str] = if medium {
+        &[" aa ", "acca", " aa "]
+      } else {
+        &[" aa ", "acca", " aca", "  a "]
+      };
+      let rotation = rng.range(0..4);
+      for (z, row) in rows.iter().enumerate() {
+        for (x, cell) in row.chars().enumerate() {
+          if cell != 'a' && cell != 'c' {
+            continue;
+          }
+          let (mut dx, mut dz) = (x as i32 - 1, z as i32 - 1);
+          for _ in 0..rotation {
+            (dx, dz) = (-dz, dx);
+          }
+          first_layer.push(Pos::new(dx, 0, dz));
+          if cell == 'c' {
+            core_positions.push(Pos::new(dx, 0, dz));
+          }
+          // Every added core gets the same raised rock top as the
+          // original core. The shared top-decoration pass can then
+          // place a slab or a stair above it.
+          if cell == 'c' && (dx != 0 || dz != 0) {
+            first_layer.push(Pos::new(dx, 1, dz));
           }
         }
       }
     }
 
-    // Now the bolder gets built
-    for (y, col) in bolder_map.iter().enumerate() {
-      for (x, row) in col.iter().enumerate() {
-        for (z, cell) in row.iter().enumerate() {
-          self.build_bolder(world, pos, *cell, x as i32 - 1, y as i32 - 1, z as i32 - 1);
+    for offset in &first_layer {
+      world.set(pos + *offset, *rng.choose(&self.structure_mix));
+    }
+
+    for &(x, z) in &stair_corners {
+      let mut stair = *rng.choose(&self.stair_mix);
+      let facing = match (x, z) {
+        (-1, -1) => if rng.range(0..2) == 0 { "east" } else { "south" },
+        (-1, 1) => if rng.range(0..2) == 0 { "east" } else { "north" },
+        (1, -1) => if rng.range(0..2) == 0 { "west" } else { "south" },
+        (1, 1) => if rng.range(0..2) == 0 { "west" } else { "north" },
+        _ => unreachable!(),
+      };
+      // The stair rises toward the core. Its open front is on the
+      // opposite side; leave it out when that space is obstructed.
+      let front_offset = match facing {
+        "east" => Pos::new(-1, 0, 0),
+        "west" => Pos::new(1, 0, 0),
+        "north" => Pos::new(0, 0, 1),
+        "south" => Pos::new(0, 0, -1),
+        _ => unreachable!(),
+      };
+      let front = world.get(pos + Pos::new(x, 0, z) + front_offset);
+      if front != block![air] && !is_plant(front) {
+        continue;
+      }
+      stair.set_prop("facing", facing);
+      world.set(pos + Pos::new(x, 0, z), stair);
+      arm_positions.push(Pos::new(x, 0, z));
+    }
+
+    arm_positions.extend(first_layer.iter().copied().filter(|offset| {
+      offset.y == 0 && !core_positions.contains(offset)
+    }));
+    let mut footings = Vec::new();
+    for arm in &arm_positions {
+      let footing = Pos::new(arm.x, -1, arm.z);
+      if footings.contains(&footing) {
+        continue;
+      }
+      footings.push(footing);
+      let three_air_below = (1..=3).all(|depth| world.get(pos + *arm + Pos::new(0, -depth, 0)) == block![air]);
+      if three_air_below {
+        world.set(pos + footing, *rng.choose(&self.structure_mix));
+      } else {
+        place_gravel_column(world, rng, pos + footing, block![gravel]);
+      }
+    }
+    // Scatter gravel around the arm footings only where supported.
+    // One in five supported spots uses the rock mix instead.
+    let mut surrounding = Vec::new();
+    for arm in &arm_positions {
+      for (dx, dz) in [(0, -1), (1, 0), (0, 1), (-1, 0)] {
+        let offset = Pos::new(arm.x + dx, -1, arm.z + dz);
+        if !surrounding.contains(&offset) {
+          surrounding.push(offset);
         }
       }
     }
+    for offset in surrounding {
+      if footings.contains(&offset)
+        || core_positions.iter().any(|core| core.x == offset.x && core.z == offset.z)
+        || world.get(pos + offset + Pos::new(0, -1, 0)) == block![air]
+      {
+        continue;
+      }
+      let material = if rng.range(0..5) == 0 { *rng.choose(&self.structure_mix) } else { block![gravel] };
+      place_gravel_column(world, rng, pos + offset, material);
+    }
 
-    //grass and fern placment
-    for y in 0..=2_i32 {
-      for x in -1..=1_i32 {
-        for z in -1..=1_i32 {
-          if world.get(pos + Pos::new(x, y, z)) == BlockState::AIR
-            && world.get(pos + Pos::new(x, y - 1, z)) == self.material
-          {
-            let ran = rng.range(0..=5);
-            if ran == 0 {
-              world.set(pos + Pos::new(x, y, z), self.plant_a);
-            } else if ran == 1 {
-              world.set(pos + Pos::new(x, y, z), self.plant_b);
-            }
+    // Each exposed rock top has a one-in-nine decoration roll. One in
+    // nine of those decorations is a stair instead of a slab.
+    for offset in first_layer {
+      let above = pos + offset + Pos::new(0, 1, 0);
+      if world.get(above) == block![air] && rng.range(0..9) == 0 {
+        let overhead = world.get(above + Pos::new(0, 1, 0));
+        if is_ground(overhead) || self.structure_mix.iter().any(|rock| overhead == *rock) {
+          world.set(above, *rng.choose(&self.structure_mix));
+          continue;
+        }
+        if rng.range(0..9) == 0 {
+          let facing = if offset.x < 0 {
+            "east"
+          } else if offset.x > 0 {
+            "west"
+          } else if offset.z < 0 {
+            "south"
+          } else if offset.z > 0 {
+            "north"
+          } else {
+            ["north", "east", "south", "west"][rng.range(0..4) as usize]
+          };
+          let front_offset = match facing {
+            "east" => Pos::new(-1, 0, 0),
+            "west" => Pos::new(1, 0, 0),
+            "north" => Pos::new(0, 0, 1),
+            _ => Pos::new(0, 0, -1),
+          };
+          let front = world.get(above + front_offset);
+          if front == block![air] || is_plant(front) {
+            let mut stair = *rng.choose(&self.stair_mix);
+            stair.set_prop("facing", facing);
+            world.set(above, stair);
           }
+        } else {
+          world.set(above, *rng.choose(&self.slab_mix));
         }
       }
     }
@@ -150,19 +229,39 @@ impl Placer for MossBoulder {
   }
 }
 
-impl MossBoulder {
-  fn build_bolder(
-    &self,
-    world: &mut PartialWorld,
-    pos: Pos,
-    cell: bool,
-    x: i32,
-    height: i32,
-    z: i32,
-  ) {
-    let rel_pos = pos + Pos::new(x, height, z);
-    if cell {
-      world.set(rel_pos, self.material);
+fn place_gravel_column(world: &mut PartialWorld, rng: &mut Rng, top: Pos, top_material: BlockState) {
+  let depth = rng.range(2..=3);
+  world.set(top, top_material);
+  for step in 1..depth {
+    let below = top + Pos::new(0, -step, 0);
+    if world.get(below) == block![air] {
+      break;
     }
+    world.set(below, block![gravel]);
   }
+}
+
+fn is_ground(state: BlockInfo<'_>) -> bool {
+  let kind = state.block_kind();
+  kind == block![grass].block
+    || kind == block![dirt].block
+    || kind == block![sand].block
+    || kind == block![gravel].block
+    || kind == block![clay].block
+    || kind == block![stone].block
+    || kind == block![cobblestone].block
+    || kind == block![mossy_cobblestone].block
+}
+
+fn is_plant(state: BlockInfo<'_>) -> bool {
+  let kind = state.block_kind();
+  kind == block![tallgrass].block
+    || kind == block![double_plant].block
+    || kind == block![red_flower].block
+    || kind == block![yellow_flower].block
+    || kind == block![brown_mushroom].block
+    || kind == block![rgen:dried_grass].block
+    || kind == block![rgen:double_tall_dried_grass].block
+    || kind == block![rgen:salt_marsh_grass].block
+    || kind == block![rgen:reeds].block
 }
