@@ -499,6 +499,7 @@ blocks! {
   RgenJungleStump => rgen:covered_jungle_log[
     axis: ["x", "y", "z", "none"],
   ],
+  RgenCoveredBirchLog => rgen:covered_birch_log[axis: ["x", "y", "z", "none"]],
   RgenAcaciaGrassLog => rgen:covered_acacia_log[axis: ["x", "y", "z", "none"]],
   RgenDarkOakMossLog => rgen:covered_dark_oak_log[axis: ["x", "y", "z", "none"]],
   RgenFirSnowLog => rgen:covered_fir_log[axis: ["x", "y", "z", "none"]],

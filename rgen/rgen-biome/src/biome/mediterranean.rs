@@ -261,9 +261,206 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
 pub fn riparian_woodland(g: &mut BiomeBuilder) {
   g.id = biome![taiga];
   g.color = "#779C83";
-  g.set_top_block(block![grass]);
-  g.set_underwater_block(block![clay]);
-  g.place("Riparian woodland trees", PlacerStage::Tree, placer::OakTree::default());
+  g.set_top_block(block![gravel]);
+  g.add_layer(block![gravel], 3, 5);
+  g.set_underwater_block(block![gravel]);
+  g.add_underwater_layer(block![gravel], 2, 4);
+
+  // Scattered patches vary the gravel floor. Grass and coarse dirt support plants.
+  for (name, place, radius, avg_per_chunk) in [
+    ("Riparian coarse dirt flecks", block![dirt[variant = "coarse_dirt"]], 1..=2, 10.0),
+    ("Riparian grass flecks", block![grass], 1..=3, 5.0),
+    ("Riparian clay flecks", block![clay], 1..=3, 5.0),
+    ("Riparian andesite flecks", block![stone[variant = "andesite"]], 1..=3, 4.0),
+    ("Riparian stone flecks", block![stone], 1..=3, 4.0),
+    ("Riparian mossy cobblestone flecks", block![mossy_cobblestone], 1..=3, 3.0),
+  ] {
+    g.place(
+      name,
+      PlacerStage::Sand,
+      placer::Splotch {
+        replace: block![gravel].into(),
+        place,
+        radius,
+        avg_per_chunk,
+      },
+    );
+  }
+
+  g.place(
+    "Riparian moss carpet",
+    PlacerStage::Sand2,
+    placer::Spread {
+      replace: [block![gravel], block![mossy_cobblestone], block![stone], block![stone[variant = "andesite"]]].into(),
+      place: block![rgen:mossy_carpet],
+      radius: 2..=4,
+      avg_per_chunk: 1.5,
+    },
+  );
+  g.place(
+    "Riparian mossy bushes",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: [
+        block![grass],
+        block![dirt],
+        block![dirt[variant = "coarse_dirt"]],
+        block![gravel],
+        block![clay],
+        block![mossy_cobblestone],
+      ]
+      .into(),
+      place: block![rgen:plant],
+      avg_per_chunk: 1.5,
+      attempts: 80,
+    },
+  );
+  g.place(
+    "Riparian boulders",
+    PlacerStage::Tree,
+    placer::MossBoulder { avg_per_chunk: 1.8, ..placer::MossBoulder::default() },
+  );
+  let willow_ground: BlockFilter = [
+    block![gravel],
+    block![grass],
+    block![dirt],
+    block![dirt[variant = "coarse_dirt"]],
+    block![clay],
+    block![stone],
+    block![stone[variant = "andesite"]],
+    block![cobblestone],
+    block![mossy_cobblestone],
+    block![sand],
+  ]
+  .into();
+  g.place(
+    "Riparian willow sites",
+    PlacerStage::Tree,
+    placer::WillowTree {
+      ground: willow_ground.clone(),
+      plantable: willow_ground.clone(),
+      plants: [
+        block![tallgrass],
+        block![double_plant],
+        block![rgen:plant],
+        block![rgen:mossy_carpet],
+        block![red_flower],
+        block![yellow_flower],
+      ]
+      .into(),
+      // Birch is temporary wood while the willow geometry is being designed.
+      log: block![log[variant = "birch"]],
+      leaves: block![leaves[variant = "birch", check_decay = false, decayable = false]],
+      avg_per_chunk: 6.0,
+    },
+  );
+  let willow_plants: BlockFilter = [
+    block![tallgrass], block![double_plant], block![rgen:plant],
+    block![rgen:mossy_carpet], block![red_flower], block![yellow_flower],
+  ].into();
+  g.place(
+    "Birch tall bushes",
+    PlacerStage::Tree,
+    placer::TallBush {
+      ground: willow_ground.clone(),
+      plantable: willow_ground.clone(),
+      plants: willow_plants.clone(),
+      log: block![log[variant = "birch"]],
+      leaves: block![leaves[variant = "birch", check_decay = false, decayable = false]],
+      allow_water_under_leaves: true,
+      avg_per_chunk: 6.0,
+    },
+  );
+  g.place(
+    "Aspen tall bushes",
+    PlacerStage::Tree,
+    placer::TallBush {
+      ground: willow_ground.clone(),
+      plantable: willow_ground.clone(),
+      plants: willow_plants,
+      log: block![log[variant = "birch"]],
+      leaves: block![rgen:leaves3[variant = "aspen", check_decay = false, decayable = false]],
+      allow_water_under_leaves: true,
+      avg_per_chunk: 4.0,
+    },
+  );
+  g.place(
+    "Riparian aspen trees",
+    PlacerStage::Tree,
+    placer::AspenTree {
+      place_above: willow_ground.clone(),
+      trunk: block![log[variant = "birch"]],
+      leaves: block![rgen:leaves3[variant = "aspen", check_decay = false, decayable = false]],
+      avg_per_chunk: 1.0,
+      ..placer::AspenTree::default()
+    },
+  );
+  g.place(
+    "Fallen birch logs",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log: block![log[variant = "birch"]],
+      moss_log: block![rgen:covered_birch_log[axis = "none"]],
+      ground: block![gravel],
+      plants: [block![tallgrass], block![double_plant], block![rgen:plant]].into(),
+      avg_per_chunk: 0.6,
+      chance_of_moss: 7,
+      is_shrooms: false,
+      shroom: block![rgen:polypore],
+    },
+  );
+  g.place(
+    "Rare riparian cobblestone slabs",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: block![gravel].into(),
+      place: block![stone_slab[variant = "cobblestone", half = "bottom"]],
+      avg_per_chunk: 1.0,
+      attempts: 3,
+    },
+  );
+  g.place(
+    "Riparian tall grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
+      place_short: block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
+      radius: 2..=4,
+      attempts: 55,
+      avg_per_chunk: 4.0,
+    },
+  );
+  g.place(
+    "Riparian fern clumps",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
+      place_short: block![tallgrass[type = "fern"]],
+      place_tall_lower: block![double_plant[variant = "double_fern", half = "lower"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
+      radius: 2..=4,
+      attempts: 45,
+      avg_per_chunk: 3.0,
+    },
+  );
+  g.place(
+    "Riparian tall ferns",
+    PlacerStage::Tree,
+    placer::DoubleScatter {
+      place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
+      place_lower: block![double_plant[variant = "double_fern", half = "lower"]],
+      place_upper: block![double_plant[half = "upper"]],
+      avg_per_chunk: 1.2,
+      attempts: 120,
+    },
+  );
+  g.place(
+    "Riparian reeds",
+    PlacerStage::Tree,
+    placer::Reeds { avg_per_chunk: 4.0, attempts: 64, must_be_one_block_deep: true },
+  );
 }
 
 pub fn chaparral_flats(g: &mut BiomeBuilder) {
@@ -321,6 +518,7 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
       plants: salt_marsh_plants(),
       log: block![log[axis = "y", variant = "oak"]],
       leaves: block![leaves[variant = "oak", check_decay = false, decayable = true]],
+      allow_water_under_leaves: false,
       avg_per_chunk: 4.25,
     },
   );
@@ -835,6 +1033,7 @@ fn add_cedar_tall_bushes(g: &mut BiomeBuilder, avg_per_chunk: f64) {
       .into(),
       log: block![rgen:log[axis = "y", variant = "cedar"]],
       leaves: block![rgen:leaves[variant = "cedar", check_decay = false, decayable = true]],
+      allow_water_under_leaves: false,
       avg_per_chunk,
     },
   );

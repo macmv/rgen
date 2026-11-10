@@ -17,6 +17,7 @@ mod palm;
 mod sequoia;
 mod tall_bush;
 mod wide_canopy_jungle;
+mod willow;
 
 pub use aspen_tree::*;
 pub use bamboo::*;
@@ -37,3 +38,4 @@ pub use palm::*;
 pub use sequoia::*;
 pub use tall_bush::*;
 pub use wide_canopy_jungle::*;
+pub use willow::*;

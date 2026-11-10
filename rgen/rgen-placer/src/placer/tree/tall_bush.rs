@@ -13,6 +13,8 @@ pub struct TallBush {
   pub plants: BlockFilter,
   pub log: BlockState,
   pub leaves: BlockState,
+  /// Allow water beneath canopy positions during the surrounding-ground check.
+  pub allow_water_under_leaves: bool,
   pub avg_per_chunk: f64,
 }
 
@@ -30,11 +32,14 @@ impl Placer for TallBush {
       return Err(UndoError);
     }
 
-    // Require non-water, acceptable ground throughout the one-block radius.
+    // Require acceptable ground throughout the one-block radius. Riparian
+    // bushes may extend their canopy over water while still rooting on land.
     for x in -1_i32..=1 {
       for z in -1_i32..=1 {
         let ground = world.get(ground_pos + Pos::new(x, 0, z));
-        if ground == block![water] || !self.ground.contains(ground) {
+        if (ground == block![water] && !self.allow_water_under_leaves)
+          || (ground != block![water] && !self.ground.contains(ground))
+        {
           return Err(UndoError);
         }
       }

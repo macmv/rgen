@@ -138,8 +138,7 @@ biome_categories!(
     let (GeographicType::Hills, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_hills)];
     let (GeographicType::Mountains, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_mountains)];
     let (GeographicType::Beach, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_beach)];
-    // No cedar delta child exists yet; use its river variant for the temporary test lock.
-    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_river)];
+    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(1, riparian_woodland)];
 
     // Monsoon vvv
 
