@@ -404,6 +404,15 @@ blocks! {
   Concrete => minecraft:concrete[color: COLOR],
   Cobblestone => minecraft:cobblestone,
   MossyCobblestone => minecraft:mossy_cobblestone,
+  StoneSlab => minecraft:stone_slab[
+    half: ["top", "bottom"],
+    variant: ["stone", "sandstone", "wood_old", "cobblestone", "brick", "stone_brick", "nether_brick", "quartz"],
+  ],
+  StoneStairs => minecraft:stone_stairs[
+    facing: ["north", "south", "west", "east"],
+    half: ["top", "bottom"],
+    shape: ["straight", "inner_left", "inner_right", "outer_left", "outer_right"],
+  ],
   Ice => minecraft:ice,
   PackedIce => minecraft:packed_ice,
   Tallgrass => minecraft:tallgrass[type: ["dead_bush", "tall_grass", "fern"]],
@@ -456,6 +465,22 @@ blocks! {
   EmeraldOre => minecraft:emerald_ore,
 
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
+  RgenMud => rgen:mud,
+  RgenGlasswort => rgen:glasswort[variant: 0..=5],
+  RgenReeds => rgen:reeds[
+    age: 0..=3,
+    half: ["lower", "upper"],
+  ],
+  RgenSaltMarshGrass => rgen:salt_marsh_grass,
+  RgenDuneGrass => rgen:dune_grass[variant: ["a", "b", "c"]],
+  RgenDriedGrass => rgen:dried_grass[
+    variant: ["brown_1", "brown_2", "brown_3", "green_1", "green_2", "green_3", "yellow_1", "yellow_2", "yellow_3"],
+  ],
+  RgenYellowWildflowerShrub => rgen:yellow_wildflower_shrub,
+  RgenDoubleTallDriedGrass => rgen:double_tall_dried_grass[
+    half: ["upper", "lower"],
+    variant: ["brown_1", "brown_2", "yellow_1", "yellow_2", "green_1", "green_2"],
+  ],
   RgenLog2 => rgen:log2[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_2_LOG],
   RgenLeaves => rgen:leaves[
     check_decay: PropType::Bool,
@@ -475,6 +500,8 @@ blocks! {
   RgenJungleStump => rgen:covered_jungle_log[
     axis: ["x", "y", "z", "none"],
   ],
+  RgenCoveredOakLog => rgen:covered_oak_log[axis: ["x", "y", "z", "none"]],
+  RgenCoveredBirchLog => rgen:covered_birch_log[axis: ["x", "y", "z", "none"]],
   RgenAcaciaGrassLog => rgen:covered_acacia_log[axis: ["x", "y", "z", "none"]],
   RgenDarkOakMossLog => rgen:covered_dark_oak_log[axis: ["x", "y", "z", "none"]],
   RgenFirSnowLog => rgen:covered_fir_log[axis: ["x", "y", "z", "none"]],

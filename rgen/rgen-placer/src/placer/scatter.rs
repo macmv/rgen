@@ -11,6 +11,15 @@ pub struct Scatter {
   pub attempts: u32,
 }
 
+/// Scatters a two-block plant, using the same candidate locations as Scatter.
+pub struct DoubleScatter {
+  pub place_above:   BlockFilter,
+  pub avg_per_chunk: f64,
+  pub place_lower:   BlockState,
+  pub place_upper:   BlockState,
+  pub attempts:      u32,
+}
+
 impl Default for Scatter {
   fn default() -> Self {
     Scatter {
@@ -33,6 +42,30 @@ impl Placer for Scatter {
 
       if self.place_above.contains(world.get(below_pos)) && world.get(pos) == block![air] {
         world.set(pos, self.place);
+      }
+    }
+
+    Ok(())
+  }
+}
+
+impl Placer for DoubleScatter {
+  fn radius(&self) -> u8 { 8 }
+
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    for _ in 0..self.attempts {
+      let pos = pos + Pos::new(rng.range(-8..=8), rng.range(-4..=4), rng.range(-8..=8));
+      let below_pos = pos + Pos::new(0, -1, 0);
+      let above_pos = pos + Pos::new(0, 1, 0);
+
+      if self.place_above.contains(world.get(below_pos))
+        && world.get(pos) == block![air]
+        && world.get(above_pos) == block![air]
+      {
+        world.set(pos, self.place_lower);
+        world.set(above_pos, self.place_upper);
       }
     }
 
