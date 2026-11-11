@@ -472,6 +472,7 @@ blocks! {
     half: ["lower", "upper"],
   ],
   RgenSaltMarshGrass => rgen:salt_marsh_grass,
+  RgenDuneGrass => rgen:dune_grass[variant: ["a", "b", "c"]],
   RgenDriedGrass => rgen:dried_grass[
     variant: ["brown_1", "brown_2", "brown_3", "green_1", "green_2", "green_3", "yellow_1", "yellow_2", "yellow_3"],
   ],
@@ -499,6 +500,7 @@ blocks! {
   RgenJungleStump => rgen:covered_jungle_log[
     axis: ["x", "y", "z", "none"],
   ],
+  RgenCoveredOakLog => rgen:covered_oak_log[axis: ["x", "y", "z", "none"]],
   RgenCoveredBirchLog => rgen:covered_birch_log[axis: ["x", "y", "z", "none"]],
   RgenAcaciaGrassLog => rgen:covered_acacia_log[axis: ["x", "y", "z", "none"]],
   RgenDarkOakMossLog => rgen:covered_dark_oak_log[axis: ["x", "y", "z", "none"]],

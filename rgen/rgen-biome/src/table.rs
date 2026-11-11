@@ -132,13 +132,20 @@ biome_categories!(
     let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
 
     // Mediterranean vvv
-    let (GeographicType::Standard, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland)];
-    let (GeographicType::River, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_river)];
-    let (GeographicType::Canyon, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_canyon)];
-    let (GeographicType::Hills, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_hills)];
-    let (GeographicType::Mountains, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_mountains)];
-    let (GeographicType::Beach, ClimateType::Mediterranean) = &[b!(1, lebanon_cedar_woodland_beach)];
-    let (GeographicType::Delta, ClimateType::Mediterranean) = &[b!(1, riparian_woodland)];
+    let (GeographicType::Standard, ClimateType::Mediterranean) =
+      &[b!(100, chaparral_flats)];
+    let (GeographicType::River, ClimateType::Mediterranean) =
+      &[b!(100, chaparral_flats_river)];
+    let (GeographicType::Canyon, ClimateType::Mediterranean) =
+      &[b!(100, chaparral_flats_canyon)];
+    let (GeographicType::Hills, ClimateType::Mediterranean) =
+      &[b!(100, chaparral_flats_hills)];
+    let (GeographicType::Mountains, ClimateType::Mediterranean) =
+      &[b!(100, chaparral_flats_mountains)];
+    let (GeographicType::Beach, ClimateType::Mediterranean) =
+      &[b!(100, coastal_dunes)];
+    let (GeographicType::Delta, ClimateType::Mediterranean) =
+      &[b!(100, salt_marsh)];
 
     // Monsoon vvv
 

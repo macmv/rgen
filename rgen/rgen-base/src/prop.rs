@@ -414,6 +414,7 @@ intern! { PropName, prop_name
 }
 
 intern! { PropEnum, prop_enum
+  A                    => a,
   Acacia               => acacia,
   AllInside            => all_inside,
   Allium               => allium,
@@ -450,6 +451,7 @@ intern! { PropEnum, prop_enum
   CrackedBrick         => cracked_brick,
   CrackedStonebrick    => cracked_stonebrick,
   Cyan                 => cyan,
+  B                    => b,
   Dandelion            => dandelion,
   DarkOak              => dark_oak,
   DarkPrismarine       => dark_prismarine,
@@ -457,6 +459,7 @@ intern! { PropEnum, prop_enum
   DeadBush             => dead_bush,
   Dead                 => dead,
   Default              => default,
+  C                    => c,
   Diorite              => diorite,
   Dirt                 => dirt,
   DoubleFern           => double_fern,

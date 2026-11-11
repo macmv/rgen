@@ -108,6 +108,8 @@ pub fn lebanon_cedar_woodland_hills(g: &mut BiomeBuilder) {
 
 pub fn lebanon_cedar_woodland_mountains(g: &mut BiomeBuilder) {
   lebanon_cedar_woodland(g);
+  g.layers[1].min_depth = 1;
+  g.layers[1].max_depth = 2;
   g.place(
     "Mountain rock surface",
     PlacerStage::Sand,
@@ -464,19 +466,206 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
 }
 
 pub fn chaparral_flats(g: &mut BiomeBuilder) {
+  build_chaparral_flats(g, None);
+}
+
+pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
+  build_chaparral_flats(g, Some(2.0));
+  g.set_underwater_block(block![gravel]);
+  g.add_underwater_layer(block![sand], 1, 2);
+  g.add_underwater_layer(block![stone], 1, 2);
+
+  g.place(
+    "Chaparral river gravel bank flecks",
+    PlacerStage::Sand2,
+    placer::ShorelineSplotch {
+      replace: [block![grass], block![dirt]].into(),
+      place: block![gravel],
+      radius: 1..=3,
+      attempts: 24,
+      avg_per_chunk: 0.45,
+    },
+  );
+  g.place(
+    "Chaparral river stone bank flecks",
+    PlacerStage::Sand2,
+    placer::ShorelineSplotch {
+      replace: [block![grass], block![dirt]].into(),
+      place: block![stone],
+      radius: 1..=2,
+      attempts: 20,
+      avg_per_chunk: 0.25,
+    },
+  );
+  g.place(
+    "Chaparral river reeds",
+    PlacerStage::Tree,
+    placer::Reeds { avg_per_chunk: 4.0, attempts: 64, must_be_one_block_deep: true },
+  );
+}
+
+pub fn chaparral_flats_canyon(g: &mut BiomeBuilder) {
+  build_chaparral_flats(g, None);
+}
+
+pub fn chaparral_flats_hills(g: &mut BiomeBuilder) {
+  build_chaparral_flats(g, None);
+  add_chaparral_rock_surface(g, 8);
+}
+
+pub fn chaparral_flats_mountains(g: &mut BiomeBuilder) {
+  build_chaparral_flats(g, Some(0.4));
+  // The mountain variant exposes its stone surface after a thin soil layer.
+  g.add_layer(block![dirt], 1, 2);
+  add_chaparral_rock_surface(g, 12);
+}
+
+fn build_chaparral_flats(g: &mut BiomeBuilder, tall_bush_rate: Option<f64>) {
   g.id = biome![savanna];
   g.color = "#A9A06B";
   g.set_top_block(block![grass]);
+
+  let below_mix = vec![
+    block![stone], block![stone], block![stone], block![stone],
+    block![stone], block![stone], block![stone], block![stone],
+    block![stone[variant = "andesite"]], block![gravel],
+  ];
+  let below_replace: BlockFilter = [
+    block![dirt],
+    block![dirt[variant = "coarse_dirt"]],
+    block![dirt[variant = "podzol"]],
+  ]
+  .into();
   g.place(
-    "Chaparral shrubs",
+    "Chaparral gravel deposits",
+    PlacerStage::Sand,
+    placer::SubsurfaceSplotch {
+      surface_replace: block![grass].into(),
+      below_replace: below_replace.clone(),
+      place: block![gravel],
+      below_mix: below_mix.clone(),
+      radius: 1..=3,
+      depth: 1..=3,
+      avg_per_chunk: 1.0,
+      stretch_chance: 25,
+    },
+  );
+  g.place(
+    "Chaparral red sand deposits",
+    PlacerStage::Sand,
+    placer::SubsurfaceSplotch {
+      surface_replace: block![grass].into(),
+      below_replace,
+      place: block![sand[variant = "red_sand"]],
+      below_mix: vec![block![red_sandstone], block![sand[variant = "red_sand"]]],
+      radius: 1..=3,
+      depth: 1..=3,
+      avg_per_chunk: 0.6,
+      stretch_chance: 25,
+    },
+  );
+  g.place(
+    "Chaparral dead bushes on red sand",
     PlacerStage::Tree,
-    placer::BasicDryBush {
-      avg_per_chunk: 5.0,
-      leaves: block![leaves[variant = "oak"]],
+    placer::Scatter {
+      place_above: [block![sand[variant = "red_sand"]]].into(),
+      place: block![tallgrass[type = "dead_bush"]],
+      avg_per_chunk: 1.0,
+      attempts: 80,
+    },
+  );
+  g.place(
+    "Chaparral dried grass patches",
+    PlacerStage::Tree,
+    placer::DriedGrassClumps {
+      place_above: [block![grass]].into(),
+      radius: 2..=4,
+      attempts: 40,
+      avg_per_chunk: 2.0,
+    },
+  );
+  g.place(
+    "Chaparral tall grass patches",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: [block![grass]].into(),
+      place_short: block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
+      radius: 2..=4,
+      attempts: 40,
+      avg_per_chunk: 1.5,
+    },
+  );
+  g.place(
+    "Chaparral yellow wildflower shrubs",
+    PlacerStage::Tree,
+    placer::Scatter {
       place_above: block![grass].into(),
-      ground: [block![grass], block![dirt]].into(),
+      place: block![rgen:yellow_wildflower_shrub],
+      avg_per_chunk: 0.25,
+      attempts: 80,
+    },
+  );
+  g.place(
+    "Chaparral leaf clumps",
+    PlacerStage::Tree,
+    placer::LeafClumps {
+      place_above: block![grass].into(),
+      leaves: block![leaves[variant = "oak", check_decay = false, decayable = false]],
+      avg_per_chunk: 1.0,
+    },
+  );
+  g.place(
+    "Chaparral fallen oak logs and stumps",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log: block![log[variant = "oak"]],
+      moss_log: block![log[axis = "y", variant = "oak"]],
+      ground: block![grass],
       plants: [block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower]].into(),
-      trunk: block![log[variant = "oak"]],
+      avg_per_chunk: 1.2,
+      chance_of_moss: 10,
+      is_shrooms: false,
+      shroom: block![rgen:polypore],
+    },
+  );
+
+  if let Some(avg_per_chunk) = tall_bush_rate {
+    add_chaparral_tall_bushes(g, avg_per_chunk);
+  }
+
+}
+
+fn add_chaparral_tall_bushes(g: &mut BiomeBuilder, avg_per_chunk: f64) {
+  let ground: BlockFilter = [block![grass], block![dirt], block![dirt[variant = "coarse_dirt"]]].into();
+  g.place(
+    "Chaparral tall bushes",
+    PlacerStage::Tree,
+    placer::TallBush {
+      ground: ground.clone(),
+      plantable: [block![grass], block![dirt]].into(),
+      plants: [
+        block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower],
+        block![rgen:yellow_wildflower_shrub], block![rgen:dried_grass], block![rgen:double_tall_dried_grass],
+      ]
+      .into(),
+      log: block![log[axis = "y", variant = "oak"]],
+      leaves: block![leaves[variant = "oak", check_decay = false, decayable = true]],
+      allow_water_under_leaves: false,
+      avg_per_chunk,
+    },
+  );
+}
+
+fn add_chaparral_rock_surface(g: &mut BiomeBuilder, size: u8) {
+  g.place(
+    "Chaparral rocky outcrops",
+    PlacerStage::Sand,
+    placer::RockSurface {
+      avg_per_chunk: 0.8,
+      size,
+      mix_in: vec![block![gravel], block![stone], block![cobblestone], block![stone[variant = "andesite"]]],
     },
   );
 }
@@ -485,7 +674,78 @@ pub fn coastal_dunes(g: &mut BiomeBuilder) {
   g.id = biome![savanna];
   g.color = "#D8C783";
   g.set_top_block(block![sand]);
+  g.add_layer(block![sand], 3, 3);
   g.set_underwater_block(block![sand]);
+
+  g.place(
+    "Rare coastal dune grass patches",
+    PlacerStage::Sand,
+    placer::Splotch {
+      replace: block![sand].into(),
+      place: block![grass],
+      radius: 1..=2,
+      avg_per_chunk: 0.6,
+    },
+  );
+  g.place(
+    "Common coastal oak stumps and logs",
+    PlacerStage::Tree,
+    placer::LogAndStump {
+      log: block![log[variant = "oak"]],
+      moss_log: block![log[axis = "y", variant = "oak"]],
+      ground: block![sand],
+      plants: [block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower]].into(),
+      avg_per_chunk: 1.0,
+      chance_of_moss: 10,
+      is_shrooms: false,
+      shroom: block![rgen:polypore],
+    },
+  );
+  for variant in ["a", "b", "c"] {
+    g.place(
+      "Common coastal dune grass",
+      PlacerStage::Tree,
+      placer::Scatter {
+        place_above: [block![sand], block![grass]].into(),
+        place: block![rgen:dune_grass[variant = variant]],
+        avg_per_chunk: 1.5,
+        attempts: 60,
+      },
+    );
+  }
+  g.place(
+    "Rare coastal salt marsh grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: [block![sand], block![grass]].into(),
+      place: block![rgen:salt_marsh_grass],
+      avg_per_chunk: 0.05,
+      attempts: 60,
+    },
+  );
+  g.place(
+    "Rare coastal yellow wildflower shrubs",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: [block![sand], block![grass]].into(),
+      place: block![rgen:yellow_wildflower_shrub],
+      avg_per_chunk: 0.05,
+      attempts: 60,
+    },
+  );
+  g.place(
+    "Rare coastal tall grass",
+    PlacerStage::Tree,
+    placer::GrassClumps {
+      place_above: block![grass].into(),
+      place_short: block![tallgrass[type = "tall_grass"]],
+      place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
+      place_tall_upper: block![double_plant[half = "upper"]],
+      radius: 1..=2,
+      attempts: 15,
+      avg_per_chunk: 0.5,
+    },
+  );
 }
 
 /// Blocks considered Salt Marsh plants, shared by vegetation placers.
@@ -699,6 +959,8 @@ pub fn open_plains_hills(g: &mut BiomeBuilder) {
 
 pub fn open_plains_mountains(g: &mut BiomeBuilder) {
   build_open_plains(g, OPEN_PLAINS_MOUNTAINS);
+  g.layers[1].min_depth = 1;
+  g.layers[1].max_depth = 2;
 }
 
 fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
