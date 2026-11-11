@@ -470,7 +470,7 @@ pub fn chaparral_flats(g: &mut BiomeBuilder) {
 }
 
 pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
-  build_chaparral_flats(g, Some(2.0));
+  build_chaparral_flats(g, Some(5.0));
   g.set_underwater_block(block![gravel]);
   g.add_underwater_layer(block![sand], 1, 2);
   g.add_underwater_layer(block![stone], 1, 2);
@@ -481,9 +481,9 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
     placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
       place: block![gravel],
-      radius: 1..=3,
+      radius: 2..=4,
       attempts: 24,
-      avg_per_chunk: 0.45,
+      avg_per_chunk: 0.7,
     },
   );
   g.place(
@@ -492,15 +492,25 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
     placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
       place: block![stone],
-      radius: 1..=2,
+      radius: 1..=3,
       attempts: 20,
-      avg_per_chunk: 0.25,
+      avg_per_chunk: 0.4,
     },
   );
   g.place(
     "Chaparral river reeds",
     PlacerStage::Tree,
-    placer::Reeds { avg_per_chunk: 4.0, attempts: 64, must_be_one_block_deep: true },
+    placer::Reeds { avg_per_chunk: 9.0, attempts: 64, must_be_one_block_deep: true },
+  );
+  g.place(
+    "Chaparral river basic oak trees",
+    PlacerStage::Tree,
+    placer::BasicTree {
+      place_above: block![grass].into(),
+      trunk: block![log[variant = "oak"]],
+      leaves: block![leaves[variant = "oak"]],
+      avg_per_chunk: 1.3,
+    },
   );
 }
 
