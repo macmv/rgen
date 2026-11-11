@@ -44,6 +44,10 @@ pub struct TerrainNoise {
 
   /// Breaks selected delta flats into raised islands and shallow channels.
   delta_islands_map: OctavedNoise<OpenSimplexNoise, 4>,
+  /// Adds small-scale height variation to the floor of the main river channel.
+  river_bed_map: OctavedNoise<OpenSimplexNoise, 2>,
+  /// Selects longer river stretches where the channel walls become rounded.
+  river_rounding_map: OctavedNoise<OpenSimplexNoise, 2>,
 }
 
 impl TerrainNoise {
@@ -55,6 +59,8 @@ impl TerrainNoise {
       delta_rarity_map:    OctavedNoise::new(seed.wrapping_add(0xD317_A001), 1.0 / 512.0),
       // Longer wavelengths create broader, smoother delta islands.
       delta_islands_map:   OctavedNoise::new(seed.wrapping_add(0xD317_A002), 1.0 / 5.0),
+      river_bed_map:       OctavedNoise::new(seed.wrapping_add(0xD317_A003), 1.0 / 16.0),
+      river_rounding_map:  OctavedNoise::new(seed.wrapping_add(0xD317_A004), 1.0 / 64.0),
     }
   }
 
@@ -77,7 +83,14 @@ impl TerrainNoise {
       erosion:         self.sample_erosion(x, z),
       delta_rarity:    0.0,
       delta_islands:   0.0,
+      river_bed:       0.0,
+      river_rounding:  0.0,
     };
+
+    if river_distance(noise) <= RIVER_WATERLINE_RADIUS {
+      noise.river_bed = self.river_bed_map.generate(x, z);
+      noise.river_rounding = self.river_rounding_map.generate(x, z);
+    }
 
     if is_delta_mouth_candidate(noise) {
       noise.delta_rarity = self.delta_rarity_map.generate(x, z) * 0.5 + 0.5;
@@ -98,6 +111,10 @@ pub struct RawNoise {
   pub erosion:         f64,
   pub delta_rarity:    f64,
   pub delta_islands:   f64,
+  /// Small-scale river floor variation in `-1.0..=1.0`.
+  pub river_bed:       f64,
+  /// Long-wave variation that selects rounded river sections.
+  pub river_rounding:  f64,
 }
 
 // Lower gate and wider coastal/valley bands make suitable river mouths more
@@ -150,14 +167,17 @@ pub fn river_strength(noise: RawNoise) -> f64 {
   // Keep the dry River-classified bank roughly 7-8 blocks wide beyond the
   // water channel. The noise gradient varies, so this is an approximate width.
   const BANK_RADIUS: f64 = 0.055;
-  if distance <= CHANNEL_RADIUS {
+  let rounding = smoothstep(0.0, 1.0, noise.river_rounding);
+  let channel_radius = CHANNEL_RADIUS * (1.0 - rounding);
+  let bank_radius = BANK_RADIUS + (RIVER_WATERLINE_RADIUS - BANK_RADIUS) * rounding;
+  if distance <= channel_radius {
     return 1.0;
   }
-  if distance >= BANK_RADIUS {
+  if distance >= bank_radius {
     return 0.0;
   }
 
-  let t = (distance - CHANNEL_RADIUS) / (BANK_RADIUS - CHANNEL_RADIUS);
+  let t = (distance - channel_radius) / (bank_radius - channel_radius);
   1.0 - t * t * (3.0 - 2.0 * t)
 }
 
@@ -220,7 +240,15 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   if river >= 0.5 {
     // Lower the central channel smoothly below sea level, reaching Y=60 at
     // its center so every geographically classified river has a water bed.
-    height = height.min(64.0 - (river - 0.5) * 8.0);
+    let channel_depth = ((river - 0.5) * 2.0).clamp(0.0, 1.0);
+    let wall_rounding = smoothstep(0.0, 1.0, noise.river_rounding);
+    let depth_curve = channel_depth.powf(1.0 - wall_rounding * 0.75);
+    height = height.min(64.0 - depth_curve * 4.0);
+    if river >= 0.75 {
+      // Roughen the submerged channel floor by up to about 1.5 blocks while
+      // keeping it below the waterline.
+      height = (height + noise.river_bed * 1.5).min(63.0);
+    }
   } else {
     let river_distance = river_distance(noise);
     if river_distance <= RIVER_WATERLINE_RADIUS {
@@ -279,6 +307,8 @@ mod tests {
       erosion: 0.8,
       delta_rarity: rarity,
       delta_islands: 0.5,
+      river_bed: 0.0,
+      river_rounding: 0.0,
     }
   }
 

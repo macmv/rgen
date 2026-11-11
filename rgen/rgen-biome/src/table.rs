@@ -14,7 +14,7 @@ macro_rules! b {
 }
 
 pub struct CompositionLookup {
-  pub blank:  BiomeComposition,
+  pub blank: BiomeComposition,
   pub lookup: HashMap<(GeographicType, ClimateType), BiomeComposition>,
 }
 
@@ -46,92 +46,10 @@ impl CompositionLookup {
   }
 }
 
-// === Biome categories ===
+// This branch intentionally generates only Mediterranean biomes. Climate and
+// geographic enums remain shared with the terrain lookup and viewer.
 biome_categories!(
   fn build() {
-    // Debug Climate vvv
-
-    let (GeographicType::Standard, ClimateType::DebugClimate) = &[b!(20, blank)];
-
-    // Ice Cap vvv
-
-    let (GeographicType::Standard, ClimateType::IceCap) =
-      &[b!(7, ice_spikes), b!(5, boulder_field), b!(8, glacier)];
-
-    let (GeographicType::River, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
-
-    let (GeographicType::Delta, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
-
-    let (GeographicType::Canyon, ClimateType::IceCap) = &[b!(20, deep_snow_beach)];
-
-    let (GeographicType::Hills, ClimateType::IceCap) = &[b!(20, alps)];
-
-    let (GeographicType::Mountains, ClimateType::IceCap) = &[b!(10, alps), b!(10, frozen_peak)];
-
-    let (GeographicType::Beach, ClimateType::IceCap) =
-      &[b!(7, ice_spike_beach), b!(13, deep_snow_beach)];
-
-    // Tundra vvv
-
-    let (GeographicType::Delta, ClimateType::Tundra) = &[b!(20, deep_snow_beach)];
-
-    // Subarctic vvv
-
-    let (GeographicType::Standard, ClimateType::SubArctic) =
-      &[b!(10, fir_grove), b!(10, spruce_grove)];
-
-    let (GeographicType::River, ClimateType::SubArctic) =
-      &[b!(10, fir_river), b!(10, spruce_river)];
-
-    let (GeographicType::Delta, ClimateType::SubArctic) =
-      &[b!(10, fir_river), b!(10, spruce_river)];
-
-    let (GeographicType::Canyon, ClimateType::SubArctic) =
-      &[b!(10, windswept_fir_grove), b!(10, windswept_spruce_grove)];
-
-    let (GeographicType::Hills, ClimateType::SubArctic) =
-      &[b!(7, windswept_fir_grove), b!(4, windswept_hill)];
-
-    let (GeographicType::Mountains, ClimateType::SubArctic) =
-      &[b!(7, windswept_fir_grove), b!(6, windswept_hill)];
-
-    let (GeographicType::Beach, ClimateType::SubArctic) = &[b!(2, fir_grove), b!(3, mossy_shores)];
-
-    // Cool Temperate vvv
-
-    let (GeographicType::Delta, ClimateType::CoolTemperate) = &[b!(20, warm_delta)];
-
-    // Dry Temperate vvv
-
-    let (GeographicType::Delta, ClimateType::DryTemperate) = &[b!(20, salt_marsh)];
-
-    // Warm Temperate vvv
-
-    let (GeographicType::Standard, ClimateType::WarmTemperate) =
-      &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
-
-    let (GeographicType::River, ClimateType::WarmTemperate) =
-      &[b!(10, woodland_river), b!(3, birch_river), b!(2, birch_river), b!(5, birch_river)];
-
-    let (GeographicType::Delta, ClimateType::WarmTemperate) = &[b!(20, warm_delta)];
-
-    let (GeographicType::Canyon, ClimateType::WarmTemperate) =
-      &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
-
-    let (GeographicType::Hills, ClimateType::WarmTemperate) =
-      &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
-
-    let (GeographicType::Mountains, ClimateType::WarmTemperate) =
-      &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
-
-    let (GeographicType::Beach, ClimateType::WarmTemperate) =
-      &[b!(10, woodland), b!(3, birch_woodland), b!(2, aspen_wood), b!(5, birch_woodland)];
-
-    // Wet Temperate vvv
-
-    let (GeographicType::Delta, ClimateType::WetTemperate) = &[b!(20, warm_delta)];
-
-    // Mediterranean vvv
     let (GeographicType::Standard, ClimateType::Mediterranean) = &[
       b!(20, lebanon_cedar_woodland),
       b!(45, chaparral_flats),
@@ -165,95 +83,6 @@ biome_categories!(
       b!(20, riparian_woodland),
       b!(80, salt_marsh),
     ];
-
-    // Monsoon vvv
-
-    let (GeographicType::Delta, ClimateType::Monsoon) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-
-    // Savanna vvv
-
-    let (GeographicType::Delta, ClimateType::Savanna) = &[b!(20, warm_delta)];
-
-    // Hot Desert vvv
-
-    let (GeographicType::Standard, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    let (GeographicType::River, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    let (GeographicType::Hills, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    let (GeographicType::Mountains, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    let (GeographicType::Beach, ClimateType::HotDesert) = &[b!(20, blank)];
-
-    // Badlands vvv
-
-    // No biome mappings yet.
-
-    // Tropical vvv
-
-    let (GeographicType::Delta, ClimateType::Tropical) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-
-    let (GeographicType::Standard, ClimateType::Tropical) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-
-    let (GeographicType::River, ClimateType::Tropical) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-
-    let (GeographicType::Canyon, ClimateType::Tropical) = &[
-      b!(5, canopied_jungle),
-      b!(5, flower_canopied_jungle),
-      b!(5, light_jungle_wood),
-      b!(5, terraced_jungle),
-    ];
-
-    let (GeographicType::Hills, ClimateType::Tropical) =
-      &[b!(10, terraced_jungle), b!(10, light_jungle_wood)];
-
-    let (GeographicType::Mountains, ClimateType::Tropical) =
-      &[b!(10, terraced_jungle), b!(10, light_jungle_wood)];
-
-    let (GeographicType::Beach, ClimateType::Tropical) = &[b!(20, blank)];
-
-    // GeoTest (geographic type visualizer) vvv
-
-    let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
-
-    let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
-
-    let (GeographicType::Beach, ClimateType::GeoTest) = &[b!(1, geo_test_beach)];
-
-    let (GeographicType::Delta, ClimateType::GeoTest) = &[b!(1, geo_test_delta)];
-
-    let (GeographicType::Canyon, ClimateType::GeoTest) = &[b!(1, geo_test_canyon)];
-
-    let (GeographicType::River, ClimateType::GeoTest) = &[b!(1, geo_test_river)];
-
-    let (GeographicType::Standard, ClimateType::GeoTest) = &[b!(1, geo_test_standard)];
-
-    let (GeographicType::Hills, ClimateType::GeoTest) = &[b!(1, geo_test_hills)];
-
-    let (GeographicType::Mountains, ClimateType::GeoTest) = &[b!(1, geo_test_mountains)];
   }
 );
 

@@ -1,40 +1,12 @@
 //! Stores all the actual biome implementations.
 
-mod cold_region;
+mod blank;
 #[allow(unused_imports)]
-pub use cold_region::*;
+pub use blank::*;
 
 mod mediterranean;
 #[allow(unused_imports)]
 pub use mediterranean::*;
-
-mod frozen_region;
-#[allow(unused_imports)]
-pub use frozen_region::*;
-
-mod geo_test;
-#[allow(unused_imports)]
-pub use geo_test::*;
-
-mod hot_region;
-#[allow(unused_imports)]
-pub use hot_region::*;
-
-mod outdated_regions_and_areas;
-#[allow(unused_imports)]
-pub use outdated_regions_and_areas::*;
-
-mod temperate_region;
-#[allow(unused_imports)]
-pub use temperate_region::*;
-
-mod warm_region;
-#[allow(unused_imports)]
-pub use warm_region::*;
-
-mod cave;
-#[allow(unused_imports)]
-pub use cave::*;
 
 use crate::builder::BiomeBuilder;
 

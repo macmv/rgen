@@ -34,23 +34,6 @@ pub struct DriedGrassClumps {
   pub avg_per_chunk: f64,
 }
 
-#[allow(dead_code)]
-pub struct PlantClumps {
-  pub place_above: BlockFilter,
-
-  pub radius:   RangeInclusive<u8>,
-  pub attempts: u32,
-}
-
-pub struct BushClumps {
-  pub place_above: BlockFilter,
-  pub log:         BlockState,
-  pub leaves:      BlockState,
-
-  pub radius:        RangeInclusive<u8>,
-  pub avg_per_chunk: f64,
-}
-
 /// Irregular persistent leaf-only clumps for low, shrub-like canopies.
 pub struct LeafClumps {
   pub place_above: BlockFilter,
@@ -203,45 +186,6 @@ impl Placer for DriedGrassClumps {
         let variant = rng.range(0..2) as usize;
         world.set(plant_pos, tall_lower[color][variant]);
         world.set(above_pos, tall_upper[color][variant]);
-      }
-    }
-
-    Ok(())
-  }
-}
-
-impl Placer for BushClumps {
-  fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
-
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    if self.place_above.contains(world.get(pos + Pos::new(0, -1, 0)))
-      && world.get(pos) == block![air]
-    {
-      world.set(pos, self.log);
-
-      for offset in [
-        // surround the log in leaves
-        Pos::new(-1, 0, 0),
-        Pos::new(0, 0, -1),
-        Pos::new(0, 0, 1),
-        Pos::new(1, 0, 0),
-        // and build a few leaves on top
-        Pos::new(0, 1, 0),
-      ] {
-        let side = pos + offset;
-        if world.get(side) == block![air] {
-          world.set(side, self.leaves);
-        }
-      }
-
-      // now sprink a few more leaves around
-      for _ in 0..10 {
-        let side_below = pos + Pos::new(rng.range(-2..=2), rng.range(0..=1), rng.range(-2..=2));
-        let side = side_below + Pos::new(0, 1, 0);
-        if world.get(side_below) != block![air] && world.get(side) == block![air] {
-          world.set(side, self.leaves);
-        }
       }
     }
 
@@ -450,30 +394,4 @@ fn leaf_clump_is_plant(state: BlockInfo<'_>) -> bool {
     || kind == block![rgen:yellow_jungle_rose].block
     || kind == block![rgen:bird_of_paradise].block
     || kind == block![rgen:jungle_bush].block
-}
-
-impl Placer for PlantClumps {
-  fn radius(&self) -> u8 { *self.radius.end() }
-  fn avg_per_chunk(&self) -> f64 { 3.0 }
-
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let radius = rng.range(*self.radius.start() as i32..=*self.radius.end() as i32);
-
-    for _ in 0..self.attempts {
-      let mut pos = pos;
-      for _ in 0..radius {
-        pos = pos + Pos::new(rng.range(-1..=1), 0, rng.range(-1..=1));
-      }
-
-      let above_pos = pos + Pos::new(0, 1, 0);
-
-      if self.place_above.contains(world.get(pos)) && world.get(above_pos) == block![air] {
-        //let block = *rng.choose(self.place_plants);
-
-        //world.set(above_pos, self.place_plants);
-      }
-    }
-
-    Ok(())
-  }
 }
