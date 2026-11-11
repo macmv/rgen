@@ -151,12 +151,12 @@ impl LogAndStump {
           let mut base_block = self.moss_log;
           base_block.set_prop("axis", direction_name);
           world.set(log_pos, base_block);
-          println!("dir: {direction_name} on mossy");
+          //println!("dir: {direction_name} on mossy");
         } else {
           let mut base_block = self.log;
           base_block.set_prop("axis", direction_name);
           world.set(log_pos, base_block);
-          println!("dir: {direction_name} on loggy");
+          //println!("dir: {direction_name} on loggy");
         };
       }
 
