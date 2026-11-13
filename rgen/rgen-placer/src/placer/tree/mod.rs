@@ -1,5 +1,4 @@
 mod aspen_tree;
-mod bamboo;
 mod basic;
 mod better_bushes;
 mod birch;
@@ -17,7 +16,6 @@ mod sequoia;
 mod wide_canopy_jungle;
 
 pub use aspen_tree::*;
-pub use bamboo::*;
 pub use basic::*;
 pub use better_bushes::*;
 pub use birch::*;

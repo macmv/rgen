@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use rgen_base::{biome, block};
-use rgen_placer::{chunk_placer, placer};
+use rgen_placer::{chunk_placer, icing_placer, placer};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
@@ -12,22 +12,13 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
   g.set_top_block(block![grass]);
 
   g.place("Small Cherry Tree", PlacerStage::Tree, placer::Cherry::default());
-  g.place(
-    "sprinkling of bamboo",
-    PlacerStage::Sand,
-    placer::BambooClump {
-      attempts:      10,
-      avg_per_chunk: 3.0,
-      place_above:   g.top_block().into(),
-      radius:        1..=4,
-      bamboo:        placer::Bamboo {
-        place_above:   g.top_block().into(),
-        stalk:         block![rgen:bamboo],
-        pint_size:     true,
-        avg_per_chunk: 0.0,
-      },
-    },
-  );
+  g.place_icing(icing_placer::BambooClump {
+    attempts:      10,
+    avg_per_chunk: 3.0,
+    place_above:   g.top_block().into(),
+    radius:        1..=4,
+    bamboo:        icing_placer::Bamboo { stalk: block![rgen:bamboo], pint_size: true },
+  });
 
   g.place_chunk(chunk_placer::Scatter {
     attempts:      800,
@@ -99,22 +90,13 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
     radius:        2..=4,
     avg_per_chunk: 1.0,
   });
-  g.place(
-    "sprinkling of bamboo",
-    PlacerStage::Sand,
-    placer::BambooClump {
-      attempts:      1,
-      avg_per_chunk: 1.0,
-      place_above:   g.top_block().into(),
-      radius:        1..=2,
-      bamboo:        placer::Bamboo {
-        place_above:   g.top_block().into(),
-        stalk:         block![rgen:bamboo],
-        pint_size:     true,
-        avg_per_chunk: 0.0,
-      },
-    },
-  );
+  g.place_icing(icing_placer::BambooClump {
+    attempts:      1,
+    avg_per_chunk: 1.0,
+    place_above:   g.top_block().into(),
+    radius:        1..=2,
+    bamboo:        icing_placer::Bamboo { stalk: block![rgen:bamboo], pint_size: true },
+  });
   g.place_chunk(chunk_placer::Scatter {
     avg_per_chunk: 1.0,
     attempts:      800,

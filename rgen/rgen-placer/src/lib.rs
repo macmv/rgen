@@ -3,6 +3,7 @@
 mod chunk;
 pub mod chunk_placer;
 pub mod grid;
+pub mod icing_placer;
 pub mod noise;
 pub mod placer;
 mod rng;
@@ -43,5 +44,24 @@ pub trait Placer: Send + Sync {
 /// This is less flexible than a `Placer`, because it can only access a single
 /// chunk, but it ends up being faster, as it will be run in parallel.
 pub trait ChunkPlacer: Send + Sync {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos);
+}
+
+/// An IcingPlacer places the last layer of decoration on a chunk.
+///
+/// Icing placers run once a chunk is final, which is when all 8 of its
+/// neighbors have finished being decorated. That means every tree is already in
+/// place (including ones that grew in from a neighboring chunk), so an icing
+/// placer can see exactly what is above and around it, and never gets
+/// overwritten by something that runs later.
+///
+/// In exchange, an icing placer can only edit the chunk it is placing in, and
+/// it must not rely on anything a neighboring chunk's icing might have done.
+///
+/// This is deliberately a separate type from `ChunkPlacer`. A `ChunkPlacer`
+/// runs before any tree exists, so it can't take trees into account, and an
+/// `IcingPlacer` that forgot to would be a bug. Registering a placer in the
+/// wrong pass should not compile.
+pub trait IcingPlacer: Send + Sync {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos);
 }
