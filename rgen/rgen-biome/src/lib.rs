@@ -257,6 +257,8 @@ impl WorldBiomes {
   }
 }
 
+const ICING_SALT: u64 = 0x1c17_c0de_5eed_1ced;
+
 impl Generator for WorldBiomes {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
     profile_function!();
@@ -293,6 +295,50 @@ impl Generator for WorldBiomes {
 
     if feature::VILLAGES {
       self.structure.generate(&ctx.blocks, chunk, chunk_pos);
+    }
+  }
+
+  fn ice(&self, ctx: &Context, chunk: &mut Chunk, chunk_pos: ChunkPos) {
+    profile_function!();
+
+    if feature::SUPERFLAT {
+      return;
+    }
+
+    if feature::DEBUG_ORES && (-1..=9).contains(&chunk_pos.x()) {
+      return;
+    }
+
+    if !enabled!(Decorations) {
+      return;
+    }
+
+    let mut biome_set = TemporaryBiomeSet::new();
+    let mut chunk = BiomeCachedChunk::new(&ctx.blocks, chunk);
+
+    {
+      profile_scope!("icing biome setup");
+
+      for x in 0..16 {
+        for z in 0..16 {
+          let biome = self.choose_surface_biome(chunk_pos.min_block_pos() + Pos::new(x, 0, z));
+
+          // Icing only cares about the surface, so there is no need to work out
+          // where the caves are. A `min_height` of 0 makes every
+          // column act as a surface column.
+          let id = biome_set.add(biome);
+          let column = BiomeColumn { surface: id, cave: id, min_height: 0 };
+
+          chunk.set_column(ChunkRelPos::new(x as u8, 0, z as u8), column);
+        }
+      }
+    }
+
+    for (biome, id) in biome_set.set.into_iter().flatten() {
+      // Salted, so that icing doesn't share seeds with the chunk placers.
+      let mut rng = Rng::new(self.seed ^ ICING_SALT);
+      chunk.set_active(id);
+      biome.ice(&mut rng, &mut chunk, chunk_pos);
     }
   }
 

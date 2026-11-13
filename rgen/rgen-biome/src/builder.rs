@@ -1,5 +1,7 @@
 use rgen_base::{Biome, BlockState, ChunkPos, Pos, block};
-use rgen_placer::{BiomeCachedChunk, ChunkPlacer, Placer, Random, Rng, grid::PointGrid};
+use rgen_placer::{
+  BiomeCachedChunk, ChunkPlacer, IcingPlacer, Placer, Random, Rng, grid::PointGrid,
+};
 use rgen_world::PartialWorld;
 use smallvec::{SmallVec, smallvec};
 
@@ -25,6 +27,10 @@ pub struct BiomeBuilder {
 
   // First pass placers. These run on multiple threads, and can only access a single chunk.
   chunk_placers: Vec<Box<dyn ChunkPlacer>>,
+
+  // Last pass placers. These run once a chunk is final (all 8 neighbors are decorated), and can
+  // only access that one chunk.
+  icing_placers: Vec<Box<dyn IcingPlacer>>,
 
   // Second pass placers. These all run on one thread, but can access the 8 surrounding chunks.
   placers: Vec<PlacerBuilder>,
@@ -62,6 +68,7 @@ impl BiomeBuilder {
       max_height: 128,
       placers: vec![],
       chunk_placers: vec![],
+      icing_placers: vec![],
     }
   }
 
@@ -108,6 +115,24 @@ impl BiomeBuilder {
 
   pub fn place_chunk(&mut self, placer: impl ChunkPlacer + 'static) {
     self.chunk_placers.push(Box::new(placer));
+  }
+
+  /// Adds a placer that runs once a chunk is final. See `IcingPlacer`.
+  pub fn place_icing(&mut self, placer: impl IcingPlacer + 'static) {
+    self.icing_placers.push(Box::new(placer));
+  }
+
+  /// Places the icing for a chunk. This is the same as `generate`, but for
+  /// icing placers.
+  pub fn ice(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
+    profile_scope!("ice biome", self.name);
+
+    // See `generate` for why each placer gets its own rng.
+    let seed = rng.next();
+    for (i, placer) in self.icing_placers.iter().enumerate() {
+      let mut rng = Rng::new(seed.wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15)));
+      placer.place(chunk, &mut rng, chunk_pos);
+    }
   }
 
   pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {

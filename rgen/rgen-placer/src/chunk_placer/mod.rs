@@ -12,7 +12,7 @@ mod snow_stone;
 mod splatter;
 mod splotch;
 mod spread;
-mod util;
+pub(crate) mod util;
 mod water_resources;
 
 pub use boulder::MossBoulder;

@@ -78,6 +78,11 @@ impl Context {
 pub trait Generator {
   fn generate_base(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
   fn decorate(&self, world: &mut PartialWorld, pos: ChunkPos);
+
+  /// Places the last layer of decorations on a chunk. This is called once all 8
+  /// neighbors have been decorated, so nothing else will write to this chunk
+  /// after this point. It must only edit `chunk`.
+  fn ice(&self, ctx: &Context, chunk: &mut Chunk, pos: ChunkPos);
 }
 
 pub struct CachedWorld {
@@ -269,7 +274,16 @@ impl CachedWorld {
 
     match chunks.chunks.get(&pos).unwrap().stage {
       Stage::Decorated => {
-        chunks.chunks.get_mut(&pos).unwrap().stage = Stage::NeighborDecorated;
+        // All 8 neighbors are decorated, so nothing else can write to this
+        // chunk. This is the point where icing can go on, without
+        // needing any extra neighbors.
+        //
+        // TODO: This runs under the global chunk lock. If that shows up in
+        // benchmarks, the chunk can be taken out of the map for the
+        // duration of the icing.
+        let chunk = chunks.chunks.get_mut(&pos).unwrap();
+        generator.ice(ctx, &mut chunk.chunk, pos);
+        chunk.stage = Stage::NeighborDecorated;
       }
       Stage::NeighborDecorated => (),
       Stage::Base => unreachable!(),
