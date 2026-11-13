@@ -95,16 +95,12 @@ pub fn birch_woodland(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "mossy carpet",
-    PlacerStage::Sand2,
-    placer::Spread {
-      place:         block![rgen:mossy_carpet],
-      replace:       block![grass].into(),
-      radius:        4..=5,
-      avg_per_chunk: 1.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Spread {
+    place:         block![rgen:mossy_carpet],
+    replace:       block![grass].into(),
+    radius:        4..=5,
+    avg_per_chunk: 1.0,
+  });
   g.place(
     "grass",
     PlacerStage::Tree,
@@ -126,16 +122,12 @@ pub fn birch_woodland(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "forget me not",
-    PlacerStage::Sand2,
-    placer::Spread {
-      place:         block![rgen:flower[type = "forgetmenot"]],
-      replace:       block![grass].into(),
-      radius:        1..=3,
-      avg_per_chunk: 0.6,
-    },
-  );
+  g.place_chunk(chunk_placer::Spread {
+    place:         block![rgen:flower[type = "forgetmenot"]],
+    replace:       block![grass].into(),
+    radius:        1..=3,
+    avg_per_chunk: 0.6,
+  });
 }
 
 pub fn aspen_wood(g: &mut BiomeBuilder) {

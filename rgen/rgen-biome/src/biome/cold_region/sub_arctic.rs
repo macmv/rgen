@@ -824,28 +824,20 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "mossy carpet",
-    PlacerStage::Sand2,
-    placer::Spread {
-      place:         block![rgen:mossy_carpet],
-      replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
-        .into(),
-      radius:        2..=4,
-      avg_per_chunk: 2.4,
-    },
-  );
-  g.place(
-    "large mossy carpet",
-    PlacerStage::Sand2,
-    placer::Spread {
-      place:         block![rgen:mossy_carpet],
-      replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
-        .into(),
-      radius:        4..=5,
-      avg_per_chunk: 0.4,
-    },
-  );
+  g.place_chunk(chunk_placer::Spread {
+    place:         block![rgen:mossy_carpet],
+    replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
+      .into(),
+    radius:        2..=4,
+    avg_per_chunk: 2.4,
+  });
+  g.place_chunk(chunk_placer::Spread {
+    place:         block![rgen:mossy_carpet],
+    replace:       [block![rgen:mossy_cobblestone_rgen], block![stone], block![rgen:mossy_stone]]
+      .into(),
+    radius:        4..=5,
+    avg_per_chunk: 0.4,
+  });
 
   g.place(
     "mossy_bush",
