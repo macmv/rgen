@@ -29,7 +29,8 @@ by RGen.
 
 This crate defines placers. Placers are the fundamental building block (no pun intended) of terrain
 generation. A placer will place decorations. For example, a placer might place a tree, or some tall
-grass, or a small water pool.
+grass, or a small water pool. There are three kinds (chunk placers, placers, and icing placers),
+which are covered in `placers.md`.
 
 ### `rgen-biome`
 

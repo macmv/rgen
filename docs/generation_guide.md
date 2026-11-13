@@ -79,6 +79,10 @@ take a look through the code, you'll see we switch between capitalized names and
 all over the place). The placer stage was intended to fix some issues with trees overlapping, but
 it turned out to be difficult to implement, so it doesn't do anything.
 
+`place` is also only one of three ways to add a placer. Most decorations are chunk placers
+(`place_chunk`), and things that must come after trees are icing placers (`place_icing`). See
+`placers.md` for what each one is, and how to pick.
+
 ## Placers
 
 Placers are the building blocks of biomes. Each placer gets its own file (usually), and they can be
