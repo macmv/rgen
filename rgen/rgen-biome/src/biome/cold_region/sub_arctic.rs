@@ -15,16 +15,12 @@ pub fn spruce_grove(g: &mut BiomeBuilder) {
   spruce_rainbow_mix(g);
   evergreen_grass(g);
 
-  g.place(
-    "podzel",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![dirt[variant = "podzol"]],
-      radius:        2..=3,
-      avg_per_chunk: 0.6,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![dirt[variant = "podzol"]],
+    radius:        2..=3,
+    avg_per_chunk: 0.6,
+  });
 }
 
 pub fn spruce_river(g: &mut BiomeBuilder) {
@@ -153,27 +149,19 @@ pub fn windswept_spruce_grove(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "gravel big",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        3..=4,
-      avg_per_chunk: 0.1,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        3..=4,
+    avg_per_chunk: 0.1,
+  });
 
-  g.place(
-    "gravel",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        1..=4,
-      avg_per_chunk: 0.4,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        1..=4,
+    avg_per_chunk: 0.4,
+  });
 
   g.place(
     "fir log",
@@ -258,38 +246,26 @@ pub fn fir_grove(g: &mut BiomeBuilder) {
   fir_rainbow_mix(g);
   evergreen_grass(g);
 
-  g.place(
-    "mossycobblestone_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![rgen:mossy_cobblestone_rgen],
-      radius:        2..=2,
-      avg_per_chunk: 0.7,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![rgen:mossy_cobblestone_rgen],
+    radius:        2..=2,
+    avg_per_chunk: 0.7,
+  });
 
-  g.place(
-    "gravel_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        2..=2,
-      avg_per_chunk: 1.2,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        2..=2,
+    avg_per_chunk: 1.2,
+  });
 
-  g.place(
-    "cobble_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![cobblestone],
-      radius:        1..=2,
-      avg_per_chunk: 0.9,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![cobblestone],
+    radius:        1..=2,
+    avg_per_chunk: 0.9,
+  });
   // Red
   // Bue
   // Green
@@ -420,27 +396,19 @@ pub fn windswept_fir_grove(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "gravel big",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        3..=4,
-      avg_per_chunk: 0.1,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        3..=4,
+    avg_per_chunk: 0.1,
+  });
 
-  g.place(
-    "gravel",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        1..=4,
-      avg_per_chunk: 0.4,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        1..=4,
+    avg_per_chunk: 0.4,
+  });
 
   g.place(
     "fir log",
@@ -524,27 +492,19 @@ pub fn windswept_hill(g: &mut BiomeBuilder) {
   ground(g);
   windswept_evergreen_grass(g);
 
-  g.place(
-    "gravel",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        1..=4,
-      avg_per_chunk: 0.9,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        1..=4,
+    avg_per_chunk: 0.9,
+  });
 
-  g.place(
-    "gravel big",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        3..=4,
-      avg_per_chunk: 0.5,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        3..=4,
+    avg_per_chunk: 0.5,
+  });
 }
 
 #[allow(dead_code)]
@@ -569,42 +529,30 @@ pub fn tiaga_beach(g: &mut BiomeBuilder) {
   g.set_underwater_block(block![dirt]);
   ground(g);
 
-  g.place(
-    "underwater clay",
-    PlacerStage::Sand,
-    placer::WaterResources {
-      avg_per_chunk:      2.0, //2.4,
-      placement:          block![clay],
-      tool_placement:     block![gold_block],
-      tool_placement_two: block![iron_ore],
-      size:               3..=5,
-      multiplier:         2,
-    },
-  );
+  g.place_chunk(chunk_placer::WaterResources {
+    avg_per_chunk:      2.0, //2.4,
+    placement:          block![clay],
+    tool_placement:     block![gold_block],
+    tool_placement_two: block![iron_ore],
+    size:               3..=5,
+    multiplier:         2,
+  });
 
-  g.place(
-    "underwater sand",
-    PlacerStage::Sand,
-    placer::WaterResources {
-      avg_per_chunk:      1.5, //1.0,
-      placement:          block![sand],
-      tool_placement:     block![gold_block],
-      tool_placement_two: block![iron_ore],
-      size:               2..=4,
-      multiplier:         3,
-    },
-  );
+  g.place_chunk(chunk_placer::WaterResources {
+    avg_per_chunk:      1.5, //1.0,
+    placement:          block![sand],
+    tool_placement:     block![gold_block],
+    tool_placement_two: block![iron_ore],
+    size:               2..=4,
+    multiplier:         3,
+  });
 
-  g.place(
-    "gravel",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        1..=4,
-      avg_per_chunk: 0.9,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        1..=4,
+    avg_per_chunk: 0.9,
+  });
 
   g.place(
     "grass",
@@ -787,7 +735,7 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
   g.set_top_block(block![gravel]);
   g.add_layer(block![gravel], 2, 4);
 
-  g.place("Mossy Bolders", PlacerStage::Tree, placer::MossBoulder::default());
+  g.place_chunk(chunk_placer::MossBoulder::default());
 
   g.place(
     "loose_moss",
@@ -799,72 +747,48 @@ pub fn mossy_shores(g: &mut BiomeBuilder) {
       attempts:      40,
     },
   );
-  g.place(
-    "cobblestone_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![cobblestone],
-      radius:        1..=2,
-      avg_per_chunk: 3.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![cobblestone],
+    radius:        1..=2,
+    avg_per_chunk: 3.0,
+  });
 
-  g.place(
-    "clay",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![clay],
-      radius:        2..=2,
-      avg_per_chunk: 0.3,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![clay],
+    radius:        2..=2,
+    avg_per_chunk: 0.3,
+  });
 
-  g.place("underwater clay", PlacerStage::Sand, placer::WaterResources::default());
+  g.place_chunk(chunk_placer::WaterResources::default());
 
-  g.place(
-    "mossystone_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![rgen:mossy_stone],
-      radius:        1..=2,
-      avg_per_chunk: 4.3,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![rgen:mossy_stone],
+    radius:        1..=2,
+    avg_per_chunk: 4.3,
+  });
 
-  g.place(
-    "stone_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![stone],
-      radius:        1..=3,
-      avg_per_chunk: 5.4,
-    },
-  );
-  g.place(
-    "mossycobblestone_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![rgen:mossy_cobblestone_rgen],
-      radius:        1..=4,
-      avg_per_chunk: 1.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![stone],
+    radius:        1..=3,
+    avg_per_chunk: 5.4,
+  });
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![rgen:mossy_cobblestone_rgen],
+    radius:        1..=4,
+    avg_per_chunk: 1.0,
+  });
 
-  g.place(
-    "mossycobblestone_smaller_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![rgen:mossy_cobblestone_rgen],
-      radius:        1..=2,
-      avg_per_chunk: 4.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![rgen:mossy_cobblestone_rgen],
+    radius:        1..=2,
+    avg_per_chunk: 4.0,
+  });
 
   g.place(
     "grass",
@@ -1127,29 +1051,21 @@ fn windswept_evergreen_grass(g: &mut BiomeBuilder) {
 }
 
 fn river_mass_placer(g: &mut BiomeBuilder) {
-  g.place(
-    "underwater clay",
-    PlacerStage::Sand,
-    placer::WaterResources {
-      avg_per_chunk:      8.0, //2.4,
-      placement:          block![clay],
-      tool_placement:     block![gold_block],
-      tool_placement_two: block![iron_ore],
-      size:               1..=2,
-      multiplier:         3,
-    },
-  );
+  g.place_chunk(chunk_placer::WaterResources {
+    avg_per_chunk:      8.0, //2.4,
+    placement:          block![clay],
+    tool_placement:     block![gold_block],
+    tool_placement_two: block![iron_ore],
+    size:               1..=2,
+    multiplier:         3,
+  });
 
-  g.place(
-    "underwater sand",
-    PlacerStage::Sand,
-    placer::WaterResources {
-      avg_per_chunk:      5.0, //1.0,
-      placement:          block![sand],
-      tool_placement:     block![gold_block],
-      tool_placement_two: block![iron_ore],
-      size:               1..=2,
-      multiplier:         1,
-    },
-  );
+  g.place_chunk(chunk_placer::WaterResources {
+    avg_per_chunk:      5.0, //1.0,
+    placement:          block![sand],
+    tool_placement:     block![gold_block],
+    tool_placement_two: block![iron_ore],
+    size:               1..=2,
+    multiplier:         1,
+  });
 }

@@ -1,5 +1,5 @@
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
@@ -113,16 +113,12 @@ pub fn volcano_growth(g: &mut BiomeBuilder) {
 
   g.place("Lava Lake", PlacerStage::Tree, placer::LavaLake::default());
   g.place("Basalt Pillar", PlacerStage::Tree, placer::Pillar::default());
-  g.place(
-    "basalt_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![rgen:basalt],
-      radius:        2..=4,
-      avg_per_chunk: 1.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![rgen:basalt],
+    radius:        2..=4,
+    avg_per_chunk: 1.0,
+  });
   g.place(
     "sprinkling of bamboo",
     PlacerStage::Sand,

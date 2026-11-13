@@ -23,16 +23,12 @@ pub fn ice_spike_beach(g: &mut BiomeBuilder) {
     place_above: [block![stone]].into(),
   });
 
-  g.place(
-    "gravel_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        2..=5,
-      avg_per_chunk: 1.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        2..=5,
+    avg_per_chunk: 1.0,
+  });
   g.place(
     "loose_cobblestone",
     PlacerStage::Sand,
@@ -75,11 +71,11 @@ pub fn boulder_field(g: &mut BiomeBuilder) {
   g.place_chunk(chunk_placer::SnowOnStoneSurface::new(g.seed));
   g.place("Snow", PlacerStage::Tree, placer::BetterTallerSnow::default());
 
-  g.place(
-    "ice_patches",
-    PlacerStage::Sand,
-    placer::Splatter { replace: g.top_block(), place: block![ice], attempts: 100 },
-  );
+  g.place_chunk(chunk_placer::Splatter {
+    replace:  g.top_block(),
+    place:    block![ice],
+    attempts: 100,
+  });
 }
 
 pub fn alps(g: &mut BiomeBuilder) {
@@ -121,16 +117,12 @@ pub fn deep_snow_beach(g: &mut BiomeBuilder) {
     place_above: block![stone].into(),
   });
 
-  g.place(
-    "gravel_patches",
-    PlacerStage::Sand,
-    placer::Splotch {
-      replace:       g.top_block().into(),
-      place:         block![gravel],
-      radius:        2..=5,
-      avg_per_chunk: 1.0,
-    },
-  );
+  g.place_chunk(chunk_placer::Splotch {
+    replace:       g.top_block().into(),
+    place:         block![gravel],
+    radius:        2..=5,
+    avg_per_chunk: 1.0,
+  });
   g.place(
     "loose_cobblestone",
     PlacerStage::Sand,
@@ -149,9 +141,9 @@ pub fn hard_frozen_river(g: &mut BiomeBuilder) {
   g.color = "#B2DBEF";
   g.set_top_block(block![concrete[color = "gray"]]);
 
-  g.place(
-    "stone_patches",
-    PlacerStage::Sand,
-    placer::Splatter { replace: g.top_block(), place: block![cobblestone], attempts: 100 },
-  );
+  g.place_chunk(chunk_placer::Splatter {
+    replace:  g.top_block(),
+    place:    block![cobblestone],
+    attempts: 100,
+  });
 }

@@ -1,5 +1,5 @@
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
 use crate::builder::PlacerStage;
 
@@ -12,7 +12,7 @@ pub fn birch_river(g: &mut BiomeBuilder) {
   g.color = "#768A6A";
   g.set_top_block(block![grass]);
 
-  g.place("Basalt Pillar", PlacerStage::Tree, placer::RiverSide::default());
+  g.place_chunk(chunk_placer::RiverSide::default());
 
   g.place(
     "birch log",
