@@ -28,7 +28,12 @@ impl ChunkPlacer for Scatter {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
     let mut rng = chunk_rng(rng, chunk_pos);
 
-    for _ in 0..count(&mut rng, self.avg_per_chunk) * self.attempts {
+    // The old placer picked a random y within +-4 of the anchor, so only 1 in 9
+    // attempts landed on the surface. Every attempt here lands on a surface, so
+    // scale the count down to keep the same density.
+    const Y_RANGE: f64 = 9.0;
+
+    for _ in 0..count(&mut rng, self.avg_per_chunk * self.attempts as f64 / Y_RANGE) {
       let column = ChunkRelPos::new(rng.range(0..16) as u8, 0, rng.range(0..16) as u8);
 
       for i in 0..chunk.chunk.surfaces(column).len() {
