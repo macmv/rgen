@@ -113,8 +113,14 @@ impl BiomeBuilder {
   pub fn generate(&self, rng: &mut Rng, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos) {
     profile_scope!("generate biome", self.name);
 
-    for placer in self.chunk_placers.iter() {
-      placer.place(chunk, rng, chunk_pos);
+    // Each placer gets its own rng, which only depends on the world seed and
+    // the placer's index. It must not depend on what earlier placers did,
+    // so that placers which build features across chunk borders (by mixing
+    // in the chunk position themselves) agree with their neighbors.
+    let seed = rng.next();
+    for (i, placer) in self.chunk_placers.iter().enumerate() {
+      let mut rng = Rng::new(seed.wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15)));
+      placer.place(chunk, &mut rng, chunk_pos);
     }
   }
 

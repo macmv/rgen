@@ -1,16 +1,35 @@
+mod boulder;
 mod checkerboard;
+mod clump;
 mod crevasse;
 mod lush_cave;
 mod ore;
+mod pool;
+mod riverside;
+mod scatter;
 mod snow_snow;
 mod snow_stone;
+mod splatter;
+mod splotch;
+mod spread;
+mod util;
+mod water_resources;
 
+pub use boulder::MossBoulder;
 pub use checkerboard::CheckerboardSurface;
+pub use clump::{BushClumps, Clumps, GrassClumps};
 pub use crevasse::*;
 pub use lush_cave::LushCaveMoss;
 pub use ore::Ore;
+pub use pool::Pool;
+pub use riverside::RiverSide;
+pub use scatter::Scatter;
 pub use snow_snow::SnowOnSnowSurface;
 pub use snow_stone::SnowOnStoneSurface;
+pub use splatter::Splatter;
+pub use splotch::Splotch;
+pub use spread::Spread;
+pub use water_resources::WaterResources;
 
 use rgen_base::{BlockState, ChunkRelPos, Pos};
 

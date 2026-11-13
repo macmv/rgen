@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use rgen_base::{biome, block};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 
@@ -60,27 +60,19 @@ pub fn lush_desert(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "cactus blue",
-    PlacerStage::Tree,
-    placer::Scatter {
-      attempts:      30,
-      avg_per_chunk: 1.0,
-      place_above:   [block![sand]].into(),
-      place:         block![rgen:cactus[color = "blue"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    attempts:      30,
+    avg_per_chunk: 1.0,
+    place_above:   [block![sand]].into(),
+    place:         block![rgen:cactus[color = "blue"]],
+  });
 
-  g.place(
-    "cactus red",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      20,
-      place_above:   [block![sand]].into(),
-      place:         block![rgen:cactus[color = "orange"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      20,
+    place_above:   [block![sand]].into(),
+    place:         block![rgen:cactus[color = "orange"]],
+  });
 }
 
 pub fn bad_lands(g: &mut BiomeBuilder) {

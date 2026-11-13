@@ -1,7 +1,7 @@
-use rgen_base::{BlockFilter, BlockState, Pos};
-use rgen_world::{PartialWorld, UndoError};
+use rgen_base::{BlockFilter, BlockState, ChunkPos, ChunkRelPos};
 
-use crate::{Placer, Random, Result, Rng};
+use super::util::{chunk_rng, count};
+use crate::{BiomeCachedChunk, ChunkPlacer, Random, Rng};
 
 macro_rules! bool {
   (x) => {
@@ -16,6 +16,10 @@ macro_rules! bools {
     [$( bool!($x) ),*]
   };
 }
+
+/// A small boulder, with a few plants growing on it.
+///
+/// Boulders never cross a chunk border.
 pub struct MossBoulder {
   pub place_above:      BlockFilter,
   pub phobic:           BlockFilter,
@@ -42,30 +46,46 @@ impl Default for MossBoulder {
   }
 }
 
-impl Placer for MossBoulder {
-  fn radius(&self) -> u8 { 16 }
+impl ChunkPlacer for MossBoulder {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let mut rng = chunk_rng(rng, chunk_pos);
 
-  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+    for _ in 0..count(&mut rng, self.avg_per_chunk) {
+      // Keep the whole 3x3 boulder inside this chunk.
+      let column = ChunkRelPos::new(rng.range(1..=14) as u8, 0, rng.range(1..=14) as u8);
 
-  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    // Checks if tree will breach build height
+      for i in 0..chunk.chunk.surfaces(column).len() {
+        let y = chunk.chunk.surfaces(column)[i] as i32 + 1;
+        if !chunk.is_active(column.with_y(y - 1)) {
+          continue;
+        }
+
+        self.place_one(chunk, &mut rng, column.with_y(y));
+      }
+    }
+  }
+}
+
+impl MossBoulder {
+  fn place_one(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, pos: ChunkRelPos) {
+    let at = |x: i32, y: i32, z: i32| {
+      ChunkRelPos::new((pos.x() as i32 + x) as u8, pos.y() + y, (pos.z() as i32 + z) as u8)
+    };
+
     let mut bolder_map = [
       [bools!(. . .), bools!(. . .), bools!(. . .)],
       [bools!(. . .), bools!(. . .), bools!(. . .)],
       [bools!(. . .), bools!(. . .), bools!(. . .)],
     ];
 
-    if pos.y + 20 >= 255 || pos.y <= 1 {
-      return Err(UndoError);
+    if pos.y() + 20 >= 255 || pos.y() <= 1 {
+      return;
     }
 
-    // Checks if tree will be built on air
-    let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
-      return Err(UndoError);
+    // Checks if the boulder will be built on air
+    if !self.place_above.contains(chunk.get(at(0, -1, 0))) || chunk.get(pos) != block![air] {
+      return;
     }
-
-    //let min_y = rng.range(4..=6);
 
     // Check to see if the boulder can be built
     for (y, col) in bolder_map.iter_mut().enumerate() {
@@ -78,12 +98,11 @@ impl Placer for MossBoulder {
           // Underground part of the bolder
           if rel_y == -1 {
             if rel_x == 0 || rel_z == 0 {
-              if !self.place_above.contains(world.get(pos + Pos::new(rel_x, rel_y - 1, rel_z))) {
+              if !self.place_above.contains(chunk.get(at(rel_x, rel_y - 1, rel_z))) {
                 // The block below the bottom block is not in the list of place
                 // above i.e. the boulder is floating and cannot
                 // be built thus the build is canceled
-
-                return Err(UndoError);
+                return;
               }
 
               *cell = true;
@@ -123,46 +142,27 @@ impl Placer for MossBoulder {
     for (y, col) in bolder_map.iter().enumerate() {
       for (x, row) in col.iter().enumerate() {
         for (z, cell) in row.iter().enumerate() {
-          self.build_bolder(world, pos, *cell, x as i32 - 1, y as i32 - 1, z as i32 - 1);
-        }
-      }
-    }
-
-    //grass and fern placment
-    for y in 0..=2_i32 {
-      for x in -1..=1_i32 {
-        for z in -1..=1_i32 {
-          if world.get(pos + Pos::new(x, y, z)) == BlockState::AIR
-            && world.get(pos + Pos::new(x, y - 1, z)) == self.material
-          {
-            let ran = rng.range(0..=5);
-            if ran == 0 {
-              world.set(pos + Pos::new(x, y, z), self.plant_a);
-            } else if ran == 1 {
-              world.set(pos + Pos::new(x, y, z), self.plant_b);
-            }
+          if *cell {
+            chunk.set(at(x as i32 - 1, y as i32 - 1, z as i32 - 1), self.material);
           }
         }
       }
     }
 
-    Ok(())
-  }
-}
-
-impl MossBoulder {
-  fn build_bolder(
-    &self,
-    world: &mut PartialWorld,
-    pos: Pos,
-    cell: bool,
-    x: i32,
-    height: i32,
-    z: i32,
-  ) {
-    let rel_pos = pos + Pos::new(x, height, z);
-    if cell {
-      world.set(rel_pos, self.material);
+    // Grass and fern placement
+    for y in 0..=2_i32 {
+      for x in -1..=1_i32 {
+        for z in -1..=1_i32 {
+          if chunk.get(at(x, y, z)) == block![air] && chunk.get(at(x, y - 1, z)) == self.material {
+            let ran = rng.range(0..=5);
+            if ran == 0 {
+              chunk.set(at(x, y, z), self.plant_a);
+            } else if ran == 1 {
+              chunk.set(at(x, y, z), self.plant_b);
+            }
+          }
+        }
+      }
     }
   }
 }
