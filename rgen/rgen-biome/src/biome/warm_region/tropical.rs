@@ -1,5 +1,8 @@
 use rgen_base::{biome, block};
-use rgen_placer::placer::{self, Style};
+use rgen_placer::{
+  chunk_placer,
+  placer::{self, Style},
+};
 
 use crate::{BiomeBuilder, builder::PlacerStage};
 // Canopied Jungle
@@ -83,16 +86,12 @@ pub fn terraced_jungle(g: &mut BiomeBuilder) {
     placer::JungleFloorPlace::style(placer::FloorStyle::TerracedJungle),
   );
 
-  g.place(
-    "Jungle bushes",
-    PlacerStage::Tree,
-    placer::BushClumps {
-      place_above:   [block![grass]].into(),
-      log:           block![log[variant = "jungle"]],
-      leaves:        block![leaves[variant = "jungle"]],
-      avg_per_chunk: 6.0,
-      radius:        3..=5,
-    },
-  );
+  g.place_chunk(chunk_placer::BushClumps {
+    place_above:   [block![grass]].into(),
+    log:           block![log[variant = "jungle"]],
+    leaves:        block![leaves[variant = "jungle"]],
+    avg_per_chunk: 6.0,
+    radius:        3..=5,
+  });
 }
 //flowered_terraced_jungle

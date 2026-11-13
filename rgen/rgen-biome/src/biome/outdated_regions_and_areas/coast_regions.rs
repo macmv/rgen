@@ -41,36 +41,24 @@ pub fn ancient_shores(g: &mut BiomeBuilder) {
     avg_per_chunk: 1.0,
   });
 
-  g.place(
-    "loose_stone",
-    PlacerStage::Sand,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      place_above:   block![stone].into(),
-      place:         block![stone],
-      attempts:      20,
-    },
-  );
-  g.place(
-    "loose_moss",
-    PlacerStage::Sand,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      place_above:   block![stone].into(),
-      place:         block![mossy_cobblestone],
-      attempts:      40,
-    },
-  );
-  g.place(
-    "loose_cobblestone",
-    PlacerStage::Sand,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      place_above:   block![stone].into(),
-      place:         block![stone],
-      attempts:      30,
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    place_above:   block![stone].into(),
+    place:         block![stone],
+    attempts:      20,
+  });
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    place_above:   block![stone].into(),
+    place:         block![mossy_cobblestone],
+    attempts:      40,
+  });
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    place_above:   block![stone].into(),
+    place:         block![stone],
+    attempts:      30,
+  });
 
   g.place("dead_tree", PlacerStage::Tree, placer::DeadTree::default());
 }
@@ -94,16 +82,12 @@ pub fn dry_shores(g: &mut BiomeBuilder) {
     radius:        3..=3,
     avg_per_chunk: 1.0,
   });
-  g.place(
-    "dead_bushes",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      30,
-      place_above:   [block![gravel], block![sand], block![stone]].into(),
-      place:         block![tallgrass[type = "dead_bush"]],
-    },
-  )
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      30,
+    place_above:   [block![gravel], block![sand], block![stone]].into(),
+    place:         block![tallgrass[type = "dead_bush"]],
+  })
 }
 #[allow(dead_code)]
 pub fn bare_rock(g: &mut BiomeBuilder) {

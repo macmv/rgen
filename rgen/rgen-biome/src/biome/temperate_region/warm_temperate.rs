@@ -41,26 +41,18 @@ pub fn birch_river(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 }
 
 pub fn birch_woodland(g: &mut BiomeBuilder) {
@@ -101,26 +93,18 @@ pub fn birch_woodland(g: &mut BiomeBuilder) {
     radius:        4..=5,
     avg_per_chunk: 1.0,
   });
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 
   g.place_chunk(chunk_placer::Spread {
     place:         block![rgen:flower[type = "forgetmenot"]],
@@ -164,41 +148,29 @@ pub fn aspen_wood(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      600,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
-  g.place(
-    "tall grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      600,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
+  g.place_chunk(chunk_placer::GrassClumps {
+    place_above:      g.top_block().into(),
+    place_short:      block![tallgrass[type = "tall_grass"]],
+    place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+    place_tall_upper: block![double_plant[half = "upper"]],
 
-      radius:        6..=10,
-      attempts:      300,
-      avg_per_chunk: 3.0,
-    },
-  );
+    radius:        6..=10,
+    attempts:      300,
+    avg_per_chunk: 3.0,
+  });
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      2300,
-      place_above:   [block![grass]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      2300,
+    place_above:   [block![grass]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 }
 
 // OAK
@@ -225,27 +197,19 @@ pub fn woodland_river(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
 
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 }
 
 pub fn woodland(g: &mut BiomeBuilder) {
@@ -270,27 +234,19 @@ pub fn woodland(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
 
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 }
 
 #[allow(dead_code)]
@@ -316,25 +272,17 @@ pub fn windswept_woodland(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
 
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      160,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      160,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 }

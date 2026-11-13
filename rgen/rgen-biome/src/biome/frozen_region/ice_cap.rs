@@ -29,16 +29,12 @@ pub fn ice_spike_beach(g: &mut BiomeBuilder) {
     radius:        2..=5,
     avg_per_chunk: 1.0,
   });
-  g.place(
-    "loose_cobblestone",
-    PlacerStage::Sand,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      place_above:   block![stone].into(),
-      place:         block![stone],
-      attempts:      30,
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    place_above:   block![stone].into(),
+    place:         block![stone],
+    attempts:      30,
+  });
 }
 
 pub fn glacier(g: &mut BiomeBuilder) {
@@ -123,16 +119,12 @@ pub fn deep_snow_beach(g: &mut BiomeBuilder) {
     radius:        2..=5,
     avg_per_chunk: 1.0,
   });
-  g.place(
-    "loose_cobblestone",
-    PlacerStage::Sand,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      place_above:   block![stone].into(),
-      place:         block![stone],
-      attempts:      30,
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    place_above:   block![stone].into(),
+    place:         block![stone],
+    attempts:      30,
+  });
 }
 
 #[allow(dead_code)]

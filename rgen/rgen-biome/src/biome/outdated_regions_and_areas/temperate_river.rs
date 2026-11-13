@@ -29,46 +29,34 @@ pub fn cherry_blossom_river(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      attempts:      800,
-      avg_per_chunk: 1.0,
-      place_above:   [block![grass]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    attempts:      800,
+    avg_per_chunk: 1.0,
+    place_above:   [block![grass]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 
-  g.place(
-    "tall grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
+  g.place_chunk(chunk_placer::GrassClumps {
+    place_above:      g.top_block().into(),
+    place_short:      block![tallgrass[type = "tall_grass"]],
+    place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+    place_tall_upper: block![double_plant[half = "upper"]],
 
-      radius:        4..=10,
-      attempts:      100,
-      avg_per_chunk: 3.0,
-    },
-  );
+    radius:        4..=10,
+    attempts:      100,
+    avg_per_chunk: 3.0,
+  });
 
-  g.place(
-    "Lilac",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "syringa"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
+  g.place_chunk(chunk_placer::GrassClumps {
+    place_above:      g.top_block().into(),
+    place_short:      block![tallgrass[type = "tall_grass"]],
+    place_tall_lower: block![double_plant[half = "lower", variant = "syringa"]],
+    place_tall_upper: block![double_plant[half = "upper"]],
 
-      radius:        4..=10,
-      attempts:      40,
-      avg_per_chunk: 3.0,
-    },
-  );
+    radius:        4..=10,
+    attempts:      40,
+    avg_per_chunk: 3.0,
+  });
 }
 
 pub fn lavender_river(g: &mut BiomeBuilder) {
@@ -127,41 +115,29 @@ pub fn volcano_river(g: &mut BiomeBuilder) {
       },
     },
   );
-  g.place(
-    "grass",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      800,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "tall_grass"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      800,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "tall_grass"]],
+  });
 
-  g.place(
-    "tall grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
-      place_above:      g.top_block().into(),
-      place_short:      block![tallgrass[type = "tall_grass"]],
-      place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
-      place_tall_upper: block![double_plant[half = "upper"]],
+  g.place_chunk(chunk_placer::GrassClumps {
+    place_above:      g.top_block().into(),
+    place_short:      block![tallgrass[type = "tall_grass"]],
+    place_tall_lower: block![double_plant[half = "lower", variant = "double_grass"]],
+    place_tall_upper: block![double_plant[half = "upper"]],
 
-      radius:        4..=10,
-      attempts:      200,
-      avg_per_chunk: 3.0,
-    },
-  );
+    radius:        4..=10,
+    attempts:      200,
+    avg_per_chunk: 3.0,
+  });
 
-  g.place(
-    "ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
-      avg_per_chunk: 1.0,
-      attempts:      80,
-      place_above:   [block![grass], block![rgen:mossy_stump]].into(),
-      place:         block![tallgrass[type = "fern"]],
-    },
-  );
+  g.place_chunk(chunk_placer::Scatter {
+    avg_per_chunk: 1.0,
+    attempts:      80,
+    place_above:   [block![grass], block![rgen:mossy_stump]].into(),
+    place:         block![tallgrass[type = "fern"]],
+  });
 }
 //Field, Volcano growth
