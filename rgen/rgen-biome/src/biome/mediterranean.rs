@@ -22,16 +22,16 @@ pub fn lebanon_cedar_woodland_river(g: &mut BiomeBuilder) {
   add_cedar_woodland_standard(g, 4.0, true, (0, 50, 50), 5.0);
   add_cedar_tall_bushes(g, 4.0);
 
-  for (name, material, avg_per_chunk) in [
+  for (_name, material, avg_per_chunk) in [
     ("Cedar river ground stone", block![stone], 1.5),
     ("Cedar river ground andesite", block![stone[variant = "andesite"]], 1.5),
     ("Cedar river ground gravel", block![gravel], 2.0),
     ("Cedar river ground cobblestone", block![cobblestone], 1.5),
   ] {
-    g.place(
-      name,
-      PlacerStage::Sand,
-      placer::Splotch {
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: 1..=3,
         replace: [
           block![grass],
           block![dirt],
@@ -46,10 +46,11 @@ pub fn lebanon_cedar_woodland_river(g: &mut BiomeBuilder) {
     );
   }
 
-  g.place(
-    "Cedar river mixed stone and gravel patches",
-    PlacerStage::Sand,
-    placer::MixedSplotch {
+  // Cedar river mixed stone and gravel patches
+  g.place_chunk(
+    chunk_placer::MixedSplotch {
+      below_replace: [block![dirt], block![gravel], block![sand]].into(),
+      depth: 1..=3,
       replace: [
         block![grass],
         block![dirt],
@@ -125,14 +126,14 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
   g.color = "#718B62";
   g.set_top_block(block![gravel]);
   g.add_layer(block![gravel], 2, 4);
-  for (name, place, radius, avg_per_chunk) in [
+  for (_name, place, radius, avg_per_chunk) in [
     ("Beach coarse dirt spots", block![dirt[variant = "coarse_dirt"]], 1..=2, 2.0),
     ("Beach grass spots", block![grass], 2..=4, 3.75),
   ] {
-    g.place(
-      name,
-      PlacerStage::Sand,
-      placer::Splotch {
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: if place == block![grass] { 1..=1 } else { 1..=3 },
         replace: block![gravel].into(),
         place,
         radius,
@@ -257,7 +258,7 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
   g.add_underwater_layer(block![gravel], 2, 4);
 
   // Scattered patches vary the gravel floor. Grass and coarse dirt support plants.
-  for (name, place, radius, avg_per_chunk) in [
+  for (_name, place, radius, avg_per_chunk) in [
     ("Riparian coarse dirt flecks", block![dirt[variant = "coarse_dirt"]], 1..=2, 10.0),
     ("Riparian grass flecks", block![grass], 1..=3, 5.0),
     ("Riparian clay flecks", block![clay], 1..=3, 5.0),
@@ -265,10 +266,10 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
     ("Riparian stone flecks", block![stone], 1..=3, 4.0),
     ("Riparian mossy cobblestone flecks", block![mossy_cobblestone], 1..=3, 3.0),
   ] {
-    g.place(
-      name,
-      PlacerStage::Sand,
-      placer::Splotch {
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: if place == block![grass] { 1..=1 } else { 1..=3 },
         replace: block![gravel].into(),
         place,
         radius,
@@ -658,10 +659,11 @@ pub fn coastal_dunes(g: &mut BiomeBuilder) {
   g.add_layer(block![sand], 3, 3);
   g.set_underwater_block(block![sand]);
 
-  g.place(
-    "Rare coastal dune grass patches",
-    PlacerStage::Sand,
-    placer::Splotch {
+  // Rare coastal dune grass patches
+  g.place_chunk(
+    chunk_placer::Splotch {
+      below_replace: [block![dirt], block![gravel], block![sand]].into(),
+      depth: 1..=1,
       replace: block![sand].into(),
       place: block![grass],
       radius: 1..=2,
@@ -769,30 +771,33 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
       log: block![log[variant = "oak"]],
     },
   );
-  g.place(
-    "Mud patches",
-    PlacerStage::Sand,
-    placer::Splotch {
+  // Mud patches
+  g.place_chunk(
+    chunk_placer::Splotch {
+      below_replace: [block![dirt], block![gravel], block![sand]].into(),
+      depth: 1..=1,
       replace: block![grass].into(),
       place: block![rgen:mud],
       radius: 2..=5,
       avg_per_chunk: 1.2,
     },
   );
-  g.place(
-    "Gravel patches",
-    PlacerStage::Sand,
-    placer::Splotch {
+  // Gravel patches
+  g.place_chunk(
+    chunk_placer::Splotch {
+      below_replace: [block![dirt], block![gravel], block![sand]].into(),
+      depth: 1..=1,
       replace: block![grass].into(),
       place: block![gravel],
       radius: 2..=5,
       avg_per_chunk: 1.5,
     },
   );
-  g.place(
-    "Rare sand patches",
-    PlacerStage::Sand,
-    placer::Splotch {
+  // Rare sand patches
+  g.place_chunk(
+    chunk_placer::Splotch {
+      below_replace: [block![dirt], block![gravel], block![sand]].into(),
+      depth: 1..=1,
       replace: block![grass].into(),
       place: block![sand],
       radius: 1..=3,
@@ -947,10 +952,11 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
   }
 
   if profile.coarse_dirt.enabled {
-    g.place(
-      "Open plains coarse dirt patches",
-      PlacerStage::Sand,
-      placer::Splotch {
+    // Open plains coarse dirt patches
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: 1..=3,
         replace: [block![grass], block![dirt]].into(),
         place: block![dirt[variant = "coarse_dirt"]],
         radius: 1..=3,
@@ -960,10 +966,11 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
   }
 
   if profile.gravel_patches.enabled {
-    g.place(
-      "Open plains gravel patches",
-      PlacerStage::Sand,
-      placer::Splotch {
+    // Open plains gravel patches
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: 1..=3,
         replace: [block![grass], block![dirt]].into(),
         place: block![gravel],
         radius: 1..=3,
@@ -1089,15 +1096,15 @@ fn add_cedar_boulders(g: &mut BiomeBuilder, avg_per_chunk: f64) {
 
 fn add_cedar_woodland_standard(g: &mut BiomeBuilder, boulder_rate: f64, trees: bool, tree_mix: (u8, u8, u8), tree_rate: f64) {
   // Common coarse dirt and gravel, with less frequent podzol pockets.
-  for (name, place, radius, avg_per_chunk) in [
+  for (_name, place, radius, avg_per_chunk) in [
     ("Frequent coarse dirt patches", block![dirt[variant = "coarse_dirt"]], 2..=3, 8.0),
     ("Gravel patches", block![gravel], 1..=2, 5.0),
     ("Podzol patches", block![dirt[variant = "podzol"]], 2..=5, 0.8),
   ] {
-    g.place(
-      name,
-      PlacerStage::Sand,
-      placer::Splotch {
+    g.place_chunk(
+      chunk_placer::Splotch {
+        below_replace: [block![dirt], block![gravel], block![sand]].into(),
+        depth: if place == block![grass] { 1..=1 } else { 1..=3 },
         replace: [block![grass], block![dirt]].into(),
         place,
         radius,

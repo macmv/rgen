@@ -8,9 +8,15 @@ active-biome columns. Rock layers and stretched deposits retain their material a
 depth rules, but patch locations change. Their execution now precedes all regular
 decoration, including the remaining patches.
 
-Other customized Mediterranean placers still use `g.place(...)`. In particular,
-3D splotches need the center column's height; shoreline and waterbed patches need
-neighbor terrain/water reads. They remain unchanged pending a neighbor-data design.
+`Splotch` and `MixedSplotch` also use the chunk pass. Their former 3D spheres
+are now terrain-following deposits with four overlapping rotated lobes and an
+irregular outer rim. Radius bounds their horizontal reach. Depth includes the
+surface and stops at non-replaceable substrate. Mediterranean deposits use 1–3
+blocks of thickness; grass-block patches use one. Surface filters, material
+palettes, radius ranges, and configured rates are retained, but positions and
+coverage change. Mixed patches choose a material independently per block.
+Shoreline and waterbed patches still need neighbor terrain/water reads and remain
+in regular decoration pending a neighbor-data design.
 Med plant registrations for Scatter, DoubleScatter, Clumps, GrassClumps,
 DriedGrassClumps, and Spread now use icing. They check the finished ground and
 empty space after neighboring decoration completes. Double plants require room

@@ -33,7 +33,7 @@ pub use scatter::Scatter;
 pub use snow_snow::SnowOnSnowSurface;
 pub use snow_stone::SnowOnStoneSurface;
 pub use splatter::Splatter;
-pub use splotch::Splotch;
+pub use splotch::{MixedSplotch, Splotch};
 pub use spread::Spread;
 pub use water_resources::WaterResources;
 

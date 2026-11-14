@@ -3,7 +3,7 @@ use crate::{BiomeCachedChunk, ChunkPlacer, Rng, TemporaryBiome};
 use rgen_base::{BlockData, BlockId, Chunk, ChunkPos, ChunkRelPos};
 use rgen_world::BlockInfoSupplier;
 
-fn registry() -> BlockInfoSupplier {
+pub(super) fn registry() -> BlockInfoSupplier {
   let mut info = BlockInfoSupplier::default();
   for (i, state) in
     [block![air], block![grass], block![dirt], block![stone], block![gravel], block![sand]]
@@ -26,7 +26,7 @@ fn registry() -> BlockInfoSupplier {
   info
 }
 
-fn terrain(info: &BlockInfoSupplier, height: i32) -> Chunk {
+pub(super) fn terrain(info: &BlockInfoSupplier, height: i32) -> Chunk {
   let mut chunk = Chunk::new();
   for x in 0..16 {
     for z in 0..16 {

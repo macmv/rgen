@@ -13,7 +13,7 @@ pub use glasswort::Glasswort;
 pub use log::LogAndStump;
 pub use rock::MossBoulder;
 pub use scatter::{DoubleScatter, Scatter};
-pub use splotch::{MixedSplotch, ShorelineSplotch, Splotch};
+pub use splotch::ShorelineSplotch;
 pub use spread::Spread;
 pub use tree::*;
 pub use waterbed_patches::WaterbedPatches;
