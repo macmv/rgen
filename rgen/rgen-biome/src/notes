@@ -1,0 +1,220 @@
+USE PR 61 and 62 for placer alocation 
+
+open plains:
+grass surface
+dirt subsurface
+savanna biome
+
+standard:
+clumps of dry grass (single + double)
+clumps of tall grass (single + double)
+
+rare corse dirt
+rare drybush placer (oak leaves and log)
+rare fallen logs
+
+river:
+all of standard (increase drybush placer)
+scattered yellow wildflower shrub
+scattered dandiolinon
+rare scattered oxeye daisy
+
+river bottom is sand with patches of gravel and clay with the beds going down about 2 to 3 blocks
+
+hills:
+same as standard
+
+moutnains:
+same as standard (no drybushes)
+
+small splotecs course dirt that can go down a few blocks into the ground
+splotcehs of gravel taht go down a few blocks into the ground
+
+
+lebanon cedar woodland:
+grass surface
+dirt subsurface
+taigia biome
+
+standard
+large and very common corse dirt
+common splotches of gravel
+splotches of podzel
+bolders (placer still needs to be added i plan to make these still)
+scattered 1..2 clumps of dry grass
+scattered 2..4 of grass single and double
+scattered 1..3 of ferns
+scattered 2..3 of tall ferns
+
+fallen cedar logs with the podzel covered in some and polypores
+
+scattered brown mushrooms
+
+cedar trees (still need to be added for now use standard trees using cedar logs and leaves)
+
+rivers
+gravel,clay,adesite,stone, and cobble banks and beds
+more bolders
+reeds
+
+hills: more bolders 
+
+mountains:
+a uniqe palcer called rock_surface that still needs to be made
+
+beaches:
+more bolders
+no cedar trees
+use baby cedar trees
+sploteces of moss carpet covering
+
+gravel, clay, stone banks at random
+reeds
+scatterd mossy bush
+scattered mossy cobble stone
+
+pls list needed placers
+
+cedar trees should take in 
+log and leaf type
+ground
+growable surface
+
+
+ok lets make rock_surface
+
+this should bassicaly have on the x and y flat shape a weird wigly wobly organic shape that is about 12 long and 12 wide with weird bends and sahpes to into
+it turns the surface and between 1 to 2 blocks below that to gravel the 1 to 2 should be kinda random then below that 2 to 3 of stone
+mixed into that surface should be andesite, cobblestone, mossy cobblestone, and stone, if any of these occure in the gravel portion have the materail below untill the stone be a mix of those materials + the stone
+have there be about .8 per chunk
+
+inputs structure mix (for our biomes it will be stone, andestie, cobbleston, mossy cobblestone, rgen: mossy_stone, )
+slab mix (cobblestone slab)
+stair mix (cobble stone stairs)
+the center of the placemetn should be 1 above the surface well call it the core 
+around the core a plus on all axes this should be a mix of the structure
+then a 1 in 4 chance to extend on either the x or z axis +/- 1 more so there is now a block 1 more away from the core to make plus a t and add 1 more block on top to make the top a line
+then fill in the corner say 25% for each corner
+then give a 1 in 9 chance per top of the blocks above the first layer to have a slabmix
+then 25% of stairs pointing toward the core on the corners
+
+
+cedar trees
+input:
+% chance of large
+% chance of med 
+% chance of small
+
+large:
+10-12 tall log pole 
+
+med:
+9-7 tall log pole 
+
+small:
+6-5 tall log pole 
+
+on the 4th log up is layer 0
+layer 0 is a 3x3 with a 25% of points on the middles on each side
+layer -1 is a plus  where the arms are only placed when the above middle point exists and then on a 50% chance
+layer -2 is a plus with each side having a 20% chance
+
+layer 1 is a 3x3 with the cornesr having a 20% of being removed
+layer 2 is a plus
+
+on a 5 tall:
+layer 3 is a single block
+layer 4 has a 50% chance if it does happen then then layer 3 has a 50% of one of its sides also being placed as long as there is a leaf below (the leaf below should not effect total chances)
+
+on a 5 tall:
+
+layer 3 is a plus with a 20% for each side being removed
+layer 4 is a single arm
+layer 5 has a 50% chance if it does happen then then layer 4 has a 50% of one of its sides also being placed as long as there is a leaf below (the leaf below should not effect total chances)
+
+were going ot use concrete as wood for now
+
+the trunk goes up 3 wood as lime then dark green we will call this the tree core
+from here the branches will always be the same
+A,B,1
+C is the core
+
+ A
+BC
+  1
+
+this is awlays the layout A and B are on the side and the 1 is diagnol
+then rotate the sides for each trees
+
+each of these should be starting at the core the and a and B core can never be the same but starting at the top down starting locations lsited here 
+ A
+BC
+  1
+
+A,B variants:
+pink - 1 above the core up 3(up) over 1(up) 
+brown - 1 forward(side)from core, then 2 forward(side) that is 1 up and 1 away from the opoiste A,B variant
+red - 1 upward(up) from core, then 1 up and 1 away from the oposite(up)
+orange - 1 upward(up) from core, then 1 up and 1 away from the oposite(up), then 1 above that one (up)
+
+1 variants:
+white - diagnal from core(up) then diagnle from that 1 up (up)
+black - diagnal from core(up) then diagnle from that 1 up (up) and 1 up from that (up)
+blue,  - diagnal and 1 up from core(up) then diagnle from that 1 up (up)
+light blue - diagnal and 1 up from core(up) then diagnle from that 1 up (up) and 1 up from that (up)
+
+
+
+Chapraell
+Dried grass patches, 
+tall grass patches
+Scattering of yellow bushes
+fallen oak logs and stumps, cover ok
+
+gravel patches that are about 1..3 deep and then below them all dirt is turned to stone and a touhc a andesite and gravel
+redsand patches that are about 1..3 deep and then below them all dirt is turned to stone and a touhc a andesite and gravel
+dead bush on redsand 
+
+Standard
+make the redsand a bit streched sometimes
+
+River
+tall bushes
+reeds in the rivers (keep depth limited to 1)
+river bottom of gravel, sand, stone
+banks with rare splotechs of gravel, and stone
+
+Canyon
+
+
+Hills
+use the rock surface 8 wide gravel,stone,cobble, andesite
+
+
+
+Mountians
+use the rock surface 12 wide gravel,stone,cobble, andesite
+tall bushes rare
+
+
+ok leaf clumps
+
+first is the core
+a) square 2x2 then cut 1 or 2 top corneres each with 50/50
+b) 2x2 L with the middle 1 taller
+c) a plus with a toper 1 arm removed a 75 corner on one of the arms remvoed and 25 another corner filled
+d) a 3 line with a middle top leaf and 1 leaf on either edge side randomly along it
+e) plus with a 25% each corner is filled and another plus on top of that with a 50/50 for each arm being lopped off
+
+if the block below any part of the core is air or plant replace wtih leaf
+
+
+around the core a 30% of another core right next to it
+
+then leaves scatterd around and a chance of a:
+x
+ x
+
+
+this placer lacks a trunk so make sure the leaves dont despawn
+
