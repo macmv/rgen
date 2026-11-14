@@ -43,6 +43,12 @@ impl Region {
       storage.chunks.get_mut(&pos).unwrap().stage = Stage::Decorated;
     }
 
+    // Every chunk in the rectangle has all 8 neighbors decorated now, so they
+    // can be iced.
+    for pos in rect(min, max, 0) {
+      generator.ice(ctx, &mut storage.chunks.get_mut(&pos).unwrap().chunk, pos);
+    }
+
     let chunks =
       rect(min, max, 0).map(|pos| (pos, storage.chunks.remove(&pos).unwrap().chunk)).collect();
     Region { chunks }
