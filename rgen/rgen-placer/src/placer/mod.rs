@@ -1,17 +1,13 @@
 mod clump;
-mod glasswort;
 mod log;
 mod rock;
 mod scatter;
-mod splotch;
 mod spread;
 mod tree;
 
 pub use clump::{Clumps, DriedGrassClumps, GrassClumps, LeafClumps};
-pub use glasswort::Glasswort;
 pub use log::LogAndStump;
 pub use rock::MossBoulder;
 pub use scatter::{DoubleScatter, Scatter};
-pub use splotch::ShorelineSplotch;
 pub use spread::Spread;
 pub use tree::*;

@@ -145,10 +145,9 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
 
   add_cedar_trees(g, (0, 50, 50), 7.5, true);
   add_cedar_tall_bushes(g, 6.0);
-  g.place(
-    "Cedar beach shoreline clay",
-    PlacerStage::Sand2,
-    placer::ShorelineSplotch {
+  // Cedar beach shoreline clay
+  g.place_chunk(
+    chunk_placer::ShorelineSplotch {
       replace: [block![gravel], block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place: block![clay],
       radius: 2..=3,
@@ -458,10 +457,9 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
   g.add_underwater_layer(block![sand], 1, 2);
   g.add_underwater_layer(block![stone], 1, 2);
 
-  g.place(
-    "Chaparral river gravel bank flecks",
-    PlacerStage::Sand2,
-    placer::ShorelineSplotch {
+  // Chaparral river gravel bank flecks
+  g.place_chunk(
+    chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
       place: block![gravel],
       radius: 2..=4,
@@ -469,10 +467,9 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
       avg_per_chunk: 0.7,
     },
   );
-  g.place(
-    "Chaparral river stone bank flecks",
-    PlacerStage::Sand2,
-    placer::ShorelineSplotch {
+  // Chaparral river stone bank flecks
+  g.place_chunk(
+    chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
       place: block![stone],
       radius: 1..=3,
@@ -805,10 +802,9 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Glasswort",
-    PlacerStage::Tree,
-    placer::Glasswort {
+  // Glasswort
+  g.place_icing(
+    icing_placer::Glasswort {
       avg_per_chunk: 1.0,
       attempts: 320,
     },

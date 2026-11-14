@@ -2,7 +2,7 @@ use super::*;
 use crate::{BiomeCachedChunk, IcingPlacer, Rng, TemporaryBiome};
 use rgen_base::{BlockData, BlockId, Chunk, ChunkPos, ChunkRelPos};
 use rgen_world::BlockInfoSupplier;
-fn registry() -> BlockInfoSupplier {
+pub(super) fn registry() -> BlockInfoSupplier {
   let mut info = BlockInfoSupplier::default();
   for (i, state) in [
     block![air],
@@ -18,6 +18,7 @@ fn registry() -> BlockInfoSupplier {
     block![clay],
     block![rgen:mud],
     block![rgen:reeds],
+    block![rgen:glasswort],
   ]
   .into_iter()
   .enumerate()

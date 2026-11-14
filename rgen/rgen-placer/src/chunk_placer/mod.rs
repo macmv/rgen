@@ -97,3 +97,6 @@ impl ChunkPlacer for GlowVine {
 
 mod waterbed_patches;
 pub use waterbed_patches::WaterbedPatches;
+
+mod shoreline_splotch;
+pub use shoreline_splotch::ShorelineSplotch;

@@ -46,10 +46,20 @@ impl CompositionLookup {
   }
 }
 
-// This branch intentionally generates only Mediterranean biomes. Climate and
-// geographic enums remain shared with the terrain lookup and viewer.
+// Mediterranean generation plus the GeoTest geography visualizer.
 biome_categories!(
   fn build() {
+    // One solid diagnostic surface color per landform.
+    let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
+    let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
+    let (GeographicType::Beach, ClimateType::GeoTest) = &[b!(1, geo_test_beach)];
+    let (GeographicType::Delta, ClimateType::GeoTest) = &[b!(1, geo_test_delta)];
+    let (GeographicType::Canyon, ClimateType::GeoTest) = &[b!(1, geo_test_canyon)];
+    let (GeographicType::River, ClimateType::GeoTest) = &[b!(1, geo_test_river)];
+    let (GeographicType::Standard, ClimateType::GeoTest) = &[b!(1, geo_test_standard)];
+    let (GeographicType::Hills, ClimateType::GeoTest) = &[b!(1, geo_test_hills)];
+    let (GeographicType::Mountains, ClimateType::GeoTest) = &[b!(1, geo_test_mountains)];
+
     let (GeographicType::Standard, ClimateType::Mediterranean) = &[
       b!(20, lebanon_cedar_woodland),
       b!(45, chaparral_flats),

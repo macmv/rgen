@@ -20,7 +20,10 @@ each column's exposed underwater floor with configurable thickness (one block in
 Med). Candidate clusters retain their rates/attempt counts and replay across
 borders, including their eight-block offsets. Floor scans are cached per touched
 column. Water and dry ground are untouched; covered underground pools are skipped.
-Shoreline patches remain in regular decoration pending neighboring-water access.
+ShorelineSplotch now runs in the chunk pass, checking only water inside the current
+chunk within two horizontal blocks and one vertical block of exposed ground.
+Water across the boundary does not qualify; missed edge spots are intentional.
+GeoTest rivers retain their plain cyan surface; the pink-wool test is removed.
 Med plant registrations for Scatter, DoubleScatter, Clumps, GrassClumps,
 DriedGrassClumps, and Spread now use icing. They check the finished ground and
 empty space after neighboring decoration completes. Double plants require room
@@ -30,7 +33,11 @@ together. One-block-deep water remains the default; deeper beds are opt-in.
 Clumps and spreads follow local terrain using replayed horizontal footprints;
 locations and slope coverage can change. Scatter uses the upstream surface-attempt
 scaling (attempts / 9) and now honors avg_per_chunk, which the old single-block
-scatter ignored. Scattered rocks/slabs, trees, bushes, logs, glasswort,
+scatter ignored. Glasswort now uses icing: actual mud, empty plant space, and water within three
+horizontal blocks at plant/ground height, strictly inside the current chunk.
+Its six variants remain random; attempts use the same /9 surface adjustment as
+plant scatter. Mediterranean is again the active climate override.
+Scattered rocks/slabs, trees, bushes, logs,
 and boulders remain in regular decoration. The guidance below describes the upstream
 architecture, not a completed migration of Mediterranean decorations.
 

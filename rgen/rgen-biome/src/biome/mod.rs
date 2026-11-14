@@ -4,6 +4,9 @@ mod blank;
 #[allow(unused_imports)]
 pub use blank::*;
 
+mod geo_test;
+pub use geo_test::*;
+
 mod mediterranean;
 #[allow(unused_imports)]
 pub use mediterranean::*;

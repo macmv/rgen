@@ -18,3 +18,6 @@ mod tests;
 
 mod reeds;
 pub use reeds::Reeds;
+
+mod glasswort;
+pub use glasswort::Glasswort;
