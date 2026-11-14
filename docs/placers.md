@@ -15,8 +15,12 @@ surface and stops at non-replaceable substrate. Mediterranean deposits use 1–3
 blocks of thickness; grass-block patches use one. Surface filters, material
 palettes, radius ranges, and configured rates are retained, but positions and
 coverage change. Mixed patches choose a material independently per block.
-Shoreline and waterbed patches still need neighbor terrain/water reads and remain
-in regular decoration pending a neighbor-data design.
+WaterbedPatches now use the same organic footprints in the chunk pass, following
+each column's exposed underwater floor with configurable thickness (one block in
+Med). Candidate clusters retain their rates/attempt counts and replay across
+borders, including their eight-block offsets. Floor scans are cached per touched
+column. Water and dry ground are untouched; covered underground pools are skipped.
+Shoreline patches remain in regular decoration pending neighboring-water access.
 Med plant registrations for Scatter, DoubleScatter, Clumps, GrassClumps,
 DriedGrassClumps, and Spread now use icing. They check the finished ground and
 empty space after neighboring decoration completes. Double plants require room

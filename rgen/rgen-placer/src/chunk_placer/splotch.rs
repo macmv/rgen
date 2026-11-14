@@ -75,7 +75,7 @@ impl ChunkPlacer for MixedSplotch {
 // All lobes overlap the center. Rotation and unequal axes avoid repeated
 // circles; column-seeded nibbling only affects the outer rim, not the solid
 // interior.
-struct Footprint {
+pub(super) struct Footprint {
   lobes:  [(f64, f64, f64, f64); 4],
   sin:    f64,
   cos:    f64,
@@ -83,7 +83,7 @@ struct Footprint {
 }
 
 impl Footprint {
-  fn new(rng: &mut Rng, radius: i32) -> Self {
+  pub(super) fn new(rng: &mut Rng, radius: i32) -> Self {
     let (sin, cos) = rng.range(0.0..std::f64::consts::TAU).sin_cos();
     let r = f64::from(radius.max(1));
     let lobes = std::array::from_fn(|_| {
@@ -97,7 +97,7 @@ impl Footprint {
     Self { lobes, sin, cos, radius }
   }
 
-  fn contains(&self, dx: i32, dz: i32, rng: &mut Rng) -> bool {
+  pub(super) fn contains(&self, dx: i32, dz: i32, rng: &mut Rng) -> bool {
     if dx.abs() > self.radius || dz.abs() > self.radius {
       return false;
     }

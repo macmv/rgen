@@ -5,10 +5,18 @@ use rgen_world::BlockInfoSupplier;
 
 pub(super) fn registry() -> BlockInfoSupplier {
   let mut info = BlockInfoSupplier::default();
-  for (i, state) in
-    [block![air], block![grass], block![dirt], block![stone], block![gravel], block![sand]]
-      .into_iter()
-      .enumerate()
+  for (i, state) in [
+    block![air],
+    block![grass],
+    block![dirt],
+    block![stone],
+    block![gravel],
+    block![sand],
+    block![water],
+    block![clay],
+  ]
+  .into_iter()
+  .enumerate()
   {
     let id = BlockId(i as u16);
     info.lookup.insert(state.block, id);

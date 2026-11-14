@@ -65,10 +65,10 @@ pub fn lebanon_cedar_woodland_river(g: &mut BiomeBuilder) {
   );
 
   for material in [block![clay], block![stone[variant = "andesite"]], block![stone], block![cobblestone]] {
-    g.place(
-      "Cedar river bed patches",
-      PlacerStage::Sand,
-      placer::WaterbedPatches {
+    // Cedar river bed patches
+    g.place_chunk(
+      chunk_placer::WaterbedPatches {
+        depth: 1..=1,
         replace: [block![gravel], block![sand], block![stone]].into(),
         place: material,
         radius: 1..=3,
@@ -235,10 +235,10 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
   );
 
   for (material, avg_per_chunk) in [(block![gravel], 1.4), (block![clay], 0.7), (block![stone], 0.7)] {
-    g.place(
-      "Cedar beach material patches",
-      PlacerStage::Sand,
-      placer::WaterbedPatches {
+    // Cedar beach material patches
+    g.place_chunk(
+      chunk_placer::WaterbedPatches {
+        depth: 1..=1,
         replace: [block![sand], block![gravel], block![stone]].into(),
         place: material,
         radius: 1..=3,
@@ -814,10 +814,10 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Gravel patches under marsh channels",
-    PlacerStage::Sand,
-    placer::WaterbedPatches {
+  // Gravel patches under marsh channels
+  g.place_chunk(
+    chunk_placer::WaterbedPatches {
+      depth: 1..=1,
       replace: [block![sand], block![rgen:mud], block![clay]].into(),
       place: block![gravel],
       radius: 2..=4,
@@ -1060,10 +1060,10 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
       },
     );
 
-    g.place(
-      "Open plains river gravel patches",
-      PlacerStage::Sand,
-      placer::WaterbedPatches {
+    // Open plains river gravel patches
+    g.place_chunk(
+      chunk_placer::WaterbedPatches {
+        depth: 1..=1,
         replace: block![sand].into(),
         place: block![gravel],
         radius: 1..=3,
@@ -1072,10 +1072,10 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
       },
     );
 
-    g.place(
-      "Open plains river clay patches",
-      PlacerStage::Sand,
-      placer::WaterbedPatches {
+    // Open plains river clay patches
+    g.place_chunk(
+      chunk_placer::WaterbedPatches {
+        depth: 1..=1,
         replace: block![sand].into(),
         place: block![clay],
         radius: 1..=3,

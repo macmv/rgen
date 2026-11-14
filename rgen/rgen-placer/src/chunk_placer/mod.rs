@@ -94,3 +94,6 @@ impl ChunkPlacer for GlowVine {
     }
   }
 }
+
+mod waterbed_patches;
+pub use waterbed_patches::WaterbedPatches;

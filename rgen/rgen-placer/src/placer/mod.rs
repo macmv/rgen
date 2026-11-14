@@ -6,7 +6,6 @@ mod scatter;
 mod splotch;
 mod spread;
 mod tree;
-mod waterbed_patches;
 
 pub use clump::{Clumps, DriedGrassClumps, GrassClumps, LeafClumps};
 pub use glasswort::Glasswort;
@@ -16,4 +15,3 @@ pub use scatter::{DoubleScatter, Scatter};
 pub use splotch::ShorelineSplotch;
 pub use spread::Spread;
 pub use tree::*;
-pub use waterbed_patches::WaterbedPatches;
