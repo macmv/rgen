@@ -11,8 +11,17 @@ decoration, including the remaining patches.
 Other customized Mediterranean placers still use `g.place(...)`. In particular,
 3D splotches need the center column's height; shoreline and waterbed patches need
 neighbor terrain/water reads. They remain unchanged pending a neighbor-data design.
-Custom boulders and vegetation have not been migrated. No current Mediterranean
-biome registers an icing placer. The guidance below describes the upstream
+Med plant registrations for Scatter, DoubleScatter, Clumps, GrassClumps,
+DriedGrassClumps, and Spread now use icing. They check the finished ground and
+empty space after neighboring decoration completes. Double plants require room
+for both halves. Dried grass retains independent color/variant/height choices.
+Reeds also use icing, reading final water/soil columns and placing mature halves
+together. One-block-deep water remains the default; deeper beds are opt-in.
+Clumps and spreads follow local terrain using replayed horizontal footprints;
+locations and slope coverage can change. Scatter uses the upstream surface-attempt
+scaling (attempts / 9) and now honors avg_per_chunk, which the old single-block
+scatter ignored. Scattered rocks/slabs, trees, bushes, logs, glasswort,
+and boulders remain in regular decoration. The guidance below describes the upstream
 architecture, not a completed migration of Mediterranean decorations.
 
 There are three kinds of placers, and each runs at a different point in a chunk's life. Picking the

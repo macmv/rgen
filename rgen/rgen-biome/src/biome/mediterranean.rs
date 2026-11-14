@@ -1,5 +1,5 @@
 use rgen_base::{biome, block, BlockFilter};
-use rgen_placer::{chunk_placer, placer};
+use rgen_placer::{chunk_placer, icing_placer, placer};
 
 use crate::builder::PlacerStage;
 use super::super::BiomeBuilder;
@@ -77,10 +77,9 @@ pub fn lebanon_cedar_woodland_river(g: &mut BiomeBuilder) {
     );
   }
 
-  g.place(
-    "Cedar river reeds",
-    PlacerStage::Tree,
-    placer::Reeds { avg_per_chunk: 5.0, attempts: 64, must_be_one_block_deep: true },
+  // Cedar river reeds
+  g.place_icing(
+    icing_placer::Reeds { avg_per_chunk: 5.0, attempts: 64, must_be_one_block_deep: true },
   );
 }
 
@@ -156,40 +155,36 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
       avg_per_chunk: 1.2,
     },
   );
-  g.place(
-    "Beach moss carpet patches",
-    PlacerStage::Sand2,
-    placer::Spread {
+  // Beach moss carpet patches
+  g.place_icing(
+    icing_placer::Spread {
       replace: [block![grass], block![gravel], block![clay], block![dirt[variant = "coarse_dirt"]]].into(),
       place: block![rgen:mossy_carpet],
       radius: 1..=3,
       avg_per_chunk: 1.2,
     },
   );
-  g.place(
-    "Beach mossy bushes",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Beach mossy bushes
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place: block![rgen:plant],
       avg_per_chunk: 1.0,
       attempts: 80,
     },
   );
-  g.place(
-    "Beach ferns",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Beach ferns
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place: block![tallgrass[type = "fern"]],
       avg_per_chunk: 1.0,
       attempts: 60,
     },
   );
-  g.place(
-    "Beach tall grass clumps",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Beach tall grass clumps
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: block![grass].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
@@ -199,20 +194,18 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
       avg_per_chunk: 1.2,
     },
   );
-  g.place(
-    "Rare beach green dried grass",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Rare beach green dried grass
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: block![grass].into(),
       place: block![rgen:dried_grass[variant = "green_1"]],
       avg_per_chunk: 1.0,
       attempts: 15,
     },
   );
-  g.place(
-    "Sparse beach salt marsh grass",
-    PlacerStage::Tree,
-    placer::Clumps {
+  // Sparse beach salt marsh grass
+  g.place_icing(
+    icing_placer::Clumps {
       place_above: [block![sand], block![grass]].into(),
       place: block![rgen:salt_marsh_grass],
       radius: 2..=3,
@@ -220,10 +213,9 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
       avg_per_chunk: 0.8,
     },
   );
-  g.place(
-    "Scattered beach salt marsh grass",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Scattered beach salt marsh grass
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![grass], block![sand]].into(),
       place: block![rgen:salt_marsh_grass],
       avg_per_chunk: 1.0,
@@ -285,20 +277,18 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
     );
   }
 
-  g.place(
-    "Riparian moss carpet",
-    PlacerStage::Sand2,
-    placer::Spread {
+  // Riparian moss carpet
+  g.place_icing(
+    icing_placer::Spread {
       replace: [block![gravel], block![mossy_cobblestone], block![stone], block![stone[variant = "andesite"]]].into(),
       place: block![rgen:mossy_carpet],
       radius: 2..=4,
       avg_per_chunk: 1.5,
     },
   );
-  g.place(
-    "Riparian mossy bushes",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Riparian mossy bushes
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [
         block![grass],
         block![dirt],
@@ -417,10 +407,9 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
       attempts: 3,
     },
   );
-  g.place(
-    "Riparian tall grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Riparian tall grass
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
@@ -430,10 +419,9 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
       avg_per_chunk: 4.0,
     },
   );
-  g.place(
-    "Riparian fern clumps",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Riparian fern clumps
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place_short: block![tallgrass[type = "fern"]],
       place_tall_lower: block![double_plant[variant = "double_fern", half = "lower"]],
@@ -443,10 +431,9 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
       avg_per_chunk: 3.0,
     },
   );
-  g.place(
-    "Riparian tall ferns",
-    PlacerStage::Tree,
-    placer::DoubleScatter {
+  // Riparian tall ferns
+  g.place_icing(
+    icing_placer::DoubleScatter {
       place_above: [block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
       place_lower: block![double_plant[variant = "double_fern", half = "lower"]],
       place_upper: block![double_plant[half = "upper"]],
@@ -454,10 +441,9 @@ pub fn riparian_woodland(g: &mut BiomeBuilder) {
       attempts: 120,
     },
   );
-  g.place(
-    "Riparian reeds",
-    PlacerStage::Tree,
-    placer::Reeds { avg_per_chunk: 4.0, attempts: 64, must_be_one_block_deep: true },
+  // Riparian reeds
+  g.place_icing(
+    icing_placer::Reeds { avg_per_chunk: 4.0, attempts: 64, must_be_one_block_deep: true },
   );
 }
 
@@ -493,10 +479,9 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
       avg_per_chunk: 0.4,
     },
   );
-  g.place(
-    "Chaparral river reeds",
-    PlacerStage::Tree,
-    placer::Reeds { avg_per_chunk: 9.0, attempts: 64, must_be_one_block_deep: true },
+  // Chaparral river reeds
+  g.place_icing(
+    icing_placer::Reeds { avg_per_chunk: 9.0, attempts: 64, must_be_one_block_deep: true },
   );
   g.place(
     "Chaparral river basic oak trees",
@@ -566,30 +551,27 @@ fn build_chaparral_flats(g: &mut BiomeBuilder, tall_bush_rate: Option<f64>) {
       stretch_chance: 25,
     },
   );
-  g.place(
-    "Chaparral dead bushes on red sand",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Chaparral dead bushes on red sand
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![sand[variant = "red_sand"]]].into(),
       place: block![tallgrass[type = "dead_bush"]],
       avg_per_chunk: 1.0,
       attempts: 80,
     },
   );
-  g.place(
-    "Chaparral dried grass patches",
-    PlacerStage::Tree,
-    placer::DriedGrassClumps {
+  // Chaparral dried grass patches
+  g.place_icing(
+    icing_placer::DriedGrassClumps {
       place_above: [block![grass]].into(),
       radius: 2..=4,
       attempts: 40,
       avg_per_chunk: 2.0,
     },
   );
-  g.place(
-    "Chaparral tall grass patches",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Chaparral tall grass patches
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass]].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
@@ -599,10 +581,9 @@ fn build_chaparral_flats(g: &mut BiomeBuilder, tall_bush_rate: Option<f64>) {
       avg_per_chunk: 1.5,
     },
   );
-  g.place(
-    "Chaparral yellow wildflower shrubs",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Chaparral yellow wildflower shrubs
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: block![grass].into(),
       place: block![rgen:yellow_wildflower_shrub],
       avg_per_chunk: 0.25,
@@ -702,10 +683,9 @@ pub fn coastal_dunes(g: &mut BiomeBuilder) {
     },
   );
   for variant in ["a", "b", "c"] {
-    g.place(
-      "Common coastal dune grass",
-      PlacerStage::Tree,
-      placer::Scatter {
+    // Common coastal dune grass
+  g.place_icing(
+    icing_placer::Scatter {
         place_above: [block![sand], block![grass]].into(),
         place: block![rgen:dune_grass[variant = variant]],
         avg_per_chunk: 1.5,
@@ -713,30 +693,27 @@ pub fn coastal_dunes(g: &mut BiomeBuilder) {
       },
     );
   }
-  g.place(
-    "Rare coastal salt marsh grass",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Rare coastal salt marsh grass
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![sand], block![grass]].into(),
       place: block![rgen:salt_marsh_grass],
       avg_per_chunk: 0.05,
       attempts: 60,
     },
   );
-  g.place(
-    "Rare coastal yellow wildflower shrubs",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Rare coastal yellow wildflower shrubs
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![sand], block![grass]].into(),
       place: block![rgen:yellow_wildflower_shrub],
       avg_per_chunk: 0.05,
       attempts: 60,
     },
   );
-  g.place(
-    "Rare coastal tall grass",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Rare coastal tall grass
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: block![grass].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
@@ -844,20 +821,18 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Reeds",
-    PlacerStage::Tree,
-    placer::Reeds {
+  // Reeds
+  g.place_icing(
+    icing_placer::Reeds {
       avg_per_chunk: 6.0,
       attempts: 64,
       must_be_one_block_deep: true,
     },
   );
 
-  g.place(
-    "Salt marsh dried grass clumps",
-    PlacerStage::Tree,
-    placer::DriedGrassClumps {
+  // Salt marsh dried grass clumps
+  g.place_icing(
+    icing_placer::DriedGrassClumps {
       place_above: [block![sand], block![grass]].into(),
       radius: 3..=5,
       attempts: 45,
@@ -865,10 +840,9 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Salt marsh grass clumps",
-    PlacerStage::Tree,
-    placer::Clumps {
+  // Salt marsh grass clumps
+  g.place_icing(
+    icing_placer::Clumps {
       place_above: [block![sand], block![grass]].into(),
       place: block![rgen:salt_marsh_grass],
       radius: 2..=5,
@@ -877,20 +851,18 @@ pub fn salt_marsh(g: &mut BiomeBuilder) {
     },
   );
 
-  g.place(
-    "Salt marsh grasses",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Salt marsh grasses
+  g.place_icing(
+    icing_placer::Scatter {
       avg_per_chunk: 1.0,
       attempts: 320,
       place_above: [block![grass]].into(),
       place: block![tallgrass[type = "tall_grass"]],
     },
   );
-  g.place(
-    "Double tall grass",
-    PlacerStage::Tree,
-    placer::DoubleScatter {
+  // Double tall grass
+  g.place_icing(
+    icing_placer::DoubleScatter {
       avg_per_chunk: 0.2,
       attempts: 320,
       place_above: [block![grass]].into(),
@@ -1002,10 +974,9 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
 
   add_open_plains_dry_grass(g, profile.dry_grass_avg_per_chunk);
 
-  g.place(
-    "Open plains tall grass clumps",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Open plains tall grass clumps
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass]].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[2]],
@@ -1052,10 +1023,9 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
   }
 
   if profile.river_features {
-    g.place(
-      "Open plains yellow wildflower shrubs",
-      PlacerStage::Tree,
-      placer::Scatter {
+    // Open plains yellow wildflower shrubs
+  g.place_icing(
+    icing_placer::Scatter {
         avg_per_chunk: 0.9,
         attempts: 120,
         place_above: [block![grass]].into(),
@@ -1063,10 +1033,9 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
       },
     );
 
-    g.place(
-      "Open plains dandelions",
-      PlacerStage::Tree,
-      placer::Scatter {
+    // Open plains dandelions
+  g.place_icing(
+    icing_placer::Scatter {
         avg_per_chunk: 0.8,
         attempts: 120,
         place_above: [block![grass]].into(),
@@ -1074,10 +1043,9 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
       },
     );
 
-    g.place(
-      "Rare open plains oxeye daisies",
-      PlacerStage::Tree,
-      placer::Scatter {
+    // Rare open plains oxeye daisies
+  g.place_icing(
+    icing_placer::Scatter {
         avg_per_chunk: 0.15,
         attempts: 30,
         place_above: [block![grass]].into(),
@@ -1140,20 +1108,18 @@ fn add_cedar_woodland_standard(g: &mut BiomeBuilder, boulder_rate: f64, trees: b
 
   add_cedar_boulders(g, boulder_rate);
 
-  g.place(
-    "Dried grass clumps",
-    PlacerStage::Tree,
-    placer::DriedGrassClumps {
+  // Dried grass clumps
+  g.place_icing(
+    icing_placer::DriedGrassClumps {
       place_above: [block![grass]].into(),
       radius: 2..=4,
       attempts: 36,
       avg_per_chunk: 1.5,
     },
   );
-  g.place(
-    "Grass clumps",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Grass clumps
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass]].into(),
       place_short: block![tallgrass[type = "tall_grass"]],
       place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
@@ -1163,10 +1129,9 @@ fn add_cedar_woodland_standard(g: &mut BiomeBuilder, boulder_rate: f64, trees: b
       avg_per_chunk: 3.0,
     },
   );
-  g.place(
-    "Fern clumps",
-    PlacerStage::Tree,
-    placer::GrassClumps {
+  // Fern clumps
+  g.place_icing(
+    icing_placer::GrassClumps {
       place_above: [block![grass]].into(),
       place_short: block![tallgrass[type = "fern"]],
       place_tall_lower: block![double_plant[variant = "double_fern", half = "lower"]],
@@ -1176,10 +1141,9 @@ fn add_cedar_woodland_standard(g: &mut BiomeBuilder, boulder_rate: f64, trees: b
       avg_per_chunk: 2.0,
     },
   );
-  g.place(
-    "Brown mushrooms",
-    PlacerStage::Tree,
-    placer::Scatter {
+  // Brown mushrooms
+  g.place_icing(
+    icing_placer::Scatter {
       place_above: [block![grass], block![dirt], block![dirt[variant = "podzol"]]].into(),
       place: block![brown_mushroom],
       avg_per_chunk: 0.8,
@@ -1302,10 +1266,9 @@ fn add_cedar_tall_bushes(g: &mut BiomeBuilder, avg_per_chunk: f64) {
 }
 
 fn add_open_plains_dry_grass(g: &mut BiomeBuilder, avg_per_chunk: f64) {
-  g.place(
-    "Open plains dried grass clumps",
-    PlacerStage::Tree,
-    placer::DriedGrassClumps {
+  // Open plains dried grass clumps
+  g.place_icing(
+    icing_placer::DriedGrassClumps {
       place_above: [block![grass]].into(),
       radius: 1..=2,
       attempts: 25,

@@ -98,7 +98,7 @@ pub(crate) fn for_each_clump_point(
 ) {
   let min = chunk_pos.min_block_pos();
 
-  for blob in blobs_near(base, chunk_pos, avg) {
+  for blob in blobs_near_radius(base, chunk_pos, avg, i32::from(*radius.end())) {
     let mut rng = Rng::new(blob.seed);
     let radius = rng.range::<i32>((*radius.start()).into()..=(*radius.end()).into());
 
