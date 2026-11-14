@@ -51,10 +51,21 @@ impl Blob {
 /// chunk they are centered in, so a blob that crosses a chunk border is seen
 /// (identically) by both chunks, and no seam shows up.
 pub(crate) fn blobs_near(base: u64, chunk_pos: ChunkPos, avg: f64) -> Vec<Blob> {
-  let mut out = vec![];
+  blobs_near_radius(base, chunk_pos, avg, 16)
+}
 
-  for dx in -1..=1 {
-    for dz in -1..=1 {
+/// Replay every possible source chunk for the configured horizontal reach.
+pub(crate) fn blobs_near_radius(
+  base: u64,
+  chunk_pos: ChunkPos,
+  avg: f64,
+  radius: i32,
+) -> Vec<Blob> {
+  let mut out = vec![];
+  let reach = (radius.max(0) + 15) / 16;
+
+  for dx in -reach..=reach {
+    for dz in -reach..=reach {
       let chunk = ChunkPos::new(chunk_pos.x() + dx, chunk_pos.z() + dz);
       let mut rng = Rng::new(mix(base, chunk.x(), chunk.z()));
       let min = chunk.min_block_pos();
@@ -106,6 +117,32 @@ pub(crate) fn for_each_clump_point(
       if (0..16).contains(&rel_x) && (0..16).contains(&rel_z) {
         f(ChunkRelPos::new(rel_x as u8, 0, rel_z as u8), seed);
       }
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn neighboring_chunks_replay_identical_patch_seeds() {
+    for x in [-2, -1, 0, 1] {
+      let left = blobs_near_radius(42, ChunkPos::new(x, -1), 4.0, 24);
+      let right = blobs_near_radius(42, ChunkPos::new(x + 1, -1), 4.0, 24);
+      let mut shared = 0;
+      for a in &left {
+        if let Some(b) = right.iter().find(|b| b.seed == a.seed) {
+          assert_eq!((a.x, a.z), (b.x, b.z));
+          assert_eq!(a.column_rng(16 * (x + 1), -1).next(), b.column_rng(16 * (x + 1), -1).next());
+          shared += 1;
+        }
+      }
+      assert!(shared > 0);
+      // Radius >16 must include sources two chunks away, including at negative
+      // coordinates.
+      assert!(left.iter().any(|b| b.x.div_euclid(16) == x - 2));
+      assert!(left.iter().any(|b| b.x.div_euclid(16) == x + 2));
     }
   }
 }

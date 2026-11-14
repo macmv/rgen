@@ -1,5 +1,9 @@
 USE PR 61 and 62 for placer alocation 
 
+Chunk pass — parallel, before trees
+Regular decoration — can access neighboring chunks
+Icing — after neighboring trees finish 
+
 open plains:
 grass surface
 dirt subsurface

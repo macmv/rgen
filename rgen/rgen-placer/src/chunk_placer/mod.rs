@@ -1,3 +1,9 @@
+#[cfg(test)]
+mod ground_tests;
+mod subsurface_splotch;
+pub use subsurface_splotch::SubsurfaceSplotch;
+mod rock_surface;
+pub use rock_surface::RockSurface;
 mod boulder;
 mod checkerboard;
 mod clump;

@@ -1,5 +1,5 @@
 use rgen_base::{biome, block, BlockFilter};
-use rgen_placer::placer;
+use rgen_placer::{chunk_placer, placer};
 
 use crate::builder::PlacerStage;
 use super::super::BiomeBuilder;
@@ -91,10 +91,8 @@ pub fn lebanon_cedar_woodland_canyon(g: &mut BiomeBuilder) {
 pub fn lebanon_cedar_woodland_hills(g: &mut BiomeBuilder) {
   lebanon_cedar_woodland(g);
   add_cedar_boulders(g, 4.0);
-  g.place(
-    "Hill rock surface",
-    PlacerStage::Sand,
-    placer::RockSurface {
+  g.place_chunk(
+    chunk_placer::RockSurface {
       avg_per_chunk: 0.8,
       size: 8,
       mix_in: vec![
@@ -110,10 +108,8 @@ pub fn lebanon_cedar_woodland_mountains(g: &mut BiomeBuilder) {
   lebanon_cedar_woodland(g);
   g.layers[1].min_depth = 1;
   g.layers[1].max_depth = 2;
-  g.place(
-    "Mountain rock surface",
-    PlacerStage::Sand,
-    placer::RockSurface {
+  g.place_chunk(
+    chunk_placer::RockSurface {
       avg_per_chunk: 0.8,
       size: 12,
       mix_in: vec![
@@ -546,10 +542,8 @@ fn build_chaparral_flats(g: &mut BiomeBuilder, tall_bush_rate: Option<f64>) {
     block![dirt[variant = "podzol"]],
   ]
   .into();
-  g.place(
-    "Chaparral gravel deposits",
-    PlacerStage::Sand,
-    placer::SubsurfaceSplotch {
+  g.place_chunk(
+    chunk_placer::SubsurfaceSplotch {
       surface_replace: block![grass].into(),
       below_replace: below_replace.clone(),
       place: block![gravel],
@@ -560,10 +554,8 @@ fn build_chaparral_flats(g: &mut BiomeBuilder, tall_bush_rate: Option<f64>) {
       stretch_chance: 25,
     },
   );
-  g.place(
-    "Chaparral red sand deposits",
-    PlacerStage::Sand,
-    placer::SubsurfaceSplotch {
+  g.place_chunk(
+    chunk_placer::SubsurfaceSplotch {
       surface_replace: block![grass].into(),
       below_replace,
       place: block![sand[variant = "red_sand"]],
@@ -669,10 +661,8 @@ fn add_chaparral_tall_bushes(g: &mut BiomeBuilder, avg_per_chunk: f64) {
 }
 
 fn add_chaparral_rock_surface(g: &mut BiomeBuilder, size: u8) {
-  g.place(
-    "Chaparral rocky outcrops",
-    PlacerStage::Sand,
-    placer::RockSurface {
+  g.place_chunk(
+    chunk_placer::RockSurface {
       avg_per_chunk: 0.8,
       size,
       mix_in: vec![block![gravel], block![stone], block![cobblestone], block![stone[variant = "andesite"]]],

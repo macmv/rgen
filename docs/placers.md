@@ -2,14 +2,18 @@
 
 ## Mediterranean integration
 
-The `better-geography` merge retains the Mediterranean biome reset and its customized
-`placer` implementations, including boulders, clumps, scatter, splotches, and spread.
-Those existing biome registrations still use `g.place(...)`; they have not been ported
-to the upstream chunk implementations, whose shapes and placement rules differ.
-The upstream chunk placers and icing pass are available for future registrations.
-No current Mediterranean biome registers bamboo or another icing placer.
-The guidance below describes the upstream architecture, not a completed migration of
-the Mediterranean decorations.
+Mediterranean `RockSurface` and `SubsurfaceSplotch` now use `g.place_chunk(...)`.
+They replay seeded footprints from nearby source chunks and write only their own
+active-biome columns. Rock layers and stretched deposits retain their material and
+depth rules, but patch locations change. Their execution now precedes all regular
+decoration, including the remaining patches.
+
+Other customized Mediterranean placers still use `g.place(...)`. In particular,
+3D splotches need the center column's height; shoreline and waterbed patches need
+neighbor terrain/water reads. They remain unchanged pending a neighbor-data design.
+Custom boulders and vegetation have not been migrated. No current Mediterranean
+biome registers an icing placer. The guidance below describes the upstream
+architecture, not a completed migration of Mediterranean decorations.
 
 There are three kinds of placers, and each runs at a different point in a chunk's life. Picking the
 right one matters, because it decides what the placer can see, what it can change, how fast it is,
