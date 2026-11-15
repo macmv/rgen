@@ -490,6 +490,7 @@ blocks! {
     facing: ["north", "south", "west", "east"],
     type: ["one", "two", "three"],
   ],
+  RgenBrittleIce => rgen:brittle_ice[cracks: 0..=3],
   RgenPowderSnow => rgen:powder_snow,
   RgenDeepSnow => rgen:deep_snow[layers: 1..=4],
   RgenMossyCarpet => rgen:mossy_carpet,

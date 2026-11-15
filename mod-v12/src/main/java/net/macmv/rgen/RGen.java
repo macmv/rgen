@@ -64,6 +64,7 @@ public class RGen {
     ReedsContent.registerBlocks(reg);
     GlasswortContent.registerBlocks(reg);
     PowderSnowContent.registerBlocks(reg);
+    BrittleIceContent.registerBlocks(reg);
   }
 
   @SubscribeEvent
@@ -75,6 +76,7 @@ public class RGen {
     ReedsContent.registerItems(reg);
     GlasswortContent.registerItems(reg);
     PowderSnowContent.registerItems(reg);
+    BrittleIceContent.registerItems(reg);
   }
 
   @SideOnly(Side.CLIENT)
@@ -86,6 +88,7 @@ public class RGen {
     ReedsContent.registerModels();
     GlasswortContent.registerModels();
     PowderSnowContent.registerModels();
+    BrittleIceContent.registerModels();
   }
 
   @SubscribeEvent
