@@ -490,6 +490,8 @@ blocks! {
     facing: ["north", "south", "west", "east"],
     type: ["one", "two", "three"],
   ],
+  RgenPowderSnow => rgen:powder_snow,
+  RgenDeepSnow => rgen:deep_snow[layers: 1..=4],
   RgenMossyCarpet => rgen:mossy_carpet,
   RgenFlower => rgen:flower[type: ["forgetmenot"]],
   RgenBamboo => rgen:bamboo[has_leaves: PropType::Bool, placement: ["standard", "x", "z", "xz"]],

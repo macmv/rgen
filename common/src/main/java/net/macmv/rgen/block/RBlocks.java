@@ -25,6 +25,7 @@ public final class RBlocks {
   private static final Set<Block> blocks = new HashSet<>();
   private static final Map<String, Block> aliases = new HashMap<>();
 
+  public static final Block DEEP_SNOW = register("deep_snow", DeepSnowBlock::new, new BlockSettings().creativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Block DERP_DOG = register("derp_dog", s -> s.createMat(Block::new));
   public static final Block LOOSE_ROCK = register("loose_rock", LooseRockBlock::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS));
   public static final Block PLANT = register("plant", PlantBlock::new, new BlockSettings().material(Material.GRASS).creativeTab(RCreativeTabs.DECORATIONS));
