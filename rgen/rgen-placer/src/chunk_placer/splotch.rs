@@ -17,6 +17,34 @@ pub struct Splotch {
   pub depth:         RangeInclusive<u8>,
 }
 
+impl Splotch {
+  /// Gate each chunk-local patch attempt on its first eligible placement.
+  /// Other columns may lie below this height once the attempt is accepted.
+  pub fn starting_at_or_above(self, min_y: i32) -> impl ChunkPlacer {
+    StartHeightSplotch { patch: self, min_y }
+  }
+}
+
+struct StartHeightSplotch {
+  patch: Splotch,
+  min_y: i32,
+}
+
+impl ChunkPlacer for StartHeightSplotch {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let patch = &self.patch;
+    if patch.radius.is_empty() || patch.depth.is_empty() || *patch.depth.end() == 0 {
+      return;
+    }
+    for blob in blobs_near_radius(rng.next(), chunk_pos, patch.avg_per_chunk, i32::from(*patch.radius.end())) {
+      place_blob_with_start_height(
+        chunk, chunk_pos, &blob, &patch.replace, &patch.below_replace,
+        &[patch.place], &patch.radius, &patch.depth, Some(self.min_y),
+      );
+    }
+  }
+}
+
 /// Uses the same footprint as Splotch, choosing a material for every block.
 pub struct MixedSplotch {
   pub replace:       BlockFilter,
@@ -25,6 +53,32 @@ pub struct MixedSplotch {
   pub avg_per_chunk: f64,
   pub radius:        RangeInclusive<u8>,
   pub depth:         RangeInclusive<u8>,
+}
+
+impl MixedSplotch {
+  /// Keep the long-axis reach, compressing the short axis into a narrow streak.
+  pub fn elongated(self, width_ratio: f64) -> impl ChunkPlacer {
+    assert!(width_ratio > 0.0 && width_ratio <= 1.0);
+    ElongatedMixedSplotch { patch: self, width_ratio }
+  }
+}
+
+struct ElongatedMixedSplotch {
+  patch: MixedSplotch,
+  width_ratio: f64,
+}
+
+impl ChunkPlacer for ElongatedMixedSplotch {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let p = &self.patch;
+    if p.place.is_empty() || p.radius.is_empty() || p.depth.is_empty() || *p.depth.end() == 0 {
+      return;
+    }
+    for blob in blobs_near_radius(rng.next(), chunk_pos, p.avg_per_chunk, i32::from(*p.radius.end())) {
+      place_blob_shaped(chunk, chunk_pos, &blob, &p.replace, &p.below_replace,
+        &p.place, &p.radius, &p.depth, None, self.width_ratio);
+    }
+  }
 }
 
 impl Default for Splotch {
@@ -146,9 +200,53 @@ fn place_blob(
   radius: &RangeInclusive<u8>,
   depth: &RangeInclusive<u8>,
 ) {
+  place_blob_with_start_height(chunk, chunk_pos, blob, replace, below_replace, materials, radius, depth, None);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn place_blob_with_start_height(
+  chunk: &mut BiomeCachedChunk,
+  chunk_pos: ChunkPos,
+  blob: &Blob,
+  replace: &BlockFilter,
+  below_replace: &BlockFilter,
+  materials: &[BlockState],
+  radius: &RangeInclusive<u8>,
+  depth: &RangeInclusive<u8>,
+  min_start_y: Option<i32>,
+) {
+  place_blob_shaped(chunk, chunk_pos, blob, replace, below_replace, materials, radius, depth, min_start_y, 1.0);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn place_blob_shaped(
+  chunk: &mut BiomeCachedChunk,
+  chunk_pos: ChunkPos,
+  blob: &Blob,
+  replace: &BlockFilter,
+  below_replace: &BlockFilter,
+  materials: &[BlockState],
+  radius: &RangeInclusive<u8>,
+  depth: &RangeInclusive<u8>,
+  min_start_y: Option<i32>,
+  width_ratio: f64,
+) {
+  let mut start_checked = false;
   let mut shape_rng = Rng::new(blob.seed);
   let r = shape_rng.range(i32::from(*radius.start())..=i32::from(*radius.end()));
-  let shape = Footprint::new(&mut shape_rng, r);
+  let mut shape = Footprint::new(&mut shape_rng, r);
+  if width_ratio < 1.0 {
+    // Keep elongated deposits visibly diagonal: 20–70 degrees within either
+    // half-turn quadrant, rather than nearly parallel to the block axes.
+    let angle = (shape_rng.range(0..2) as f64 * 90.0 + shape_rng.range(20.0..70.0)).to_radians();
+    (shape.sin, shape.cos) = angle.sin_cos();
+  }
+  // Compress the lobes before their random world-space rotation. The long
+  // reach is unchanged, so cross-chunk source replay still covers the streak.
+  for (_, cz, _, rz) in &mut shape.lobes {
+    *cz *= width_ratio;
+    *rz *= width_ratio;
+  }
   let min = chunk_pos.min_block_pos();
   // Visit only the footprint's intersection with this chunk.
   for x in (blob.x - r).max(min.x)..=(blob.x + r).min(min.x + 15) {
@@ -171,6 +269,14 @@ fn place_blob(
         {
           continue;
         }
+        // Check only the first eligible block inside this chunk, before any writes.
+        // Reject this local patch attempt, not individual low columns or other blobs.
+        if !start_checked {
+          if min_start_y.is_some_and(|min_y| y < min_y) {
+            return;
+          }
+          start_checked = true;
+        }
         let thickness = column_rng.range(i32::from(*depth.start())..=i32::from(*depth.end()));
         for d in 0..thickness.min(y) {
           let at = column.with_y(y - d);
@@ -191,6 +297,46 @@ mod tests {
     *,
   };
   use crate::TemporaryBiome;
+
+  #[test]
+  fn start_height_gate_is_local_opt_in_and_checks_only_first_placement() {
+    let info = registry();
+    // Center is outside this chunk: only the local intersection is inspected.
+    let blob = Blob { x: -1, z: 8, seed: 42 };
+    let render = |chunk: &mut rgen_base::Chunk, min_y| {
+      place_blob_with_start_height(
+        &mut BiomeCachedChunk::new(&info, chunk), ChunkPos::new(0, 0), &blob,
+        &block![grass].into(), &block![dirt].into(), &[block![sand]],
+        &(6..=6), &(5..=5), min_y,
+      );
+    };
+    let original = terrain(&info, 74);
+    let mut rejected = original.clone();
+    render(&mut rejected, Some(75));
+    assert_eq!(rejected.data(), original.data());
+    let mut normal = original.clone();
+    render(&mut normal, None);
+    assert_ne!(normal.data(), original.data());
+    let first = (0..16).flat_map(|x| (0..16).map(move |z| (x, z)))
+      .find(|&(x, z)| normal.get(ChunkRelPos::new(x, 74, z)) == info.encode(block![sand])).unwrap();
+
+    let mut sloped = rgen_base::Chunk::new();
+    for x in 0..16 {
+      for z in 0..16 {
+        let height = if (x, z) == first { 75 } else { 74 };
+        for y in 0..=height {
+          sloped.set(ChunkRelPos::new(x, y, z), info.encode(if y == height { block![grass] } else { block![dirt] }));
+        }
+        sloped.add_surface(ChunkRelPos::new(x, height, z));
+      }
+    }
+    let mut expected = sloped.clone();
+    render(&mut expected, None);
+    render(&mut sloped, Some(75));
+    // Accepted at exactly 75, including all subsequent columns at 74.
+    assert_eq!(sloped.data(), expected.data());
+    assert_eq!(sloped.get(ChunkRelPos::new(first.0, 75, first.1)), info.encode(block![sand]));
+  }
 
   #[test]
   fn deposit_follows_slope_and_stops_at_substrate() {

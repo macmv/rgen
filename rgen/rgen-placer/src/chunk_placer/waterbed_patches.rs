@@ -21,6 +21,29 @@ pub struct WaterbedPatches {
 
 impl ChunkPlacer for WaterbedPatches {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_materials(chunk, rng, chunk_pos, &[]);
+  }
+}
+
+struct MixedWaterbedPatches {
+  patches: WaterbedPatches,
+  materials: Vec<BlockState>,
+}
+
+impl ChunkPlacer for MixedWaterbedPatches {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.patches.place_materials(chunk, rng, chunk_pos, &self.materials);
+  }
+}
+
+impl WaterbedPatches {
+  /// Choose independently from the supplied materials inside each deposit.
+  pub fn with_mix(self, materials: Vec<BlockState>) -> impl ChunkPlacer {
+    assert!(!materials.is_empty());
+    MixedWaterbedPatches { patches: self, materials }
+  }
+
+  fn place_materials(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos, materials: &[BlockState]) {
     if self.radius.is_empty()
       || self.depth.is_empty()
       || *self.depth.end() == 0
@@ -44,20 +67,29 @@ impl ChunkPlacer for WaterbedPatches {
           z:    source.z + source_rng.range(-8..=8),
           seed: source_rng.next(),
         };
-        self.place_blob(chunk, chunk_pos, &blob, &mut floors, &mut scanned);
+        self.place_blob_materials(chunk, chunk_pos, &blob, &mut floors, &mut scanned, materials);
       }
     }
   }
 }
 
 impl WaterbedPatches {
+  #[cfg(test)]
   fn place_blob(
+    &self, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos, blob: &Blob,
+    floors: &mut [Option<i32>; 256], scanned: &mut [bool; 256],
+  ) {
+    self.place_blob_materials(chunk, chunk_pos, blob, floors, scanned, &[]);
+  }
+
+  fn place_blob_materials(
     &self,
     chunk: &mut BiomeCachedChunk,
     chunk_pos: ChunkPos,
     blob: &Blob,
     floors: &mut [Option<i32>; 256],
     scanned: &mut [bool; 256],
+    materials: &[BlockState],
   ) {
     let mut rng = Rng::new(blob.seed);
     let radius = rng.range(i32::from(*self.radius.start())..=i32::from(*self.radius.end()));
@@ -86,21 +118,21 @@ impl WaterbedPatches {
           continue;
         };
         let floor = column.with_y(y);
-        if !chunk.is_active(floor) || chunk.get(floor.with_y(y + 1)) != block![water] {
+        if !chunk.is_surface_active(floor) || chunk.get(floor.with_y(y + 1)) != block![water] {
           continue;
         }
         let depth = rng.range(i32::from(*self.depth.start())..=i32::from(*self.depth.end()));
         for d in 0..depth.min(y) {
           let pos = floor.with_y(y - d);
           let current = chunk.get(pos);
-          if !chunk.is_active(pos)
+          if !chunk.is_surface_active(pos)
             || current == block![air]
             || current == block![water]
             || !self.replace.contains(current)
           {
             break;
           }
-          chunk.set(pos, self.place);
+          chunk.set(pos, if materials.is_empty() { self.place } else { *rng.choose(materials) });
         }
       }
     }
@@ -190,6 +222,30 @@ mod tests {
         }
       }
     }
+  }
+
+  #[test]
+  fn exposed_bed_below_cave_cutoff_uses_surface_biome() {
+    let info = registry();
+    let mut chunk = bed(&info, false);
+    let blob = Blob { x: 8, z: 8, seed: 42 };
+    let mut cached = BiomeCachedChunk::new(&info, &mut chunk);
+    for x in 0..16 {
+      for z in 0..16 {
+        cached.set_column(ChunkRelPos::new(x, 0, z), crate::BiomeColumn {
+          surface: TemporaryBiome(0),
+          cave: TemporaryBiome(1),
+          min_height: 63,
+        });
+      }
+    }
+    assert!(!cached.is_active(ChunkRelPos::new(8, 60, 8)));
+    placer(1).place_blob(
+      &mut cached, ChunkPos::new(0, 0), &blob,
+      &mut [None; 256], &mut [false; 256],
+    );
+    assert_eq!(cached.get(ChunkRelPos::new(8, 60, 8)), block![clay]);
+    assert_eq!(cached.get(ChunkRelPos::new(8, 61, 8)), block![water]);
   }
 
   #[test]

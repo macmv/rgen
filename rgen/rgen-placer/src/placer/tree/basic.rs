@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
@@ -8,6 +10,8 @@ pub struct BasicTree {
   pub trunk:         BlockState,
   pub leaves:        BlockState,
   pub avg_per_chunk: f64,
+  /// Number of log blocks, excluding the leaf above the trunk. Minimum three.
+  pub trunk_height: RangeInclusive<i32>,
 }
 
 impl Default for BasicTree {
@@ -17,6 +21,7 @@ impl Default for BasicTree {
       trunk:         block![log[variant = "oak"]],
       leaves:        block![leaves[variant = "oak"]],
       avg_per_chunk: 0.8,
+      trunk_height: 6..=9,
     }
   }
 }
@@ -27,7 +32,10 @@ impl Placer for BasicTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
-    let height = rng.range(5..=8);
+    if self.trunk_height.is_empty() || *self.trunk_height.start() < 3 {
+      return Err(UndoError);
+    }
+    let height = rng.range(self.trunk_height.clone()) - 1;
 
     if pos.y + height + 2 >= 255 || pos.y <= 1 {
       return Err(UndoError);

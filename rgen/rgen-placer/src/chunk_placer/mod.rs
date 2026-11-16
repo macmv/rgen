@@ -1,3 +1,7 @@
+mod terracotta_bands;
+pub use terracotta_bands::TerracottaBands;
+mod elevation_surface;
+pub use elevation_surface::{ElevationCutoff, ElevationSurface};
 #[cfg(test)]
 mod ground_tests;
 mod subsurface_splotch;

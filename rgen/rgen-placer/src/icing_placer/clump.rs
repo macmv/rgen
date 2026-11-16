@@ -112,6 +112,23 @@ pub struct DriedGrassClumps {
 
 impl IcingPlacer for DriedGrassClumps {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_colors(chunk, rng, chunk_pos, &[0, 1, 2]);
+  }
+}
+
+struct BrownYellowGrassClumps(DriedGrassClumps);
+
+impl IcingPlacer for BrownYellowGrassClumps {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.0.place_colors(chunk, rng, chunk_pos, &[0, 2]);
+  }
+}
+
+impl DriedGrassClumps {
+  /// Keep height and shape variation, but use only brown and yellow plants.
+  pub fn without_green(self) -> impl IcingPlacer { BrownYellowGrassClumps(self) }
+
+  fn place_colors(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos, colors: &[usize]) {
     let short = [
       [
         block![rgen:dried_grass[variant = "brown_1"]],
@@ -176,7 +193,7 @@ impl IcingPlacer for DriedGrassClumps {
           {
             continue;
           }
-          let color = rng.range(0..3) as usize;
+          let color = *rng.choose(colors);
           if rng.range(0..2) == 0 {
             let variant = rng.range(0..3) as usize;
             chunk.set(pos, short[color][variant]);

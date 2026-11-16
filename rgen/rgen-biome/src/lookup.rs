@@ -88,8 +88,11 @@ impl WorldBiomes {
       return climate;
     }
 
-    let temperature = self.temperature(pos);
     let humidity = self.humidity(pos);
+    if feature::MEDITERRANEAN_BADLANDS_MIX {
+      return if humidity < 0.5 { ClimateType::BadLands } else { ClimateType::Mediterranean };
+    }
+    let temperature = self.temperature(pos);
 
     CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
       [(humidity * CLIMATE_TABLE[0].len() as f64) as usize]
@@ -103,6 +106,10 @@ impl WorldBiomes {
   fn choose_surface_biome_from_key(&self, key: BiomeKey) -> &BiomeBuilder {
     if !enabled!(Biomes) {
       return &self.composition_lookup.blank[0];
+    }
+
+    if let Some(biome) = self.composition_lookup.override_for(key.geographic) {
+      return biome;
     }
 
     let biomes = if crate::feature::BIOME_OVERRIDE {

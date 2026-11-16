@@ -350,6 +350,7 @@ macro_rules! blocks {
   };
 }
 
+const WOOD_2: [&str; 2] = ["acacia", "dark_oak"];
 const WOOD_4: [&str; 4] = ["oak", "spruce", "birch", "jungle"];
 const WOOD_6: [&str; 6] = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
 
@@ -400,6 +401,12 @@ blocks! {
     decayable: PropType::Bool,
     variant: WOOD_4,
   ],
+  Log2 => minecraft:log2[axis: ["x", "y", "z", "none"], variant: WOOD_2],
+  Leaves2 => minecraft:leaves2[
+    check_decay: PropType::Bool,
+    decayable: PropType::Bool,
+    variant: WOOD_2,
+  ],
   Water => minecraft:water[level: 0..=15],
   Concrete => minecraft:concrete[color: COLOR],
   Cobblestone => minecraft:cobblestone,
@@ -408,6 +415,15 @@ blocks! {
     half: ["top", "bottom"],
     variant: ["stone", "sandstone", "wood_old", "cobblestone", "brick", "stone_brick", "nether_brick", "quartz"],
   ],
+  StoneSlab2 => minecraft:stone_slab2[
+    half: ["top", "bottom"],
+    variant: ["red_sandstone"],
+  ],
+  RedSandstoneStairs => minecraft:red_sandstone_stairs[
+    facing: ["north", "south", "west", "east"],
+    half: ["top", "bottom"],
+    shape: ["straight", "inner_left", "inner_right", "outer_left", "outer_right"],
+  ],
   StoneStairs => minecraft:stone_stairs[
     facing: ["north", "south", "west", "east"],
     half: ["top", "bottom"],
@@ -415,6 +431,7 @@ blocks! {
   ],
   Ice => minecraft:ice,
   PackedIce => minecraft:packed_ice,
+  DeadBush => minecraft:deadbush,
   Tallgrass => minecraft:tallgrass[type: ["dead_bush", "tall_grass", "fern"]],
   DoublePlant => minecraft:double_plant[
     facing: ["north", "south", "west", "east"],
@@ -466,6 +483,7 @@ blocks! {
 
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
   RgenMud => rgen:mud,
+  RgenPackedMud => rgen:packed_mud,
   RgenGlasswort => rgen:glasswort[variant: 0..=5],
   RgenReeds => rgen:reeds[
     age: 0..=3,

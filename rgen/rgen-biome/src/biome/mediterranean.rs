@@ -489,6 +489,7 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
       trunk: block![log[variant = "oak"]],
       leaves: block![leaves[variant = "oak"]],
       avg_per_chunk: 1.3,
+      ..Default::default()
     },
   );
 }
