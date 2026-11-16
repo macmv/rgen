@@ -264,11 +264,9 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
     }
   }
 
-  // Shape rivers and their banks first. Inside a delta, blend from the
-  // uncarved terrain so the main river channel does not continue as a straight
-  // cut through the delta's independently shaped islands and water pockets.
-  // Weak delta noise outside its classified boundary still cannot erase
-  // rivers or flatten distant coastal terrain.
+  // Start from the river-shaped height so the delta's outer transition is
+  // continuous. Build the target from uncarved terrain: at full influence the
+  // delta's islands and water pockets replace the river channel completely.
   let delta = delta_strength(noise);
   let blend = smoothstep(DELTA_TERRAIN_BLEND_START, 0.85, delta);
   if blend > 0.0 {
@@ -280,7 +278,7 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
     };
     let island_detail = smoothstep(0.25, 0.85, delta);
     let target = lerp(basin_height, delta_height, island_detail);
-    height = lerp(terrain_height, target, blend);
+    height = lerp(height, target, blend);
   }
 
   HeightParts { c, impact, p, e, height }
@@ -345,6 +343,42 @@ mod tests {
       assert!(delta_strength(weak) > 0.0);
       assert!(!is_delta(weak));
       assert_eq!(height(weak), height(sample(peaks, 0.0)));
+    }
+  }
+
+  #[test]
+  fn delta_blend_start_preserves_channel_and_bank_continuity() {
+    // Test the terrain activation boundary, not just the orange biome boundary.
+    for peaks in [0.5, 0.54, 0.58, 0.60] {
+      let (mut low, mut high) = (DELTA_RARITY_THRESHOLD, 0.78);
+      assert!(delta_strength(sample(peaks, high)) > DELTA_TERRAIN_BLEND_START);
+      for _ in 0..50 {
+        let mid = (low + high) * 0.5;
+        if delta_strength(sample(peaks, mid)) > DELTA_TERRAIN_BLEND_START {
+          high = mid;
+        } else {
+          low = mid;
+        }
+      }
+      let before = sample(peaks, low - 0.000001);
+      let after = sample(peaks, high + 0.000001);
+      assert_eq!(height(before), height(sample(peaks, 0.0)));
+      assert!((height(before) - height(after)).abs() < 0.0001,
+        "delta activation jumps at peaks {peaks}");
+    }
+  }
+
+  #[test]
+  fn full_delta_keeps_its_independent_island_height() {
+    let mut noise = sample(0.5, 0.78);
+    for islands in [0.2, 0.75] {
+      noise.delta_islands = islands;
+      let target = if islands >= 0.68 {
+        64.5 + (islands - 0.68) * 2.0
+      } else {
+        60.5 + islands * (4.0 / 0.68)
+      };
+      assert!((height(noise) - target).abs() < 0.0001);
     }
   }
 
