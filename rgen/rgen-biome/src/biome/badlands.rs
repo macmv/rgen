@@ -4,24 +4,81 @@ use rgen_base::{biome, block};
 
 use crate::builder::BiomeBuilder;
 
-fn badlands_placeholder(g: &mut BiomeBuilder) {
-  g.id = biome![mesa];
-  g.color = "#CF8869";
-  g.set_top_block(block![sand[variant = "red_sand"]]);
-  g.add_layer(block![hardened_clay], 3, 5);
-  g.set_underwater_block(block![sand[variant = "red_sand"]]);
+/// Dry, sandy scrub with low shrubs and small exposed mineral patches.
+pub fn red_scrubland(g: &mut BiomeBuilder) { red_scrub_group(g, false, false, 1.0, true); }
+
+pub fn red_scrubland_river(g: &mut BiomeBuilder) { red_scrub_river(g, 1.0, true); }
+
+fn red_scrub_river(g: &mut BiomeBuilder, bush_rate: f64, cacti: bool) {
+  red_scrub_group(g, false, true, bush_rate, cacti);
+  g.place("Red Scrubland river-edge tall bushes", crate::builder::PlacerStage::Tree,
+    rgen_placer::placer::TallBush {
+      ground: [block![sand], block![dirt], block![grass], block![gravel], block![clay],
+        block![rgen:packed_mud], block![hardened_clay], block![stained_hardened_clay]].into(),
+      plantable: [block![sand], block![dirt], block![grass], block![gravel], block![rgen:packed_mud]].into(),
+      plants: [block![deadbush], block![tallgrass], block![double_plant],
+        block![rgen:dried_grass], block![rgen:double_tall_dried_grass]].into(),
+      log: block![log[variant = "oak", axis = "y"]],
+      leaves: block![leaves[variant = "oak", check_decay = false, decayable = false]],
+      allow_water_under_leaves: true,
+      avg_per_chunk: 3.0 * bush_rate,
+    }.near_water(),
+  );
+  let bank_ground = [block![sand[variant = "red_sand"]], block![dirt],
+    block![rgen:packed_mud], block![hardened_clay], block![stained_hardened_clay]];
+  for material in [block![dirt], block![gravel]] {
+    g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
+      replace: bank_ground.into(), place: material,
+      radius: 1..=3, attempts: 1, avg_per_chunk: if material == block![gravel] { 9.0 } else { 4.5 },
+    });
+    g.place_chunk(rgen_placer::chunk_placer::WaterbedPatches {
+      replace: block![sand[variant = "red_sand"]].into(), place: material,
+      radius: 2..=3, depth: 1..=2, attempts: 2, avg_per_chunk: if material == block![gravel] { 4.2 } else { 2.1 },
+    });
+  }
+  // Individual submerged deposits, preserving the water above the bed.
+  for material in [block![rgen:mud], block![dirt], block![gravel]] {
+    g.place_chunk(rgen_placer::chunk_placer::WaterbedPatches {
+      replace: block![sand[variant = "red_sand"]].into(), place: material,
+      radius: 0..=0, depth: 1..=1, attempts: 8, avg_per_chunk: if material == block![gravel] { 12.0 } else { 6.0 },
+    });
+  }
+  // Radius zero scatters individual grass blocks, restricted to the shoreline.
+  g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
+    replace: bank_ground.into(), place: block![grass],
+    radius: 0..=0, attempts: 4, avg_per_chunk: 1.5,
+  });
 }
 
-pub fn red_scrubland(g: &mut BiomeBuilder) {
-  badlands_placeholder(g);
-  g.color = "#B87555";
-}
 
 pub fn arid_woodland(g: &mut BiomeBuilder) {
-  g.id = biome![savanna];
+  red_scrub_group(g, false, false, 1.5, false);
+  add_arid_woodland_trees(g);
+}
+
+pub fn arid_woodland_river(g: &mut BiomeBuilder) {
+  red_scrub_river(g, 1.5, false);
+  add_arid_woodland_trees(g);
+}
+
+fn add_arid_woodland_trees(g: &mut BiomeBuilder) {
   g.color = "#92965E";
-  g.set_top_block(block![grass]);
-  g.add_layer(block![dirt], 3, 5);
+  g.place_chunk(rgen_placer::chunk_placer::Splotch {
+    replace: [block![sand[variant = "red_sand"]], block![dirt], block![rgen:packed_mud]].into(),
+    below_replace: [block![sand], block![dirt], block![rgen:packed_mud]].into(),
+    place: block![grass], radius: 2..=4, depth: 1..=1, avg_per_chunk: 1.0,
+  });
+  g.place("Arid Woodland basic oak trees", crate::builder::PlacerStage::Tree,
+    rgen_placer::placer::BasicTree {
+      place_above: [block![sand[variant = "red_sand"]], block![dirt], block![grass],
+        block![rgen:packed_mud], block![hardened_clay], block![stained_hardened_clay],
+        block![gravel], block![clay]].into(),
+      trunk: block![log[variant = "oak", axis = "y"]],
+      leaves: block![leaves[variant = "oak", check_decay = false, decayable = false]],
+      avg_per_chunk: 1.3,
+      trunk_height: 4..=6,
+    },
+  );
 }
 
 pub fn arid_hills(g: &mut BiomeBuilder) {
@@ -32,14 +89,180 @@ pub fn arid_hills(g: &mut BiomeBuilder) {
 pub fn red_rock_shore(g: &mut BiomeBuilder) {
   g.id = biome![mesa];
   g.color = "#B57B64";
-  g.set_top_block(block![red_sandstone]);
+  g.set_top_block(block![sand[variant = "red_sand"]]);
   g.add_layer(block![red_sandstone], 3, 5);
-  g.set_underwater_block(block![red_sandstone]);
+  g.set_underwater_block(block![sand[variant = "red_sand"]]);
+  g.add_underwater_layer(block![red_sandstone], 2, 4);
+
+  for material in [
+    block![stone[variant = "granite"]],
+    block![stained_hardened_clay[color = "red"]],
+    block![hardened_clay],
+    block![stained_hardened_clay[color = "orange"]],
+    block![gravel],
+  ] {
+    g.place_chunk(rgen_placer::chunk_placer::Splotch {
+      replace: block![sand[variant = "red_sand"]].into(),
+      below_replace: [block![sand[variant = "red_sand"]], block![red_sandstone]].into(),
+      place: material,
+      radius: if material == block![stained_hardened_clay[color = "red"]]
+        || material == block![stone[variant = "granite"]] { 1..=2 } else { 2..=4 },
+      depth: 1..=2, avg_per_chunk: 1.0,
+    });
+  }
+  g.place_icing(rgen_placer::icing_placer::DriedGrassClumps {
+    place_above: block![sand[variant = "red_sand"]].into(),
+    radius: 2..=4, attempts: 16, avg_per_chunk: 2.5,
+  }.without_green());
+  g.place_icing(rgen_placer::icing_placer::Scatter {
+    place_above: [block![sand[variant = "red_sand"]], block![hardened_clay], block![stained_hardened_clay]].into(),
+    place: block![deadbush], avg_per_chunk: 1.0, attempts: 18,
+  });
+  for variant in ["a", "b", "c"] {
+    g.place_icing(rgen_placer::icing_placer::Clumps {
+      place_above: block![sand[variant = "red_sand"]].into(),
+      place: block![rgen:dune_grass[variant = variant]],
+      radius: 1..=2, attempts: 30, avg_per_chunk: 0.3 / 3.0,
+    });
+  }
 }
 
-pub fn red_reed_marsh(g: &mut BiomeBuilder) {
-  badlands_placeholder(g);
-  g.color = "#A19063";
+pub fn red_reed_marsh(g: &mut BiomeBuilder) { red_scrub_group(g, true, false, 1.0, false); }
+
+// First-pass D. Scrub group: shared red sediment, wetter vegetation in deltas.
+fn red_scrub_group(g: &mut BiomeBuilder, marsh: bool, river: bool, bush_rate: f64, cacti: bool) {
+  let ground_rate = if river { 3.0 } else { 1.0 };
+  g.id = if marsh { biome![mesa] } else { biome![savanna] };
+  g.color = if marsh { "#A19063" } else { "#B87555" };
+  let surface = if marsh { block![rgen:packed_mud] } else { block![sand[variant = "red_sand"]] };
+  g.set_top_block(surface);
+  g.add_layer(if marsh { block![dirt] } else { block![sand[variant = "red_sand"]] }, 2, 3);
+  g.add_layer(block![stained_hardened_clay[color = "orange"]], 4, 8);
+  set_painted_mesa_waterbed(g);
+
+  for (material, radius, rate) in [
+    (block![hardened_clay], 2..=4, if marsh { 0.6 } else { 1.2 }),
+    (block![gravel], 1..=2, if marsh { 0.3 } else { 0.6 }),
+  ] {
+    g.place_chunk(rgen_placer::chunk_placer::Splotch {
+      replace: surface.into(),
+      below_replace: [surface, block![dirt], block![sand], block![stained_hardened_clay]].into(),
+      place: material, radius, depth: 1..=2, avg_per_chunk: rate * ground_rate,
+    });
+  }
+  if marsh {
+    g.place_chunk(rgen_placer::chunk_placer::Splotch {
+      replace: surface.into(),
+      below_replace: [surface, block![dirt], block![sand], block![stained_hardened_clay]].into(),
+      place: block![stained_hardened_clay[color = "brown"]],
+      radius: 1..=3, depth: 1..=2, avg_per_chunk: 0.35,
+    });
+  } else {
+    // Long narrow terracotta streaks, with irregular lobes and random rotation.
+    // These explicit rates also apply to the river variant.
+    for (radius, rate) in [(3..=4, 0.5 * 4.0 / 9.0), (5..=6, 0.5 / 9.0), (8..=10, 0.5 * 4.0 / 9.0)] {
+      g.place_chunk(rgen_placer::chunk_placer::MixedSplotch {
+        replace: surface.into(),
+        below_replace: [surface, block![dirt], block![sand], block![stained_hardened_clay]].into(),
+        place: scrub_terracotta_palette(), radius, depth: 1..=2, avg_per_chunk: rate,
+      }.elongated(0.25));
+    }
+  }
+  // Broader pockets with packed mud mixed through the coarse dirt.
+  g.place_chunk(rgen_placer::chunk_placer::MixedSplotch {
+    replace: surface.into(),
+    below_replace: [surface, block![dirt], block![sand], block![stained_hardened_clay]].into(),
+    place: vec![block![dirt[variant = "coarse_dirt"]], block![rgen:packed_mud]],
+    radius: 2..=3,
+    depth: 1..=2,
+    avg_per_chunk: (if marsh { 0.4 } else { 0.75 }) * ground_rate,
+  });
+  if marsh {
+    g.place_chunk(rgen_placer::chunk_placer::Splotch {
+      replace: surface.into(), below_replace: [surface, block![dirt]].into(),
+      place: block![grass], radius: 1..=3, depth: 1..=2, avg_per_chunk: 1.2,
+    });
+    for (material, rate) in [(block![sand[variant = "red_sand"]], 1.2), (block![clay], 0.6)] {
+      g.place_chunk(rgen_placer::chunk_placer::Splotch {
+        replace: surface.into(), below_replace: [surface, block![dirt]].into(),
+        place: material, radius: 1..=3, depth: 1..=2, avg_per_chunk: rate * ground_rate,
+      });
+    }
+  } else {
+    g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
+      replace: [block![sand], block![dirt], block![hardened_clay], block![stained_hardened_clay]].into(),
+      place: block![rgen:packed_mud],
+      radius: if river { 2..=4 } else { 1..=3 },
+      attempts: 1, avg_per_chunk: (if river { 3.0 } else { 1.0 }) * ground_rate,
+    });
+    if cacti {
+      g.place("Red Scrubland cactus", crate::builder::PlacerStage::Tree, rgen_placer::placer::Cactus {
+        place_above: block![sand[variant = "red_sand"]].into(),
+        avg_per_chunk: 0.08, ..Default::default()
+      });
+      for cactus in [block![rgen:cactus[color = "blue"]], block![rgen:cactus[color = "orange"]]] {
+        g.place_icing(rgen_placer::icing_placer::Scatter {
+          place_above: block![sand[variant = "red_sand"]].into(),
+          place: cactus,
+          avg_per_chunk: 0.1,
+          attempts: 9, // Scatter scales attempts by 1/9: 0.1 surface attempts per chunk.
+        });
+      }
+    }
+  }
+  add_waterbed_patches(g, (if marsh { 1.2 } else { 0.7 }) * ground_rate, !marsh);
+  add_painted_mesa_boulders(g, if marsh { 0.05 } else { 0.1 });
+
+  let ground = [block![sand[variant = "red_sand"]], block![dirt], block![grass],
+    block![rgen:packed_mud], block![hardened_clay], block![stained_hardened_clay], block![gravel], block![clay]];
+  for (name, patch_name, trunk, leaves, rate) in [
+    ("D. Scrub oak bushes", "D. Scrub patch oak bushes", block![log[variant = "oak", axis = "y"]],
+      block![leaves[variant = "oak", check_decay = false, decayable = false]], if marsh { 0.35 } else { 0.8 }),
+    ("D. Scrub acacia bushes", "D. Scrub patch acacia bushes", block![log2[variant = "acacia", axis = "y"]],
+      block![leaves2[variant = "acacia", check_decay = false, decayable = false]], if marsh { 0.25 } else { 1.4 }),
+  ] {
+    g.place(name, crate::builder::PlacerStage::Tree, rgen_placer::placer::BasicDryBush {
+      place_above: ground.into(), ground: ground.into(), trunk, leaves, avg_per_chunk: rate * bush_rate,
+      plants: [block![deadbush], block![tallgrass], block![double_plant], block![rgen:dried_grass],
+        block![rgen:double_tall_dried_grass]].into(),
+    });
+    // Extra shrubs rooted on coarse dirt or packed mud; nearby dry terrain can
+    // still support the canopy, allowing bushes along the edges of patches.
+    g.place(patch_name, crate::builder::PlacerStage::Tree, rgen_placer::placer::BasicDryBush {
+      place_above: [block![dirt[variant = "coarse_dirt"]], block![rgen:packed_mud]].into(),
+      ground: ground.into(), trunk, leaves, avg_per_chunk: rate * 2.0 * bush_rate,
+      plants: [block![deadbush], block![tallgrass], block![double_plant], block![rgen:dried_grass],
+        block![rgen:double_tall_dried_grass]].into(),
+    });
+  }
+  if !marsh {
+    g.place("Red Scrubland loose leaf bushes", crate::builder::PlacerStage::Tree,
+      rgen_placer::placer::LeafClumps {
+        place_above: ground.into(),
+        leaves: block![leaves[variant = "oak", check_decay = false, decayable = false]],
+        avg_per_chunk: bush_rate,
+      },
+    );
+  }
+  let dry_grass = rgen_placer::icing_placer::DriedGrassClumps {
+    place_above: [block![sand[variant = "red_sand"]], block![dirt], block![grass], block![rgen:packed_mud]].into(),
+    radius: 2..=4, attempts: 16, avg_per_chunk: if marsh { 2.0 } else { 2.5 },
+  };
+  if marsh { g.place_icing(dry_grass); } else { g.place_icing(dry_grass.without_green()); }
+  g.place_icing(rgen_placer::icing_placer::GrassClumps {
+    place_above: block![grass].into(),
+    place_short: block![tallgrass[type = "tall_grass"]],
+    place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
+    place_tall_upper: block![double_plant[half = "upper"]],
+    radius: 1..=3, attempts: 20, avg_per_chunk: if marsh { 2.0 } else { 0.4 },
+  });
+  g.place_icing(rgen_placer::icing_placer::Scatter {
+    place_above: [block![sand], block![dirt], block![hardened_clay], block![stained_hardened_clay]].into(),
+    place: block![deadbush], attempts: 18, avg_per_chunk: if marsh { 0.25 } else { 1.0 },
+  });
+  g.place_icing(rgen_placer::icing_placer::Reeds {
+    avg_per_chunk: if marsh { 6.0 } else { 0.8 }, attempts: 64, must_be_one_block_deep: true,
+  });
 }
 
 /// Terrain-following terracotta shell, world-aligned bands, then low sand cover.
@@ -315,14 +538,32 @@ fn set_painted_mesa_waterbed(g: &mut BiomeBuilder) {
   g.add_underwater_layer(block![hardened_clay], 18, 30);
 }
 
-fn add_painted_mesa_waterbed_patches(g: &mut BiomeBuilder, avg_per_chunk: f64) {
-  for material in [
-    block![hardened_clay],
+fn scrub_terracotta_palette() -> Vec<rgen_base::BlockState> {
+  vec![
     block![stained_hardened_clay[color = "brown"]],
-    block![clay],
-    block![dirt],
-    block![gravel],
-  ] {
+    block![stained_hardened_clay[color = "white"]],
+    block![stained_hardened_clay[color = "silver"]],
+    block![hardened_clay],
+    block![stained_hardened_clay[color = "gray"]],
+  ]
+}
+
+fn add_painted_mesa_waterbed_patches(g: &mut BiomeBuilder, avg_per_chunk: f64) {
+  add_waterbed_patches(g, avg_per_chunk, false);
+}
+
+fn add_waterbed_patches(g: &mut BiomeBuilder, avg_per_chunk: f64, omit_brown_terracotta: bool) {
+  let mut deposits = vec![
+    (block![hardened_clay], avg_per_chunk),
+    (block![clay], avg_per_chunk),
+    (block![dirt], avg_per_chunk),
+    (block![gravel], avg_per_chunk * if omit_brown_terracotta { 2.0 } else { 1.0 }),
+  ];
+  // Red Scrubland's mixed terracotta deposits are land-only.
+  if !omit_brown_terracotta {
+    deposits.insert(1, (block![stained_hardened_clay[color = "brown"]], avg_per_chunk));
+  }
+  for (material, avg_per_chunk) in deposits {
     g.place_chunk(rgen_placer::chunk_placer::WaterbedPatches {
       replace: block![sand[variant = "red_sand"]].into(),
       place: material,

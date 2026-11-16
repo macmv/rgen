@@ -55,6 +55,32 @@ pub struct MixedSplotch {
   pub depth:         RangeInclusive<u8>,
 }
 
+impl MixedSplotch {
+  /// Keep the long-axis reach, compressing the short axis into a narrow streak.
+  pub fn elongated(self, width_ratio: f64) -> impl ChunkPlacer {
+    assert!(width_ratio > 0.0 && width_ratio <= 1.0);
+    ElongatedMixedSplotch { patch: self, width_ratio }
+  }
+}
+
+struct ElongatedMixedSplotch {
+  patch: MixedSplotch,
+  width_ratio: f64,
+}
+
+impl ChunkPlacer for ElongatedMixedSplotch {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let p = &self.patch;
+    if p.place.is_empty() || p.radius.is_empty() || p.depth.is_empty() || *p.depth.end() == 0 {
+      return;
+    }
+    for blob in blobs_near_radius(rng.next(), chunk_pos, p.avg_per_chunk, i32::from(*p.radius.end())) {
+      place_blob_shaped(chunk, chunk_pos, &blob, &p.replace, &p.below_replace,
+        &p.place, &p.radius, &p.depth, None, self.width_ratio);
+    }
+  }
+}
+
 impl Default for Splotch {
   fn default() -> Self {
     Self {
@@ -189,10 +215,38 @@ fn place_blob_with_start_height(
   depth: &RangeInclusive<u8>,
   min_start_y: Option<i32>,
 ) {
+  place_blob_shaped(chunk, chunk_pos, blob, replace, below_replace, materials, radius, depth, min_start_y, 1.0);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn place_blob_shaped(
+  chunk: &mut BiomeCachedChunk,
+  chunk_pos: ChunkPos,
+  blob: &Blob,
+  replace: &BlockFilter,
+  below_replace: &BlockFilter,
+  materials: &[BlockState],
+  radius: &RangeInclusive<u8>,
+  depth: &RangeInclusive<u8>,
+  min_start_y: Option<i32>,
+  width_ratio: f64,
+) {
   let mut start_checked = false;
   let mut shape_rng = Rng::new(blob.seed);
   let r = shape_rng.range(i32::from(*radius.start())..=i32::from(*radius.end()));
-  let shape = Footprint::new(&mut shape_rng, r);
+  let mut shape = Footprint::new(&mut shape_rng, r);
+  if width_ratio < 1.0 {
+    // Keep elongated deposits visibly diagonal: 20–70 degrees within either
+    // half-turn quadrant, rather than nearly parallel to the block axes.
+    let angle = (shape_rng.range(0..2) as f64 * 90.0 + shape_rng.range(20.0..70.0)).to_radians();
+    (shape.sin, shape.cos) = angle.sin_cos();
+  }
+  // Compress the lobes before their random world-space rotation. The long
+  // reach is unchanged, so cross-chunk source replay still covers the streak.
+  for (_, cz, _, rz) in &mut shape.lobes {
+    *cz *= width_ratio;
+    *rz *= width_ratio;
+  }
   let min = chunk_pos.min_block_pos();
   // Visit only the footprint's intersection with this chunk.
   for x in (blob.x - r).max(min.x)..=(blob.x + r).min(min.x + 15) {

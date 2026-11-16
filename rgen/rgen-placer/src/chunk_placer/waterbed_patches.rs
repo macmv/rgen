@@ -21,6 +21,29 @@ pub struct WaterbedPatches {
 
 impl ChunkPlacer for WaterbedPatches {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_materials(chunk, rng, chunk_pos, &[]);
+  }
+}
+
+struct MixedWaterbedPatches {
+  patches: WaterbedPatches,
+  materials: Vec<BlockState>,
+}
+
+impl ChunkPlacer for MixedWaterbedPatches {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.patches.place_materials(chunk, rng, chunk_pos, &self.materials);
+  }
+}
+
+impl WaterbedPatches {
+  /// Choose independently from the supplied materials inside each deposit.
+  pub fn with_mix(self, materials: Vec<BlockState>) -> impl ChunkPlacer {
+    assert!(!materials.is_empty());
+    MixedWaterbedPatches { patches: self, materials }
+  }
+
+  fn place_materials(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos, materials: &[BlockState]) {
     if self.radius.is_empty()
       || self.depth.is_empty()
       || *self.depth.end() == 0
@@ -44,20 +67,29 @@ impl ChunkPlacer for WaterbedPatches {
           z:    source.z + source_rng.range(-8..=8),
           seed: source_rng.next(),
         };
-        self.place_blob(chunk, chunk_pos, &blob, &mut floors, &mut scanned);
+        self.place_blob_materials(chunk, chunk_pos, &blob, &mut floors, &mut scanned, materials);
       }
     }
   }
 }
 
 impl WaterbedPatches {
+  #[cfg(test)]
   fn place_blob(
+    &self, chunk: &mut BiomeCachedChunk, chunk_pos: ChunkPos, blob: &Blob,
+    floors: &mut [Option<i32>; 256], scanned: &mut [bool; 256],
+  ) {
+    self.place_blob_materials(chunk, chunk_pos, blob, floors, scanned, &[]);
+  }
+
+  fn place_blob_materials(
     &self,
     chunk: &mut BiomeCachedChunk,
     chunk_pos: ChunkPos,
     blob: &Blob,
     floors: &mut [Option<i32>; 256],
     scanned: &mut [bool; 256],
+    materials: &[BlockState],
   ) {
     let mut rng = Rng::new(blob.seed);
     let radius = rng.range(i32::from(*self.radius.start())..=i32::from(*self.radius.end()));
@@ -100,7 +132,7 @@ impl WaterbedPatches {
           {
             break;
           }
-          chunk.set(pos, self.place);
+          chunk.set(pos, if materials.is_empty() { self.place } else { *rng.choose(materials) });
         }
       }
     }

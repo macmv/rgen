@@ -18,6 +18,41 @@ pub struct TallBush {
   pub avg_per_chunk: f64,
 }
 
+impl TallBush {
+  /// Restrict this bush to banks with exposed water within three blocks.
+  pub fn near_water(self) -> impl Placer { ShorelineTallBush(self) }
+}
+
+struct ShorelineTallBush(TallBush);
+
+impl Placer for ShorelineTallBush {
+  fn radius(&self) -> u8 { self.0.radius().max(3) }
+  fn avg_per_chunk(&self) -> f64 { self.0.avg_per_chunk() }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    if pos.y < 4 || pos.y + 5 >= 255 {
+      return Err(UndoError);
+    }
+    let mut near_water = false;
+    'search: for x in -3_i32..=3 {
+      for z in -3_i32..=3 {
+        if x * x + z * z > 9 { continue; }
+        for y in -3..=0 {
+          let water = pos + Pos::new(x, y, z);
+          if world.get(water) == block![water]
+            && world.get(water + Pos::new(0, 1, 0)) == block![air]
+          {
+            near_water = true;
+            break 'search;
+          }
+        }
+      }
+    }
+    if !near_water { return Err(UndoError); }
+    self.0.place(world, rng, pos)
+  }
+}
+
 impl Placer for TallBush {
   fn radius(&self) -> u8 { 3 }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }

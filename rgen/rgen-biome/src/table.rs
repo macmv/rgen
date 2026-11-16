@@ -72,8 +72,8 @@ biome_categories!(
     ];
     let (GeographicType::River, ClimateType::BadLands) = &[
       b!(50, painted_mesa_river),
-      b!(30, red_scrubland),
-      b!(20, arid_woodland),
+      b!(30, red_scrubland_river),
+      b!(20, arid_woodland_river),
     ];
     let (GeographicType::Canyon, ClimateType::BadLands) = &[
       b!(50, painted_mesa),
@@ -82,17 +82,17 @@ biome_categories!(
     ];
     let (GeographicType::Hills, ClimateType::BadLands) = &[
       b!(50, painted_mesa),
-      b!(30, red_scrubland),
-      b!(20, arid_hills),
+      b!(30, painted_mesa),
+      b!(20, painted_mesa),
     ];
     let (GeographicType::Mountains, ClimateType::BadLands) = &[
       b!(50, painted_mesa),
-      b!(30, red_scrubland),
-      b!(20, arid_hills),
+      b!(30, painted_mesa),
+      b!(20, painted_mesa),
     ];
     let (GeographicType::Beach, ClimateType::BadLands) = &[
       b!(50, painted_mesa_beach),
-      b!(30, red_scrubland),
+      b!(30, red_rock_shore),
       b!(20, red_rock_shore),
     ];
     let (GeographicType::Delta, ClimateType::BadLands) = &[
@@ -209,19 +209,19 @@ mod tests {
   fn composition() { CompositionLookup::new(0); }
 
   #[test]
-  fn painted_mesa_variants_are_selected_in_table_and_test_override() {
+  fn badlands_variants_are_selected_in_table_and_test_override() {
     let mut lookup = CompositionLookup::new(0);
     assert_eq!(lookup.choose(GeographicType::River, ClimateType::BadLands)[0].name, "painted_mesa_river");
     assert_eq!(lookup.choose(GeographicType::Standard, ClimateType::BadLands)[0].name, "painted_mesa");
-    assert_eq!(lookup.override_for(GeographicType::River).unwrap().name, "painted_mesa_river");
-    assert_eq!(lookup.override_for(GeographicType::Standard).unwrap().name, "painted_mesa");
+    assert_eq!(lookup.override_for(GeographicType::River).unwrap().name, "arid_woodland_river");
+    assert_eq!(lookup.override_for(GeographicType::Standard).unwrap().name, "arid_woodland");
     let delta = &lookup.choose(GeographicType::Delta, ClimateType::BadLands)[0];
     assert_eq!(delta.name, "painted_mesa_delta");
     assert_eq!(delta.top_block(), rgen_base::block![rgen:packed_mud]);
     assert_eq!(delta.underwater_layers[0].state, rgen_base::block![sand[variant = "red_sand"]]);
     assert_eq!(delta.underwater_layers[1].state, rgen_base::block![stained_hardened_clay[color = "orange"]]);
     assert_eq!((delta.underwater_layers[1].min_depth, delta.underwater_layers[1].max_depth), (2, 3));
-    assert_eq!(lookup.override_for(GeographicType::Delta).unwrap().name, "painted_mesa_delta");
+    assert_eq!(lookup.override_for(GeographicType::Delta).unwrap().name, "red_reed_marsh");
     lookup.override_biome = None;
     assert!(lookup.override_for(GeographicType::River).is_none());
     assert!(lookup.override_for(GeographicType::Delta).is_none());

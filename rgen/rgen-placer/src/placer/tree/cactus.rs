@@ -38,7 +38,15 @@ impl Placer for Cactus {
       return Err(UndoError);
     }
 
-    // Builds the main body.
+    // Check the whole body and its four horizontal neighbors before writing.
+    // Reject slopes/obstacles touching the column rather than burying the cactus.
+    for y in 0..=height {
+      for (x, z) in [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)] {
+        if world.get(pos + Pos::new(x, y, z)) != block![air] {
+          return Err(UndoError);
+        }
+      }
+    }
 
     let x_or_y = rng.range(0..=1) == 1;
 
@@ -49,12 +57,14 @@ impl Placer for Cactus {
 
       let y_chance = rng.range(-1..=1);
       if y_chance != 1 {
+        // Arms sit below the tip and above the bottom body block.
+        let arm_y = (height + y_chance - 1).max(1);
         let mut arm_pos = pos;
 
         if x_or_y {
-          arm_pos = arm_pos + Pos::new(unit, height + y_chance, 0);
+          arm_pos = arm_pos + Pos::new(unit, arm_y, 0);
         } else {
-          arm_pos = arm_pos + Pos::new(0, height + y_chance, unit);
+          arm_pos = arm_pos + Pos::new(0, arm_y, unit);
         }
 
         if world.get(arm_pos) == block![air] {
