@@ -18,7 +18,7 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Mediterranean);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::BadLands);
 
 /// Override the entire world to be a single biome (the blank biome).
 /// In table.rs To change the biome, modify the biome_categories macro, and
@@ -27,3 +27,16 @@ pub const BIOME_OVERRIDE: bool = false;
 
 /// Replaces everything with a superflat world.
 pub const SUPERFLAT: bool = false;
+
+/// Optional named biome for testing, without replacing the normal climate mixes.
+/// Set to None to restore the table's weighted biome selection.
+pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> =
+  Some(("painted_mesa", crate::biome::painted_mesa));
+
+/// Geography-specific variants of a named test override.
+/// Entries apply only when their parent biome name matches NAMED_BIOME_OVERRIDE.
+pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::BiomeFn)] = &[
+  ("painted_mesa", GeographicType::River, "painted_mesa_river", crate::biome::painted_mesa_river),
+  ("painted_mesa", GeographicType::Beach, "painted_mesa_beach", crate::biome::painted_mesa_beach),
+  ("painted_mesa", GeographicType::Delta, "painted_mesa_delta", crate::biome::painted_mesa_delta),
+];

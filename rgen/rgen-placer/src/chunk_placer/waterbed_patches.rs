@@ -86,14 +86,14 @@ impl WaterbedPatches {
           continue;
         };
         let floor = column.with_y(y);
-        if !chunk.is_active(floor) || chunk.get(floor.with_y(y + 1)) != block![water] {
+        if !chunk.is_surface_active(floor) || chunk.get(floor.with_y(y + 1)) != block![water] {
           continue;
         }
         let depth = rng.range(i32::from(*self.depth.start())..=i32::from(*self.depth.end()));
         for d in 0..depth.min(y) {
           let pos = floor.with_y(y - d);
           let current = chunk.get(pos);
-          if !chunk.is_active(pos)
+          if !chunk.is_surface_active(pos)
             || current == block![air]
             || current == block![water]
             || !self.replace.contains(current)
@@ -190,6 +190,30 @@ mod tests {
         }
       }
     }
+  }
+
+  #[test]
+  fn exposed_bed_below_cave_cutoff_uses_surface_biome() {
+    let info = registry();
+    let mut chunk = bed(&info, false);
+    let blob = Blob { x: 8, z: 8, seed: 42 };
+    let mut cached = BiomeCachedChunk::new(&info, &mut chunk);
+    for x in 0..16 {
+      for z in 0..16 {
+        cached.set_column(ChunkRelPos::new(x, 0, z), crate::BiomeColumn {
+          surface: TemporaryBiome(0),
+          cave: TemporaryBiome(1),
+          min_height: 63,
+        });
+      }
+    }
+    assert!(!cached.is_active(ChunkRelPos::new(8, 60, 8)));
+    placer(1).place_blob(
+      &mut cached, ChunkPos::new(0, 0), &blob,
+      &mut [None; 256], &mut [false; 256],
+    );
+    assert_eq!(cached.get(ChunkRelPos::new(8, 60, 8)), block![clay]);
+    assert_eq!(cached.get(ChunkRelPos::new(8, 61, 8)), block![water]);
   }
 
   #[test]

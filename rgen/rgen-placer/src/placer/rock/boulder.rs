@@ -1,4 +1,4 @@
-use rgen_base::{BlockInfo, BlockState, Pos, block};
+use rgen_base::{BlockFilter, BlockInfo, BlockState, Pos, block};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
@@ -6,6 +6,10 @@ use crate::{Placer, Random, Result, Rng};
 /// Builds a compact, irregular boulder from selectable rock, slab, and stair
 /// materials.
 pub struct MossBoulder {
+  /// Allowed ground directly beneath the starting core.
+  pub place_above: BlockFilter,
+  /// Material beneath and around the boulder arms.
+  pub footing: BlockState,
   pub structure_mix: Vec<BlockState>,
   pub slab_mix:      Vec<BlockState>,
   pub stair_mix:     Vec<BlockState>,
@@ -18,6 +22,8 @@ pub struct MossBoulder {
 impl Default for MossBoulder {
   fn default() -> Self {
     Self {
+      place_above: BlockFilter::All,
+      footing: block![gravel],
       structure_mix: vec![
         block![stone],
         block![stone[variant = "andesite"]],
@@ -47,6 +53,7 @@ impl Placer for MossBoulder {
       || self.slab_mix.is_empty()
       || self.stair_mix.is_empty()
       || (self.small_weight as u16 + self.medium_weight as u16 + self.medium_plus_weight as u16) == 0
+      || !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0)))
       || world.get(pos) != block![air]
       || world.get(pos + Pos::new(0, -1, 0)) == block![air]
       || world.get(pos + Pos::new(0, -1, 0)) == block![water]
@@ -160,10 +167,10 @@ impl Placer for MossBoulder {
       if three_air_below {
         world.set(pos + footing, *rng.choose(&self.structure_mix));
       } else {
-        place_gravel_column(world, rng, pos + footing, block![gravel]);
+        place_footing_column(world, rng, pos + footing, self.footing, self.footing);
       }
     }
-    // Scatter gravel around the arm footings only where supported.
+    // Scatter the footing material around the arms only where supported.
     // One in five supported spots uses the rock mix instead.
     let mut surrounding = Vec::new();
     for arm in &arm_positions {
@@ -181,8 +188,8 @@ impl Placer for MossBoulder {
       {
         continue;
       }
-      let material = if rng.range(0..5) == 0 { *rng.choose(&self.structure_mix) } else { block![gravel] };
-      place_gravel_column(world, rng, pos + offset, material);
+      let material = if rng.range(0..5) == 0 { *rng.choose(&self.structure_mix) } else { self.footing };
+      place_footing_column(world, rng, pos + offset, material, self.footing);
     }
 
     // Each exposed rock top has a one-in-nine decoration roll. One in
@@ -229,7 +236,7 @@ impl Placer for MossBoulder {
   }
 }
 
-fn place_gravel_column(world: &mut PartialWorld, rng: &mut Rng, top: Pos, top_material: BlockState) {
+fn place_footing_column(world: &mut PartialWorld, rng: &mut Rng, top: Pos, top_material: BlockState, below_material: BlockState) {
   let depth = rng.range(2..=3);
   world.set(top, top_material);
   for step in 1..depth {
@@ -237,7 +244,7 @@ fn place_gravel_column(world: &mut PartialWorld, rng: &mut Rng, top: Pos, top_ma
     if world.get(below) == block![air] {
       break;
     }
-    world.set(below, block![gravel]);
+    world.set(below, below_material);
   }
 }
 

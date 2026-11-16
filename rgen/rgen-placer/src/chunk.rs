@@ -67,6 +67,12 @@ impl<'a> BiomeCachedChunk<'a> {
     }
   }
 
+  /// Checks the column's surface biome, including exposed beds below the cave cutoff.
+  /// Callers must first establish that the target is an exposed surface.
+  pub fn is_surface_active(&self, pos: ChunkRelPos) -> bool {
+    self.active == self.biomes[pos.z() as usize][pos.x() as usize].surface
+  }
+
   /// Sets the biome at the given position.
   ///
   /// This will not overwrite the previous biome, so it should not be called by

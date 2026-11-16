@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -44,15 +45,23 @@ public class DriedGrassBlock extends BlockBush {
     return new BlockStateContainer(this, VARIANT);
   }
 
+  private static final ResourceLocation PACKED_MUD = new ResourceLocation("rgen", "packed_mud");
+
+  static boolean isPackedMud(Block block) {
+    return PACKED_MUD.equals(block.getRegistryName());
+  }
+
   @Override
   public boolean canBlockStay(World world, BlockPos pos, IBlockState state) {
-    if (world.getBlockState(pos.down()).getBlock() == Blocks.SAND) return true;
+    Block soil = world.getBlockState(pos.down()).getBlock();
+    if (soil == Blocks.SAND || isPackedMud(soil)) return true;
     return super.canBlockStay(world, pos, state);
   }
 
   @Override
   public boolean canPlaceBlockAt(World world, BlockPos pos) {
-    if (world.isAirBlock(pos) && world.getBlockState(pos.down()).getBlock() == Blocks.SAND) return true;
+    Block soil = world.getBlockState(pos.down()).getBlock();
+    if (world.isAirBlock(pos) && (soil == Blocks.SAND || isPackedMud(soil))) return true;
     return super.canPlaceBlockAt(world, pos);
   }
 

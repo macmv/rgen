@@ -152,6 +152,10 @@ impl WorldBiomes {
       return &self.composition_lookup.blank[0];
     }
 
+    if let Some(biome) = self.composition_lookup.override_for(key.geographic) {
+      return biome;
+    }
+
     let biomes = if crate::feature::BIOME_OVERRIDE {
       &self.composition_lookup.blank
     } else {
