@@ -209,20 +209,17 @@ mod tests {
   fn composition() { CompositionLookup::new(0); }
 
   #[test]
-  fn badlands_variants_are_selected_in_table_and_test_override() {
-    let mut lookup = CompositionLookup::new(0);
+  fn badlands_variants_are_selected_in_full_mix() {
+    let lookup = CompositionLookup::new(0);
     assert_eq!(lookup.choose(GeographicType::River, ClimateType::BadLands)[0].name, "painted_mesa_river");
     assert_eq!(lookup.choose(GeographicType::Standard, ClimateType::BadLands)[0].name, "painted_mesa");
-    assert_eq!(lookup.override_for(GeographicType::River).unwrap().name, "arid_woodland_river");
-    assert_eq!(lookup.override_for(GeographicType::Standard).unwrap().name, "arid_woodland");
+    assert!(lookup.override_for(GeographicType::Standard).is_none());
     let delta = &lookup.choose(GeographicType::Delta, ClimateType::BadLands)[0];
     assert_eq!(delta.name, "painted_mesa_delta");
     assert_eq!(delta.top_block(), rgen_base::block![rgen:packed_mud]);
     assert_eq!(delta.underwater_layers[0].state, rgen_base::block![sand[variant = "red_sand"]]);
     assert_eq!(delta.underwater_layers[1].state, rgen_base::block![stained_hardened_clay[color = "orange"]]);
     assert_eq!((delta.underwater_layers[1].min_depth, delta.underwater_layers[1].max_depth), (2, 3));
-    assert_eq!(lookup.override_for(GeographicType::Delta).unwrap().name, "red_reed_marsh");
-    lookup.override_biome = None;
     assert!(lookup.override_for(GeographicType::River).is_none());
     assert!(lookup.override_for(GeographicType::Delta).is_none());
   }
