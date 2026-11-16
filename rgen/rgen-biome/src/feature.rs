@@ -18,7 +18,7 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Mediterranean);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::GeoTest);
 
 /// Override the entire world to be a single biome (the blank biome).
 /// In table.rs To change the biome, modify the biome_categories macro, and

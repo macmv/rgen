@@ -45,6 +45,7 @@ mod builder;
 mod cave;
 mod feature;
 mod lookup;
+mod hilliness;
 mod splines;
 mod structure;
 mod table;

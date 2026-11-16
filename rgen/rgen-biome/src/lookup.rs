@@ -69,65 +69,18 @@ impl WorldBiomes {
       return GeographicType::River;
     }
 
-    let continentalness = self.continentalness_category(pos);
-    let peaks_valleys = self.peaks_valleys_category(pos);
-    let erosion = self.erosion_category(pos);
-
     use ContinentalnessCategory::*;
-    use PeaksValleysCategory::*;
 
-    match (continentalness, peaks_valleys, erosion) {
-      (_, _, 7..) => unreachable!(), // Erosion is 0..=6
-
-      (MushroomIsland, _, _) => GeographicType::Ocean,
-      (Sea, _, _) => GeographicType::Ocean,
-      (Coast, _, _) => GeographicType::Beach,
-
-      (NearInland, Valley, 0) => GeographicType::Standard,
-      (NearInland, Valley, 1..=6) => GeographicType::Standard,
-      (NearInland, LowSlice, 0..=5) => GeographicType::Standard,
-      (NearInland, LowSlice, 6) => GeographicType::Standard,
-      (NearInland, MidSlice, 0) => GeographicType::Mountains,
-      (NearInland, MidSlice, 1..=3) => GeographicType::Hills,
-      (NearInland, MidSlice, 4..=5) => GeographicType::Standard,
-      (NearInland, MidSlice, 6) => GeographicType::Standard,
-      (NearInland, HighSlice, 0..=1) => GeographicType::Mountains,
-      (NearInland, HighSlice, 2..=3) => GeographicType::Hills,
-      (NearInland, HighSlice, 4..=6) => GeographicType::Standard,
-      (NearInland, Peak, 0..=1) => GeographicType::Mountains,
-      (NearInland, Peak, 2..=5) => GeographicType::Hills,
-      (NearInland, Peak, 6) => GeographicType::Standard,
-
-      (MidInland, Valley, 0..=3) => GeographicType::Standard,
-      (MidInland, Valley, 4..=6) => GeographicType::Canyon,
-      (MidInland, LowSlice, 0..=3) => GeographicType::Hills,
-      (MidInland, LowSlice, 4..=5) => GeographicType::Standard,
-      (MidInland, LowSlice, 6) => GeographicType::Canyon,
-      (MidInland, MidSlice, 0..=1) => GeographicType::Mountains,
-      (MidInland, MidSlice, 2..=3) => GeographicType::Hills,
-      (MidInland, MidSlice, 4..=5) => GeographicType::Standard,
-      (MidInland, MidSlice, 6) => GeographicType::Canyon,
-      (MidInland, HighSlice, 0..=1) => GeographicType::Mountains,
-      (MidInland, HighSlice, 2..=3) => GeographicType::Hills,
-      (MidInland, HighSlice, 4..=6) => GeographicType::Standard,
-      (MidInland, Peak, 0..=1) => GeographicType::Mountains,
-      (MidInland, Peak, 2..=3) => GeographicType::Hills,
-      (MidInland, Peak, 4..=6) => GeographicType::Standard,
-
-      (FarInland, Valley, 0..=3) => GeographicType::Standard,
-      (FarInland, Valley, 4..=6) => GeographicType::Canyon,
-      (FarInland, LowSlice, 0..=3) => GeographicType::Hills,
-      (FarInland, LowSlice, 4..=5) => GeographicType::Standard,
-      (FarInland, LowSlice, 6) => GeographicType::Canyon,
-      (FarInland, MidSlice, 0..=2) => GeographicType::Hills,
-      (FarInland, MidSlice, 3..=6) => GeographicType::Standard,
-      (FarInland, HighSlice, 0..=1) => GeographicType::Mountains,
-      (FarInland, HighSlice, 2..=3) => GeographicType::Hills,
-      (FarInland, HighSlice, 4..=6) => GeographicType::Standard,
-      (FarInland, Peak, 0..=2) => GeographicType::Mountains,
-      (FarInland, Peak, 3..=4) => GeographicType::Hills,
-      (FarInland, Peak, 5..=6) => GeographicType::Standard,
+    // Keep coastal geography separate. Canyon selection is disabled until
+    // it describes actual canyon terrain; its type and biome mappings remain.
+    // All ordinary inland terrain now uses the local hilliness measurement.
+    match self.continentalness_category(pos) {
+      MushroomIsland | Sea => return GeographicType::Ocean,
+      Coast => return GeographicType::Beach,
+      _ => {}
     }
+
+    self.inland_hilliness(pos)
   }
 
   pub fn climate_type(&self, pos: Pos) -> ClimateType {
@@ -171,13 +124,15 @@ impl WorldBiomes {
   }
 
   fn choose_surface_biome_cached(&self, pos: Pos) -> BiomeKey {
+    // Inspector splines and density toggles can change without a new seed.
+    if cfg!(feature = "inspector") { return self.choose_surface_biome_uncached(pos); }
     thread_local! {
-      static CACHE: RefCell<LruCache<(i32, i32), BiomeKey>> = RefCell::new(LruCache::new(NonZero::new(256).unwrap()));
+      static CACHE: RefCell<LruCache<(u64, i32, i32), BiomeKey>> = RefCell::new(LruCache::new(NonZero::new(256).unwrap()));
     }
 
     CACHE.with(|cache| {
       let mut cache = cache.borrow_mut();
-      let key = (pos.x, pos.z);
+      let key = (self.seed, pos.x, pos.z);
 
       if let Some(biome) = cache.get(&key) {
         return *biome;
