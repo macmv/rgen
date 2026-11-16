@@ -97,8 +97,10 @@ pub struct WorldBiomes {
 lazy_static::lazy_static! {
   pub static ref CONTINENTALNESS: Spline<&'static [(f64, f64)]> = Spline::new(&[
     (0.00, 88.0),
-    (0.01, 35.0),
-    (0.15, 38.0),
+    // Deepen the offshore basins by ~5.6 blocks after the ocean height blend.
+    // The minimum base floor is around Y=36; retain the shallow coastal key.
+    (0.01, 28.0),
+    (0.15, 31.0),
     (0.26, 52.0),
     (0.40, 65.0),
     (0.81, 85.0),
