@@ -186,15 +186,18 @@ pub fn river_strength(noise: RawNoise) -> f64 {
 // noise space; the resulting width in world blocks varies with the gradient.
 fn river_distance(noise: RawNoise) -> f64 {
   let across = (noise.peaks_valleys - 0.5).abs();
-  let beyond_end = (0.37 - noise.continentalness)
+  // Carry the full channel across the beach (0.32..0.37), tapering only
+  // offshore where the natural seabed is already below the river floor.
+  let beyond_end = (0.26 - noise.continentalness)
     .max(noise.continentalness - 0.60)
     .max(0.0) * 2.0;
   across.hypot(beyond_end)
 }
 
-/// Include the entire flat shelf, including around the rounded river ends.
+/// Include the flat shelf and rounded inland end. Offshore carving continues
+/// into the sea, but keeps Ocean geography instead of extending River offshore.
 pub fn is_river(noise: RawNoise) -> bool {
-  river_distance(noise) <= RIVER_WATERLINE_RADIUS
+  noise.continentalness >= 0.32 && river_distance(noise) <= RIVER_WATERLINE_RADIUS
 }
 
 const RIVER_WATERLINE_RADIUS: f64 = 0.06;
@@ -312,7 +315,7 @@ mod tests {
 
   #[test]
   fn river_endpoints_and_slopes_are_continuous() {
-    for boundary in [0.29, 0.34, 0.37, 0.60, 0.63, 0.68] {
+    for boundary in [0.18, 0.23, 0.26, 0.32, 0.37, 0.60, 0.63, 0.68] {
       for peaks in [0.5, 0.54, 0.58] {
         let mut before = sample(peaks, 0.0);
         before.continentalness = boundary - 0.0000001;
@@ -320,6 +323,22 @@ mod tests {
         after.continentalness = boundary + 0.0000001;
         assert!((height(before) - height(after)).abs() < 0.001,
           "height jump at continentalness {boundary}, peaks {peaks}");
+      }
+    }
+  }
+
+  #[test]
+  fn river_channel_stays_submerged_across_beach_into_ocean() {
+    for step in 0..=120 {
+      let continentalness = 0.26 + step as f64 * 0.001;
+      for rounding in [0.0, 0.5, 1.0] {
+        let mut noise = sample(0.5, 0.0);
+        noise.continentalness = continentalness;
+        noise.river_rounding = rounding;
+        noise.river_bed = 1.0; // Highest possible river-bed bump.
+        assert_eq!(river_strength(noise), 1.0);
+        assert!(height(noise) <= 61.5, "mouth rises at {continentalness}");
+        assert_eq!(is_river(noise), continentalness >= 0.32);
       }
     }
   }
