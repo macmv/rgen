@@ -5,6 +5,7 @@ use rgen_spline::{Cosine, Spline, SplineStorage};
 /// out of `WorldBiomes` so that tools can sample terrain without building the
 /// whole generator.
 pub struct TerrainNoise {
+  pub(crate) seed: u64,
   /// Defines how far inland or how far into the sea any given block is.
   ///
   /// In order:
@@ -53,6 +54,7 @@ pub struct TerrainNoise {
 impl TerrainNoise {
   pub fn new(seed: u64) -> Self {
     TerrainNoise {
+      seed,
       continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
       peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
       erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
@@ -76,8 +78,8 @@ impl TerrainNoise {
     (self.erosion_map.generate(x, z) * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
-  pub fn sample(&self, x: f64, z: f64) -> RawNoise {
-    let mut noise = RawNoise {
+  pub(crate) fn sample_unrouted(&self, x: f64, z: f64) -> RawNoise {
+    RawNoise {
       continentalness: self.sample_continentalness(x, z),
       peaks_valleys:   self.sample_peaks_valleys(x, z),
       erosion:         self.sample_erosion(x, z),
@@ -85,9 +87,17 @@ impl TerrainNoise {
       delta_islands:   0.0,
       river_bed:       0.0,
       river_rounding:  0.0,
-    };
+      watershed: None,
+    }
+  }
 
-    if river_distance(noise) <= RIVER_WATERLINE_RADIUS {
+  pub fn sample(&self, x: f64, z: f64) -> RawNoise {
+    let mut noise = self.sample_unrouted(x, z);
+    if crate::feature::WATERSHEDS {
+      noise.watershed = Some(self.watershed_sample(x, z));
+    }
+
+    if noise.watershed.is_none() && river_distance(noise) <= RIVER_WATERLINE_RADIUS {
       noise.river_bed = self.river_bed_map.generate(x, z);
       noise.river_rounding = self.river_rounding_map.generate(x, z);
     }
@@ -115,6 +125,7 @@ pub struct RawNoise {
   pub river_bed:       f64,
   /// Long-wave variation that selects rounded river sections.
   pub river_rounding:  f64,
+  pub watershed: Option<crate::watershed::RiverSample>,
 }
 
 // Lower gate and wider coastal/valley bands make suitable river mouths more
@@ -129,7 +140,8 @@ const DELTA_TERRAIN_BLEND_START: f64 = 0.35;
 /// become deltas.
 pub fn is_delta_mouth_candidate(noise: RawNoise) -> bool {
   (0.22..0.54).contains(&noise.continentalness)
-    && (noise.peaks_valleys - 0.5).abs() < 0.22
+    && noise.watershed.map_or((noise.peaks_valleys - 0.5).abs() < 0.22,
+      |r| r.water_level <= 64.0 && r.distance < 80.0)
     && noise.erosion >= 0.45
 }
 
@@ -148,7 +160,10 @@ pub fn delta_strength(noise: RawNoise) -> f64 {
   }
 
   let coastal_band = band_strength(noise.continentalness, 0.22, 0.54, 0.05);
-  let valley = 1.0 - smoothstep(0.09, 0.22, (noise.peaks_valleys - 0.5).abs());
+  let valley = noise.watershed.map_or_else(
+    || 1.0 - smoothstep(0.09, 0.22, (noise.peaks_valleys - 0.5).abs()),
+    |r| if r.water_level <= 64.0 { 1.0 - smoothstep(24.0, 80.0, r.distance) } else { 0.0 },
+  );
   let flatness = smoothstep(0.45, 0.70, noise.erosion);
   let rarity = smoothstep(DELTA_RARITY_THRESHOLD, 0.78, noise.delta_rarity);
 
@@ -162,6 +177,7 @@ pub fn is_delta(noise: RawNoise) -> bool {
 /// Continuous river-channel and bank mask shared by terrain and geography.
 /// The inner half is the water channel; the outer half forms dry banks.
 pub fn river_strength(noise: RawNoise) -> f64 {
+  if let Some(river) = noise.watershed { return river.bank_weight(); }
   let distance = river_distance(noise);
   const CHANNEL_RADIUS: f64 = 0.0125;
   // Keep the dry River-classified bank roughly 7-8 blocks wide beyond the
@@ -197,6 +213,9 @@ fn river_distance(noise: RawNoise) -> f64 {
 /// Include the flat shelf and rounded inland end. Offshore carving continues
 /// into the sea, but keeps Ocean geography instead of extending River offshore.
 pub fn is_river(noise: RawNoise) -> bool {
+  if let Some(river) = noise.watershed {
+    return noise.continentalness >= 0.32 && river.distance <= river.half_width + 8.0;
+  }
   noise.continentalness >= 0.32 && river_distance(noise) <= RIVER_WATERLINE_RADIUS
 }
 
@@ -215,12 +234,15 @@ pub struct HeightParts {
   /// Erosion after its spline and the impact blend.
   pub e:      f64,
   pub height: f64,
+  pub water_level: f64,
+  /// Suppress density holes in the planned channel and feather into its banks.
+  pub solid_weight: f64,
 }
 
 /// Combines the splines and noise into a height. This is the one definition of
 /// the height function: `WorldBiomes::sample_height` and the spline editor both
 /// go through here.
-pub fn height_parts<S: SplineStorage + ?Sized>(
+pub(crate) fn unrouted_height<S: SplineStorage + ?Sized>(
   continentalness: &Spline<S>,
   erosion: &Spline<S>,
   peaks_valleys: &Spline<S>,
@@ -236,34 +258,63 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   let e = lerp(0.2, e, impact);
   let p = lerp(8.0, p, impact);
 
-  let mut height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
-  let terrain_height = height;
+  let height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
+  HeightParts { c, impact, p, e, height, water_level: 63.0, solid_weight: 0.0 }
+}
 
-  let river = river_strength(noise);
-  if river >= 0.5 {
-    // Lower the central channel smoothly below sea level, reaching Y=60 at
-    // its center so every geographically classified river has a water bed.
-    let channel_depth = ((river - 0.5) * 2.0).clamp(0.0, 1.0);
-    let wall_rounding = smoothstep(0.0, 1.0, noise.river_rounding);
-    let depth_curve = channel_depth.powf(1.0 - wall_rounding * 0.75);
-    height = height.min(64.0 - depth_curve * 4.0);
-    if river >= 0.75 {
-      // Roughen the submerged channel floor by up to about 1.5 blocks while
-      // keeping it below the waterline.
-      height = (height + noise.river_bed * 1.5).min(63.0);
+pub fn height_parts<S: SplineStorage + ?Sized>(
+  continentalness: &Spline<S>, erosion: &Spline<S>, peaks_valleys: &Spline<S>,
+  height_impact: &Spline<S>, noise: RawNoise,
+) -> HeightParts {
+  fn lerp(a: f64, b: f64, t: f64) -> f64 { a * (1.0 - t) + b * t }
+  let mut parts = unrouted_height(continentalness, erosion, peaks_valleys, height_impact, noise);
+  let mut height = parts.height;
+  let terrain_height = height;
+  if let Some(river) = noise.watershed {
+    let weight = river.bank_weight();
+    if weight > 0.0 {
+      let across = ((river.distance - river.half_width + 8.0) / 16.0).clamp(0.0, 1.0);
+      let floor = river.water_level - 3.0 + across * across * 6.0;
+      // The network shapes the terrain here, including filling a low spot that
+      // would otherwise puncture the planned river and strand the next reach.
+      let shaped = lerp(height, floor, weight);
+      // At a sea-level outlet, do not fill the existing seabed into a raised
+      // causeway. The channel joins the deeper ocean by carving only.
+      height = if noise.continentalness < 0.32 && river.water_level <= 63.0 + 1e-6 {
+        height.min(shaped)
+      } else {
+        shaped
+      };
+      parts.solid_weight = weight;
+      if river.wet() { parts.water_level = river.water_level.max(63.0); }
     }
   } else {
-    let river_distance = river_distance(noise);
-    if river_distance <= RIVER_WATERLINE_RADIUS {
-      // Keep a short, flat shelf at the waterline before the bank rises.
-      height = height.min(64.0);
-    } else if river_distance < RIVER_SLOPE_RADIUS {
-      // Blend the shelf into the natural terrain over a broad, smooth bank.
-      let t = (river_distance - RIVER_WATERLINE_RADIUS)
-        / (RIVER_SLOPE_RADIUS - RIVER_WATERLINE_RADIUS);
-      let slope = smoothstep(0.0, 1.0, t);
-      let bank_height = 64.0 + (height - 64.0).max(0.0) * slope;
-      height = height.min(bank_height);
+    let river = river_strength(noise);
+    if river >= 0.5 {
+      // Lower the central channel smoothly below sea level, reaching Y=60 at
+      // its center so every geographically classified river has a water bed.
+      let channel_depth = ((river - 0.5) * 2.0).clamp(0.0, 1.0);
+      let wall_rounding = smoothstep(0.0, 1.0, noise.river_rounding);
+      let depth_curve = channel_depth.powf(1.0 - wall_rounding * 0.75);
+      height = height.min(64.0 - depth_curve * 4.0);
+      if river >= 0.75 {
+        // Roughen the submerged channel floor by up to about 1.5 blocks while
+        // keeping it below the waterline.
+        height = (height + noise.river_bed * 1.5).min(63.0);
+      }
+    } else {
+      let river_distance = river_distance(noise);
+      if river_distance <= RIVER_WATERLINE_RADIUS {
+        // Keep a short, flat shelf at the waterline before the bank rises.
+        height = height.min(64.0);
+      } else if river_distance < RIVER_SLOPE_RADIUS {
+        // Blend the shelf into the natural terrain over a broad, smooth bank.
+        let t = (river_distance - RIVER_WATERLINE_RADIUS)
+          / (RIVER_SLOPE_RADIUS - RIVER_WATERLINE_RADIUS);
+        let slope = smoothstep(0.0, 1.0, t);
+        let bank_height = 64.0 + (height - 64.0).max(0.0) * slope;
+        height = height.min(bank_height);
+      }
     }
   }
 
@@ -284,7 +335,8 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
     height = lerp(height, target, blend);
   }
 
-  HeightParts { c, impact, p, e, height }
+  parts.height = height;
+  parts
 }
 
 #[cfg(test)]
@@ -310,6 +362,7 @@ mod tests {
       delta_islands: 0.5,
       river_bed: 0.0,
       river_rounding: 0.0,
+      watershed: None,
     }
   }
 

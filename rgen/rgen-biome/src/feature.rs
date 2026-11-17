@@ -53,3 +53,6 @@ pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::Bio
   ("painted_mesa", GeographicType::Beach, "painted_mesa_beach", crate::biome::painted_mesa_beach),
   ("painted_mesa", GeographicType::Delta, "painted_mesa_delta", crate::biome::painted_mesa_delta),
 ];
+
+/// Experimental bounded drainage graph, replacing noise-band rivers.
+pub const WATERSHEDS: bool = true;

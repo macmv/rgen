@@ -60,3 +60,35 @@ fn bench_base(b: &mut Bencher) {
     generator.generate_base(&context, &mut chunk, chunk_pos);
   });
 }
+
+#[bench]
+fn bench_base_spread(b: &mut Bencher) {
+  let context = Arc::new(rgen_world::Context::new_test(1));
+  let generator = Arc::new(WorldBiomes::new(&context.blocks, context.seed));
+
+  // Spread samples across a large seeded area instead of walking neighboring
+  // chunks. This shows whether generation stays quick when noise/cache locality
+  // from sequential exploration is absent.
+  let positions: Vec<_> = (0..256_u64)
+    .map(|i| {
+      let x = i.wrapping_mul(0x9E37_79B9).rotate_left(17) as i32;
+      let z = i.wrapping_mul(0x85EB_CA6B).rotate_left(31) as i32;
+      ChunkPos::new(x, z)
+    })
+    .collect();
+  let mut index = 0;
+
+  // Warm up the generator and allocator without warming the timed positions.
+  for pos in positions.iter().take(5) {
+    let mut chunk = Chunk::new();
+    generator.generate_base(&context, &mut chunk, *pos);
+  }
+
+  b.iter(|| {
+    let pos = positions[index];
+    index = (index + 1) % positions.len();
+    let mut chunk = Chunk::new();
+    generator.generate_base(&context, &mut chunk, pos);
+    test::black_box(chunk);
+  });
+}

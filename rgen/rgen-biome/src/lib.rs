@@ -50,6 +50,7 @@ mod splines;
 mod structure;
 mod table;
 mod terrain;
+mod watershed;
 #[cfg(feature = "inspector")]
 pub mod toggles;
 
@@ -418,8 +419,8 @@ impl WorldBiomes {
         // let biome = self.choose_biome(seed, pos);
         let mut info = self.height_info(pos);
 
-        if info.max_height() < 64.0 {
-          for y in 0..=63 {
+        if info.max_height() < info.water_level + 1.0 {
+          for y in 0..=info.water_level.floor() as i32 {
             let pos = pos.with_y(y);
 
             info.move_to(pos);
@@ -466,8 +467,6 @@ impl WorldBiomes {
 
     // FIXME: Remove this and use a chunk placer instead.
 
-    const SEA_LEVEL: i32 = 64;
-
     // For each column in the chunk, fill in the top layers.
     for x in 0..16 {
       for z in 0..16 {
@@ -503,7 +502,7 @@ impl WorldBiomes {
             layer = 0;
             air_above = air_above.saturating_add(1);
 
-            if y < SEA_LEVEL {
+            if y <= info.water_level.floor() as i32 {
               underwater = true;
             }
             continue;
@@ -619,7 +618,7 @@ impl WorldBiomes {
 
   pub fn height_info(&self, pos: Pos) -> HeightInfo<'_> {
     let mut info =
-      HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, underground: None };
+      HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, water_level: 63.0, underground: None };
     info.change_xz();
     info
   }
@@ -635,6 +634,7 @@ pub struct HeightInfo<'a> {
   // placed or not.
   //
   // So, the height isn't really "height," its more the hilliness of the terrain.
+  water_level: f64,
   max_height:  f64,
   min_height:  f64,
   underground: Option<bool>,
@@ -642,8 +642,12 @@ pub struct HeightInfo<'a> {
 
 impl HeightInfo<'_> {
   fn change_xz(&mut self) {
-    self.max_height = self.world.sample_height(self.pos);
-    self.min_height = 64.0 - self.max_height / 128.0;
+    let parts = self.world.height_parts(self.pos);
+    self.max_height = parts.height;
+    self.water_level = parts.water_level;
+    let original_min = 64.0 - self.max_height / 128.0;
+    self.min_height = original_min * (1.0 - parts.solid_weight)
+      + self.max_height * parts.solid_weight;
   }
   fn change_y(&mut self) { self.underground = None; }
 
@@ -663,7 +667,7 @@ impl HeightInfo<'_> {
   pub fn min_height(&self) -> f64 { self.min_height }
   pub fn underground(&mut self) -> bool {
     *self.underground.get_or_insert_with(|| {
-      if self.min_height > self.max_height {
+      if self.min_height >= self.max_height {
         // Special case for oceans.
         self.pos.y < self.max_height as i32
       } else if self.pos.y < self.min_height as i32 {
