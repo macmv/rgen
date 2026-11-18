@@ -175,3 +175,12 @@ tile.rgen.mud_brick_wall.name=Mud Brick Wall
 tile.rgen.reeds.name=Reeds
 
 tile.rgen.glasswort.name=Glasswort
+
+tile.deep_snow.name=Deep Snow
+
+tile.powder_snow.name=Powder Snow
+item.powder_snow_bucket.name=Powder Snow Bucket
+death.attack.rgen_cold=%1$s froze in powder snow
+death.attack.rgen_cold.player=%1$s froze in powder snow while escaping %2$s
+
+tile.brittle_ice.name=Brittle Ice

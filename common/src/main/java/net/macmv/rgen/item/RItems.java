@@ -21,6 +21,7 @@ public class RItems {
   private static final Set<Item> items = new HashSet<>();
 
   // public static final Item THATCH_ROOF = registerBlockItem(RBlocks.THATCH_ROOF);
+  public static final Item DEEP_SNOW = registerBlockItem(RBlocks.DEEP_SNOW, new DeepSnowItem(RBlocks.DEEP_SNOW).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item DERP_DOG = registerBlockItem(RBlocks.DERP_DOG);
   public static final Item LOG = registerBlockItem(RBlocks.LOG, new ItemMultiTexture(RBlocks.LOG, RBlocks.LOG, ty -> LogType.fromMeta(ty.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));
   public static final Item LOG2 = registerBlockItem(RBlocks.LOG2, new ItemMultiTexture(RBlocks.LOG2, RBlocks.LOG2, it -> LogType.groupTwoFromMeta(it.getMetadata()).name).setCreativeTab(RCreativeTabs.BUILDING_BLOCKS));

@@ -222,3 +222,33 @@ x
 
 this placer lacks a trunk so make sure the leaves dont despawn
 
+Ps
+p1 impl
+p2 impl
+p3 impl
+p4 impl
+p5 mod - lets just apply small damage that the player and entities slowly take (if its easy to make it a unique damage type do that but no MC major code changes)
+p6 impl
+p7 skip
+p8 skip
+p9 skip
+p10 - want to talk further about this i thought this required changing how buckets work
+p11 - want ot talk further
+p12 skip
+p13 impl
+p14 skip there are no strays in 1.12
+p15 impl
+p16 skip
+p17 skip thats for later
+
+Bs 
+b1 impl
+b2 impl
+b3 impl
+b4 use existing effects
+b5 impl
+b6 skip
+b7 skip
+b8 skip
+b9 talk me throuhg this
+b10 skip this is for later in rgen world green

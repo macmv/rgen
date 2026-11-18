@@ -52,6 +52,7 @@ public class RGen {
   @Mod.EventHandler
   public void init(FMLInitializationEvent e) {
     proxy.init();
+    PowderSnowContent.init();
   }
 
   @SubscribeEvent
@@ -62,6 +63,8 @@ public class RGen {
     MudContent.registerBlocks(reg);
     ReedsContent.registerBlocks(reg);
     GlasswortContent.registerBlocks(reg);
+    PowderSnowContent.registerBlocks(reg);
+    BrittleIceContent.registerBlocks(reg);
   }
 
   @SubscribeEvent
@@ -72,6 +75,8 @@ public class RGen {
     MudContent.registerItems(reg);
     ReedsContent.registerItems(reg);
     GlasswortContent.registerItems(reg);
+    PowderSnowContent.registerItems(reg);
+    BrittleIceContent.registerItems(reg);
   }
 
   @SideOnly(Side.CLIENT)
@@ -82,6 +87,8 @@ public class RGen {
     MudContent.registerModels();
     ReedsContent.registerModels();
     GlasswortContent.registerModels();
+    PowderSnowContent.registerModels();
+    BrittleIceContent.registerModels();
   }
 
   @SubscribeEvent
