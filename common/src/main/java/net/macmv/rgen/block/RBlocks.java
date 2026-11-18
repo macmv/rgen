@@ -138,6 +138,9 @@ public final class RBlocks {
   public static final Block YELLOW_CACTUS = register("yellow_cactus", YellowCactus::new, new BlockSettings().hardness(0.4f));
   public static final Block RED_CACTUS = register("red_cactus", RedCactus::new, new BlockSettings().material(Material.PLANTS).hardness(0.4f));
   public static final Block CACTUS = register("cactus", Cactus::new, new BlockSettings().hardness(0.4f)).setUnlocalizedName("cactus_trunk");
+  public static final Block SHORT_GRASS = register("short_grass", ShortGrassBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block LARGE_CACTUS_FLOWER = register("large_cactus_flower", CactusFlowerBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block SMALL_CACTUS_FLOWER = register("small_cactus_flower", SmallCactusFlowerBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
   public static final Block JUVENILE_CACTUS = register("juvenile_cactus", JuvenileCactus::new, new BlockSettings().material(Material.PLANTS).hardness(0.4f));
   public static final Block LAVENDER_PLANT = register("lavender_plant", LavenderPlant::new, new BlockSettings().material(Material.PLANTS));
   public static final Block DOUBLE_TALL_LAVENDER_PLANT = register("double_tall_lavender_plant", DoubleTallLavenderPlant::new);

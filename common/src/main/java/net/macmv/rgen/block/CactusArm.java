@@ -28,6 +28,10 @@ import static net.macmv.rgen.block.Cactus.COLOR;
 public class CactusArm extends Block {
   public static final PropertyEnum<CactusArm.Face> FACE = PropertyEnum.create("face", CactusArm.Face.class);
   protected static final AxisAlignedBB AABB_ARM = MathUtil.aabb(4, 1, 4, 12, 15, 12);
+  private static final AxisAlignedBB[] ARM_PARTS = {
+      new AxisAlignedBB(5 / 16.0D, 0, -1 / 16.0D, 11 / 16.0D, 6 / 16.0D, 13 / 16.0D),
+      new AxisAlignedBB(5 / 16.0D, 6 / 16.0D, 7 / 16.0D, 11 / 16.0D, 1, 13 / 16.0D)
+  };
 
   public CactusArm(BlockSettings settings) {
     super(settings.material);
@@ -42,7 +46,50 @@ public class CactusArm extends Block {
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return AABB_ARM;
+    AxisAlignedBB bounds = null;
+    for (AxisAlignedBB part : ARM_PARTS) {
+      // Block selection bounds are block-local; Minecraft offsets them by pos itself.
+      AxisAlignedBB rotated = rotate(part, state.getValue(FACE));
+      bounds = bounds == null ? rotated : bounds.union(rotated);
+    }
+    return bounds;
+  }
+
+  private static AxisAlignedBB rotate(AxisAlignedBB box, Face face) {
+    double minX;
+    double maxX;
+    double minZ;
+    double maxZ;
+    switch (face) {
+      case EAST:
+        // Forge's y=90 blockstate rotation bends the arm toward negative X.
+        minX = 1.0D - box.maxZ;
+        maxX = 1.0D - box.minZ;
+        minZ = box.minX;
+        maxZ = box.maxX;
+        break;
+      case SOUTH:
+        minX = 1.0D - box.maxX;
+        maxX = 1.0D - box.minX;
+        minZ = 1.0D - box.maxZ;
+        maxZ = 1.0D - box.minZ;
+        break;
+      case WEST:
+        // Forge's y=270 blockstate rotation bends the arm toward positive X.
+        minX = box.minZ;
+        maxX = box.maxZ;
+        minZ = 1.0D - box.maxX;
+        maxZ = 1.0D - box.minX;
+        break;
+      case NORTH:
+      default:
+        minX = box.minX;
+        maxX = box.maxX;
+        minZ = box.minZ;
+        maxZ = box.maxZ;
+        break;
+    }
+    return new AxisAlignedBB(minX, box.minY, minZ, maxX, box.maxY, maxZ);
   }
 
   @Override

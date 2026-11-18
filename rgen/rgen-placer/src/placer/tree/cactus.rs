@@ -79,6 +79,11 @@ impl Placer for Cactus {
           };
 
           world.set(arm_pos, self.arms.with_data(arm_state));
+          // A small flower occasionally grows on the arm tip.
+          let flower_pos = arm_pos + Pos::new(0, 1, 0);
+          if rng.range(0..4) == 0 && world.get(flower_pos) == block![air] {
+            world.set(flower_pos, block![rgen:small_cactus_flower].with_data(arm_state));
+          }
         }
       } else {
         continue;
@@ -88,6 +93,12 @@ impl Placer for Cactus {
     // Builds the trunk.
     for y in 0..=height {
       world.set(pos + Pos::new(0, y, 0), self.body);
+    }
+
+    // Large flowers occasionally grow on the green cactus trunk tip.
+    let flower_pos = pos + Pos::new(0, height + 1, 0);
+    if rng.range(0..5) == 0 && world.get(flower_pos) == block![air] {
+      world.set(flower_pos, block![rgen:large_cactus_flower]);
     }
 
     Ok(())

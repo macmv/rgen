@@ -82,6 +82,9 @@ public class RItems {
   public static final Item GOLDEN_GRASS = registerBlockItem(RBlocks.GOLDEN_GRASS, new GoldenGrassItem(RBlocks.GOLDEN_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item DUNE_GRASS = registerBlockItem(RBlocks.DUNE_GRASS, new DuneGrassItem((net.macmv.rgen.block.DuneGrassBlock) RBlocks.DUNE_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item SALT_MARSH_GRASS = registerBlockItem(RBlocks.SALT_MARSH_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item SHORT_GRASS = registerBlockItem(RBlocks.SHORT_GRASS, new ItemBlock(RBlocks.SHORT_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item LARGE_CACTUS_FLOWER = registerBlockItem(RBlocks.LARGE_CACTUS_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item SMALL_CACTUS_FLOWER = registerBlockItem(RBlocks.SMALL_CACTUS_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item YELLOW_WILDFLOWER_SHRUB = registerBlockItem(RBlocks.YELLOW_WILDFLOWER_SHRUB).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BASALT = registerBlockItem(RBlocks.BASALT);
   public static final Item PINK_FLOWERBED = registerBlockItem(RBlocks.PINK_FLOWERBED);
