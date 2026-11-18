@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -61,9 +62,19 @@ public class SaltOnSand extends BlockFalling {
         if (!worldIn.isRemote) {
             IBlockState above = worldIn.getBlockState(pos.up());
 
-            // If block above is solid, revert to sand
-            if (above.isOpaqueCube()) {
-                worldIn.setBlockState(pos, Blocks.SAND.getDefaultState(), 2);
+            // Running or stationary water dissolves the crust and exposes sand.
+            for (EnumFacing facing : EnumFacing.values()) {
+                if (worldIn.getBlockState(pos.offset(facing)).getMaterial() == net.minecraft.block.material.Material.WATER) {
+                    worldIn.setBlockState(pos, Blocks.SAND.getDefaultState(), 3);
+                    spawnAsEntity(worldIn, pos, new ItemStack(RItems.SALT_DUST));
+                    return;
+                }
+            }
+
+            // Like farmland, the salt crust cannot remain under a full block.
+            if (above.isFullBlock() || above.isOpaqueCube()) {
+                worldIn.setBlockState(pos, Blocks.SAND.getDefaultState(), 3);
+                spawnAsEntity(worldIn, pos, new ItemStack(RItems.SALT_DUST));
             } else {
                 // Otherwise behave like sand and check if we should fall
                 worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));

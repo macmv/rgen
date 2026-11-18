@@ -23,6 +23,31 @@ impl Splotch {
   pub fn starting_at_or_above(self, min_y: i32) -> impl ChunkPlacer {
     StartHeightSplotch { patch: self, min_y }
   }
+
+  /// Restrict every surface column in the splotch to elevations below `max_y`.
+  pub fn below_height(self, max_y: i32) -> impl ChunkPlacer {
+    BelowHeightSplotch { patch: self, max_y }
+  }
+}
+
+struct BelowHeightSplotch {
+  patch: Splotch,
+  max_y: i32,
+}
+
+impl ChunkPlacer for BelowHeightSplotch {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let patch = &self.patch;
+    if patch.radius.is_empty() || patch.depth.is_empty() || *patch.depth.end() == 0 {
+      return;
+    }
+    for blob in blobs_near_radius(rng.next(), chunk_pos, patch.avg_per_chunk, i32::from(*patch.radius.end())) {
+      place_blob_shaped(
+        chunk, chunk_pos, &blob, &patch.replace, &patch.below_replace,
+        &[patch.place], &patch.radius, &patch.depth, None, 1.0, Some(self.max_y),
+      );
+    }
+  }
 }
 
 struct StartHeightSplotch {
@@ -76,7 +101,7 @@ impl ChunkPlacer for ElongatedMixedSplotch {
     }
     for blob in blobs_near_radius(rng.next(), chunk_pos, p.avg_per_chunk, i32::from(*p.radius.end())) {
       place_blob_shaped(chunk, chunk_pos, &blob, &p.replace, &p.below_replace,
-        &p.place, &p.radius, &p.depth, None, self.width_ratio);
+      &p.place, &p.radius, &p.depth, None, self.width_ratio, None);
     }
   }
 }
@@ -215,7 +240,7 @@ fn place_blob_with_start_height(
   depth: &RangeInclusive<u8>,
   min_start_y: Option<i32>,
 ) {
-  place_blob_shaped(chunk, chunk_pos, blob, replace, below_replace, materials, radius, depth, min_start_y, 1.0);
+  place_blob_shaped(chunk, chunk_pos, blob, replace, below_replace, materials, radius, depth, min_start_y, 1.0, None);
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -230,6 +255,7 @@ fn place_blob_shaped(
   depth: &RangeInclusive<u8>,
   min_start_y: Option<i32>,
   width_ratio: f64,
+  max_y: Option<i32>,
 ) {
   let mut start_checked = false;
   let mut shape_rng = Rng::new(blob.seed);
@@ -260,6 +286,9 @@ fn place_blob_shaped(
       for i in 0..chunk.chunk.surfaces(column).len() {
         let y = i32::from(chunk.chunk.surfaces(column)[i]);
         if !(1..=254).contains(&y) {
+          continue;
+        }
+        if max_y.is_some_and(|max| y >= max) {
           continue;
         }
         let surface = column.with_y(y);

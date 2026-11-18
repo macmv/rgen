@@ -373,6 +373,7 @@ fn painted_mesa_base(g: &mut BiomeBuilder, boulder_rate: f64) {
       body: block![rgen:cactus[color = "green"]],
       arms: block![rgen:cactus_arm],
       avg_per_chunk: 0.15,
+      ..Default::default()
     },
   );
 

@@ -8,6 +8,8 @@ pub struct Cactus {
   pub body:          BlockState,
   pub arms:          BlockState,
   pub avg_per_chunk: f64,
+  pub arm_flower_chance: i32,
+  pub trunk_flower_chance: i32,
 }
 
 impl Default for Cactus {
@@ -17,6 +19,8 @@ impl Default for Cactus {
       body:          block![rgen:cactus],
       arms:          block![rgen:cactus_arm],
       avg_per_chunk: 1.0,
+      arm_flower_chance: 4,
+      trunk_flower_chance: 5,
     }
   }
 }
@@ -81,7 +85,7 @@ impl Placer for Cactus {
           world.set(arm_pos, self.arms.with_data(arm_state));
           // A small flower occasionally grows on the arm tip.
           let flower_pos = arm_pos + Pos::new(0, 1, 0);
-          if rng.range(0..4) == 0 && world.get(flower_pos) == block![air] {
+          if rng.range(0..self.arm_flower_chance) == 0 && world.get(flower_pos) == block![air] {
             world.set(flower_pos, block![rgen:small_cactus_flower].with_data(arm_state));
           }
         }
@@ -97,7 +101,7 @@ impl Placer for Cactus {
 
     // Large flowers occasionally grow on the green cactus trunk tip.
     let flower_pos = pos + Pos::new(0, height + 1, 0);
-    if rng.range(0..5) == 0 && world.get(flower_pos) == block![air] {
+    if rng.range(0..self.trunk_flower_chance) == 0 && world.get(flower_pos) == block![air] {
       world.set(flower_pos, block![rgen:large_cactus_flower]);
     }
 
