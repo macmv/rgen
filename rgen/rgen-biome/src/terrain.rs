@@ -1,3 +1,13 @@
+use std::{cell::RefCell, num::NonZero};
+use lru::LruCache;
+
+thread_local! {
+  // Reused by stone, surface, biome and hilliness queries on the same columns.
+  // Bounded per worker; seed and exact coordinate bits isolate worlds/queries.
+  static COLUMN_NOISE: RefCell<LruCache<(u64,u64,u64), RawNoise>> =
+    RefCell::new(LruCache::new(NonZero::new(4096).unwrap()));
+}
+
 use rgen_placer::noise::{NoiseGenerator, OctavedNoise, OpenSimplexNoise};
 use rgen_spline::{Cosine, Spline, SplineStorage};
 
@@ -40,6 +50,9 @@ pub struct TerrainNoise {
   /// - most eroded (swamps, deserts)
   erosion_map: OctavedNoise<OpenSimplexNoise, 8>,
 
+  /// Broad highlands guide drainage before detailed relief is applied.
+  highlands_map: OctavedNoise<OpenSimplexNoise, 3>,
+
   /// Selects a sparse subset of suitable coastal river mouths.
   delta_rarity_map: OctavedNoise<OpenSimplexNoise, 2>,
 
@@ -47,6 +60,8 @@ pub struct TerrainNoise {
   delta_islands_map: OctavedNoise<OpenSimplexNoise, 4>,
   /// Adds small-scale height variation to the floor of the main river channel.
   river_bed_map: OctavedNoise<OpenSimplexNoise, 2>,
+  river_style_map: OctavedNoise<OpenSimplexNoise, 2>,
+  river_bank_map: OctavedNoise<OpenSimplexNoise, 3>,
   /// Selects longer river stretches where the channel walls become rounded.
   river_rounding_map: OctavedNoise<OpenSimplexNoise, 2>,
 }
@@ -56,14 +71,22 @@ impl TerrainNoise {
     TerrainNoise {
       seed,
       continentalness_map: OctavedNoise::new(seed, 1.0 / 1024.0),
+      highlands_map: OctavedNoise::new(seed.wrapping_add(0xD317_A007), 1.0 / 1536.0),
       peaks_valleys_map:   OctavedNoise::new(seed, 1.0 / 256.0),
       erosion_map:         OctavedNoise::new(seed, 1.0 / 2048.0),
       delta_rarity_map:    OctavedNoise::new(seed.wrapping_add(0xD317_A001), 1.0 / 512.0),
       // Longer wavelengths create broader, smoother delta islands.
       delta_islands_map:   OctavedNoise::new(seed.wrapping_add(0xD317_A002), 1.0 / 5.0),
       river_bed_map:       OctavedNoise::new(seed.wrapping_add(0xD317_A003), 1.0 / 16.0),
+      river_style_map: OctavedNoise::new(seed.wrapping_add(0xD317_A008), 1.0 / 256.0),
+      river_bank_map: OctavedNoise::new(seed.wrapping_add(0xD317_A009), 1.0 / 32.0),
       river_rounding_map:  OctavedNoise::new(seed.wrapping_add(0xD317_A004), 1.0 / 64.0),
     }
+  }
+
+  pub(crate) fn river_texture(&self, x:f64, z:f64) -> (f64,f64,f64,f64) {
+    (self.river_style_map.generate(x,z), self.river_rounding_map.generate(x,z),
+      self.river_bed_map.generate(x,z), self.river_bank_map.generate(x,z))
   }
 
   pub fn sample_continentalness(&self, x: f64, z: f64) -> f64 {
@@ -71,7 +94,11 @@ impl TerrainNoise {
   }
 
   pub fn sample_peaks_valleys(&self, x: f64, z: f64) -> f64 {
-    (self.peaks_valleys_map.generate(x, z) * 0.5 + 0.5).clamp(0.0, 1.0)
+    let detail = self.peaks_valleys_map.generate(x, z);
+    let value = if crate::feature::WATERSHEDS {
+      self.highlands_map.generate(x, z) * 0.8 + detail * 0.2
+    } else { detail };
+    (value * 0.5 + 0.5).clamp(0.0, 1.0)
   }
 
   pub fn sample_erosion(&self, x: f64, z: f64) -> f64 {
@@ -79,8 +106,12 @@ impl TerrainNoise {
   }
 
   pub(crate) fn sample_unrouted(&self, x: f64, z: f64) -> RawNoise {
+    self.sample_unrouted_with_continentalness(x,z,self.sample_continentalness(x,z))
+  }
+
+  pub(crate) fn sample_unrouted_with_continentalness(&self,x:f64,z:f64,c:f64) -> RawNoise {
     RawNoise {
-      continentalness: self.sample_continentalness(x, z),
+      continentalness: c,
       peaks_valleys:   self.sample_peaks_valleys(x, z),
       erosion:         self.sample_erosion(x, z),
       delta_rarity:    0.0,
@@ -92,6 +123,16 @@ impl TerrainNoise {
   }
 
   pub fn sample(&self, x: f64, z: f64) -> RawNoise {
+    if cfg!(feature = "inspector") { return self.sample_uncached(x,z); }
+    let key = (self.seed,x.to_bits(),z.to_bits());
+    if let Some(value) = COLUMN_NOISE.with(|c| c.borrow_mut().get(&key).copied()) { return value; }
+    // Don't hold the cache borrow while building a drainage plan.
+    let value = self.sample_uncached(x,z);
+    COLUMN_NOISE.with(|c| c.borrow_mut().put(key,value));
+    value
+  }
+
+  fn sample_uncached(&self, x:f64,z:f64) -> RawNoise {
     let mut noise = self.sample_unrouted(x, z);
     if crate::feature::WATERSHEDS {
       noise.watershed = Some(self.watershed_sample(x, z));
@@ -141,7 +182,7 @@ const DELTA_TERRAIN_BLEND_START: f64 = 0.35;
 pub fn is_delta_mouth_candidate(noise: RawNoise) -> bool {
   (0.22..0.54).contains(&noise.continentalness)
     && noise.watershed.map_or((noise.peaks_valleys - 0.5).abs() < 0.22,
-      |r| r.water_level <= 64.0 && r.distance < 80.0)
+      |r| r.valley_weight() == 0.0 && r.mouth_factor > 0.35 && r.distance < 100.0)
     && noise.erosion >= 0.45
 }
 
@@ -159,10 +200,21 @@ pub fn delta_strength(noise: RawNoise) -> f64 {
     return 0.0;
   }
 
+  if let Some(r) = noise.watershed {
+    if r.valley_weight() > 0.0 || r.mouth_factor <= 0.35 { return 0.0; }
+    let base = natural_height(noise);
+    // Only the shallow mouth shelf, never high inland banks or deep ocean.
+    let shelf = smoothstep(55.0,60.0,base)*(1.0-smoothstep(65.0,69.0,base));
+    let mouth = smoothstep(0.35,0.8,r.mouth_factor);
+    let footprint = 1.0-smoothstep(r.half_width+12.0,
+      (r.half_width+55.0).min(100.0),r.distance);
+    let rarity = smoothstep(DELTA_RARITY_THRESHOLD,0.65,noise.delta_rarity);
+    return shelf*mouth*footprint*rarity;
+  }
   let coastal_band = band_strength(noise.continentalness, 0.22, 0.54, 0.05);
   let valley = noise.watershed.map_or_else(
     || 1.0 - smoothstep(0.09, 0.22, (noise.peaks_valleys - 0.5).abs()),
-    |r| if r.water_level <= 64.0 { 1.0 - smoothstep(24.0, 80.0, r.distance) } else { 0.0 },
+    |r| if r.valley_weight() == 0.0 { 1.0 - smoothstep(24.0, 80.0, r.distance) } else { 0.0 },
   );
   let flatness = smoothstep(0.45, 0.70, noise.erosion);
   let rarity = smoothstep(DELTA_RARITY_THRESHOLD, 0.78, noise.delta_rarity);
@@ -214,9 +266,45 @@ fn river_distance(noise: RawNoise) -> f64 {
 /// into the sea, but keeps Ocean geography instead of extending River offshore.
 pub fn is_river(noise: RawNoise) -> bool {
   if let Some(river) = noise.watershed {
-    return noise.continentalness >= 0.32 && river.distance <= river.half_width + 8.0;
+    if river.offshore || noise.continentalness < 0.32 { return false; }
+    let bank = (7.0+river.bank_detail*2.0).clamp(5.0,9.0);
+    if river.distance > river.half_width+bank { return false; }
+    let base = natural_height(noise);
+    let mut center = river;
+    center.distance = 0.0;
+    // Classify the channel AND its narrow dry bank from the same wet reach.
+    return center.channel_floor(base) < 64.0;
   }
   noise.continentalness >= 0.32 && river_distance(noise) <= RIVER_WATERLINE_RADIUS
+}
+
+fn natural_height(noise:RawNoise) -> f64 {
+  unrouted_height(&crate::CONTINENTALNESS,&crate::EROSION,
+    &crate::PEAKS_VALLEYS,&crate::HEIGHT_IMPACT,noise).height
+}
+
+pub fn is_canyon(noise:RawNoise) -> bool {
+  noise.watershed.is_some_and(|r| {
+    let base = natural_height(noise);
+    let mut center = r;
+    center.distance = 0.0;
+    let drop = (base-center.channel_floor(base)).max(0.0);
+    let run = (r.bank_span-r.half_width).max(8.0);
+    r.inlandness >= 0.56 && drop >= 8.0 && drop/run >= 0.6
+      && r.carving_weight(base) > 0.05
+  })
+}
+
+/// Ocean/beach selection follows the natural shallow shelf, before river cuts.
+/// A beach can extend at most two blocks below sea level in watershed mode.
+pub fn watershed_coast(noise:RawNoise) -> Option<crate::GeographicType> {
+  if noise.watershed.is_none() { return None; }
+  let base = natural_height(noise);
+  if noise.continentalness < 0.37 {
+    return Some(if base < 62.0 { crate::GeographicType::Ocean }
+      else { crate::GeographicType::Beach });
+  }
+  None
 }
 
 const RIVER_WATERLINE_RADIUS: f64 = 0.06;
@@ -234,8 +322,9 @@ pub struct HeightParts {
   /// Erosion after its spline and the impact blend.
   pub e:      f64,
   pub height: f64,
-  pub water_level: f64,
-  /// Suppress density holes in the planned channel and feather into its banks.
+  /// Uncarved density envelope. Lowering a ceiling must not fill natural air.
+  pub natural_height: f64,
+  /// Intentional delta deposition only; river/canyon excavation never fills.
   pub solid_weight: f64,
 }
 
@@ -252,6 +341,11 @@ pub(crate) fn unrouted_height<S: SplineStorage + ?Sized>(
   let c = continentalness.sample::<Cosine>(noise.continentalness);
   let impact = height_impact.sample::<Cosine>(c / 128.0);
   let p = peaks_valleys.sample::<Cosine>(noise.peaks_valleys);
+  // The legacy negative valley trough carved water independently of rivers.
+  // Broad watershed highland noise made that trough into large inland floods.
+  // In watershed mode this field supplies relief only; the drainage graph
+  // owns river/lake excavation. Preserve the original trough in legacy mode.
+  let p = if crate::feature::WATERSHEDS { p.max(0.0) } else { p };
   let e = erosion.sample::<Cosine>(noise.erosion);
 
   fn lerp(a: f64, b: f64, t: f64) -> f64 { a * (1.0 - t) + b * t }
@@ -259,7 +353,7 @@ pub(crate) fn unrouted_height<S: SplineStorage + ?Sized>(
   let p = lerp(8.0, p, impact);
 
   let height = ((((c - 64.0) * 4.0) + 64.0) + p - 64.0) * e + 64.0;
-  HeightParts { c, impact, p, e, height, water_level: 63.0, solid_weight: 0.0 }
+  HeightParts { c, impact, p, e, height, natural_height: height, solid_weight: 0.0 }
 }
 
 pub fn height_parts<S: SplineStorage + ?Sized>(
@@ -271,22 +365,14 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   let mut height = parts.height;
   let terrain_height = height;
   if let Some(river) = noise.watershed {
-    let weight = river.bank_weight();
+    let weight = river.carving_weight(height);
     if weight > 0.0 {
-      let across = ((river.distance - river.half_width + 8.0) / 16.0).clamp(0.0, 1.0);
-      let floor = river.water_level - 3.0 + across * across * 6.0;
-      // The network shapes the terrain here, including filling a low spot that
-      // would otherwise puncture the planned river and strand the next reach.
-      let shaped = lerp(height, floor, weight);
-      // At a sea-level outlet, do not fill the existing seabed into a raised
-      // causeway. The channel joins the deeper ocean by carving only.
-      height = if noise.continentalness < 0.32 && river.water_level <= 63.0 + 1e-6 {
-        height.min(shaped)
-      } else {
-        shaped
-      };
-      parts.solid_weight = weight;
-      if river.wet() { parts.water_level = river.water_level.max(63.0); }
+      // Virtual elevations never reach the water filler. Inland routes become
+      // dry valleys with a noisy floor following the underlying relief.
+      let floor = river.channel_floor(height);
+      height = height.min(lerp(height, floor, weight));
+      // Keep the original density field: this is excavation, not fill.
+
     }
   } else {
     let river = river_strength(noise);
@@ -321,7 +407,20 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
   // Start from the river-shaped height so the delta's outer transition is
   // continuous. Build the target from uncarved terrain: at full influence the
   // delta's islands and water pockets replace the river channel completely.
+  let carved_height = height;
   let delta = delta_strength(noise);
+  if noise.watershed.is_some() {
+    // A Delta-classified column reaches the low island/channel target fully.
+    // Do not carry the original upland height into the delta platform.
+    let blend = smoothstep(DELTA_TERRAIN_BLEND_START,DELTA_GEOGRAPHY_THRESHOLD,delta);
+    if blend > 0.0 {
+      let target = if noise.delta_islands >= 0.68 {
+        64.0+(noise.delta_islands-0.68)*(0.6/0.32)
+      } else { 60.5+noise.delta_islands*(2.5/0.68) };
+      height = lerp(height,target,blend);
+      parts.solid_weight = parts.solid_weight.max(blend);
+    }
+  } else {
   let blend = smoothstep(DELTA_TERRAIN_BLEND_START, 0.85, delta);
   if blend > 0.0 {
     let basin_height = lerp(terrain_height, 64.0, delta);
@@ -335,6 +434,12 @@ pub fn height_parts<S: SplineStorage + ?Sized>(
     height = lerp(height, target, blend);
   }
 
+  }
+
+  // Delta deposits must not refill the offshore continuation of the mouth.
+  if noise.watershed.is_some_and(|r| r.offshore && r.distance < r.half_width) {
+    height = height.min(carved_height);
+  }
   parts.height = height;
   parts
 }

@@ -51,6 +51,7 @@ mod structure;
 mod table;
 mod terrain;
 mod watershed;
+pub use watershed::DrainageVector;
 #[cfg(feature = "inspector")]
 pub mod toggles;
 
@@ -419,8 +420,8 @@ impl WorldBiomes {
         // let biome = self.choose_biome(seed, pos);
         let mut info = self.height_info(pos);
 
-        if info.max_height() < info.water_level + 1.0 {
-          for y in 0..=info.water_level.floor() as i32 {
+        if info.max_height() < 64.0 {
+          for y in 0..=63 {
             let pos = pos.with_y(y);
 
             info.move_to(pos);
@@ -502,7 +503,7 @@ impl WorldBiomes {
             layer = 0;
             air_above = air_above.saturating_add(1);
 
-            if y <= info.water_level.floor() as i32 {
+            if y <= 63 {
               underwater = true;
             }
             continue;
@@ -616,9 +617,44 @@ impl WorldBiomes {
     }
   }
 
+  /// Diagnostic used by the preview tool: excavation must never create a
+  /// solid block where the original density terrain had air. Deltas are
+  /// excluded because their sediment deposition is intentional.
+  pub fn audit_river_excavation(&self) -> usize {
+    let mut checked = 0;
+    let mut columns = 0;
+    for x in -24..=24 {
+      for z in -24..=24 {
+        let pos = Pos::new(x*48,0,z*48);
+        let parts = self.height_parts(pos);
+        if parts.solid_weight > 0.0 || parts.height >= parts.natural_height { continue; }
+        columns += 1;
+        let natural_min = 64.0-parts.natural_height/128.0;
+        let mut info = self.height_info(pos);
+        for y in 60..=(parts.natural_height.ceil() as i32).min(255) {
+          let p = pos.with_y(y);
+          let natural_solid = if natural_min >= parts.natural_height {
+            y < parts.natural_height as i32
+          } else if y < natural_min as i32 { true }
+          else if y >= parts.natural_height as i32 { false }
+          else {
+            let density = self.density_map.generate_3d(p.x as f64,y as f64,p.z as f64)*0.5+0.5;
+            density > (y as f64-natural_min)/(parts.natural_height-natural_min)
+          };
+          info.move_to(p);
+          assert!(!info.underground() || natural_solid,
+            "river excavation added terrain at {:?}",p);
+          checked += 1;
+        }
+      }
+    }
+    assert!(columns > 0 && checked > 0,"excavation audit found no carved columns");
+    checked
+  }
+
   pub fn height_info(&self, pos: Pos) -> HeightInfo<'_> {
     let mut info =
-      HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, water_level: 63.0, underground: None };
+      HeightInfo { world: self, pos, max_height: 0.0, min_height: 0.0, density_height: 0.0, underground: None };
     info.change_xz();
     info
   }
@@ -634,9 +670,9 @@ pub struct HeightInfo<'a> {
   // placed or not.
   //
   // So, the height isn't really "height," its more the hilliness of the terrain.
-  water_level: f64,
   max_height:  f64,
   min_height:  f64,
+  density_height: f64,
   underground: Option<bool>,
 }
 
@@ -644,9 +680,11 @@ impl HeightInfo<'_> {
   fn change_xz(&mut self) {
     let parts = self.world.height_parts(self.pos);
     self.max_height = parts.height;
-    self.water_level = parts.water_level;
-    let original_min = 64.0 - self.max_height / 128.0;
+    let natural = if feature::WATERSHEDS { parts.natural_height } else { parts.height };
+    let original_min = 64.0 - natural / 128.0;
     self.min_height = original_min * (1.0 - parts.solid_weight)
+      + self.max_height * parts.solid_weight;
+    self.density_height = natural * (1.0 - parts.solid_weight)
       + self.max_height * parts.solid_weight;
   }
   fn change_y(&mut self) { self.underground = None; }
@@ -684,7 +722,7 @@ impl HeightInfo<'_> {
           self.pos.z as f64,
         ) * 0.5
           + 0.5;
-        let limit = (self.pos.y as f64 - self.min_height) / (self.max_height - self.min_height);
+        let limit = (self.pos.y as f64 - self.min_height) / (self.density_height - self.min_height);
 
         noise > limit
       }

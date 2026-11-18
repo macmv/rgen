@@ -18,7 +18,7 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Mediterranean);
 
 /// Test the two completed climates in broad humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.

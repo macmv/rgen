@@ -9,7 +9,7 @@ use crate::{
   builder::BiomeBuilder,
   feature,
   table::{CLIMATE_TABLE, ClimateType, GeographicType},
-  terrain::{is_delta, is_river},
+  terrain::{is_delta, is_river, is_canyon, watershed_coast},
 };
 
 #[derive(Debug)]
@@ -64,16 +64,20 @@ impl WorldBiomes {
       return GeographicType::Delta;
     }
 
+    if is_canyon(noise) {
+      return GeographicType::Canyon;
+    }
+
     // Include the dry bank around the water channel in the river region.
     if is_river(noise) {
       return GeographicType::River;
     }
 
+    if let Some(coast) = watershed_coast(noise) { return coast; }
+
     use ContinentalnessCategory::*;
 
-    // Keep coastal geography separate. Canyon selection is disabled until
-    // it describes actual canyon terrain; its type and biome mappings remain.
-    // All ordinary inland terrain now uses the local hilliness measurement.
+    // Legacy coastal selection; ordinary inland terrain uses local hilliness.
     match self.continentalness_category(pos) {
       MushroomIsland | Sea => return GeographicType::Ocean,
       Coast => return GeographicType::Beach,

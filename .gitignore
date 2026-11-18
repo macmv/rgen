@@ -1,5 +1,7 @@
 # eclipse
 bin
+!rgen/rgen-jni-impl/src/bin/
+!rgen/rgen-jni-impl/src/bin/watershed-preview.rs
 *.launch
 .settings
 .metadata

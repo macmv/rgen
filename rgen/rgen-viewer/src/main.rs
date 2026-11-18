@@ -17,6 +17,7 @@ mod region;
 mod render;
 mod view;
 mod world;
+mod vectors;
 
 use world::World;
 
@@ -108,7 +109,8 @@ pub fn main() -> Result<(), String> {
 
   let mut last_frame = Instant::now();
 
-  let mut settings = Settings { chunk_borders: false, show_key: false };
+  let mut settings = Settings { chunk_borders: false, show_key: false, vectors: false };
+  let mut vectors = vectors::VectorOverlay::new(seed);
 
   'main: loop {
     let mut redraw = false;
@@ -150,6 +152,10 @@ pub fn main() -> Result<(), String> {
         Event::KeyDown { keycode: Some(Keycode::Num8), .. } => {
           world_view.set_mode(RenderMode::Climate);
           redraw = true;
+        }
+        Event::KeyDown { keycode: Some(Keycode::V), repeat: false, .. } => {
+          settings.vectors = !settings.vectors;
+          println!("Drainage vectors: {}", if settings.vectors { "on" } else { "off" });
         }
         Event::KeyDown { keycode: Some(Keycode::I), .. } => settings.show_key = !settings.show_key,
 
@@ -279,6 +285,10 @@ pub fn main() -> Result<(), String> {
         }
       }
 
+      if settings.vectors {
+        vectors.draw(&mut render, view_coords, zoom, screen_width, screen_height)?;
+      }
+
       let meter_height = world.height_at(hover_pos);
 
       if let Some(f) = &font {
@@ -376,6 +386,12 @@ pub fn main() -> Result<(), String> {
       }
     }
 
+    if settings.vectors {
+      if let Some(font) = &font {
+        FontRender { font, render: &mut render }.render(8, screen_height as i32 - 30,
+          "V: vectors | cyan: river | orange: valley | arrows: downstream");
+      }
+    }
     render.present();
 
     let elapsed = last_frame.elapsed();
@@ -391,6 +407,7 @@ pub fn main() -> Result<(), String> {
 
 struct Settings {
   chunk_borders: bool,
+  vectors: bool,
   show_key:      bool,
 }
 
