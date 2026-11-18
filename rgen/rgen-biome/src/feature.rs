@@ -18,7 +18,7 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::HotDesert);
 
 /// Test the two completed climates in broad humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.
@@ -34,11 +34,13 @@ pub const SUPERFLAT: bool = false;
 
 /// Optional named biome for testing, without replacing the normal climate mixes.
 /// Set to None to restore the table's weighted biome selection.
-pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
+pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> =
+  Some(("open_dune", crate::biome::open_dune));
 
 /// Geography-specific variants of a named test override.
 /// Entries apply only when their parent biome name matches NAMED_BIOME_OVERRIDE.
 pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::BiomeFn)] = &[
+  ("open_dune", GeographicType::Mountains, "desert_mountain", crate::biome::desert_mountain),
   ("arid_woodland", GeographicType::River, "arid_woodland_river", crate::biome::arid_woodland_river),
   ("arid_woodland", GeographicType::Hills, "painted_mesa", crate::biome::painted_mesa),
   ("arid_woodland", GeographicType::Mountains, "painted_mesa", crate::biome::painted_mesa),

@@ -101,6 +101,33 @@ biome_categories!(
       b!(20, red_reed_marsh),
     ];
 
+    // Hot Desert groups: Open Dune 80%, Green Desert 10%, Salt Desert 10%.
+    let (GeographicType::Standard, ClimateType::HotDesert) = &[
+      b!(80, open_dune),
+      b!(10, open_dune_scrub),
+      b!(10, open_dune_salt_transition),
+    ];
+    let (GeographicType::River, ClimateType::HotDesert) = &[b!(10, lush_desert_river)];
+    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(10, open_dune_canyon)];
+    let (GeographicType::Hills, ClimateType::HotDesert) = &[
+      b!(10, desert_mountain_hills),
+      b!(10, desert_mountain_hills_salt),
+    ];
+    let (GeographicType::Mountains, ClimateType::HotDesert) = &[
+      b!(80, desert_mountain),
+      b!(10, desert_mountain_scrub),
+      b!(10, desert_mountain_salt),
+    ];
+    let (GeographicType::Beach, ClimateType::HotDesert) = &[
+      b!(80, open_dune_beach),
+      b!(10, lush_desert_beach),
+      b!(10, salt_flats_beach),
+    ];
+    let (GeographicType::Delta, ClimateType::HotDesert) = &[
+      b!(10, lush_desert_delta),
+      b!(10, salt_flats_delta),
+    ];
+
     // One solid diagnostic surface color per landform.
     let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
     let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];

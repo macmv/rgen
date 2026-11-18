@@ -484,6 +484,8 @@ blocks! {
   RgenLog => rgen:log[axis: ["x", "y", "z", "none"], variant: RGEN_WOOD_4_1],
   RgenMud => rgen:mud,
   RgenPackedMud => rgen:packed_mud,
+  RgenSalt => rgen:salt,
+  RgenSaltOnSand => rgen:salt_on_sand,
   RgenGlasswort => rgen:glasswort[variant: 0..=5],
   RgenReeds => rgen:reeds[
     age: 0..=3,
