@@ -9,6 +9,27 @@ pub fn open_dune(g: &mut BiomeBuilder) {
   build_open_dune(g);
 }
 
+pub fn open_dune_river(g: &mut BiomeBuilder) {
+  build_open_dune(g);
+  for (count, rate) in [(2, 0.125), (3, 0.125)] {
+    g.place(
+      if count == 2 { "Open Dune River small dune grass clumps" } else { "Open Dune River larger dune grass clumps" },
+      PlacerStage::Tree,
+      placer::Clumps {
+        place_above: block![sand].into(),
+        place: block![rgen:dune_grass[variant = "a"]],
+        radius: 1..=2,
+        attempts: count,
+        avg_per_chunk: rate,
+      },
+    );
+  }
+}
+
+pub fn open_dune_delta(g: &mut BiomeBuilder) {
+  build_open_dune(g);
+}
+
 /// The Green Desert standard assignment remains an Open Dune.
 pub fn open_dune_scrub(g: &mut BiomeBuilder) {
   build_open_dune(g);
@@ -39,6 +60,28 @@ fn build_open_dune(g: &mut BiomeBuilder) {
   g.underwater_layers[0].min_depth = 4;
   g.underwater_layers[0].max_depth = 7;
   g.add_underwater_layer(block![sandstone], 2, 5);
+
+  // Very rare isolated short grass blades on the open sand.
+  g.place(
+    "Open Dune single short grass",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: block![sand].into(),
+      place: block![rgen:short_grass],
+      avg_per_chunk: 0.6,
+      attempts: 1,
+    },
+  );
+  g.place(
+    "Open Dune single dead bush",
+    PlacerStage::Tree,
+    placer::Scatter {
+      place_above: block![sand].into(),
+      place: block![deadbush],
+      avg_per_chunk: 0.08,
+      attempts: 1,
+    },
+  );
 
   // Rare mature green column cacti, including their arms.
   g.place(

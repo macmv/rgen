@@ -35,12 +35,18 @@ pub const SUPERFLAT: bool = false;
 /// Optional named biome for testing, without replacing the normal climate mixes.
 /// Set to None to restore the table's weighted biome selection.
 pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> =
-  Some(("open_dune", crate::biome::open_dune));
+  Some(("open_dune_salt_transition", crate::biome::open_dune_salt_transition));
 
 /// Geography-specific variants of a named test override.
 /// Entries apply only when their parent biome name matches NAMED_BIOME_OVERRIDE.
 pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::BiomeFn)] = &[
+  ("open_dune_salt_transition", GeographicType::River, "open_dune_river", crate::biome::open_dune_river),
+  ("open_dune_salt_transition", GeographicType::Canyon, "open_dune_canyon", crate::biome::open_dune_canyon),
+  ("open_dune_salt_transition", GeographicType::Hills, "desert_mountain_hills_salt", crate::biome::desert_mountain_hills_salt),
   ("open_dune", GeographicType::Mountains, "desert_mountain", crate::biome::desert_mountain),
+  ("open_dune_salt_transition", GeographicType::Mountains, "desert_mountain_salt", crate::biome::desert_mountain_salt),
+  ("open_dune_salt_transition", GeographicType::Beach, "salt_flats_beach", crate::biome::salt_flats_beach),
+  ("open_dune_salt_transition", GeographicType::Delta, "salt_flats_delta", crate::biome::salt_flats_delta),
   ("arid_woodland", GeographicType::River, "arid_woodland_river", crate::biome::arid_woodland_river),
   ("arid_woodland", GeographicType::Hills, "painted_mesa", crate::biome::painted_mesa),
   ("arid_woodland", GeographicType::Mountains, "painted_mesa", crate::biome::painted_mesa),

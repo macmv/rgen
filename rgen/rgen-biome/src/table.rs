@@ -107,9 +107,18 @@ biome_categories!(
       b!(10, open_dune_scrub),
       b!(10, open_dune_salt_transition),
     ];
-    let (GeographicType::River, ClimateType::HotDesert) = &[b!(10, lush_desert_river)];
-    let (GeographicType::Canyon, ClimateType::HotDesert) = &[b!(10, open_dune_canyon)];
+    let (GeographicType::River, ClimateType::HotDesert) = &[
+      b!(80, open_dune_river),
+      b!(10, lush_desert_river),
+      b!(10, open_dune_river),
+    ];
+    let (GeographicType::Canyon, ClimateType::HotDesert) = &[
+      b!(80, open_dune_canyon),
+      b!(10, open_dune_canyon),
+      b!(10, open_dune_canyon),
+    ];
     let (GeographicType::Hills, ClimateType::HotDesert) = &[
+      b!(80, desert_mountain_hills),
       b!(10, desert_mountain_hills),
       b!(10, desert_mountain_hills_salt),
     ];
@@ -124,6 +133,7 @@ biome_categories!(
       b!(10, salt_flats_beach),
     ];
     let (GeographicType::Delta, ClimateType::HotDesert) = &[
+      b!(80, open_dune_delta),
       b!(10, lush_desert_delta),
       b!(10, salt_flats_delta),
     ];
