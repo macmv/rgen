@@ -567,6 +567,13 @@ blocks! {
     age: ["zero", "one", "two", "three"],
     color: ["green", "blue", "yellow", "orange"],
   ],
+  RgenJuvenileGreenCactus => rgen:juvenile_green_cactus[stage: 0..=3],
+  RgenBlueCactus => rgen:blue_cactus[
+    age: 0..=3,
+    location: ["north_west", "north_east", "south_west", "center"],
+  ],
+  RgenYellowCactus => rgen:yellow_cactus[age: 0..=3],
+  RgenRedCactus => rgen:red_cactus[age: 0..=3],
   RgenCactus => rgen:cactus[color: ["green", "blue", "yellow", "orange"]],
   RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
   RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],

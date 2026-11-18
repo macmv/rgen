@@ -35,6 +35,7 @@ public class Cactus extends Block {
 
   public Cactus(BlockSettings settings) {
     super(settings.material);
+    setLightOpacity(0);
     this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Cactus.Color.GREEN));
   }
 
@@ -99,16 +100,16 @@ public class Cactus extends Block {
   public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
     List<ItemStack> drops = new java.util.ArrayList<>();
     Random rand = new Random();
-    Item fruit = RItems.GREEN_CACTUS_FRUIT;
+    Item fruit;
     switch (state.getValue(COLOR)) {
-      case GREEN: fruit = RItems.GREEN_CACTUS_FRUIT;
-      case BLUE: fruit = RItems.BLUE_CACTUS_FRUIT;
-      case YELLOW: fruit = RItems.GREEN_CACTUS_FRUIT;
-      case ORANGE: fruit = RItems.GREEN_CACTUS_FRUIT;
-      default: fruit = RItems.GREEN_CACTUS_FRUIT;
+      case BLUE: fruit = RItems.BLUE_CACTUS_FRUIT; break;
+      case YELLOW: fruit = RItems.YELLOW_CACTUS_FRUIT; break;
+      case ORANGE: fruit = RItems.RED_CACTUS_FRUIT; break;
+      case GREEN:
+      default: fruit = net.minecraft.item.Item.getItemFromBlock(Blocks.CACTUS); break;
     }
-    // Random number of drops between 0 and 3
-    int dropCount = rand.nextInt(3) + 1;  // Will generate a number between 0 and 3
+    // Colored cactus variants produce one to three fruits when harvested.
+    int dropCount = state.getValue(COLOR) == Color.GREEN ? 1 : rand.nextInt(3) + 1;
     drops.add(new ItemStack(fruit, dropCount));  // Add the items to the drop list
     return drops;
   }

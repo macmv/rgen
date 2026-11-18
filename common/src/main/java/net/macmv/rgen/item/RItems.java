@@ -136,6 +136,8 @@ public class RItems {
   public static final Item MOSS_COMPASS = registerItem("moss_compass", () -> new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", () -> new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", () -> new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item YELLOW_CACTUS_FRUIT = registerItem("yellow_cactus_fruit", () -> new ColoredCactusFruit(RBlocks.YELLOW_CACTUS, "Yellow")).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item RED_CACTUS_FRUIT = registerItem("red_cactus_fruit", () -> new ColoredCactusFruit(RBlocks.RED_CACTUS, "Red")).setCreativeTab(RCreativeTabs.DECORATIONS);
 
   public static final Item SALT = registerBlockItem(RBlocks.SALT);
   public static final Item SALT_ON_SAND = registerBlockItem(RBlocks.SALT_ON_SAND);

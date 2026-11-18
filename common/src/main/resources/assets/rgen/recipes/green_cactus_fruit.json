@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:cactus" }
+  ],
+  "result": { "item": "rgen:green_cactus_fruit", "count": 1 }
+}

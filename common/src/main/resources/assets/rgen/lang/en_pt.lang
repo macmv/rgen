@@ -46,6 +46,15 @@ tile.mossy_stone.name=Mossy Stone
 
 item.debug_stick.name=Debuggin' Stick
 item.green_cactus_fruit.name=Green Cactus Fruit o' Doom
+item.blue_cactus_fruit.name=Blue Cactus Fruit
+item.yellow_cactus_fruit.name=Yellow Cactus Fruit
+item.red_cactus_fruit.name=Red Cactus Fruit
+tile.cactus_trunk.name=Cactus Trunk
+tile.rgen_cactus.name=Cactus Trunk
+tile.blue_cactus.name=Blue Cactus
+tile.yellow_cactus.name=Yellow Cactus
+tile.red_cactus.name=Red Cactus
+tile.juvenile_green_cactus.name=Green Cactus
 tile.log2.lavender_tree.name=Lavender Tree Timber
 tile.leaves2.dead.name=Dead Foliage
 tile.leaves3.aspen.name=Aspen Foliage

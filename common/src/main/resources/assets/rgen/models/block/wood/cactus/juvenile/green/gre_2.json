@@ -1,4 +1,5 @@
 {
+  "ambientocclusion": false,
   "textures": {
     "0": "rgen:block/wood/cactus/juveniles/green/grn_2",
     "particle": "rgen:block/wood/cactus/juveniles/green/grn_2"

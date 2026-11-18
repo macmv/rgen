@@ -1,10 +1,7 @@
 package net.macmv.rgen.block;
 
-import net.macmv.rgen.MathUtil;
-import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.BlockSapling;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -20,32 +17,45 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class JuvenileGreenCactus extends Block {
-  protected static final AxisAlignedBB AABB_J_CACTUS = MathUtil.aabb(5, 0, 5, 11, 16, 11);
-  // Define the custom stage property
-  public static final PropertyInteger STAGE = PropertyInteger.create("stage", 0, 4);
+public class JuvenileGreenCactus extends Block implements IGrowable {
+  private static final AxisAlignedBB[] STAGE_BOUNDS = {
+      new AxisAlignedBB(5.0 / 16.0, 0, 5.0 / 16.0, 11.0 / 16.0, 5.0 / 16.0, 11.0 / 16.0),
+      new AxisAlignedBB(4.0 / 16.0, 0, 4.0 / 16.0, 12.0 / 16.0, 6.0 / 16.0, 12.0 / 16.0),
+      new AxisAlignedBB(3.0 / 16.0, 0, 3.0 / 16.0, 13.0 / 16.0, 10.0 / 16.0, 13.0 / 16.0),
+      new AxisAlignedBB(4.0 / 16.0, 0, 4.0 / 16.0, 12.0 / 16.0, 14.0 / 16.0, 12.0 / 16.0)
+  };
+  public static final PropertyInteger STAGE = PropertyInteger.create("stage", 0, 3);
 
   public JuvenileGreenCactus(BlockSettings settings) {
     super(settings.material);
+    setLightOpacity(0);
     this.setDefaultState(this.blockState.getBaseState().withProperty(STAGE, 0)); // Default to stage 0
     this.setTickRandomly(true); // Enable random ticks
   }
 
   @Override
   public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return AABB_J_CACTUS;
+    return STAGE_BOUNDS[state.getValue(STAGE)];
   }
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return AABB_J_CACTUS;
+    return STAGE_BOUNDS[state.getValue(STAGE)];
   }
 
   public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-    entityIn.attackEntityFrom(DamageSource.CACTUS, 0.5F);
+    AxisAlignedBB bounds = getBoundingBox(state, worldIn, pos).offset(pos);
+    AxisAlignedBB damageBounds = new AxisAlignedBB(
+        bounds.minX + 1.0 / 16.0, bounds.minY + 1.0 / 16.0, bounds.minZ + 1.0 / 16.0,
+        bounds.maxX - 1.0 / 16.0, bounds.maxY - 1.0 / 16.0, bounds.maxZ - 1.0 / 16.0
+    );
+    if (entityIn.getEntityBoundingBox().intersects(damageBounds)) {
+      entityIn.attackEntityFrom(DamageSource.CACTUS, 0.5F);
+    }
   }
 
   @Override
@@ -55,7 +65,7 @@ public class JuvenileGreenCactus extends Block {
 
   @Override
   public IBlockState getStateFromMeta(int meta) {
-    return this.getDefaultState().withProperty(STAGE, meta);
+    return this.getDefaultState().withProperty(STAGE, meta & 3);
   }
 
   @Override
@@ -67,18 +77,33 @@ public class JuvenileGreenCactus extends Block {
   public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
     super.updateTick(worldIn, pos, state, rand);
 
+    // TODO: Replace stage 3 with the multi-block green cactus once trunk growth is implemented.
     int age = state.getValue(STAGE);
 
     if (!worldIn.isAreaLoaded(pos, 1)) return; // Check if area is loaded
-    if (age < 4) {
+    if (age < 3) {
       // Grow to the next stage with a random chance
       if (rand.nextInt(5) == 0) { // 20% chance to grow each tick
         worldIn.setBlockState(pos, state.withProperty(STAGE, age + 1), 2);
       }
-    } else {
-      // Replace this block with an oak sapling when fully grown
-      worldIn.setBlockState(pos, Blocks.SAPLING.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.OAK), 2);
-      Blocks.SAPLING.updateTick(worldIn, pos, Blocks.SAPLING.getDefaultState(), rand); // Make the oak tree grow immediately
+    }
+  }
+
+  @Override
+  public boolean canGrow(World world, BlockPos pos, IBlockState state, boolean isClient) {
+    return state.getValue(STAGE) < 3;
+  }
+
+  @Override
+  public boolean canUseBonemeal(World world, Random rand, BlockPos pos, IBlockState state) {
+    return rand.nextFloat() < 0.45F;
+  }
+
+  @Override
+  public void grow(World world, Random rand, BlockPos pos, IBlockState state) {
+    int stage = state.getValue(STAGE);
+    if (stage < 3) {
+      world.setBlockState(pos, state.withProperty(STAGE, stage + 1), 2);
     }
   }
 
@@ -137,15 +162,6 @@ public class JuvenileGreenCactus extends Block {
 
   @Override
   public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-    List<ItemStack> drops = new java.util.ArrayList<>();
-    Random rand = new Random();
-
-    // Random number of drops between 0 and 3
-    int dropCount = rand.nextInt(4);  // Will generate a number between 0 and 3
-    if (dropCount > 0) {
-      drops.add(new ItemStack(RItems.GREEN_CACTUS_FRUIT, dropCount));  // Add the items to the drop list
-    }
-
-    return drops;
+    return Collections.emptyList();
   }
 }

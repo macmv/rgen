@@ -2,23 +2,19 @@
 
 package net.macmv.rgen.item;
 
-import net.macmv.rgen.block.Cactus;
 import net.macmv.rgen.block.RBlocks;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
+import net.macmv.rgen.block.BlueCactus;
+import net.macmv.rgen.block.Cactus;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
-
-import static net.macmv.rgen.block.Cactus.COLOR;
 
 public class BlueCactusFruit extends ItemFood {
 
@@ -38,11 +34,14 @@ public class BlueCactusFruit extends ItemFood {
 
         // Check if the block being clicked is dirt or grass
         BlockPos blockpos = pos.offset(facing);
-        IBlockState state = worldIn.getBlockState(blockpos.down());
-        if ((state.getBlock() == Blocks.SAND) && facing == EnumFacing.UP) {
-            worldIn.setBlockState(blockpos, RBlocks.CACTUS.getDefaultState().withProperty(COLOR, Cactus.Color.GREEN)); // Place the juvenile cactus
-            itemstack.shrink(1); // Use up one fruit
-            return EnumActionResult.SUCCESS;
+        if (facing == EnumFacing.UP && worldIn.getBlockState(blockpos.down()).getBlock() == Blocks.SAND
+                && worldIn.getBlockState(blockpos).getBlock().isReplaceable(worldIn, blockpos)) {
+            BlueCactus.Location location = BlueCactus.Location.values()[worldIn.rand.nextInt(BlueCactus.Location.values().length)];
+            if (worldIn.setBlockState(blockpos, RBlocks.BLUE_CACTUS.getDefaultState()
+                    .withProperty(BlueCactus.LOCATION, location))) {
+                if (!player.capabilities.isCreativeMode) itemstack.shrink(1);
+                return EnumActionResult.SUCCESS;
+            }
         }
 
         return EnumActionResult.FAIL;

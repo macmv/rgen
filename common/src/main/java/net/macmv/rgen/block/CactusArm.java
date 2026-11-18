@@ -31,6 +31,7 @@ public class CactusArm extends Block {
 
   public CactusArm(BlockSettings settings) {
     super(settings.material);
+    setLightOpacity(0);
     this.setDefaultState(this.blockState.getBaseState().withProperty(FACE, CactusArm.Face.NORTH));
   }
 
@@ -115,6 +116,15 @@ public class CactusArm extends Block {
 
   @Override
   public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+    removeIfUnsupported(state, worldIn, pos);
+  }
+
+  @Override
+  public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+    removeIfUnsupported(state, worldIn, pos);
+  }
+
+  private void removeIfUnsupported(IBlockState state, World worldIn, BlockPos pos) {
     // Get the current facing direction of the arm
     CactusArm.Face face = state.getValue(FACE);
 
@@ -124,9 +134,11 @@ public class CactusArm extends Block {
     // Determine the position of the adjacent block based on the facing direction
     BlockPos adjacentPos = pos.offset(facingDirection);
 
-    // Check if the adjacent block is a cactus (or your custom RgenCactus block)
+    // Arms may attach to a green cactus trunk or the legacy solid cactus block.
     IBlockState adjacentState = worldIn.getBlockState(adjacentPos);
-    if (!((adjacentState.getBlock() instanceof Cactus) && adjacentState.getValue(COLOR) == Cactus.Color.GREEN)) {
+    boolean attachedToGreenCactus = adjacentState.getBlock() instanceof Cactus
+            && adjacentState.getValue(COLOR) == Cactus.Color.GREEN;
+    if (!attachedToGreenCactus && adjacentState.getBlock() != RBlocks.RGEN_CACTUS) {
       List<ItemStack> drops = getDrops(worldIn, pos, state, 0);
       for (ItemStack drop : drops) {
         spawnAsEntity(worldIn, pos, drop);  // Spawn the dropped items in the world
@@ -151,11 +163,7 @@ public class CactusArm extends Block {
   public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
     List<ItemStack> drops = new ArrayList<>();
     Random rand = new Random();
-    // Random number of drops between 0 and 3
-    int dropCount = rand.nextInt(3);  // Will generate a number between 0 and 2
-    if (dropCount > 0) {
-      drops.add(new ItemStack(RItems.GREEN_CACTUS_FRUIT, dropCount));  // Add the items to the drop list
-    }
+    if (rand.nextFloat() < 0.25F) drops.add(new ItemStack(RItems.GREEN_CACTUS_FRUIT, 1));
     return drops;
   }
 }
