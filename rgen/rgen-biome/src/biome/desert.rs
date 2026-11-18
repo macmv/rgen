@@ -93,7 +93,7 @@ fn build_open_dune(g: &mut BiomeBuilder) {
     PlacerStage::Tree,
     placer::Cactus {
       place_above: block![sand].into(),
-      body: block![rgen:cactus[color = "green"]],
+      body: block![rgen:cactus],
       arms: block![rgen:cactus_arm],
       avg_per_chunk: 0.06,
       ..Default::default()
@@ -122,13 +122,49 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
   g.set_underwater_block(block![sand]);
   g.add_underwater_layer(block![gravel], 1, 2);
 
+  // Frequent ground splotches interrupt the sand with local materials.
+  for material in [
+    block![dirt[variant = "coarse_dirt"]],
+    block![gravel],
+    block![grass],
+  ] {
+    g.place_chunk(chunk_placer::Splotch {
+      replace: block![sand].into(),
+      below_replace: block![sand].into(),
+      place: material,
+      radius: 2..=3,
+      depth: 1..=1,
+      avg_per_chunk: if material == block![grass] { 3.0 } else { 1.5 },
+    });
+  }
+
+  // Standard terracotta adds a mineral streak to the sandy floor.
+  g.place_chunk(chunk_placer::Splotch {
+    replace: block![sand].into(),
+    below_replace: block![sand].into(),
+    place: block![hardened_clay],
+    radius: 2..=3,
+    depth: 1..=1,
+    avg_per_chunk: 0.5,
+  });
+
+  // Some patches blend coarse dirt and packed mud together.
+  g.place_chunk(chunk_placer::MixedSplotch {
+    replace: block![sand].into(),
+    below_replace: block![sand].into(),
+    place: vec![block![dirt[variant = "coarse_dirt"]], block![rgen:packed_mud]],
+    radius: 2..=3,
+    depth: 1..=1,
+    avg_per_chunk: 1.5,
+  });
+
   g.place_chunk(chunk_placer::Splotch {
     replace: block![sand].into(),
     below_replace: [block![sand], block![rgen:packed_mud]].into(),
     place: block![rgen:packed_mud],
     radius: 2..=3,
     depth: 1..=2,
-    avg_per_chunk: bush_rate * 0.5,
+    avg_per_chunk: 1.5,
   });
 
   // Mature multi-block green cacti, with a higher chance of pink flowers.
@@ -137,11 +173,52 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
     PlacerStage::Tree,
     placer::Cactus {
       place_above: block![sand].into(),
-      body: block![rgen:cactus[color = "green"]],
+      body: block![rgen:cactus],
       arms: block![rgen:cactus_arm],
       avg_per_chunk: 0.3,
       arm_flower_chance: 2,
       trunk_flower_chance: 2,
+    },
+  );
+  g.place(
+    "Lush Desert short green cacti",
+    PlacerStage::Tree,
+    placer::ShortGreenCactus { avg_per_chunk: 3.0, ..Default::default() },
+  );
+
+  g.place(
+    "Lush Desert rock boulders",
+    PlacerStage::Tree,
+    placer::MossBoulder {
+      place_above: block![sand].into(),
+      structure_mix: vec![
+        block![stone],
+        block![stone[variant = "granite"]],
+        block![stone[variant = "andesite"]],
+        block![cobblestone],
+      ],
+      slab_mix: vec![block![stone_slab[variant = "cobblestone", half = "bottom"]]],
+      stair_mix: vec![block![stone_stairs[half = "bottom", shape = "straight"]]],
+      footing: block![stone],
+      avg_per_chunk: 0.1,
+      ..Default::default()
+    },
+  );
+  g.place(
+    "Lush Desert yellow sandstone boulders",
+    PlacerStage::Tree,
+    placer::MossBoulder {
+      place_above: block![sand].into(),
+      structure_mix: vec![
+        block![sandstone],
+        block![hardened_clay],
+        block![stained_hardened_clay[color = "yellow"]],
+      ],
+      slab_mix: vec![block![stone_slab[variant = "sandstone", half = "bottom"]]],
+      stair_mix: vec![block![sandstone_stairs[half = "bottom", shape = "straight"]]],
+      footing: block![sandstone],
+      avg_per_chunk: 0.1,
+      ..Default::default()
     },
   );
 
@@ -160,6 +237,13 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
     attempts: 2,
     avg_per_chunk: water_feature_rate * 0.65,
   });
+  g.place_chunk(chunk_placer::ShorelineSplotch {
+    replace: [block![sand], block![dirt], block![gravel], block![rgen:packed_mud]].into(),
+    place: block![clay],
+    radius: 1..=3,
+    attempts: 2,
+    avg_per_chunk: water_feature_rate * 0.5,
+  });
   g.place_chunk(chunk_placer::WaterbedPatches {
     replace: [block![sand], block![rgen:mud], block![clay]].into(),
     place: block![gravel],
@@ -174,29 +258,96 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
     PlacerStage::Tree,
     placer::TallBush {
       ground: [block![sand], block![grass], block![dirt], block![gravel], block![rgen:packed_mud]].into(),
-      plantable: [block![sand], block![grass], block![dirt], block![rgen:packed_mud]].into(),
+      plantable: [
+        block![grass], block![dirt[variant = "dirt"]],
+        block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+      ].into(),
       plants: [block![deadbush], block![tallgrass], block![double_plant], block![rgen:dried_grass]].into(),
       log: block![log2[variant = "acacia", axis = "y"]],
       leaves: block![leaves2[variant = "acacia", check_decay = false, decayable = false]],
       allow_water_under_leaves: true,
-      avg_per_chunk: bush_rate,
+      avg_per_chunk: 2.0,
     }.near_water(),
   );
+  g.place(
+    "Lush Desert short acacia trees",
+    PlacerStage::Tree,
+    placer::BasicTree {
+      place_above: [
+        block![sand], block![grass], block![dirt[variant = "dirt"]],
+        block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+        block![rgen:packed_mud],
+      ].into(),
+      trunk: block![log2[variant = "acacia", axis = "y"]],
+      leaves: block![leaves2[variant = "acacia", check_decay = false, decayable = false]],
+      avg_per_chunk: 0.2,
+      trunk_height: 3..=4,
+    },
+  );
+  g.place(
+    "Lush Desert basic acacia bushes",
+    PlacerStage::Tree,
+    placer::BasicDryBush {
+      place_above: [
+        block![sand], block![grass], block![dirt[variant = "dirt"]],
+        block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+        block![rgen:packed_mud],
+      ].into(),
+      ground: [
+        block![sand], block![grass], block![dirt[variant = "dirt"]],
+        block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+        block![rgen:packed_mud],
+      ].into(),
+      plants: [block![tallgrass], block![double_plant], block![deadbush], block![rgen:dried_grass]].into(),
+      trunk: block![log2[variant = "acacia", axis = "y"]],
+      leaves: block![leaves2[variant = "acacia", check_decay = false, decayable = false]],
+      avg_per_chunk: 0.4,
+    },
+  );
+  g.place(
+    "Lush Desert leaf clumps",
+    PlacerStage::Tree,
+    placer::LeafClumps {
+      place_above: [
+        block![sand], block![grass], block![dirt[variant = "dirt"]],
+        block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+        block![gravel], block![rgen:packed_mud],
+      ].into(),
+      leaves: block![leaves2[variant = "acacia", check_decay = false, decayable = false]],
+      avg_per_chunk: 1.25,
+    },
+  );
   g.place_icing(icing_placer::GrassClumps {
-    place_above: [block![grass], block![rgen:packed_mud]].into(),
+    place_above: [
+      block![grass], block![dirt[variant = "dirt"]],
+      block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+    ].into(),
     place_short: block![tallgrass[type = "tall_grass"]],
     place_tall_lower: block![double_plant[variant = "double_grass", half = "lower"]],
     place_tall_upper: block![double_plant[half = "upper"]],
-    radius: 2..=4,
+    radius: 4..=7,
     attempts: 48,
-    avg_per_chunk: bush_rate * 0.6,
+    avg_per_chunk: 0.8,
+  });
+  g.place_icing(icing_placer::Scatter {
+    place_above: [
+      block![grass], block![dirt[variant = "dirt"]],
+      block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+    ].into(),
+    place: block![tallgrass[type = "tall_grass"]],
+    avg_per_chunk: 5.0,
+    attempts: 9,
   });
   g.place_icing(icing_placer::DriedGrassClumps {
-    place_above: [block![sand], block![grass]].into(),
+    place_above: [
+      block![sand], block![grass], block![dirt[variant = "dirt"]],
+      block![dirt[variant = "coarse_dirt"]], block![dirt[variant = "podzol"]],
+      block![rgen:packed_mud],
+    ].into(),
     radius: 2..=4,
     attempts: 32,
     avg_per_chunk: bush_rate * 0.35,
-  });
+  }.brown_yellow_short_only());
   if reeds {
     g.place_icing(icing_placer::Reeds {
       avg_per_chunk: 1.5,
@@ -205,19 +356,24 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
     });
   }
 
-  // Same-color cactus patches on exposed sand.
-  for cactus in [
-    block![rgen:cactus[color = "blue"]],
-    block![rgen:cactus[color = "yellow"]],
-    // The red cactus uses the legacy orange block-state name.
-    block![rgen:cactus[color = "orange"]],
-  ] {
+  // Same-color patches of mature colored cactus on exposed sand.
+  // Blue patches vary between the four block positions for a less uniform look.
+  for location in ["north_west", "north_east", "south_west", "center"] {
+    g.place_icing(icing_placer::Clumps {
+      place_above: block![sand].into(),
+      place: block![rgen:blue_cactus[age = 3, location = location]],
+      radius: 1..=2,
+      attempts: 3,
+      avg_per_chunk: 0.3 / 4.0,
+    });
+  }
+  for cactus in [block![rgen:yellow_cactus[age = 3]], block![rgen:red_cactus[age = 3]]] {
     g.place_icing(icing_placer::Clumps {
       place_above: block![sand].into(),
       place: cactus,
       radius: 1..=2,
-      attempts: 18,
-      avg_per_chunk: 0.1,
+      attempts: 3,
+      avg_per_chunk: 0.3,
     });
   }
 }

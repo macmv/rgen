@@ -69,17 +69,20 @@ public class JuvenileCactus extends Block implements IGrowable {
       world.setBlockState(pos, state.withProperty(AGE, Age.values()[age.meta + 1]), 2);
     } else {
       // TODO: Grow green cactus into a multi-block cactus instead of a single mature block.
-      world.setBlockState(pos, RBlocks.CACTUS.getDefaultState().withProperty(Cactus.COLOR, toMatureColor(state.getValue(COLOR))), 3);
+      world.setBlockState(pos, matureState(state.getValue(COLOR)), 3);
     }
   }
 
-  private Cactus.Color toMatureColor(Color color) {
+  private IBlockState matureState(Color color) {
     switch (color) {
-      case BLUE: return Cactus.Color.BLUE;
-      case YELLOW: return Cactus.Color.YELLOW;
-      case ORANGE: return Cactus.Color.ORANGE;
+      case BLUE:
+        return RBlocks.BLUE_CACTUS.getDefaultState().withProperty(BlueCactus.AGE, 3);
+      case YELLOW:
+        return RBlocks.YELLOW_CACTUS.getDefaultState().withProperty(YellowCactus.AGE, 3);
+      case ORANGE:
+        return RBlocks.RED_CACTUS.getDefaultState().withProperty(RedCactus.AGE, 3);
       case GREEN:
-      default: return Cactus.Color.GREEN;
+      default: return RBlocks.CACTUS.getDefaultState();
     }
   }
 

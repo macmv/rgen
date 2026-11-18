@@ -199,7 +199,10 @@ impl Placer for LeafClumps {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let below = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below)) || !leaf_clump_replaceable(world.get(pos)) {
+    if world.get(below) == block![water]
+      || !self.place_above.contains(world.get(below))
+      || !leaf_clump_replaceable(world.get(pos))
+    {
       return Ok(());
     }
 
@@ -278,7 +281,9 @@ impl Placer for LeafClumps {
         if world.get(leaf_pos + Pos::new(0, -1, 0)) != self.leaves {
           leaf_pos = leaf_clump_settle(world, leaf_pos);
         }
-        if leaf_clump_replaceable(world.get(leaf_pos)) {
+        if world.get(leaf_pos + Pos::new(0, -1, 0)) != block![water]
+          && leaf_clump_replaceable(world.get(leaf_pos))
+        {
           leaf_clump_place(world, leaf_pos, self.leaves);
         }
       }
@@ -293,7 +298,9 @@ impl Placer for LeafClumps {
         if below == block![air] || leaf_clump_is_plant(below) {
           leaf_pos = leaf_clump_settle(world, leaf_pos);
         }
-        if !leaf_clump_replaceable(world.get(leaf_pos)) { continue; }
+        if !leaf_clump_replaceable(world.get(leaf_pos))
+          || world.get(leaf_pos + Pos::new(0, -1, 0)) == block![water]
+        { continue; }
         leaf_clump_place(world, leaf_pos, self.leaves);
       }
     }
@@ -306,7 +313,9 @@ impl Placer for LeafClumps {
           if below == block![air] || leaf_clump_is_plant(below) {
             leaf_pos = leaf_clump_settle(world, leaf_pos);
           }
-          if !leaf_clump_replaceable(world.get(leaf_pos)) { continue; }
+          if !leaf_clump_replaceable(world.get(leaf_pos))
+            || world.get(leaf_pos + Pos::new(0, -1, 0)) == block![water]
+          { continue; }
           leaf_clump_place(world, leaf_pos, self.leaves);
         }
       }

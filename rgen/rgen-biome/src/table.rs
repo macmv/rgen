@@ -104,7 +104,7 @@ biome_categories!(
     // Hot Desert groups: Open Dune 80%, Green Desert 10%, Salt Desert 10%.
     let (GeographicType::Standard, ClimateType::HotDesert) = &[
       b!(80, open_dune),
-      b!(10, lush_desert),
+      b!(10, open_dune),
       b!(10, salt_flats_standard),
     ];
     let (GeographicType::River, ClimateType::HotDesert) = &[

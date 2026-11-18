@@ -34,8 +34,7 @@ pub const SUPERFLAT: bool = false;
 
 /// Optional named biome for testing, without replacing the normal climate mixes.
 /// Set to None to restore the table's weighted biome selection.
-pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> =
-  Some(("lush_desert", crate::biome::lush_desert));
+pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
 
 /// Geography-specific variants of a named test override.
 /// Entries apply only when their parent biome name matches NAMED_BIOME_OVERRIDE.

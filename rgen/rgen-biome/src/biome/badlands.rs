@@ -200,7 +200,10 @@ fn red_scrub_group(g: &mut BiomeBuilder, marsh: bool, river: bool, bush_rate: f6
         place_above: block![sand[variant = "red_sand"]].into(),
         avg_per_chunk: 0.08, ..Default::default()
       });
-      for cactus in [block![rgen:cactus[color = "blue"]], block![rgen:cactus[color = "orange"]]] {
+      for cactus in [
+        block![rgen:blue_cactus[age = 3, location = "center"]],
+        block![rgen:red_cactus[age = 3]],
+      ] {
         g.place_icing(rgen_placer::icing_placer::Scatter {
           place_above: block![sand[variant = "red_sand"]].into(),
           place: cactus,
@@ -370,7 +373,7 @@ fn painted_mesa_base(g: &mut BiomeBuilder, boulder_rate: f64) {
     crate::builder::PlacerStage::Tree,
     rgen_placer::placer::Cactus {
       place_above: block![sand[variant = "red_sand"]].into(),
-      body: block![rgen:cactus[color = "green"]],
+      body: block![rgen:cactus],
       arms: block![rgen:cactus_arm],
       avg_per_chunk: 0.15,
       ..Default::default()

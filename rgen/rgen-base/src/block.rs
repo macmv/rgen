@@ -424,6 +424,11 @@ blocks! {
     half: ["top", "bottom"],
     shape: ["straight", "inner_left", "inner_right", "outer_left", "outer_right"],
   ],
+  SandstoneStairs => minecraft:sandstone_stairs[
+    facing: ["north", "south", "west", "east"],
+    half: ["top", "bottom"],
+    shape: ["straight", "inner_left", "inner_right", "outer_left", "outer_right"],
+  ],
   StoneStairs => minecraft:stone_stairs[
     facing: ["north", "south", "west", "east"],
     half: ["top", "bottom"],
@@ -576,7 +581,7 @@ blocks! {
   ],
   RgenYellowCactus => rgen:yellow_cactus[age: 0..=3],
   RgenRedCactus => rgen:red_cactus[age: 0..=3],
-  RgenCactus => rgen:cactus[color: ["green", "blue", "yellow", "orange"]],
+  RgenCactus => rgen:cactus,
   RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
   RgenShortGrass => rgen:short_grass,
   RgenLargeCactusFlower => rgen:large_cactus_flower,

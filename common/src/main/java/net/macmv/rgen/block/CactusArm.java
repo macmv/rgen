@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static net.macmv.rgen.block.Cactus.COLOR;
-
 public class CactusArm extends Block {
   public static final PropertyEnum<CactusArm.Face> FACE = PropertyEnum.create("face", CactusArm.Face.class);
   protected static final AxisAlignedBB AABB_ARM = MathUtil.aabb(4, 1, 4, 12, 15, 12);
@@ -181,11 +179,9 @@ public class CactusArm extends Block {
     // Determine the position of the adjacent block based on the facing direction
     BlockPos adjacentPos = pos.offset(facingDirection);
 
-    // Arms may attach to a green cactus trunk or the legacy solid cactus block.
+    // Arms attach only to a green cactus trunk.
     IBlockState adjacentState = worldIn.getBlockState(adjacentPos);
-    boolean attachedToGreenCactus = adjacentState.getBlock() instanceof Cactus
-            && adjacentState.getValue(COLOR) == Cactus.Color.GREEN;
-    if (!attachedToGreenCactus && adjacentState.getBlock() != RBlocks.RGEN_CACTUS) {
+    if (adjacentState.getBlock() != RBlocks.CACTUS && adjacentState.getBlock() != RBlocks.RGEN_CACTUS) {
       List<ItemStack> drops = getDrops(worldIn, pos, state, 0);
       for (ItemStack drop : drops) {
         spawnAsEntity(worldIn, pos, drop);  // Spawn the dropped items in the world
