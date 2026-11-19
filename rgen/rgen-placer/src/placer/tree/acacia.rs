@@ -9,9 +9,33 @@ pub struct AcaciaTree {
   pub grass_pants:   bool,
 }
 
+/// Leafless Acacia-like branches with covered bark on every exposed log end.
+pub struct FloodedAcaciaTree {
+  pub place_above:   BlockFilter,
+  pub avg_per_chunk: f64,
+}
+
+/// A two-block Acacia stump with a covered top log.
+pub struct AcaciaStump {
+  pub place_above:   BlockFilter,
+  pub avg_per_chunk: f64,
+}
+
 impl Default for AcaciaTree {
   fn default() -> Self {
     AcaciaTree { place_above: block![grass].into(), avg_per_chunk: 6.0, grass_pants: false }
+  }
+}
+
+impl Default for FloodedAcaciaTree {
+  fn default() -> Self {
+    FloodedAcaciaTree { place_above: block![grass].into(), avg_per_chunk: 1.0 }
+  }
+}
+
+impl Default for AcaciaStump {
+  fn default() -> Self {
+    AcaciaStump { place_above: block![grass].into(), avg_per_chunk: 0.9 }
   }
 }
 
@@ -21,9 +45,55 @@ impl Placer for AcaciaTree {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    place_acacia_tree(world, rng, pos, &self.place_above, 1, 6, self.grass_pants, false, true)
+  }
+}
+
+impl Placer for FloodedAcaciaTree {
+  fn radius(&self) -> u8 { 4 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    place_acacia_tree(world, rng, pos, &self.place_above, 3, 5, false, true, false)
+  }
+}
+
+impl Placer for AcaciaStump {
+  fn radius(&self) -> u8 { 1 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+
+  fn place(&self, world: &mut PartialWorld, _rng: &mut Rng, pos: Pos) -> Result {
+    let below = pos + Pos::new(0, -1, 0);
+    let above = pos + Pos::new(0, 1, 0);
+    if pos.y <= 1
+      || pos.y + 1 >= 255
+      || !self.place_above.contains(world.get(below))
+      || world.get(pos) != block![air]
+      || world.get(above) != block![air]
+    {
+      return Err(UndoError);
+    }
+
+    world.set(pos, block![log2[variant = "acacia", axis = "y"]]);
+    world.set(above, block![rgen:covered_acacia_log[axis = "y"]]);
+    Ok(())
+  }
+}
+
+fn place_acacia_tree(
+  world: &mut PartialWorld,
+  rng: &mut Rng,
+  pos: Pos,
+  place_above: &BlockFilter,
+  min_trunk_blocks: u8,
+  max_trunk_blocks: u8,
+  grass_pants: bool,
+  cover_all_exposed_logs: bool,
+  place_leaves: bool,
+) -> Result {
     let vertical_log = block![log2[variant = "acacia", axis = "y"]];
 
-    if !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) || pos.y <= 1 {
+    if !place_above.contains(world.get(pos + Pos::new(0, -1, 0))) || pos.y <= 1 {
       return Err(UndoError);
     }
 
@@ -40,7 +110,9 @@ impl Placer for AcaciaTree {
     // The base block is always present; this height is the offset of the top
     // block above it. Nearby surface blocks require a taller trunk to lift the
     // diagonal branches clear of the ground.
-    let mut trunk_height = rng.range(0..=5);
+    // The selected value counts the trunk's base block, so the stored offset
+    // to its top is one less.
+    let mut trunk_height = rng.range(i32::from(min_trunk_blocks)..=i32::from(max_trunk_blocks)) - 1;
     if has_surface_in_plus {
       trunk_height = trunk_height.max(3);
     }
@@ -139,7 +211,21 @@ impl Placer for AcaciaTree {
       b_end_point = Some(b_end);
     }
 
-    if self.grass_pants {
+    if cover_all_exposed_logs {
+      let exposed_log_ends: Vec<Pos> = pieces.iter()
+        .filter_map(|(piece_pos, _)| {
+          let above = *piece_pos + Pos::new(0, 1, 0);
+          let generated_log_above = pieces.iter().any(|(candidate, _)| *candidate == above);
+          (!generated_log_above && !is_log_block(world.get(above))).then_some(*piece_pos)
+        })
+        .collect();
+      let covered_log = block![rgen:covered_acacia_log[axis = "y"]];
+      for (piece_pos, state) in &mut pieces {
+        if exposed_log_ends.contains(piece_pos) {
+          *state = covered_log;
+        }
+      }
+    } else if grass_pants {
       let covered_log = block![rgen:covered_acacia_log[axis = "y"]];
       let trunk_pos = pos;
       let above = trunk_pos + Pos::new(0, 1, 0);
@@ -162,14 +248,15 @@ impl Placer for AcaciaTree {
       world.set(piece_pos, state);
     }
 
-    let leaves = block![leaves2[variant = "acacia", check_decay = false]];
-    build_branch_a_crown(world, a_end, leaves);
-    if let Some(end_point) = b_end_point {
-      build_branch_b_crown(world, end_point, leaves);
+    if place_leaves {
+      let leaves = block![leaves2[variant = "acacia", check_decay = false]];
+      build_branch_a_crown(world, a_end, leaves);
+      if let Some(end_point) = b_end_point {
+        build_branch_b_crown(world, end_point, leaves);
+      }
     }
 
     Ok(())
-  }
 }
 
 fn build_branch_a_crown(world: &mut PartialWorld, end_point: Pos, leaves: BlockState) {
@@ -245,4 +332,13 @@ fn is_replaceable_tree_block(state: BlockInfo<'_>) -> bool {
     || block == block![rgen:leaves].block
     || block == block![rgen:leaves2].block
     || block == block![rgen:leaves3].block
+}
+
+fn is_log_block(state: BlockInfo<'_>) -> bool {
+  let block = state.block_kind();
+  block == block![log].block
+    || block == block![log2].block
+    || block == block![rgen:log].block
+    || block == block![rgen:log2].block
+    || block == block![rgen:covered_acacia_log].block
 }

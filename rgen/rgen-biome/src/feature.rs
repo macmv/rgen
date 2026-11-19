@@ -37,7 +37,7 @@ pub const SUPERFLAT: bool = false;
 
 /// Select a group in a climate mix while retaining geography-specific variants.
 /// Use a biome group name such as `wooded_savanna`; set to None to use the mix.
-pub const MIX_GROUP_OVERRIDE: Option<(ClimateType, &str)> = Some((ClimateType::Savanna, "wooded_savanna"));
+pub const MIX_GROUP_OVERRIDE: Option<(ClimateType, &str)> = None;
 
 /// Optional single-biome override for testing, independent of climate mixes.
 pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
