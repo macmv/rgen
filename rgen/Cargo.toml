@@ -10,6 +10,7 @@ members = [
   "rgen-jni",
   "rgen-jni-impl",
   "rgen-viewer",
+  "rgen-viewer-watershed",
 
   "terrain-inspector",
 ]

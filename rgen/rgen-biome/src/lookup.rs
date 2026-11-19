@@ -59,6 +59,10 @@ impl WorldBiomes {
   }
 
   pub fn geographic_type(&self, pos: Pos) -> GeographicType {
+    if let Some(geographic) = feature::GEOGRAPHIC_TYPE_OVERRIDE {
+      return geographic;
+    }
+
     let noise = self.terrain.sample(pos.x as f64, pos.z as f64);
     if is_delta(noise) {
       return GeographicType::Delta;

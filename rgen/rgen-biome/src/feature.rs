@@ -13,12 +13,10 @@ pub const DEBUG_ORES: bool = false;
 pub const VILLAGES: bool = false;
 
 /// Overrides the geographic type of the world.
-pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
-//pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> =
-// Some(GeographicType::Standard);
+pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Mediterranean);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::GeoTest);
 
 /// Test the two completed climates in broad humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.
@@ -31,6 +29,10 @@ pub const BIOME_OVERRIDE: bool = false;
 
 /// Replaces everything with a superflat world.
 pub const SUPERFLAT: bool = false;
+
+/// Temporary flat land baseline while the terrain generator is being redesigned.
+/// Biome surface layers and decoration still run on top of this baseline.
+pub const FLAT_TERRAIN: bool = true;
 
 /// Optional named biome for testing, without replacing the normal climate mixes.
 /// Set to None to restore the table's weighted biome selection.
@@ -55,4 +57,4 @@ pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::Bio
 ];
 
 /// Experimental bounded drainage graph, replacing noise-band rivers.
-pub const WATERSHEDS: bool = true;
+pub const WATERSHEDS: bool = false;

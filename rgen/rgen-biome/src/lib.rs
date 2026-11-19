@@ -43,6 +43,10 @@ macro_rules! placer_enabled {
 mod biome;
 mod builder;
 mod cave;
+mod continents;
+mod drainage;
+pub use drainage::Drainage;
+pub use continents::ELEVATION_SPACING;
 mod feature;
 mod lookup;
 mod hilliness;
@@ -255,10 +259,29 @@ impl WorldBiomes {
     if distance_to_river > 0.16 { 1.0 } else { distance_to_river / 0.16 }
   }
 
+  /// Regional planning elevation in block Y coordinates.
+  pub fn broad_elevation(&self, pos: Pos) -> f64 {
+    if self.is_continent_land(pos) { continents::broad_land_height(self.seed, pos.x, pos.z) } else { 48.0 }
+  }
+
+  pub fn is_continent_land(&self, pos: Pos) -> bool { continents::land(self.seed, pos.x, pos.z) }
+
   pub fn sample_height(&self, pos: Pos) -> f64 { self.height_parts(pos).height }
 
   /// Every intermediate value of the height function at `pos`.
   pub fn height_parts(&self, pos: Pos) -> HeightParts {
+    if feature::FLAT_TERRAIN {
+      let height = self.carved_ground(pos).floor() + 1.0;
+      return HeightParts {
+        c: height,
+        impact: 0.0,
+        p: 0.0,
+        e: 0.0,
+        height: height,
+        natural_height: height,
+        solid_weight: 1.0,
+      };
+    }
     splines::current_height_parts(self.terrain.sample(pos.x as f64, pos.z as f64))
   }
 }
@@ -293,7 +316,9 @@ impl Generator for WorldBiomes {
 
     self.generate_stone(ctx, chunk, chunk_pos);
 
-    self.cave.carve(self, chunk, chunk_pos);
+    if !feature::FLAT_TERRAIN {
+      self.cave.carve(self, chunk, chunk_pos);
+    }
 
     self.generate_top_layer(&ctx.blocks, chunk, chunk_pos);
 

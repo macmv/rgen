@@ -2035,6 +2035,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rgen-viewer-watershed"
+version = "0.1.0"
+dependencies = [
+ "crossbeam-channel",
+ "parking_lot",
+ "rand",
+ "rgen-base",
+ "rgen-biome",
+ "rgen-placer",
+ "rgen-world",
+ "sdl2",
+]
+
+[[package]]
 name = "rgen-world"
 version = "0.1.0"
 dependencies = [
