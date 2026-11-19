@@ -12,13 +12,16 @@ pub const DEBUG_ORES: bool = false;
 /// Enables village generation.
 pub const VILLAGES: bool = false;
 
+/// Use a grass-covered Acacia log on the exposed base trunk block.
+pub const ACACIA_GRASS_PANTS: bool = true;
+
 /// Overrides the geographic type of the world.
 pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 //pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> =
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::HotDesert);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Savanna);
 
 /// Test the two completed climates in broad humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.
@@ -32,8 +35,11 @@ pub const BIOME_OVERRIDE: bool = false;
 /// Replaces everything with a superflat world.
 pub const SUPERFLAT: bool = false;
 
-/// Optional named biome for testing, without replacing the normal climate mixes.
-/// Set to None to restore the table's weighted biome selection.
+/// Select a group in a climate mix while retaining geography-specific variants.
+/// Use a biome group name such as `wooded_savanna`; set to None to use the mix.
+pub const MIX_GROUP_OVERRIDE: Option<(ClimateType, &str)> = None;
+
+/// Optional single-biome override for testing, independent of climate mixes.
 pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
 
 /// Geography-specific variants of a named test override.
