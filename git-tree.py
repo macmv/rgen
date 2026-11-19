@@ -11,7 +11,21 @@ def git(*args,input=None):
 q=json.dumps
 dead={l.split()[2] for l in git('fsck','--full','--no-reflogs','--unreachable').splitlines() if l.startswith('unreachable commit ')}
 main=set(git('rev-list','--first-parent','main').split())
-commits=set(git('rev-list','--all','--reflog').split())|dead
+# Suppress selected stash snapshots from the graph while preserving stash data.
+hidden={
+ '58b3fa835ef34793c1777cfc820a66a7b76886a5', 'd33715b8026ef7c93d66151119e2dd96d11ca9bb',
+ '2be93bf111f0118c017a396a92ed0dac012c6c78', 'e23ea5729e3ed30dbb3fea3b4377297a96f871f6',
+ '4f27fabdb1944584f667ccc163b07f1a24020cc2', '4210b62b231e14764b38c52c3c4ac95e78572152',
+ '8bd09dfd11e08a34ea409b3f3e2b791653f39828',
+ 'dc03c06932ec333c29702071ee77bb085560f8d6', 'c0c55e2943fab9e2256d4ad696cc78c6aad718f5',
+ '403c20db7873b6fd55a98ad3243dbcd7d94e237d', 'cd09cb1c5b1fd8efedda607ff2a84b286a131be5',
+ 'dd212f688ab620f3d30dcab7d31bad826b48790e', 'f363bdaf122306aa29344ca89e50dae885166690',
+ '608af60bda6c687c5e283c0942b60683fbb1f725', '6efe410a834be3c9ba7a8eb561397b89a912ffb1',
+ '172147fa0439bf24918147105e172f577908d271',
+ # Old, incorrect local merge placement; the branch ref was moved back.
+ '0917a49a117550296bbc6ffcb2e632005dbe0640',
+}
+commits=(set(git('rev-list','--all','--reflog').split())|dead)-hidden
 refs={}
 for row in git('for-each-ref','--format=%(objectname)%09%(refname:short)','refs/heads','refs/remotes').splitlines():
  sha,name=row.split('\t')
@@ -35,6 +49,23 @@ while queue:
  for parent in records[sha][0]:
   if parent in records: heapq.heappush(queue,(distance+1,i,parent))
 assert all(s in main or s in owner for s in commits)
+
+# Track branch-specific ancestry for shared edges. Keep at most two colored
+# strokes per edge so overlapping histories remain legible in the PDF.
+branch_seeds=[(i,sha) for i,sha in enumerate(seeds) if sha in refs]
+edge_branches={}
+for branch_i,tip in branch_seeds:
+ seen=set()
+ pending=[tip]
+ while pending:
+  sha=pending.pop()
+  if sha in main or sha in seen or sha not in records: continue
+  seen.add(sha)
+  for parent in records[sha][0]:
+   if parent in main or parent not in records: continue
+   edge_branches.setdefault((parent,sha),set()).add(branch_i)
+   pending.append(parent)
+
 def color(i):
  h=(i*0.61803398875)%1
  def hexrgb(s,l):
@@ -60,7 +91,18 @@ for sha,(parents,short,msg,dec) in records.items():
   if dec.strip(): label+='\n'+dec.strip()
   lines.append(f'{q(sha)} [label={q(label)}, fillcolor="{fill}", color="{border}"];')
  for parent in parents:
-  lines.append(f'{q(parent)} -> {q(sha)} [color="{border}"];')
+  shared=edge_branches.get((parent,sha),set())
+  if len(shared)>1:
+   own=owner.get(sha)
+   selected=sorted(shared)
+   if own in shared:
+    selected=[own,next(i for i in selected if i != own)]
+   else:
+    selected=selected[:2]
+   for branch_i in selected:
+    lines.append(f'{q(parent)} -> {q(sha)} [color="{color(branch_i)[1]}", penwidth=1.6];')
+  else:
+   lines.append(f'{q(parent)} -> {q(sha)} [color="{border}"];')
 lines.append('}')
 subprocess.run(['dot','-Tpdf','-o','git-tree-colored.pdf'],input='\n'.join(lines),text=True,check=True)
 text=subprocess.check_output(['pdftotext','-layout','git-tree-colored.pdf','-'],text=True)
