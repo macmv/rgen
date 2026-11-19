@@ -17,6 +17,9 @@ mod mediterranean;
 #[allow(unused_imports)]
 pub use mediterranean::*;
 
+mod savanna;
+pub use savanna::*;
+
 use crate::builder::BiomeBuilder;
 
 pub type BiomeFn = fn(&mut BiomeBuilder);

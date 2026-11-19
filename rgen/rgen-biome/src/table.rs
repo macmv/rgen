@@ -36,6 +36,33 @@ macro_rules! biome_categories {
             panic!("Duplicate biome for {:?}, {:?}", $geographic, $climate);
           }
         )*
+        if let Some((climate, group)) = crate::feature::MIX_GROUP_OVERRIDE {
+          let group_index = lookup
+            .get(&(GeographicType::Standard, climate))
+            .and_then(|mix| mix.iter().position(|biome| biome.name == group))
+            .unwrap_or_else(|| panic!("Unknown mix group '{}' for {:?}", group, climate));
+
+          for geographic in [
+            GeographicType::Standard,
+            GeographicType::River,
+            GeographicType::Canyon,
+            GeographicType::Hills,
+            GeographicType::Mountains,
+            GeographicType::Beach,
+            GeographicType::Delta,
+          ] {
+            if let Some(mix) = lookup.get_mut(&(geographic, climate)) {
+              if !mix.is_empty() {
+                // Geography tables keep corresponding group rows in order. If a
+                // geography combines later groups into fewer variants, use its
+                // last available variant for those rows.
+                let mut selected = mix.remove(group_index.min(mix.len() - 1));
+                selected.rarity = 1;
+                *mix = vec![selected];
+              }
+            }
+          }
+        }
         CompositionLookup {
           blank: composition(seed, &[b!(1, blank)]),
           override_biome: crate::feature::NAMED_BIOME_OVERRIDE
@@ -181,6 +208,43 @@ biome_categories!(
     let (GeographicType::Delta, ClimateType::Mediterranean) = &[
       b!(20, riparian_woodland),
       b!(80, salt_marsh),
+    ];
+
+    // Savanna groups: Wooded Savanna 30%, Savanna Scrub 25%, Open Savanna 45%.
+    let (GeographicType::Standard, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_scrub),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::River, ClimateType::Savanna) = &[
+      b!(30, riparian_savanna_woodland),
+      b!(25, riparian_savanna_woodland),
+      b!(45, riparian_savanna_woodland),
+    ];
+    let (GeographicType::Canyon, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_scrub),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::Hills, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, rocky_scrubland),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::Mountains, ClimateType::Savanna) = &[
+      b!(30, rocky_scrubland),
+      b!(25, rocky_scrubland),
+      b!(45, rocky_scrubland),
+    ];
+    let (GeographicType::Beach, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_dunes),
+      b!(45, savanna_dunes),
+    ];
+    let (GeographicType::Delta, ClimateType::Savanna) = &[
+      b!(30, flooded_savanna),
+      b!(25, flooded_savanna),
+      b!(45, flooded_savanna),
     ];
   }
 );

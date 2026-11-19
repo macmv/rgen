@@ -1,3 +1,4 @@
+mod acacia;
 mod aspen_tree;
 mod basic;
 mod cactus;
@@ -8,6 +9,7 @@ mod tall_bush;
 mod willow;
 mod short_green_cactus;
 
+pub use acacia::*;
 pub use aspen_tree::*;
 pub use basic::*;
 pub use cactus::*;
