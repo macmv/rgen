@@ -9,9 +9,6 @@ use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Mutex, RwLock, RwLockReadGuard};
 use rgen_base::Pos;
 use rgen_biome::{ClimateType, GeographicType};
-use rgen_placer::noise::{
-  NoiseGenerator, OpenSimplexNoise, SeededNoise, ShiftedNoise, VoronoiNoise,
-};
 
 use crate::{
   RenderMode,
@@ -98,8 +95,6 @@ pub struct WorldViewer {
 
   pub completed_tx: Sender<(RegionPos, RenderMode, u64, RenderBuffer)>,
   pub completed_rx: Receiver<(RegionPos, RenderMode, u64, RenderBuffer)>,
-
-  voronoi_noise: ShiftedNoise<VoronoiNoise, OpenSimplexNoise>,
 }
 
 impl WorldViewer {
@@ -115,13 +110,6 @@ impl WorldViewer {
 
       completed_tx: ctx,
       completed_rx: crx,
-
-      voronoi_noise: ShiftedNoise::new(
-        VoronoiNoise::new(0, 128),
-        OpenSimplexNoise::new(0),
-        1.0,
-        1.0,
-      ),
     }
   }
 
@@ -181,7 +169,7 @@ impl WorldViewer {
   pub fn render_chunk(&self, world: &World, region_pos: RegionPos) {
     let mode = *self.mode.lock();
     let epoch = self.render_epoch.load(Ordering::SeqCst);
-    let water_hatch = self.water_hatch.load(Ordering::SeqCst);
+    let water_hatch = mode != RenderMode::Voronoi && self.water_hatch.load(Ordering::SeqCst);
     let scale = if water_hatch { 4 } else { 1 };
     let mut chunk = RenderBuffer::new(
       REGION_SIZE as u32 * scale as u32,
@@ -192,11 +180,14 @@ impl WorldViewer {
       for rel_z in 0..REGION_SIZE {
         // Sample at the top of the world for surface biomes.
         let pos = region_pos.min_block_pos() + Pos::new(rel_x, 255, rel_z);
+        if mode == RenderMode::Voronoi {
+          let roll = world.generator.biome_region_roll(pos);
+          let color = Color::from_hex(roll).fade(Color::from_gray(0.65), 0.75);
+          chunk.set(rel_x, rel_z, color.to_sdl2());
+          continue;
+        }
+
         let column = world.column_at(pos);
-
-        let voronoi = self.voronoi_noise.generate(pos.x as f64 / 64.0, pos.z as f64 / 64.0);
-        let voronoi = (voronoi % 10) as f64 / 10.0;
-
         let biome = column.biome;
         let meter_height = column.height;
 
@@ -258,18 +249,7 @@ impl WorldViewer {
           RenderMode::Erosion => Color::from_gray(biome.erosion as f32),
           RenderMode::PeaksValleys => Color::from_gray(biome.peaks_valleys as f32),
           RenderMode::Height => Color::from_gray(column.height as f32 / 256.0),
-          RenderMode::Voronoi => match voronoi {
-            x if x < 0.1 => Color::from_hex(0x000000),
-            x if x < 0.2 => Color::from_hex(0xff0000),
-            x if x < 0.3 => Color::from_hex(0x00ff00),
-            x if x < 0.4 => Color::from_hex(0x0000ff),
-            x if x < 0.5 => Color::from_hex(0xffff00),
-            x if x < 0.6 => Color::from_hex(0xff00ff),
-            x if x < 0.7 => Color::from_hex(0xffffff),
-            x if x < 0.8 => Color::from_hex(0xffaa00),
-            x if x < 0.9 => Color::from_hex(0xff00aa),
-            _ => Color::from_hex(0xffaaaa),
-          },
+          RenderMode::Voronoi => unreachable!(),
           RenderMode::Geography => {
             height_color.fade(geography_color(world.generator.geographic_type(pos)), alpha)
           }

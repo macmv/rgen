@@ -40,7 +40,7 @@ enum RenderMode {
   /// Renders the result of `sample_height`.
   Height,
 
-  /// Funny thing for testing.
+  /// Regions used for weighted biome selection.
   Voronoi,
 
   /// Geographic category used for surface biome selection.

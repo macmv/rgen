@@ -4,7 +4,6 @@ use rgen_placer::{
   BiomeCachedChunk, BiomeColumn, ChunkPlacer, Rng, TemporaryBiome, chunk_placer,
   noise::{
     NoiseGenerator, NoiseGenerator3D, OctavedNoise, OpenSimplexNoise, PerlinNoise, SeededNoise,
-    ShiftedNoise, VoronoiNoise,
   },
 };
 use rgen_spline::Spline;
@@ -44,8 +43,9 @@ mod biome;
 mod builder;
 mod cave;
 mod feature;
-mod lookup;
 mod hilliness;
+mod lookup;
+mod organic_voronoi;
 mod splines;
 mod structure;
 mod table;
@@ -82,9 +82,8 @@ pub struct WorldBiomes {
   /// the sample functions below for what each one means.
   terrain: TerrainNoise,
 
-  /// Variance determines which biome to pick out of a list. Its basically
-  /// random.
-  variance_map: ShiftedNoise<VoronoiNoise, OpenSimplexNoise>,
+  /// A stable weighted biome roll for each grown region.
+  variance_map: organic_voronoi::OrganicVoronoi,
 
   density_map: OctavedNoise<PerlinNoise, 5>,
 
@@ -173,12 +172,7 @@ impl WorldBiomes {
       humidity_map: OctavedNoise::new(seed, 1.0 / 4096.0),
 
       terrain: TerrainNoise::new(seed),
-      variance_map: ShiftedNoise::new(
-        VoronoiNoise::new(seed, 128),
-        OpenSimplexNoise::new(seed),
-        1.0,
-        1.0,
-      ),
+      variance_map: organic_voronoi::OrganicVoronoi::new(seed),
 
       density_map: OctavedNoise::new(seed, 1.0 / 64.0),
 

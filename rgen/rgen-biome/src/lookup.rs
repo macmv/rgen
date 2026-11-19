@@ -157,7 +157,7 @@ impl WorldBiomes {
     BiomeKey {
       geographic: feature::GEOGRAPHIC_TYPE_OVERRIDE.unwrap_or_else(|| self.geographic_type(pos)),
       climate:    self.climate_type(pos),
-      variance:   self.variance(pos),
+      variance:   self.biome_region_roll(pos),
     }
   }
 
@@ -218,7 +218,8 @@ impl WorldBiomes {
     self.humidity_map.generate(pos.x as f64, pos.z as f64) * 0.5 + 0.5
   }
 
-  fn variance(&self, pos: Pos) -> u32 {
-    self.variance_map.generate(pos.x as f64 / 128.0, pos.z as f64 / 128.0)
+  /// Stable weighted-selection roll shared by all columns in this region.
+  pub fn biome_region_roll(&self, pos: Pos) -> u32 {
+    self.variance_map.sample(pos.x, pos.z)
   }
 }
