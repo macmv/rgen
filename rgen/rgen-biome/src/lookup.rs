@@ -63,6 +63,8 @@ impl WorldBiomes {
       return geographic;
     }
 
+    if feature::FLAT_TERRAIN { return self.watershed_column(pos).1; }
+
     let noise = self.terrain.sample(pos.x as f64, pos.z as f64);
     if is_delta(noise) {
       return GeographicType::Delta;

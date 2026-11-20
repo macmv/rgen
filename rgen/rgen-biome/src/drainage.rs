@@ -137,6 +137,7 @@ struct Reach {
   dx: f64,
   dz: f64,
   inverse_length_squared: f64,
+  headwater_step: Option<usize>,
   runoff: u64,
 }
 
@@ -146,10 +147,52 @@ thread_local! {
 }
 
 impl WorldBiomes {
+  /// Warp the whole network in world coordinates so tributaries share junctions.
+  pub fn channel_path(&self, node: Pos, direction: (i8,i8)) -> [(i32,i32); 9] {
+    let point = |i: usize, node: Pos, direction: (i8,i8)| {
+      let along = i as i32 * STEP / 8;
+      let x = node.x + i32::from(direction.0)*along;
+      let z = node.z + i32::from(direction.1)*along;
+      let offset = |salt| {
+        let noise = |scale, tag| crate::continents::field(self.seed ^ salt ^ tag,x,z,scale)-0.5;
+        (64.0*noise(192,1) + 38.0*noise(80,2) + 14.0*noise(32,3)).round() as i32
+      };
+      let target = (x+offset(0x7731u64), z+offset(0xdb19u64));
+      // Keep shoreline crossings anchored where the drainage plan meets water.
+      if self.is_continent_land(Pos::new(x,0,z)) {
+        let (distance,_) = crate::continents::coastal_profile(self.seed,x,z,true);
+        let t = (distance/52.0).min(1.0);
+        (x+((target.0-x) as f64*t).round() as i32,z+((target.1-z) as f64*t).round() as i32)
+      } else { (x,z) }
+    };
+    let mut path = std::array::from_fn(|i| point(i, node, direction));
+    let next = Pos::new(node.x + i32::from(direction.0)*STEP, 0,
+                        node.z + i32::from(direction.1)*STEP);
+    let outgoing = self.drainage(next).direction;
+    if outgoing != (0,0) && outgoing != direction {
+      // Ease into the outgoing tangent before the junction. All tributaries
+      // still arrive at exactly the same warped endpoint.
+      let before = path[1];
+      let start = path[2];
+      let end = path[8];
+      let ahead = point(1, next, outgoing);
+      for i in 1..6 {
+        let t = i as f64 / 6.0;
+        let u = 1.0-t;
+        let curve = |prev:i32, a:i32, b:i32, next:i32| {
+          let entry = f64::from(a) + 2.0*f64::from(a-prev);
+          let exit = f64::from(b) - 2.0*f64::from(next-b);
+          (u*u*u*f64::from(a) + 3.0*u*u*t*entry + 3.0*u*t*t*exit + t*t*t*f64::from(b)).round() as i32
+        };
+        path[2+i] = (curve(before.0,start.0,end.0,ahead.0), curve(before.1,start.1,end.1,ahead.1));
+      }
+    }
+    path
+  }
+
   /// Y of the top solid block. Water fills through Y=63 in the chunk pass.
-  pub fn carved_ground(&self, pos: Pos) -> f64 {
-    let ground = self.broad_elevation(pos);
-    if ground < 64.0 { return ground; }
+  pub(crate) fn carve_ground(&self, pos: Pos, ground: f64) -> (f64, bool) {
+    if ground < 64.0 { return (ground, false); }
     let gx = pos.x.div_euclid(STEP);
     let gz = pos.z.div_euclid(STEP);
     REACHES.with(|cache| {
@@ -157,42 +200,76 @@ impl WorldBiomes {
       let reaches = cache.get_or_insert((self.seed,gx,gz), || {
         let mut reaches = Vec::new();
         // All carving tapers to zero within one grid step of its segment.
-        for z in gz-1..=gz+2 {
-          for x in gx-1..=gx+2 {
+        for z in gz-2..=gz+3 {
+          for x in gx-2..=gx+3 {
             let node = Pos::new(x*STEP,0,z*STEP);
             let (dx,dz) = self.drainage(node).direction;
             if (dx,dz)==(0,0) {continue;}
             let runoff = self.runoff(node);
             if runoff < 16 {continue;}
-            let dx = f64::from(dx)*f64::from(STEP);
-            let dz = f64::from(dz)*f64::from(STEP);
-            reaches.push(Reach { x:node.x,z:node.z,dx,dz,runoff,
-              inverse_length_squared:1.0/(dx*dx+dz*dz) });
+            // Only taper the first wet reach. A confluence with an existing
+            // river must carry that channel through at full depth.
+            let headwater = runoff >= 64 && !(-1..=1).any(|nz:i32| (-1..=1).any(|nx:i32| {
+              if nx == 0 && nz == 0 { return false; }
+              let upstream = Pos::new(node.x + nx*STEP, 0, node.z + nz*STEP);
+              self.drainage(upstream).direction == (-nx as i8, -nz as i8)
+                && self.runoff(upstream) >= 64
+            }));
+            for (index,pair) in self.channel_path(node,(dx,dz)).windows(2).enumerate() {
+              let [(ax,az),(bx,bz)] = *pair else { unreachable!() };
+              let radius = ((24.0 + (runoff as f64/16.0).log2().min(12.0)*2.5)*1.25).ceil() as i32;
+              if ax.max(bx)+radius < gx*STEP || ax.min(bx)-radius >= (gx+1)*STEP
+                || az.max(bz)+radius < gz*STEP || az.min(bz)-radius >= (gz+1)*STEP {continue;}
+              let dx = f64::from(bx-ax);
+              let dz = f64::from(bz-az);
+              if dx==0.0 && dz==0.0 {continue;}
+              reaches.push(Reach {x:ax,z:az,dx,dz,runoff,headwater_step:headwater.then_some(index),inverse_length_squared:1.0/(dx*dx+dz*dz)});
+            }
           }
         }
         reaches
       });
+      if reaches.is_empty() { return (ground, false); }
+      let noise = |salt, scale| crate::continents::field(self.seed ^ salt, pos.x, pos.z, scale);
+      let width_factor = 0.65 + 0.80 * noise(0x71ad, 91);
+      let depth_factor = 0.70 + 0.90 * noise(0x8a34, 53);
+      let slope_factor = noise(0xc172, 47);
+      let bank_variation = crate::continents::bank_noise(self.seed,pos.x,pos.z)*0.5;
       let mut surface = ground;
+      let mut river_bank = false;
       for r in reaches.iter() {
         let x = f64::from(pos.x-r.x);
         let z = f64::from(pos.z-r.z);
         let t = ((x*r.dx+z*r.dz)*r.inverse_length_squared).clamp(0.0,1.0);
         let distance = (x-t*r.dx).hypot(z-t*r.dz);
         let magnitude = (r.runoff as f64 / 16.0).log2().min(12.0);
-        let valley_radius = 24.0 + magnitude*2.5;
+        let base_radius = 24.0 + magnitude*2.5;
+        let margin = ((distance-(3.0+magnitude))/(base_radius-3.0-magnitude)).clamp(0.0,1.0);
+        let valley_radius = base_radius*(1.0+bank_variation*margin*margin*(3.0-2.0*margin));
         if distance >= valley_radius {continue;}
         let smooth = |x:f64| x*x*(3.0-2.0*x);
-        let valley = (ground-(4.0+magnitude)*smooth(1.0-distance/valley_radius)).max(64.0);
+        let valley = (ground-(4.0+magnitude)*depth_factor*smooth(1.0-distance/valley_radius)).max(64.0);
         surface = surface.min(valley);
         if r.runoff < 64 {continue;}
-        let width = 3.0 + magnitude;
+        let wet = r.headwater_step.map_or(1.0, |index| smooth((index as f64 + t) / 8.0));
+        // Segment distance already rounds the end cap. Give the source a
+        // small radius and a shallow bed so that cap remains visible.
+        let width = (3.0 + magnitude)*width_factor*(0.55 + 0.45*wet);
         let canyon = smooth(((ground-83.0)/10.0).clamp(0.0,1.0));
         let wall_run = (valley_radius-width)*(1.0-0.72*canyon);
-        let bank = smooth(((distance-width)/wall_run).clamp(0.0,1.0));
-        let bed = 63.0-(2.0+0.3*magnitude)*(1.0-(distance/width).min(1.0).powi(2));
-        surface = surface.min(bed+(valley-bed)*bank);
+        let rise = ((distance-width)/wall_run).clamp(0.0,1.0);
+        // Shift the steepest part up or down the bank while keeping both ends smooth.
+        let bank = smooth(rise + (2.0*slope_factor-1.0)*rise*(1.0-rise));
+        let bed = 63.0-(2.0+0.3*magnitude)*depth_factor*(0.45+0.55*wet)*(1.0-(distance/width).min(1.0).powi(2));
+        let bank_ground = valley + (bed-valley)*(1.0-bank);
+        surface = surface.min(bank_ground);
+        // Extend ordinary rivers across the low floodplain. Keep the existing
+        // canyon corridor and stop the extra reach at the first higher terraces.
+        let low_bank = ground < 93.0 && bank_ground < 66.0
+          && distance <= width + 8.0 + 4.0*slope_factor;
+        river_bank |= distance <= width + 3.0 || low_bank;
       }
-      surface
+      (surface, river_bank)
     })
   }
 }

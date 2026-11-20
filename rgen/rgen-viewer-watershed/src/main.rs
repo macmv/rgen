@@ -340,17 +340,18 @@ pub fn main() -> Result<(), String> {
       if matches!(*world_view.mode.lock(), RenderMode::Channels | RenderMode::WatershedChannels | RenderMode::Runoff) {
         let step = rgen_biome::ELEVATION_SPACING;
         let span = 8 * step;
-        let left = (view_coords.0.floor() as i32 - step).div_euclid(span);
-        let top = (view_coords.1.floor() as i32 - step).div_euclid(span);
-        let right = ((view_coords.0 + screen_width as f64 / zoom) as i32 + step).div_euclid(span);
-        let bottom = ((view_coords.1 + screen_height as f64 / zoom) as i32 + step).div_euclid(span);
-        let minimum = if world_view.mode.lock().is_channels() { thresholds[threshold_index] } else { 1 };
-        runoff_tiles.retain(|&(x,z),_| (left..=right).contains(&x) && (top..=bottom).contains(&z));
+        let left = (view_coords.0.floor() as i32 - 2*step).div_euclid(span);
+        let top = (view_coords.1.floor() as i32 - 2*step).div_euclid(span);
+        let right = ((view_coords.0 + screen_width as f64 / zoom) as i32 + 2*step).div_euclid(span);
+        let bottom = ((view_coords.1 + screen_height as f64 / zoom) as i32 + 2*step).div_euclid(span);
+        let curved = world_view.mode.lock().is_channels();
+        let minimum = if curved { thresholds[threshold_index] } else { 1 };
+        runoff_tiles.retain(|&(x,z,_),_| (left..=right).contains(&x) && (top..=bottom).contains(&z));
         let project = |x:i32,z:i32| Point::new(((x as f64-view_coords.0)*zoom).round() as i32,
           ((z as f64-view_coords.1)*zoom).round() as i32);
         for tz in top..=bottom {
           for tx in left..=right {
-            let edges = runoff_tiles.entry((tx,tz)).or_insert_with(|| {
+            let edges = runoff_tiles.entry((tx,tz,curved)).or_insert_with(|| {
               let mut edges = Vec::new();
               for gz in 0..8 {
                 for gx in 0..8 {
@@ -360,7 +361,14 @@ pub fn main() -> Result<(), String> {
                   if !world.generator.is_continent_land(node) { continue; }
                   let (dx,dz) = world.generator.drainage(node).direction;
                   if (dx,dz) == (0,0) { continue; }
-                  edges.push((x,z,x+i32::from(dx)*step,z+i32::from(dz)*step,world.generator.runoff(node)));
+                  let count = world.generator.runoff(node);
+                  if curved {
+                    for pair in world.generator.channel_path(node,(dx,dz)).windows(2) {
+                      edges.push((pair[0].0,pair[0].1,pair[1].0,pair[1].1,count));
+                    }
+                  } else {
+                    edges.push((x,z,x+i32::from(dx)*step,z+i32::from(dz)*step,count));
+                  }
                 }
               }
               edges

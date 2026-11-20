@@ -64,12 +64,19 @@ impl World {
   pub fn column_at(&self, pos: Pos) -> Column {
     let biome = self.generator.choose_biome(pos);
 
-    let height = self.generator.sample_height(pos);
+    let height = self.height_at(pos);
 
     let land = self.generator.is_continent_land(pos);
 
     Column { height, biome: BiomeInfo::new(biome, land) }
   }
 
-  pub fn height_at(&self, pos: Pos) -> f64 { self.generator.sample_height(pos) }
+  pub fn height_at(&self, pos: Pos) -> f64 {
+    let mut column = self.generator.height_info(pos);
+    for y in (0..column.max_height() as i32).rev() {
+      column.move_to(pos.with_y(y));
+      if column.underground() { return y as f64; }
+    }
+    0.0
+  }
 }

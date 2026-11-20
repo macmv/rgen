@@ -261,7 +261,7 @@ impl WorldBiomes {
 
   /// Regional planning elevation in block Y coordinates.
   pub fn broad_elevation(&self, pos: Pos) -> f64 {
-    if self.is_continent_land(pos) { continents::broad_land_height(self.seed, pos.x, pos.z) } else { 48.0 }
+    if self.is_continent_land(pos) { continents::broad_land_height(&self.terrain,self.seed, pos.x, pos.z) } else { 48.0 }
   }
 
   pub fn is_continent_land(&self, pos: Pos) -> bool { continents::land(self.seed, pos.x, pos.z) }
@@ -270,19 +270,93 @@ impl WorldBiomes {
 
   /// Every intermediate value of the height function at `pos`.
   pub fn height_parts(&self, pos: Pos) -> HeightParts {
-    if feature::FLAT_TERRAIN {
-      let height = self.carved_ground(pos).floor() + 1.0;
-      return HeightParts {
-        c: height,
-        impact: 0.0,
-        p: 0.0,
-        e: 0.0,
-        height: height,
-        natural_height: height,
-        solid_weight: 1.0,
-      };
-    }
+    if feature::FLAT_TERRAIN { return self.watershed_column(pos).0; }
     splines::current_height_parts(self.terrain.sample(pos.x as f64, pos.z as f64))
+  }
+
+  fn watershed_column(&self, pos: Pos) -> (HeightParts, GeographicType) {
+    let land = self.is_continent_land(pos);
+    let (distance, cliff) = continents::coastal_profile(self.seed,pos.x,pos.z,land);
+    let width = if land && distance < 58.0 {
+      32.0 + 26.0 * continents::field(self.seed ^ 0xaf63, pos.x, pos.z, 73)
+    } else { 58.0 };
+    let t = (distance / width).min(1.0);
+    let inland = t*t*(3.0-2.0*t);
+    // Even cliff coasts must meet the waterline. Applying the full cliff
+    // weight at distance zero creates a sheer wall around an entire island.
+    let cliff_rise = distance / (distance + 20.0);
+    let shore = inland + (1.0-inland)*cliff*cliff_rise;
+    let mut density = 0.0;
+    let mut steep_coast = 0.0;
+    let mut natural = if land {
+      let belt = continents::mountain_belt(self.seed,pos.x,pos.z);
+      let rolling = continents::broad_land_height(&self.terrain,self.seed,pos.x,pos.z)
+        + continents::rolling_detail(self.seed,pos.x,pos.z) * continents::relief_strength(&self.terrain,pos.x,pos.z);
+      let mut envelope = rolling;
+      if belt > 0.0 {
+        let mut raw = self.terrain.sample_unrouted(pos.x as f64,pos.z as f64);
+        raw.continentalness = 0.38 + raw.continentalness*0.62;
+        let old = terrain::unrouted_height(&CONTINENTALNESS,&EROSION,&PEAKS_VALLEYS,&HEIGHT_IMPACT,raw);
+        envelope += belt*(old.height-64.0).max(0.0);
+        density = belt*shore;
+      }
+      // Limit coastal relief by the space available to climb inland. Ease
+      // out the limit before the distance search reaches its 58-block cap.
+      let relief = (envelope.clamp(64.0,253.0)-64.0)*shore;
+      // Estimate the rise across the coastal slope before the beach flattens it.
+      let grade = (envelope.clamp(64.0,253.0)-64.0) / width;
+      let steep = ((grade-0.45)/0.65).clamp(0.0,1.0);
+      steep_coast = steep*steep*(3.0-2.0*steep);
+      let slope = 0.55 + 0.85*cliff;
+      let coast_limit = distance*slope;
+      let transition = ((distance-32.0)/26.0).clamp(0.0,1.0);
+      let release = transition*transition*(3.0-2.0*transition);
+      65.0 + relief.min(coast_limit) + (relief-coast_limit).max(0.0)*release
+    } else {
+      // The continent mask owns the coastline. Sample the ocean portion of
+      // the original height spline for offshore basins and submerged rises.
+      let x = pos.x as f64;
+      let z = pos.z as f64;
+      let ocean_c = 0.01 + 0.32 * self.terrain.sample_continentalness(x, z);
+      let basin = CONTINENTALNESS.sample::<rgen_spline::Cosine>(ocean_c);
+      let ridges = 8.0 * (self.terrain.sample_peaks_valleys(x, z) - 0.5);
+      let offshore = 64.0 + 0.8 * (basin - 64.0) + 1.6 + ridges;
+      63.0 - 14.0 * shore + (offshore.min(62.0) - 49.0) * inland
+    };
+    let (carved, river_bank) = if land { self.carve_ground(pos,natural-1.0) } else { (natural-1.0, false) };
+    let mut beach = false;
+    // The coarse coast distance shapes the hills. Resolve the dry beach at
+    // block resolution so even a diagonal shoreline has a level approach.
+    if land && distance < 18.0 {
+      let variation = continents::field(self.seed ^ 0xb34c, pos.x, pos.z, 80);
+      let gentle_width = 4.0 + 2.0*variation;
+      let steep_width = 1.0 + variation;
+      let beach_width = (gentle_width + (steep_width-gentle_width)*steep_coast).round() as i32;
+      let shore_distance = continents::beach_distance(self.seed, pos.x, pos.z, beach_width + 6, true);
+      beach = shore_distance <= beach_width as f64;
+      let beyond_beach = (shore_distance-beach_width as f64).max(0.0);
+      let rise = beyond_beach/6.0;
+      let blend = rise*rise*(3.0-2.0*rise);
+      let edge = 64.0 + beyond_beach*steep_coast;
+      natural = edge + (natural-edge)*blend;
+      density *= blend;
+    } else if !land && distance < 18.0 {
+      // Keep the first submerged block one step below the beach, then
+      // gradually rejoin the offshore profile across the shallows.
+      let offshore = continents::beach_distance(self.seed, pos.x, pos.z, 12, false);
+      let t = ((offshore-1.0)/11.0).clamp(0.0,1.0);
+      natural = 63.0 + (natural-63.0)*t*t*(3.0-2.0*t);
+    }
+    let height = if land { carved.min(natural-1.0).floor()+1.0 } else { natural.floor() };
+    let geo = if !land { GeographicType::Ocean }
+      else if river_bank && natural - 1.0 >= 93.0 { GeographicType::Canyon }
+      else if river_bank { GeographicType::River }
+      else if beach { GeographicType::Beach }
+      else if natural >= 112.0 { GeographicType::Mountains }
+      else if natural >= 84.0 { GeographicType::Hills }
+      else { GeographicType::Standard };
+    (HeightParts { c:natural, impact:shore, p:natural-64.0, e:1.0, height,
+      natural_height:natural, solid_weight:1.0-density }, geo)
   }
 }
 
@@ -705,10 +779,10 @@ impl HeightInfo<'_> {
   fn change_xz(&mut self) {
     let parts = self.world.height_parts(self.pos);
     self.max_height = parts.height;
-    let natural = if feature::WATERSHEDS { parts.natural_height } else { parts.height };
+    let natural = if feature::WATERSHEDS || feature::FLAT_TERRAIN { parts.natural_height } else { parts.height };
     let original_min = 64.0 - natural / 128.0;
-    self.min_height = original_min * (1.0 - parts.solid_weight)
-      + self.max_height * parts.solid_weight;
+    self.min_height = (original_min * (1.0 - parts.solid_weight)
+      + self.max_height * parts.solid_weight).min(self.max_height);
     self.density_height = natural * (1.0 - parts.solid_weight)
       + self.max_height * parts.solid_weight;
   }
