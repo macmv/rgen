@@ -3,7 +3,7 @@
 use std::{cell::RefCell, cmp::Reverse, collections::BinaryHeap, num::NonZeroUsize};
 use lru::LruCache;
 use rgen_base::Pos;
-use crate::{ELEVATION_SPACING as STEP, WorldBiomes};
+use crate::{ELEVATION_SPACING as STEP, GeographicType, WorldBiomes};
 
 const TILE: i32 = 16;
 #[derive(Clone, Copy, Default)]
@@ -191,8 +191,8 @@ impl WorldBiomes {
   }
 
   /// Y of the top solid block. Water fills through Y=63 in the chunk pass.
-  pub(crate) fn carve_ground(&self, pos: Pos, ground: f64) -> (f64, bool) {
-    if ground < 64.0 { return (ground, false); }
+  pub(crate) fn carve_ground(&self, pos: Pos, ground: f64) -> (f64, Option<GeographicType>) {
+    if ground < 64.0 { return (ground, None); }
     let gx = pos.x.div_euclid(STEP);
     let gz = pos.z.div_euclid(STEP);
     REACHES.with(|cache| {
@@ -229,14 +229,18 @@ impl WorldBiomes {
         }
         reaches
       });
-      if reaches.is_empty() { return (ground, false); }
+      if reaches.is_empty() { return (ground, None); }
       let noise = |salt, scale| crate::continents::field(self.seed ^ salt, pos.x, pos.z, scale);
       let width_factor = 0.65 + 0.80 * noise(0x71ad, 91);
       let depth_factor = 0.70 + 0.90 * noise(0x8a34, 53);
       let slope_factor = noise(0xc172, 47);
       let bank_variation = crate::continents::bank_noise(self.seed,pos.x,pos.z)*0.5;
+      // Fade the sea-level cut over the last six blocks of natural elevation.
+      let t = ((87.0-ground)/6.0).clamp(0.0,1.0);
+      let channel_weight = t*t*(3.0-2.0*t);
       let mut surface = ground;
       let mut river_bank = false;
+      let mut canyon_floor = false;
       for r in reaches.iter() {
         let x = f64::from(pos.x-r.x);
         let z = f64::from(pos.z-r.z);
@@ -248,28 +252,35 @@ impl WorldBiomes {
         let valley_radius = base_radius*(1.0+bank_variation*margin*margin*(3.0-2.0*margin));
         if distance >= valley_radius {continue;}
         let smooth = |x:f64| x*x*(3.0-2.0*x);
-        let valley = (ground-(4.0+magnitude)*depth_factor*smooth(1.0-distance/valley_radius)).max(64.0);
+        let depth = (4.0+magnitude)*depth_factor;
+        let valley_depth = depth.min(8.0) + (depth-8.0).max(0.0)*channel_weight;
+        let valley = (ground-valley_depth*smooth(1.0-distance/valley_radius)).max(64.0);
         surface = surface.min(valley);
-        if r.runoff < 64 {continue;}
+        // The inner quarter of a dry valley receives most of the centerline
+        // cut. Require actual excavation to exclude uncut low plains.
+        if r.runoff < 64 || channel_weight < 1.0 {
+          canyon_floor |= distance <= valley_radius*0.25 && ground-valley >= 2.0;
+        }
+        if r.runoff < 64 || channel_weight == 0.0 {continue;}
         let wet = r.headwater_step.map_or(1.0, |index| smooth((index as f64 + t) / 8.0));
         // Segment distance already rounds the end cap. Give the source a
         // small radius and a shallow bed so that cap remains visible.
         let width = (3.0 + magnitude)*width_factor*(0.55 + 0.45*wet);
-        let canyon = smooth(((ground-83.0)/10.0).clamp(0.0,1.0));
-        let wall_run = (valley_radius-width)*(1.0-0.72*canyon);
+        let wall_run = valley_radius-width;
         let rise = ((distance-width)/wall_run).clamp(0.0,1.0);
         // Shift the steepest part up or down the bank while keeping both ends smooth.
         let bank = smooth(rise + (2.0*slope_factor-1.0)*rise*(1.0-rise));
         let bed = 63.0-(2.0+0.3*magnitude)*depth_factor*(0.45+0.55*wet)*(1.0-(distance/width).min(1.0).powi(2));
-        let bank_ground = valley + (bed-valley)*(1.0-bank);
+        let bank_ground = valley + (bed-valley)*(1.0-bank)*channel_weight;
         surface = surface.min(bank_ground);
-        // Extend ordinary rivers across the low floodplain. Keep the existing
-        // canyon corridor and stop the extra reach at the first higher terraces.
-        let low_bank = ground < 93.0 && bank_ground < 66.0
-          && distance <= width + 8.0 + 4.0*slope_factor;
-        river_bank |= distance <= width + 3.0 || low_bank;
+        // Extend ordinary rivers across their low floodplain.
+        river_bank |= distance <= width + 8.0 + 4.0*slope_factor
+          && (bank_ground < 66.0 || (channel_weight == 1.0 && distance <= width + 3.0));
       }
-      (surface, river_bank)
+      let geography = if river_bank { Some(GeographicType::River) }
+        else if canyon_floor { Some(GeographicType::Canyon) }
+        else { None };
+      (surface, geography)
     })
   }
 }

@@ -274,7 +274,7 @@ impl WorldBiomes {
     splines::current_height_parts(self.terrain.sample(pos.x as f64, pos.z as f64))
   }
 
-  fn watershed_column(&self, pos: Pos) -> (HeightParts, GeographicType) {
+  fn watershed_column(&self, pos: Pos) -> (HeightParts, Option<GeographicType>) {
     let land = self.is_continent_land(pos);
     let (distance, cliff) = continents::coastal_profile(self.seed,pos.x,pos.z,land);
     let width = if land && distance < 58.0 {
@@ -323,7 +323,7 @@ impl WorldBiomes {
       let offshore = 64.0 + 0.8 * (basin - 64.0) + 1.6 + ridges;
       63.0 - 14.0 * shore + (offshore.min(62.0) - 49.0) * inland
     };
-    let (carved, river_bank) = if land { self.carve_ground(pos,natural-1.0) } else { (natural-1.0, false) };
+    let (carved, drainage_geo) = if land { self.carve_ground(pos,natural-1.0) } else { (natural-1.0, None) };
     let mut beach = false;
     // The coarse coast distance shapes the hills. Resolve the dry beach at
     // block resolution so even a diagonal shoreline has a level approach.
@@ -348,13 +348,10 @@ impl WorldBiomes {
       natural = 63.0 + (natural-63.0)*t*t*(3.0-2.0*t);
     }
     let height = if land { carved.min(natural-1.0).floor()+1.0 } else { natural.floor() };
-    let geo = if !land { GeographicType::Ocean }
-      else if river_bank && natural - 1.0 >= 93.0 { GeographicType::Canyon }
-      else if river_bank { GeographicType::River }
-      else if beach { GeographicType::Beach }
-      else if natural >= 112.0 { GeographicType::Mountains }
-      else if natural >= 84.0 { GeographicType::Hills }
-      else { GeographicType::Standard };
+    let geo = if !land { Some(GeographicType::Ocean) }
+      else if drainage_geo.is_some() { drainage_geo }
+      else if beach { Some(GeographicType::Beach) }
+      else { None };
     (HeightParts { c:natural, impact:shore, p:natural-64.0, e:1.0, height,
       natural_height:natural, solid_weight:1.0-density }, geo)
   }
