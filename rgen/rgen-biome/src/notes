@@ -222,3 +222,127 @@ x
 
 this placer lacks a trunk so make sure the leaves dont despawn
 
+Ps
+p1 impl
+p2 impl
+p3 impl
+p4 impl
+p5 mod - lets just apply small damage that the player and entities slowly take (if its easy to make it a unique damage type do that but no MC major code changes)
+p6 impl
+p7 skip
+p8 skip
+p9 skip
+p10 - want to talk further about this i thought this required changing how buckets work
+p11 - want ot talk further
+p12 skip
+p13 impl
+p14 skip there are no strays in 1.12
+p15 impl
+p16 skip
+p17 skip thats for later
+
+Bs 
+b1 impl
+b2 impl
+b3 impl
+b4 use existing effects
+b5 impl
+b6 skip
+b7 skip
+b8 skip
+b9 talk me throuhg this
+b10 skip this is for later in rgen world green
+
+
+1. ok lets replace taht green fruit with a juvinile green cactus or whatever its called and add a TODO comment that says we will grow multi plock green cactus
+2. blue fruti should plant blue cacti
+3. Fix the drops to match the colors
+4. well have them advance excpet gree whihc cant cause its more like a sapling
+5. yeah no floating unattached cactus arms lets fix taht
+
+1. ok so for the cacti the fruit should palce the juviniles then they grow up and can be harvested so there should be coresponding fruit but maybe add uncraftable un seeable blocks so the things like whila can see them
+2. have the yellow matcure cactus use its mature moddle if there is no model let me know as another error i need to fix
+3. yeah fix thsi a cactus fruit only when we place a cactus
+
+
+Finally give me a list of the cactus weve added casue my note are a little unclear
+
+
+        ok here is how acacia trees will work
+
+  as the trunk and branches build it will keep two trackers
+  a_height and b_height if either ever goes above 9 stop building said section of branch or if its a trunk throw an error
+
+  the trunk should be between 7 and 0 tall
+
+  next branch A is built
+  it will place its start on top of the trunk then chose a direction and build upward diagnolay
+
+    a <- third blokc of branch a
+  a <- second block of branch a
+  a <- first block of branch a
+  t
+  t <-trunk
+
+  the trunk will build diagnolay an additoanla 1-3 blocks then on a 30% add an additonla two to 2 blocks up
+  this end point be it on either the diagnol or an afterward upshoot is saved as the end point
+  tember if the branch ever goes byond that cound of a_height of 9 just stop the branch there
+
+  next is branch b which has a 30% chance of not happening, if the trunk is 1 or less tall no b branch
+  branch b will start somwhere along the trunk and build in a direction other than branch A
+  except its diagnol build is between 1 to 2 out and its 25% chacne of building up is limited to 1 block up
+  also remuemebr the 9 limit
+
+  this will all be built of acacia logs but for now
+
+  build the trunk out of pink wool, branch a out of green, branch b out of blue and on top of both end points put a lime wool for a and a light blue wool for b
+
+if the dain
+
+ok now lets do the leaf crowns
+
+for branch a:
+above the end point is a 3x3 leaf square off each edge at the midde add another leaf
+on the end point have it be a 7x7 with the corners cut off
+for branch b:
+above the end point a 3x3 leaf square
+around the endpoint a 5x5 with the corners cut off
+
+leaves should only replace air
+
+ok finally i want to create placer similar to the leaf clump but called creeping leaves 
+
+1 place a heart whihc is the center leaf from this in 4 directions create arms each will behave the same is a direct below
+
+forward for this context is away from the heart place 1 leaft out from the heart if posible if not posible end said arm there
+once 1 block is placed look forward 1 and down 1 then if air place a leaf there, (then check below that if a leaf was placed and if its air place another leaft then kill said arm) otherwise
+look forward left and right 1 block down if anyside is air air place a leaf otherwise check forward left or right and see if that is air if one is place it there and kill it repeat this cycle 4 times starting from the 1 below leaves if tehy can be placed
+
+ok lets create a jungle tree this is technicaly the third attempt so it will be called jungel tree v3 placer
+
+the tree is a 2x2 so lets create that base first if x is the og block and b are the other 3
+xb
+bb
+
+then the block 2 down from them must be solid ground otherwise the tree fails
+then if there is air on the block below replace it with a log so now we have a solid operating base
+
+first lets build the body
+
+phase 1: the lower arms
+ok about 9 blocks up the arms start 
+there will be 1 to 3 arms with a 75% of them being 2 arms, these arms cannot be on the same direction
+the arm will be 1 block diagnoally off the trunk then a second block diagnoly up from that
+around that end point a 5x5 leaf square with the x's removed the front is the side pointing away from the tree the b is the endpoint and the l is the leaf
+
+front
+xxlxx
+xlllx
+llbll
+xlllx
+trunk
+
+above the end point create a plus and then fill in the corners on the side closest to the trunk (with 50% chance per corner) then add a leaf above that plus
+
+phase 2: 
+this will be another 5 blocks up the split into 4 branches in each direction about 3 blocks out and up that is 1 block wide but diagonals corners are filled and then another branch 1 block wide streight up
