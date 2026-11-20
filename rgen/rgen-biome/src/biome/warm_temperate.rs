@@ -38,8 +38,10 @@ pub fn woodland(g: &mut BiomeBuilder) {
   });
   woodland_grass(g);
   g.place_icing(icing_placer::DoubleClumps {
-    place_above: block![grass].into(), lower: block![double_plant[4]],
-    upper: block![double_plant[12]], radius: 2..=4, attempts: 12, avg_per_chunk: 0.07,
+    place_above: block![grass].into(),
+    lower: block![double_plant[variant = "double_rose", half = "lower"]],
+    upper: block![double_plant[half = "upper"]],
+    radius: 2..=4, attempts: 12, avg_per_chunk: 0.07,
   });
   for (plant, rate) in [
     (block![tallgrass[type = "fern"]], 1.0),
