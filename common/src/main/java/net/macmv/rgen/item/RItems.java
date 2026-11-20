@@ -81,6 +81,9 @@ public class RItems {
   public static final Item GOLDEN_GRASS = registerBlockItem(RBlocks.GOLDEN_GRASS, new GoldenGrassItem(RBlocks.GOLDEN_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item DUNE_GRASS = registerBlockItem(RBlocks.DUNE_GRASS, new DuneGrassItem((net.macmv.rgen.block.DuneGrassBlock) RBlocks.DUNE_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
   public static final Item SALT_MARSH_GRASS = registerBlockItem(RBlocks.SALT_MARSH_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item SHORT_GRASS = registerBlockItem(RBlocks.SHORT_GRASS, new ItemBlock(RBlocks.SHORT_GRASS).setCreativeTab(RCreativeTabs.DECORATIONS));
+  public static final Item LARGE_CACTUS_FLOWER = registerBlockItem(RBlocks.LARGE_CACTUS_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item SMALL_CACTUS_FLOWER = registerBlockItem(RBlocks.SMALL_CACTUS_FLOWER).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item YELLOW_WILDFLOWER_SHRUB = registerBlockItem(RBlocks.YELLOW_WILDFLOWER_SHRUB).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BASALT = registerBlockItem(RBlocks.BASALT);
   public static final Item PINK_FLOWERBED = registerBlockItem(RBlocks.PINK_FLOWERBED);
@@ -135,6 +138,8 @@ public class RItems {
   public static final Item MOSS_COMPASS = registerItem("moss_compass", () -> new MossCompass()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item GREEN_CACTUS_FRUIT = registerItem("green_cactus_fruit", () -> new GreenCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
   public static final Item BLUE_CACTUS_FRUIT = registerItem("blue_cactus_fruit", () -> new BlueCactusFruit()).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item YELLOW_CACTUS_FRUIT = registerItem("yellow_cactus_fruit", () -> new ColoredCactusFruit(RBlocks.YELLOW_CACTUS, "Yellow")).setCreativeTab(RCreativeTabs.DECORATIONS);
+  public static final Item RED_CACTUS_FRUIT = registerItem("red_cactus_fruit", () -> new ColoredCactusFruit(RBlocks.RED_CACTUS, "Red")).setCreativeTab(RCreativeTabs.DECORATIONS);
 
   public static final Item SALT = registerBlockItem(RBlocks.SALT);
   public static final Item SALT_ON_SAND = registerBlockItem(RBlocks.SALT_ON_SAND);

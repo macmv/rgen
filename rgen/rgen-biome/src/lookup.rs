@@ -101,10 +101,17 @@ impl WorldBiomes {
     }
 
     let humidity = self.humidity(pos);
-    if feature::MEDITERRANEAN_BADLANDS_MIX {
-      return if humidity < 0.5 { ClimateType::BadLands } else { ClimateType::Mediterranean };
-    }
     let temperature = self.temperature(pos);
+    if feature::WORKING_CLIMATE_MIX {
+      // Keep a savanna belt between dry country and wetter Mediterranean land.
+      return if humidity < 0.47 {
+        if temperature >= 0.5 { ClimateType::HotDesert } else { ClimateType::BadLands }
+      } else if humidity < 0.53 || temperature >= 0.5 {
+        ClimateType::Savanna
+      } else {
+        ClimateType::Mediterranean
+      };
+    }
 
     CLIMATE_TABLE[(temperature * CLIMATE_TABLE.len() as f64) as usize]
       [(humidity * CLIMATE_TABLE[0].len() as f64) as usize]

@@ -1,4 +1,5 @@
 {
+  "ambientocclusion": false,
   "textures": {
     "2": "rgen:block/wood/cactus/cactus_side_leg",
     "particle": "rgen:block/wood/cactus/cactus_side"

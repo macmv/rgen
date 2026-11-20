@@ -5,7 +5,7 @@ mod scatter;
 mod spread;
 mod tree;
 
-pub use clump::{Clumps, DriedGrassClumps, GrassClumps, LeafClumps};
+pub use clump::{Clumps, CreepingLeaves, DriedGrassClumps, GrassClumps, LeafClumps};
 pub use log::LogAndStump;
 pub use rock::MossBoulder;
 pub use scatter::{DoubleScatter, Scatter};

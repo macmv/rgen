@@ -18,9 +18,11 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 /// Overrides the climate type of the world.
 pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = None;
 
-/// Test the two completed climates in broad humidity regions. A single-climate
+pub const ACACIA_GRASS_PANTS: bool = true;
+
+/// Test the four completed climates in broad temperature and humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.
-pub const MEDITERRANEAN_BADLANDS_MIX: bool = true;
+pub const WORKING_CLIMATE_MIX: bool = true;
 
 /// Override the entire world to be a single biome (the blank biome).
 /// In table.rs To change the biome, modify the biome_categories macro, and

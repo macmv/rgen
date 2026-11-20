@@ -40,6 +40,11 @@ tile.double_tall_dried_grass.name=Double Tall Dried Grass
 tile.golden_grass.name=Golden Grass
 tile.dune_grass.name=Dune Grass
 tile.salt_marsh_grass.name=Salt Marsh Grass
+tile.salt_on_sand.name=Salt-Crusted Sand
+tile.salt.name=Salt Block
+tile.short_grass.name=Short Grass
+tile.large_cactus_flower.name=Large Cactus Flower
+tile.small_cactus_flower.name=Small Cactus Flower
 tile.yellow_wildflower_shrub.name=Yellow Wildflower Shrub
 
 tile.planks.fir.name=Fir Planks
@@ -62,6 +67,15 @@ tile.mossy_stone.name=Mossy Stone
 
 item.debug_stick.name=Debug Stick
 item.green_cactus_fruit.name=Green Cactus Fruit
+item.blue_cactus_fruit.name=Blue Cactus Fruit
+item.yellow_cactus_fruit.name=Yellow Cactus Fruit
+item.red_cactus_fruit.name=Red Cactus Fruit
+tile.cactus_trunk.name=Cactus Trunk
+tile.rgen_cactus.name=Cactus Trunk
+tile.blue_cactus.name=Blue Cactus
+tile.yellow_cactus.name=Yellow Cactus
+tile.red_cactus.name=Red Cactus
+tile.juvenile_green_cactus.name=Green Cactus
 
 tile.pink_orchid.name=Pink Orchid
 tile.passion_flower.name=Passion Flower

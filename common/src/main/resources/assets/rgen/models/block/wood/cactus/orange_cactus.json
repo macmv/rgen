@@ -1,4 +1,5 @@
 {
+  "ambientocclusion": false,
   "parent": "minecraft:block/block",
   "textures": {
     "0": "rgen:block/wood/cactus/orange_cactus",

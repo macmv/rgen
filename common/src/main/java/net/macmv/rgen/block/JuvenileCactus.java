@@ -1,14 +1,13 @@
 package net.macmv.rgen.block;
 
 import net.macmv.rgen.MathUtil;
-import net.macmv.rgen.item.RItems;
 import net.minecraft.block.Block;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.DamageSource;
@@ -21,10 +20,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class JuvenileCactus extends Block {
+public class JuvenileCactus extends Block implements IGrowable {
   public static final PropertyEnum<Color> COLOR = PropertyEnum.create("color", Color.class);
   public static final PropertyEnum<Age> AGE = PropertyEnum.create("age", Age.class);
 
@@ -33,7 +33,9 @@ public class JuvenileCactus extends Block {
 
   public JuvenileCactus(BlockSettings settings) {
     super(settings.material);
+    setLightOpacity(0);
     this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, Color.GREEN).withProperty(AGE, Age.ZERO));
+    this.setTickRandomly(true);
   }
 
   @Override
@@ -53,6 +55,50 @@ public class JuvenileCactus extends Block {
 
   public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
     entityIn.attackEntityFrom(DamageSource.CACTUS, 1.0F);
+  }
+
+  @Override
+  public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+    if (!world.isAreaLoaded(pos, 1)) return;
+    growOneStage(world, pos, state);
+  }
+
+  private void growOneStage(World world, BlockPos pos, IBlockState state) {
+    Age age = state.getValue(AGE);
+    if (age != Age.THREE) {
+      world.setBlockState(pos, state.withProperty(AGE, Age.values()[age.meta + 1]), 2);
+    } else {
+      // TODO: Grow green cactus into a multi-block cactus instead of a single mature block.
+      world.setBlockState(pos, matureState(state.getValue(COLOR)), 3);
+    }
+  }
+
+  private IBlockState matureState(Color color) {
+    switch (color) {
+      case BLUE:
+        return RBlocks.BLUE_CACTUS.getDefaultState().withProperty(BlueCactus.AGE, 3);
+      case YELLOW:
+        return RBlocks.YELLOW_CACTUS.getDefaultState().withProperty(YellowCactus.AGE, 3);
+      case ORANGE:
+        return RBlocks.RED_CACTUS.getDefaultState().withProperty(RedCactus.AGE, 3);
+      case GREEN:
+      default: return RBlocks.CACTUS.getDefaultState();
+    }
+  }
+
+  @Override
+  public boolean canGrow(World world, BlockPos pos, IBlockState state, boolean isClient) {
+    return true;
+  }
+
+  @Override
+  public boolean canUseBonemeal(World world, Random rand, BlockPos pos, IBlockState state) {
+    return rand.nextFloat() < 0.45F;
+  }
+
+  @Override
+  public void grow(World world, Random rand, BlockPos pos, IBlockState state) {
+    growOneStage(world, pos, state);
   }
 
   private boolean isValidGround(World worldIn, BlockPos pos) {
@@ -78,24 +124,7 @@ public class JuvenileCactus extends Block {
 
   @Override
   public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-    List<ItemStack> drops = new java.util.ArrayList<>();
-    Random rand = new Random();
-    Item fruit = RItems.GREEN_CACTUS_FRUIT;
-    switch (state.getValue(COLOR)) {
-      case GREEN: fruit = RItems.GREEN_CACTUS_FRUIT;
-        break;
-      case BLUE: fruit = RItems.BLUE_CACTUS_FRUIT;
-        break;
-      case YELLOW: fruit = RItems.GREEN_CACTUS_FRUIT;
-        break;
-      case ORANGE: fruit = RItems.GREEN_CACTUS_FRUIT;
-        break;
-    }
-    int dropCount = rand.nextInt(3) + 1;
-    if (dropCount > 0) {
-      drops.add(new ItemStack(fruit, dropCount));
-    }
-    return drops;
+    return Collections.emptyList();
   }
 
   @Nullable

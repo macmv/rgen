@@ -90,5 +90,12 @@ public class RClientProxy extends RCommonProxy {
 
     // Register block color handler for the LavenderPlant block
     blockColors.registerBlockColorHandler(lavenderColor, RBlocks.LAVENDER_PLANT, RBlocks.DOUBLE_TALL_LAVENDER_PLANT, RBlocks.PINK_FLOWERBED, RBlocks.FLOWER, RBlocks.HANGING_VINES, RBlocks.COVERED_JUNGLE_LOG, RBlocks.COVERED_ACACIA_LOG, RBlocks.YELLOW_WILDFLOWER_SHRUB);
+
+    IBlockColor grassColor = (state, world, pos, tintIndex) -> tintIndex == 0
+        ? world != null && pos != null ? BiomeColorHelper.getGrassColorAtPos(world, pos) : ColorizerGrass.getGrassColor(0.5D, 1.0D)
+        : 0xFFFFFF;
+    blockColors.registerBlockColorHandler(grassColor, RBlocks.SHORT_GRASS);
+    itemColors.registerItemColorHandler((stack, tintIndex) -> tintIndex == 0
+        ? ColorizerGrass.getGrassColor(0.5D, 1.0D) : 0xFFFFFF, RItems.SHORT_GRASS);
   }
 }

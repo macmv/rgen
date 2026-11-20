@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=0": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_0" },
+    "age=1": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_1" },
+    "age=2": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_2" },
+    "age=3": { "model": "rgen:block/wood/cactus/juvenile/yellow/yel_3" }
+  }
+}

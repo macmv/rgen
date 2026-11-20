@@ -386,6 +386,7 @@ intern! { PropName, prop_name
   Layers      => layers,
   LegacyData  => legacy_data,
   Level       => level,
+  Location    => location,
   Locked      => locked,
   Mode        => mode,
   Moisture    => moisture,

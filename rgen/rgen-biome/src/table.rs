@@ -101,6 +101,43 @@ biome_categories!(
       b!(20, red_reed_marsh),
     ];
 
+    // Hot Desert groups: Open Dune 80%, Green Desert 10%, Salt Desert 10%.
+    let (GeographicType::Standard, ClimateType::HotDesert) = &[
+      b!(80, open_dune),
+      b!(10, open_dune),
+      b!(10, salt_flats_standard),
+    ];
+    let (GeographicType::River, ClimateType::HotDesert) = &[
+      b!(80, open_dune_river),
+      b!(10, lush_desert_river),
+      b!(10, salt_flats_river),
+    ];
+    let (GeographicType::Canyon, ClimateType::HotDesert) = &[
+      b!(80, open_dune_canyon),
+      b!(10, lush_desert_canyon),
+      b!(10, salt_flats_canyon),
+    ];
+    let (GeographicType::Hills, ClimateType::HotDesert) = &[
+      b!(80, desert_mountain_hills),
+      b!(10, desert_mountain_hills),
+      b!(10, desert_mountain_hills_salt),
+    ];
+    let (GeographicType::Mountains, ClimateType::HotDesert) = &[
+      b!(80, desert_mountain),
+      b!(10, desert_mountain_scrub),
+      b!(10, desert_mountain_salt),
+    ];
+    let (GeographicType::Beach, ClimateType::HotDesert) = &[
+      b!(80, open_dune_beach),
+      b!(10, lush_desert_beach),
+      b!(10, salt_flats_beach),
+    ];
+    let (GeographicType::Delta, ClimateType::HotDesert) = &[
+      b!(80, open_dune_delta),
+      b!(10, lush_desert_delta),
+      b!(10, salt_flats_delta),
+    ];
+
     // One solid diagnostic surface color per landform.
     let (GeographicType::MushroomIsland, ClimateType::GeoTest) = &[b!(1, geo_test_mushroom_island)];
     let (GeographicType::Ocean, ClimateType::GeoTest) = &[b!(1, geo_test_ocean)];
@@ -144,6 +181,43 @@ biome_categories!(
     let (GeographicType::Delta, ClimateType::Mediterranean) = &[
       b!(20, riparian_woodland),
       b!(80, salt_marsh),
+    ];
+
+    // Savanna groups: Wooded Savanna 30%, Savanna Scrub 25%, Open Savanna 45%.
+    let (GeographicType::Standard, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_scrub),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::River, ClimateType::Savanna) = &[
+      b!(30, riparian_savanna_woodland),
+      b!(25, riparian_savanna_woodland),
+      b!(45, riparian_savanna_woodland),
+    ];
+    let (GeographicType::Canyon, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_scrub),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::Hills, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, rocky_scrubland),
+      b!(45, open_savanna),
+    ];
+    let (GeographicType::Mountains, ClimateType::Savanna) = &[
+      b!(30, rocky_scrubland),
+      b!(25, rocky_scrubland),
+      b!(45, rocky_scrubland),
+    ];
+    let (GeographicType::Beach, ClimateType::Savanna) = &[
+      b!(30, wooded_savanna),
+      b!(25, savanna_dunes),
+      b!(45, savanna_dunes),
+    ];
+    let (GeographicType::Delta, ClimateType::Savanna) = &[
+      b!(30, flooded_savanna),
+      b!(25, flooded_savanna),
+      b!(45, flooded_savanna),
     ];
   }
 );

@@ -41,6 +41,13 @@ pub struct LeafClumps {
   pub avg_per_chunk: f64,
 }
 
+/// Four short, downward-growing leaf arms rooted around a center leaf.
+pub struct CreepingLeaves {
+  pub place_above: BlockFilter,
+  pub leaves: BlockState,
+  pub avg_per_chunk: f64,
+}
+
 impl Placer for Clumps {
   fn radius(&self) -> u8 { *self.radius.end() }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
@@ -199,7 +206,10 @@ impl Placer for LeafClumps {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let below = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below)) || !leaf_clump_replaceable(world.get(pos)) {
+    if world.get(below) == block![water]
+      || !self.place_above.contains(world.get(below))
+      || !leaf_clump_replaceable(world.get(pos))
+    {
       return Ok(());
     }
 
@@ -278,7 +288,9 @@ impl Placer for LeafClumps {
         if world.get(leaf_pos + Pos::new(0, -1, 0)) != self.leaves {
           leaf_pos = leaf_clump_settle(world, leaf_pos);
         }
-        if leaf_clump_replaceable(world.get(leaf_pos)) {
+        if world.get(leaf_pos + Pos::new(0, -1, 0)) != block![water]
+          && leaf_clump_replaceable(world.get(leaf_pos))
+        {
           leaf_clump_place(world, leaf_pos, self.leaves);
         }
       }
@@ -293,7 +305,9 @@ impl Placer for LeafClumps {
         if below == block![air] || leaf_clump_is_plant(below) {
           leaf_pos = leaf_clump_settle(world, leaf_pos);
         }
-        if !leaf_clump_replaceable(world.get(leaf_pos)) { continue; }
+        if !leaf_clump_replaceable(world.get(leaf_pos))
+          || world.get(leaf_pos + Pos::new(0, -1, 0)) == block![water]
+        { continue; }
         leaf_clump_place(world, leaf_pos, self.leaves);
       }
     }
@@ -306,7 +320,9 @@ impl Placer for LeafClumps {
           if below == block![air] || leaf_clump_is_plant(below) {
             leaf_pos = leaf_clump_settle(world, leaf_pos);
           }
-          if !leaf_clump_replaceable(world.get(leaf_pos)) { continue; }
+          if !leaf_clump_replaceable(world.get(leaf_pos))
+            || world.get(leaf_pos + Pos::new(0, -1, 0)) == block![water]
+          { continue; }
           leaf_clump_place(world, leaf_pos, self.leaves);
         }
       }
@@ -314,6 +330,97 @@ impl Placer for LeafClumps {
 
     Ok(())
   }
+}
+
+impl Placer for CreepingLeaves {
+  fn radius(&self) -> u8 { 9 }
+  fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
+
+  fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    let below = pos + Pos::new(0, -1, 0);
+    if !self.place_above.contains(world.get(below)) || world.get(pos) != block![air] {
+      return Ok(());
+    }
+
+    // The center has no single arm to terminate, but it follows the same
+    // dangling-leaf rule as every leaf placed by the arms.
+    creeping_leaf_place(world, pos, self.leaves);
+    let above_heart = pos + Pos::new(0, 1, 0);
+    if world.get(above_heart) == block![air] {
+      creeping_leaf_place(world, above_heart, self.leaves);
+    }
+    let directions = [
+      Pos::new(0, 0, -1),
+      Pos::new(1, 0, 0),
+      Pos::new(0, 0, 1),
+      Pos::new(-1, 0, 0),
+    ];
+
+    for direction in directions {
+      let first = pos + direction;
+      if world.get(first) != block![air] {
+        continue;
+      }
+      if creeping_leaf_place(world, first, self.leaves) {
+        continue;
+      }
+      let side = Pos::new(-direction.z, 0, direction.x);
+      let mut tip = first;
+
+      for _ in 0..3 {
+        let down_forward = tip + direction + Pos::new(0, -1, 0);
+        if world.get(down_forward) == block![air] {
+          if creeping_leaf_place(world, down_forward, self.leaves) {
+            break;
+          }
+          tip = down_forward;
+          continue;
+        }
+
+        let down_sides = [
+          tip + direction + side + Pos::new(0, -1, 0),
+          tip + direction - side + Pos::new(0, -1, 0),
+        ];
+        let available: Vec<Pos> = down_sides.into_iter()
+          .filter(|candidate| world.get(*candidate) == block![air])
+          .collect();
+        if !available.is_empty() {
+          tip = *rng.choose(&available);
+          if creeping_leaf_place(world, tip, self.leaves) {
+            break;
+          }
+          continue;
+        }
+
+        let side_steps = [tip + direction + side, tip + direction - side];
+        let available: Vec<Pos> = side_steps.into_iter()
+          .filter(|candidate| world.get(*candidate) == block![air])
+          .collect();
+        if !available.is_empty() {
+          let end = *rng.choose(&available);
+          creeping_leaf_place(world, end, self.leaves);
+        }
+        break;
+      }
+    }
+
+    Ok(())
+  }
+}
+
+/// Place a leaf and return true when it also had to grow a hanging leaf,
+/// which ends the current arm immediately.
+fn creeping_leaf_place(world: &mut PartialWorld, pos: Pos, leaves: BlockState) -> bool {
+  if world.get(pos) != block![air] {
+    return false;
+  }
+  world.set(pos, leaves);
+  let below = pos + Pos::new(0, -1, 0);
+  if world.get(below) == block![air] {
+    world.set(below, leaves);
+    return true;
+  }
+  false
 }
 
 fn leaf_clump_settle(world: &PartialWorld, mut pos: Pos) -> Pos {

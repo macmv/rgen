@@ -10,9 +10,15 @@ pub use geo_test::*;
 mod badlands;
 pub use badlands::*;
 
+mod desert;
+pub use desert::*;
+
 mod mediterranean;
 #[allow(unused_imports)]
 pub use mediterranean::*;
+
+mod savanna;
+pub use savanna::*;
 
 use crate::builder::BiomeBuilder;
 

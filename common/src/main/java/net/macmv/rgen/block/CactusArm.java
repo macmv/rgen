@@ -23,14 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static net.macmv.rgen.block.Cactus.COLOR;
-
 public class CactusArm extends Block {
   public static final PropertyEnum<CactusArm.Face> FACE = PropertyEnum.create("face", CactusArm.Face.class);
   protected static final AxisAlignedBB AABB_ARM = MathUtil.aabb(4, 1, 4, 12, 15, 12);
+  private static final AxisAlignedBB[] ARM_PARTS = {
+      new AxisAlignedBB(5 / 16.0D, 0, -1 / 16.0D, 11 / 16.0D, 6 / 16.0D, 13 / 16.0D),
+      new AxisAlignedBB(5 / 16.0D, 6 / 16.0D, 7 / 16.0D, 11 / 16.0D, 1, 13 / 16.0D)
+  };
 
   public CactusArm(BlockSettings settings) {
     super(settings.material);
+    setLightOpacity(0);
     this.setDefaultState(this.blockState.getBaseState().withProperty(FACE, CactusArm.Face.NORTH));
   }
 
@@ -41,7 +44,50 @@ public class CactusArm extends Block {
 
   @Override
   public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-    return AABB_ARM;
+    AxisAlignedBB bounds = null;
+    for (AxisAlignedBB part : ARM_PARTS) {
+      // Block selection bounds are block-local; Minecraft offsets them by pos itself.
+      AxisAlignedBB rotated = rotate(part, state.getValue(FACE));
+      bounds = bounds == null ? rotated : bounds.union(rotated);
+    }
+    return bounds;
+  }
+
+  private static AxisAlignedBB rotate(AxisAlignedBB box, Face face) {
+    double minX;
+    double maxX;
+    double minZ;
+    double maxZ;
+    switch (face) {
+      case EAST:
+        // Forge's y=90 blockstate rotation bends the arm toward negative X.
+        minX = 1.0D - box.maxZ;
+        maxX = 1.0D - box.minZ;
+        minZ = box.minX;
+        maxZ = box.maxX;
+        break;
+      case SOUTH:
+        minX = 1.0D - box.maxX;
+        maxX = 1.0D - box.minX;
+        minZ = 1.0D - box.maxZ;
+        maxZ = 1.0D - box.minZ;
+        break;
+      case WEST:
+        // Forge's y=270 blockstate rotation bends the arm toward positive X.
+        minX = box.minZ;
+        maxX = box.maxZ;
+        minZ = 1.0D - box.maxX;
+        maxZ = 1.0D - box.minX;
+        break;
+      case NORTH:
+      default:
+        minX = box.minX;
+        maxX = box.maxX;
+        minZ = box.minZ;
+        maxZ = box.maxZ;
+        break;
+    }
+    return new AxisAlignedBB(minX, box.minY, minZ, maxX, box.maxY, maxZ);
   }
 
   @Override
@@ -115,6 +161,15 @@ public class CactusArm extends Block {
 
   @Override
   public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+    removeIfUnsupported(state, worldIn, pos);
+  }
+
+  @Override
+  public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+    removeIfUnsupported(state, worldIn, pos);
+  }
+
+  private void removeIfUnsupported(IBlockState state, World worldIn, BlockPos pos) {
     // Get the current facing direction of the arm
     CactusArm.Face face = state.getValue(FACE);
 
@@ -124,9 +179,9 @@ public class CactusArm extends Block {
     // Determine the position of the adjacent block based on the facing direction
     BlockPos adjacentPos = pos.offset(facingDirection);
 
-    // Check if the adjacent block is a cactus (or your custom RgenCactus block)
+    // Arms attach only to a green cactus trunk.
     IBlockState adjacentState = worldIn.getBlockState(adjacentPos);
-    if (!((adjacentState.getBlock() instanceof Cactus) && adjacentState.getValue(COLOR) == Cactus.Color.GREEN)) {
+    if (adjacentState.getBlock() != RBlocks.CACTUS && adjacentState.getBlock() != RBlocks.RGEN_CACTUS) {
       List<ItemStack> drops = getDrops(worldIn, pos, state, 0);
       for (ItemStack drop : drops) {
         spawnAsEntity(worldIn, pos, drop);  // Spawn the dropped items in the world
@@ -151,11 +206,7 @@ public class CactusArm extends Block {
   public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
     List<ItemStack> drops = new ArrayList<>();
     Random rand = new Random();
-    // Random number of drops between 0 and 3
-    int dropCount = rand.nextInt(3);  // Will generate a number between 0 and 2
-    if (dropCount > 0) {
-      drops.add(new ItemStack(RItems.GREEN_CACTUS_FRUIT, dropCount));  // Add the items to the drop list
-    }
+    if (rand.nextFloat() < 0.25F) drops.add(new ItemStack(RItems.GREEN_CACTUS_FRUIT, 1));
     return drops;
   }
 }

@@ -3,13 +3,10 @@
 package net.macmv.rgen.item;
 
 import net.macmv.rgen.block.RBlocks;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -33,13 +30,14 @@ public class GreenCactusFruit extends ItemFood {
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         ItemStack itemstack = player.getHeldItem(hand);
 
-        // Check if the block being clicked is dirt or grass
+        // Plant on sand with the green juvenile cactus.
         BlockPos blockpos = pos.offset(facing);
-        IBlockState state = worldIn.getBlockState(blockpos.down());
-        if ((state.getBlock() == Blocks.SAND) && facing == EnumFacing.UP) {
-            worldIn.setBlockState(blockpos, RBlocks.JUVENILE_GREEN_CACTUS.getDefaultState()); // Place the juvenile cactus
-            itemstack.shrink(1); // Use up one fruit
-            return EnumActionResult.SUCCESS;
+        if (facing == EnumFacing.UP && worldIn.getBlockState(blockpos.down()).getBlock() == Blocks.SAND
+                && worldIn.getBlockState(blockpos).getBlock().isReplaceable(worldIn, blockpos)) {
+            if (worldIn.setBlockState(blockpos, RBlocks.JUVENILE_GREEN_CACTUS.getDefaultState())) {
+                if (!player.capabilities.isCreativeMode) itemstack.shrink(1);
+                return EnumActionResult.SUCCESS;
+            }
         }
 
         return EnumActionResult.FAIL;
