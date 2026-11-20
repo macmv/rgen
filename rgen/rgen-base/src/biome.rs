@@ -76,6 +76,7 @@ ids! { Biome, biome
   ExtremeHills => minecraft:extreme_hills,
   IcePlains => minecraft:ice_flats,
   Plains => minecraft:plains,
+  Forest => minecraft:forest,
   Beaches => minecraft:beaches,
   RoofedForest => minecraft:roofed_forest,
   Savanna => minecraft:savanna,

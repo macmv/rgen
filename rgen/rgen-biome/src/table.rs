@@ -172,7 +172,7 @@ biome_categories!(
       b!(20, cherry_blossom_grove),
     ];
     let (GeographicType::River, ClimateType::WarmTemperate) = &[
-      b!(55, woodland),
+      b!(55, woodland_river),
       b!(25, birch_woodland),
       b!(20, cherry_blossom_grove_river),
     ];
@@ -192,7 +192,7 @@ biome_categories!(
       b!(20, cherry_blossom_grove_mountains),
     ];
     let (GeographicType::Beach, ClimateType::WarmTemperate) = &[
-      b!(55, woodland),
+      b!(55, woodland_beach),
       b!(25, birch_woodland),
       b!(20, lavender_beach),
     ];
