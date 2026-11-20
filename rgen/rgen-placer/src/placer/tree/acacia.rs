@@ -15,9 +15,11 @@ pub struct FloodedAcaciaTree {
   pub avg_per_chunk: f64,
 }
 
-/// A two-block Acacia stump with a covered top log.
-pub struct AcaciaStump {
+/// A two-block stump with a covered top log.
+pub struct TallStump {
   pub place_above:   BlockFilter,
+  pub log:           BlockState,
+  pub covered_log:   BlockState,
   pub avg_per_chunk: f64,
 }
 
@@ -33,9 +35,14 @@ impl Default for FloodedAcaciaTree {
   }
 }
 
-impl Default for AcaciaStump {
+impl Default for TallStump {
   fn default() -> Self {
-    AcaciaStump { place_above: block![grass].into(), avg_per_chunk: 0.9 }
+    TallStump {
+      place_above: block![grass].into(),
+      log: block![log2[variant = "acacia", axis = "y"]],
+      covered_log: block![rgen:covered_acacia_log[axis = "y"]],
+      avg_per_chunk: 0.9,
+    }
   }
 }
 
@@ -58,7 +65,7 @@ impl Placer for FloodedAcaciaTree {
   }
 }
 
-impl Placer for AcaciaStump {
+impl Placer for TallStump {
   fn radius(&self) -> u8 { 1 }
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
@@ -74,8 +81,8 @@ impl Placer for AcaciaStump {
       return Err(UndoError);
     }
 
-    world.set(pos, block![log2[variant = "acacia", axis = "y"]]);
-    world.set(above, block![rgen:covered_acacia_log[axis = "y"]]);
+    world.set(pos, self.log);
+    world.set(above, self.covered_log);
     Ok(())
   }
 }

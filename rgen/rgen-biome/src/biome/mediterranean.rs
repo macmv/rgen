@@ -149,7 +149,7 @@ pub fn lebanon_cedar_woodland_beach(g: &mut BiomeBuilder) {
   g.place_chunk(
     chunk_placer::ShorelineSplotch {
       replace: [block![gravel], block![grass], block![dirt[variant = "coarse_dirt"]]].into(),
-      place: block![clay],
+      place: vec![block![clay]],
       radius: 2..=3,
       attempts: 40,
       avg_per_chunk: 1.2,
@@ -461,7 +461,7 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
   g.place_chunk(
     chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
-      place: block![gravel],
+      place: vec![block![gravel]],
       radius: 2..=4,
       attempts: 24,
       avg_per_chunk: 0.7,
@@ -471,7 +471,7 @@ pub fn chaparral_flats_river(g: &mut BiomeBuilder) {
   g.place_chunk(
     chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt]].into(),
-      place: block![stone],
+      place: vec![block![stone]],
       radius: 1..=3,
       attempts: 20,
       avg_per_chunk: 0.4,
@@ -1083,7 +1083,7 @@ fn build_open_plains(g: &mut BiomeBuilder, profile: OpenPlainsProfile) {
   }
 }
 
-fn add_cedar_boulders(g: &mut BiomeBuilder, avg_per_chunk: f64) {
+pub(super) fn add_cedar_boulders(g: &mut BiomeBuilder, avg_per_chunk: f64) {
   g.place(
     "Cedar woodland boulders",
     PlacerStage::Tree,

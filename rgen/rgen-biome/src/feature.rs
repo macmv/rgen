@@ -21,7 +21,7 @@ pub const GEOGRAPHIC_TYPE_OVERRIDE: Option<GeographicType> = None;
 // Some(GeographicType::Standard);
 
 /// Overrides the climate type of the world.
-pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::Savanna);
+pub const CLIMATE_TYPE_OVERRIDE: Option<ClimateType> = Some(ClimateType::WarmTemperate);
 
 /// Test the two completed climates in broad humidity regions. A single-climate
 /// override above takes priority. Disable this to restore the full climate table.
@@ -37,7 +37,7 @@ pub const SUPERFLAT: bool = false;
 
 /// Select a group in a climate mix while retaining geography-specific variants.
 /// Use a biome group name such as `wooded_savanna`; set to None to use the mix.
-pub const MIX_GROUP_OVERRIDE: Option<(ClimateType, &str)> = None;
+pub const MIX_GROUP_OVERRIDE: Option<(ClimateType, &str)> = Some((ClimateType::WarmTemperate, "woodland"));
 
 /// Optional single-biome override for testing, independent of climate mixes.
 pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
@@ -45,6 +45,8 @@ pub const NAMED_BIOME_OVERRIDE: Option<(&str, crate::biome::BiomeFn)> = None;
 /// Geography-specific variants of a named test override.
 /// Entries apply only when their parent biome name matches NAMED_BIOME_OVERRIDE.
 pub const NAMED_BIOME_VARIANTS: &[(&str, GeographicType, &str, crate::biome::BiomeFn)] = &[
+  ("cherry_blossom_grove", GeographicType::River, "cherry_blossom_grove_river", crate::biome::cherry_blossom_grove_river),
+  ("cherry_blossom_grove", GeographicType::Mountains, "cherry_blossom_grove_mountains", crate::biome::cherry_blossom_grove_mountains),
   ("lush_desert", GeographicType::River, "lush_desert_river", crate::biome::lush_desert_river),
   ("lush_desert", GeographicType::Canyon, "lush_desert_canyon", crate::biome::lush_desert_canyon),
   ("lush_desert", GeographicType::Hills, "desert_mountain_hills", crate::biome::desert_mountain_hills),

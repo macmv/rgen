@@ -28,7 +28,7 @@ fn red_scrub_river(g: &mut BiomeBuilder, bush_rate: f64, cacti: bool) {
     block![rgen:packed_mud], block![hardened_clay], block![stained_hardened_clay]];
   for material in [block![dirt], block![gravel]] {
     g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
-      replace: bank_ground.into(), place: material,
+      replace: bank_ground.into(), place: vec![material],
       radius: 1..=3, attempts: 1, avg_per_chunk: if material == block![gravel] { 9.0 } else { 4.5 },
     });
     g.place_chunk(rgen_placer::chunk_placer::WaterbedPatches {
@@ -45,7 +45,7 @@ fn red_scrub_river(g: &mut BiomeBuilder, bush_rate: f64, cacti: bool) {
   }
   // Radius zero scatters individual grass blocks, restricted to the shoreline.
   g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
-    replace: bank_ground.into(), place: block![grass],
+    replace: bank_ground.into(), place: vec![block![grass]],
     radius: 0..=0, attempts: 4, avg_per_chunk: 1.5,
   });
 }
@@ -191,7 +191,7 @@ fn red_scrub_group(g: &mut BiomeBuilder, marsh: bool, river: bool, bush_rate: f6
   } else {
     g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
       replace: [block![sand], block![dirt], block![hardened_clay], block![stained_hardened_clay]].into(),
-      place: block![rgen:packed_mud],
+      place: vec![block![rgen:packed_mud]],
       radius: if river { 2..=4 } else { 1..=3 },
       attempts: 1, avg_per_chunk: (if river { 3.0 } else { 1.0 }) * ground_rate,
     });
@@ -284,7 +284,7 @@ pub fn painted_mesa_river(g: &mut BiomeBuilder) {
   ] {
     g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
       replace: [block![sand[variant = "red_sand"]], block![hardened_clay], block![stained_hardened_clay]].into(),
-      place: material,
+      place: vec![material],
       radius: 1..=3,
       attempts: 1,
       avg_per_chunk: rate,

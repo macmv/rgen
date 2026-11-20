@@ -18,6 +18,10 @@ pub struct Splotch {
 }
 
 impl Splotch {
+  pub fn in_groups(self, count: RangeInclusive<u8>) -> impl ChunkPlacer {
+    GroupedSplotch { patch: self, count }
+  }
+
   /// Gate each chunk-local patch attempt on its first eligible placement.
   /// Other columns may lie below this height once the attempt is accepted.
   pub fn starting_at_or_above(self, min_y: i32) -> impl ChunkPlacer {
@@ -27,6 +31,37 @@ impl Splotch {
   /// Restrict every surface column in the splotch to elevations below `max_y`.
   pub fn below_height(self, max_y: i32) -> impl ChunkPlacer {
     BelowHeightSplotch { patch: self, max_y }
+  }
+}
+
+struct GroupedSplotch {
+  patch: Splotch,
+  count: RangeInclusive<u8>,
+}
+
+impl ChunkPlacer for GroupedSplotch {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    let p = &self.patch;
+    if self.count.is_empty() || p.radius.is_empty() || p.depth.is_empty() || *p.depth.end() == 0 {
+      return;
+    }
+    let spread = 8;
+    let reach = spread + i32::from(*p.radius.end());
+    for center in blobs_near_radius(rng.next(), chunk_pos, p.avg_per_chunk, reach) {
+      let mut group_rng = Rng::new(center.seed);
+      let count = group_rng.range(i32::from(*self.count.start())..=i32::from(*self.count.end()));
+      for _ in 0..count {
+        let blob = Blob {
+          x: center.x + group_rng.range(-spread..=spread),
+          z: center.z + group_rng.range(-spread..=spread),
+          seed: group_rng.next(),
+        };
+        place_blob_shaped(
+          chunk, chunk_pos, &blob, &p.replace, &p.below_replace,
+          &[p.place], &p.radius, &p.depth, None, 0.7, None,
+        );
+      }
+    }
   }
 }
 

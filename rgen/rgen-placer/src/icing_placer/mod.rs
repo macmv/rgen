@@ -9,7 +9,7 @@ pub use bamboo::{Bamboo, BambooClump};
 mod clump;
 mod scatter;
 mod spread;
-pub use clump::{Clumps, DriedGrassClumps, GrassClumps};
+pub use clump::{Clumps, DoubleClumps, DriedGrassClumps, GrassClumps};
 pub use scatter::{DoubleScatter, Scatter};
 pub use spread::Spread;
 

@@ -122,7 +122,7 @@ pub fn riparian_savanna_woodland(g: &mut BiomeBuilder) {
   ] {
     g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt], block![sand], block![gravel]].into(),
-      place: material,
+      place: vec![material],
       radius: 1..=3,
       attempts: 2,
       avg_per_chunk,
@@ -280,6 +280,7 @@ pub fn rocky_scrubland(g: &mut BiomeBuilder) {
     "Rocky scrubland creeping leaves",
     PlacerStage::Tree,
     placer::CreepingLeaves {
+      arm_length: 4,
       place_above: block![grass].into(),
       leaves: block![leaves[variant = "oak", check_decay = false, decayable = false]],
       avg_per_chunk: 2.0,
@@ -342,7 +343,7 @@ pub fn flooded_savanna(g: &mut BiomeBuilder) {
   ] {
     g.place_chunk(rgen_placer::chunk_placer::ShorelineSplotch {
       replace: [block![grass], block![dirt], block![sand], block![gravel], block![rgen:mud]].into(),
-      place: material,
+      place: vec![material],
       radius: 1..=3,
       attempts: 2,
       avg_per_chunk,
@@ -394,11 +395,12 @@ pub fn flooded_savanna(g: &mut BiomeBuilder) {
     },
   );
   g.place(
-    "Flooded savanna Acacia stumps",
+    "Flooded savanna tall stumps",
     PlacerStage::Tree,
-    placer::AcaciaStump {
+    placer::TallStump {
       place_above: [block![grass], block![dirt], block![rgen:mud]].into(),
       avg_per_chunk: 2.7,
+      ..placer::TallStump::default()
     },
   );
   g.place(

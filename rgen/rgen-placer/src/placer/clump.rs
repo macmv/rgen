@@ -43,6 +43,8 @@ pub struct LeafClumps {
 
 /// Four short, downward-growing leaf arms rooted around a center leaf.
 pub struct CreepingLeaves {
+  /// Maximum outward steps per arm, including the first leaf.
+  pub arm_length: u8,
   pub place_above: BlockFilter,
   pub leaves: BlockState,
   pub avg_per_chunk: f64,
@@ -367,7 +369,7 @@ impl Placer for CreepingLeaves {
       let side = Pos::new(-direction.z, 0, direction.x);
       let mut tip = first;
 
-      for _ in 0..3 {
+      for _ in 1..self.arm_length {
         let down_forward = tip + direction + Pos::new(0, -1, 0);
         if world.get(down_forward) == block![air] {
           if creeping_leaf_place(world, down_forward, self.leaves) {

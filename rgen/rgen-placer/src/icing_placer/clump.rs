@@ -14,6 +14,35 @@ pub struct Clumps {
   pub avg_per_chunk: f64,
 }
 
+pub struct DoubleClumps {
+  pub place_above: BlockFilter,
+  pub lower: BlockState,
+  pub upper: BlockState,
+  pub radius: RangeInclusive<u8>,
+  pub attempts: u32,
+  pub avg_per_chunk: f64,
+}
+
+impl IcingPlacer for DoubleClumps {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    for_each_clump_point(rng.next(), chunk_pos, self.avg_per_chunk,
+      &self.radius, self.attempts, |column, _| {
+        for i in 0..chunk.chunk.surfaces(column).len() {
+          let below = column.with_y(chunk.chunk.surfaces(column)[i] as i32);
+          let lower = below.with_y(below.y() + 1);
+          let upper = below.with_y(below.y() + 2);
+          if upper.y() <= 255 && chunk.is_active(below)
+            && self.place_above.contains(chunk.get(below))
+            && chunk.get(lower) == block![air] && chunk.get(upper) == block![air]
+          {
+            chunk.set(lower, self.lower);
+            chunk.set(upper, self.upper);
+          }
+        }
+      });
+  }
+}
+
 /// Clusters of short and tall grass.
 pub struct GrassClumps {
   pub place_above:      BlockFilter,
@@ -43,13 +72,22 @@ impl GrassClumps {
 
 impl IcingPlacer for Clumps {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_with(chunk, rng, chunk_pos, |_| self.place);
+  }
+}
+
+impl Clumps {
+  pub fn with_random_metadata(self) -> impl IcingPlacer { RandomMetadataClumps(self) }
+
+  fn place_with(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos,
+                state: impl Fn(u64) -> BlockState) {
     for_each_clump_point(
       rng.next(),
       chunk_pos,
       self.avg_per_chunk,
       &self.radius,
       self.attempts,
-      |column, _| {
+      |column, seed| {
         for i in 0..chunk.chunk.surfaces(column).len() {
           let below = column.with_y(chunk.chunk.surfaces(column)[i] as i32);
           let pos = below.with_y(below.y() + 1);
@@ -59,11 +97,21 @@ impl IcingPlacer for Clumps {
             && self.place_above.contains(chunk.get(below))
             && chunk.get(pos) == block![air]
           {
-            chunk.set(pos, self.place);
+            chunk.set(pos, state(seed));
           }
         }
       },
     );
+  }
+}
+
+struct RandomMetadataClumps(Clumps);
+
+impl IcingPlacer for RandomMetadataClumps {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.0.place_with(chunk, rng, chunk_pos, |seed| {
+      self.0.place.with_data(Rng::new(seed).range(0..16) as u8)
+    });
   }
 }
 

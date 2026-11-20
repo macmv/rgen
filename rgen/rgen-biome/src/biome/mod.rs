@@ -20,6 +20,9 @@ pub use mediterranean::*;
 mod savanna;
 pub use savanna::*;
 
+mod warm_temperate;
+pub use warm_temperate::*;
+
 use crate::builder::BiomeBuilder;
 
 pub type BiomeFn = fn(&mut BiomeBuilder);

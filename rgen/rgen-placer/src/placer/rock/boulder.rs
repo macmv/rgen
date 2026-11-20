@@ -61,6 +61,18 @@ impl Placer for MossBoulder {
       return Err(UndoError);
     }
 
+    // Leave room around existing tree trunks, including trunks whose base is
+    // beside the rock but whose lower branches cross its footprint.
+    for dx in -3..=3 {
+      for dz in -3..=3 {
+        for dy in -2..=2 {
+          if is_log(world.get(pos + Pos::new(dx, dy, dz))) {
+            return Err(UndoError);
+          }
+        }
+      }
+    }
+
     let total = self.small_weight as i32 + self.medium_weight as i32 + self.medium_plus_weight as i32;
     let shape_roll = rng.range(0..total);
     let small = shape_roll < self.small_weight as i32;
@@ -258,6 +270,14 @@ fn is_ground(state: BlockInfo<'_>) -> bool {
     || kind == block![stone].block
     || kind == block![cobblestone].block
     || kind == block![mossy_cobblestone].block
+}
+
+fn is_log(state: BlockInfo<'_>) -> bool {
+  let kind = state.block_kind();
+  kind == block![log].block
+    || kind == block![log2].block
+    || kind == block![rgen:log].block
+    || kind == block![rgen:log2].block
 }
 
 fn is_plant(state: BlockInfo<'_>) -> bool {

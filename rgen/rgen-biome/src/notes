@@ -319,3 +319,72 @@ once 1 block is placed look forward 1 and down 1 then if air place a leaf there,
 look forward left and right 1 block down if anyside is air air place a leaf otherwise check forward left or right and see if that is air if one is place it there and kill it repeat this cycle 4 times starting from the 1 below leaves if tehy can be placed
 
 More notes
+
+
+Cherry Blossom group:
+
+The grove:
+there is an old bamboo placer on an old branch find it and impl it the issue is its height means it messes with and get tangled in cherry trees to fix this instead have it place as a chunk placer that way trees then can avoid it
+Then dig up the old cherry tree palcer review it and have it meet modern standards about surfaces and clearance, if it builds into a bamboo shoot kill the tree, if more than 15% of it attempts to build into a surface kill the tree, this means that if a leaf tries to build into a surface or a bamboo count that as a failed placment and if bamboo kill the tree and if surface count toward that perceanage
+
+then all tall and double tall grass and then scattering of lavendar and double tall lavendar with a mix of variants, and make sure the block is properly added to rgen
+then patches of the pink flower bed amek sure all the variants are added to rgen and scatter and clump then around
+
+
+Fern gully:
+the fern gully should have clumps of ferns and ouble tall ferns about 1-2 and 3 per chunk,
+splotchs of gravel and stone at 1-3 and 1.2 per chunk
+rare dandiolinon
+
+Lavendar beach 
+clumps and scattering of lavendar plants 
+tall bushes made of lavendar leaves and trunks
+large splotchs of sand with short grass and dune grass
+rare .05 basic tree of lavendar leaves and trunk
+rare .02 of lavenar stumps and fallen logs
+some small 1-3 .04 of gravel
+
+Cyprus swamp skip for now
+
+
+
+Ok here is how cherry trees need to work clear were going ot call this cherry tree v2
+
+trunk which will be between 4 to 5 blocks
+
+now the tree can have between 1 to 3 arms all of which will share an axis so the tree will either have its arms on the x axis or z axis its 5050
+a: which is always placed and comes out of the side of the top of the trunk
+b: which is somtimes placed and comes out 1 eblow the top of the trunk oposite A
+c: which is goes staight up from the top of the trunk and goes up 3 blocks
+
+there is a mix of 20% 1 branch (must be a) 30% 2 branches (either a and c or a and b) and 30% 3 branches (a,b,and,c)
+
+a) goes out sideways 1-4 blocks then up 1-3 blocks then out 1-2 and a 50% of goin up 1
+b) goes out sideways 1-4 blocks then up 1-3 blocks then out 1-2 and a 50% of goin up 1
+
+at all of these is an endpoint for a leaf ball:
+the endpoint is layer 0 which is a 5x5 of leaves
+layer 1&2 is a 5x5 of leaves 
+later -1 is a 5x5 of leaves
+each corner of layer 2 has a 30% chance for each corner being removed
+layer 3 is a 3x3 with each corner having a 30% of being removed
+each corner of layer -1 has a 40% chance for each corner being removed
+then ther are between 0-3 leaves hanging down from the rim of layer -1 if its not already had said rim block removed and none of these hangers can be cardinaly next to eachother
+
+now comes the curitne a 5 block rim around layer 1:
+
+ ccccc
+clllllc
+clllllc
+clllllc
+Clllllc
+clllllc
+ ccccc
+
+40% it stays as is
+40% a block hangs down 1
+10% a block hangs down 2 (neither of its cardinal neighbors can be hanging down only 2)
+10% a block hangs down 3 (neither of its cardinal neighbors can be hanging down only 3)
+
+on far edge there is also a 10% chance it hangs down 2 and also removed the curitne
+and a 20% it hangs down 1 and removes the curitne block

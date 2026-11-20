@@ -11,7 +11,7 @@ use rgen_base::{BlockFilter, BlockState, ChunkPos, ChunkRelPos};
 /// water across a chunk boundary is deliberately ignored, never guessed.
 pub struct ShorelineSplotch {
   pub replace:       BlockFilter,
-  pub place:         BlockState,
+  pub place:         Vec<BlockState>,
   pub radius:        RangeInclusive<u8>,
   pub attempts:      u32,
   pub avg_per_chunk: f64,
@@ -19,7 +19,7 @@ pub struct ShorelineSplotch {
 
 impl ChunkPlacer for ShorelineSplotch {
   fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
-    if self.radius.is_empty() || self.attempts == 0 {
+    if self.place.is_empty() || self.radius.is_empty() || self.attempts == 0 {
       return;
     }
     // Find eligible exposed shoreline once, rather than repeating the water
@@ -79,10 +79,11 @@ impl ChunkPlacer for ShorelineSplotch {
               continue;
             };
             let pos = ChunkRelPos::new(rx, y, rz);
+            let mut column_rng = blob.column_rng(x, z);
             if self.replace.contains(chunk.get(pos))
-              && shape.contains(x - blob.x, z - blob.z, &mut blob.column_rng(x, z))
+              && shape.contains(x - blob.x, z - blob.z, &mut column_rng)
             {
-              chunk.set(pos, self.place);
+              chunk.set(pos, *column_rng.choose(&self.place));
             }
           }
         }
@@ -144,7 +145,7 @@ mod tests {
     let info = registry();
     let placer = ShorelineSplotch {
       replace:       block![grass].into(),
-      place:         block![sand],
+      place:         vec![block![sand]],
       radius:        2..=4,
       attempts:      100,
       avg_per_chunk: 4.0,

@@ -2,12 +2,13 @@ use std::ops::RangeInclusive;
 
 use rgen_base::{BlockFilter, BlockState, ChunkPos, ChunkRelPos};
 
-use crate::{BiomeCachedChunk, IcingPlacer, Random, Rng, chunk_placer::util::for_each_clump_point};
+use crate::{BiomeCachedChunk, ChunkPlacer, IcingPlacer, Random, Rng, chunk_placer::util::for_each_clump_point};
 
 /// A single bamboo stalk.
 pub struct Bamboo {
   pub stalk:     BlockState,
   pub pint_size: bool,
+  pub shorten_by: i32,
 }
 
 /// Clusters of bamboo.
@@ -29,7 +30,7 @@ pub struct BambooClump {
 const MIN_HEIGHT: i32 = 6;
 
 impl Default for Bamboo {
-  fn default() -> Self { Bamboo { stalk: block![rgen:bamboo], pint_size: true } }
+  fn default() -> Self { Bamboo { stalk: block![rgen:bamboo], pint_size: true, shorten_by: 0 } }
 }
 
 impl Default for BambooClump {
@@ -47,7 +48,7 @@ impl Default for BambooClump {
 impl Bamboo {
   /// Grows a stalk from `pos`, which must be the (air) block above the ground.
   fn grow(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, pos: ChunkRelPos) {
-    let height = if self.pint_size { rng.range(8..=14) } else { rng.range(15..=20) };
+    let height = (if self.pint_size { rng.range(8..=14) } else { rng.range(15..=20) }) - self.shorten_by;
     let shoot = rng.range(0..=3) as u8;
 
     if pos.y() + height + 2 >= 255 || pos.y() <= 1 {
@@ -64,7 +65,7 @@ impl Bamboo {
     // `height_clear` is the number of blocks of air, so the stalk has
     // `height_clear - 1` blocks above the first one.
     let height = (height_clear - 1).min(height);
-    if height_clear < MIN_HEIGHT {
+    if height_clear < (MIN_HEIGHT - self.shorten_by).max(1) {
       return;
     }
 
@@ -80,8 +81,8 @@ impl Bamboo {
   }
 }
 
-impl IcingPlacer for BambooClump {
-  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+impl BambooClump {
+  fn place_in_chunk(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
     for_each_clump_point(
       rng.next(),
       chunk_pos,
@@ -104,5 +105,17 @@ impl IcingPlacer for BambooClump {
         }
       },
     );
+  }
+}
+
+impl ChunkPlacer for BambooClump {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_in_chunk(chunk, rng, chunk_pos);
+  }
+}
+
+impl IcingPlacer for BambooClump {
+  fn place(&self, chunk: &mut BiomeCachedChunk, rng: &mut Rng, chunk_pos: ChunkPos) {
+    self.place_in_chunk(chunk, rng, chunk_pos);
   }
 }

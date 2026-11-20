@@ -225,21 +225,21 @@ fn build_lush_desert(g: &mut BiomeBuilder, bush_rate: f64, water_feature_rate: f
   // Green ground follows exposed channels rather than covering the desert floor.
   g.place_chunk(chunk_placer::ShorelineSplotch {
     replace: [block![sand], block![dirt], block![gravel]].into(),
-    place: block![grass],
+    place: vec![block![grass]],
     radius: 1..=3,
     attempts: 2,
     avg_per_chunk: water_feature_rate,
   });
   g.place_chunk(chunk_placer::ShorelineSplotch {
     replace: [block![sand], block![dirt], block![grass]].into(),
-    place: block![rgen:packed_mud],
+    place: vec![block![rgen:packed_mud]],
     radius: 1..=3,
     attempts: 2,
     avg_per_chunk: water_feature_rate * 0.65,
   });
   g.place_chunk(chunk_placer::ShorelineSplotch {
     replace: [block![sand], block![dirt], block![gravel], block![rgen:packed_mud]].into(),
-    place: block![clay],
+    place: vec![block![clay]],
     radius: 1..=3,
     attempts: 2,
     avg_per_chunk: water_feature_rate * 0.5,

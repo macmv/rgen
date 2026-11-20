@@ -588,6 +588,10 @@ blocks! {
   RgenSmallCactusFlower => rgen:small_cactus_flower[face: ["north", "east", "south", "west"]],
   RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],
   RgenPinkOrchid => rgen:pink_orchid,
+  RgenPinkFlowerbed => rgen:pink_flowerbed[
+    rotation: ["north", "south", "west", "east"],
+    count: 1..=4,
+  ],
   RgenPassionFlower => rgen:passion_flower,
   RgenHeliconia => rgen:heliconia,
   RgenPinkHeart => rgen:pink_heart,
