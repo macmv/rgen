@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 /// A layered bush with an upright log core and a broad, irregular canopy.
 pub struct TallBush {
@@ -81,7 +82,7 @@ impl Placer for TallBush {
     }
 
     let layer1 = pos;
-    if world.get(layer1) != block![air] {
+    if world.get(layer1) != block![air] || any_wood_adjacent(world, layer1) {
       return Err(UndoError);
     }
 

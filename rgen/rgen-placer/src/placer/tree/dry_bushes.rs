@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct BasicDryBush {
   pub place_above:   BlockFilter,
@@ -53,7 +54,7 @@ impl Placer for BasicDryBush {
       }
     }
 
-    if world.get(pos) != block![air] {
+    if world.get(pos) != block![air] || any_wood_adjacent(world, pos) {
       return Err(UndoError);
     }
 

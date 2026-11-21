@@ -1,6 +1,6 @@
 //! Grass and dirt placeholders for the Warm Temperate biome mix.
 
-use rgen_base::{biome, block};
+use rgen_base::{biome, block, BlockFilter};
 
 use crate::builder::{BiomeBuilder, PlacerStage};
 use rgen_placer::{chunk_placer, icing_placer, placer};
@@ -13,16 +13,23 @@ fn grass_and_dirt(g: &mut BiomeBuilder) {
 }
 
 pub fn woodland(g: &mut BiomeBuilder) {
+  woodland_base(g, false);
+}
+
+fn woodland_base(g: &mut BiomeBuilder, beach: bool) {
   grass_and_dirt(g);
   g.id = biome![forest];
   let log = block![log[variant = "oak", axis = "y"]];
   let leaves = block![leaves[variant = "oak", check_decay = false, decayable = false]];
   g.place("Woodland oak trees", PlacerStage::Tree, placer::BasicTree {
+    place_above: [block![grass], block![dirt]].into(),
     trunk: log, leaves, avg_per_chunk: 12.0, trunk_height: 6..=9,
     ..placer::BasicTree::default()
   });
   woodland_bushes(g, 0.1, 0.05);
   g.place("Woodland boulders", PlacerStage::Tree, placer::MossBoulder {
+    place_above: if beach { [block![grass], block![dirt]].into() } else { BlockFilter::All },
+    avoid_sand_under_footprint: beach,
     avg_per_chunk: 0.3, ..placer::MossBoulder::default()
   });
   g.place("Woodland fallen oak logs", PlacerStage::Tree, placer::LogAndStump {
@@ -120,17 +127,21 @@ pub fn woodland_river(g: &mut BiomeBuilder) {
     place_above: block![grass].into(), place_lower: block![double_plant[3]],
     place_upper: block![double_plant[11]], attempts: 12, avg_per_chunk: 2.0,
   });
+  woodland_river_bed(g);
+  woodland_bushes(g, 0.1, 0.1);
+}
+
+fn woodland_river_bed(g: &mut BiomeBuilder) {
   for material in [block![cobblestone], block![gravel], block![stone], block![stone[variant = "andesite"]]] {
     g.place_chunk(chunk_placer::WaterbedPatches {
       replace: [block![gravel], block![sand], block![dirt], block![stone]].into(),
       place: material, radius: 1..=3, depth: 1..=1, attempts: 12, avg_per_chunk: 0.65,
     });
   }
-  woodland_bushes(g, 0.1, 0.1);
 }
 
 pub fn woodland_beach(g: &mut BiomeBuilder) {
-  woodland(g);
+  woodland_base(g, true);
   woodland_banks(g);
   woodland_bushes(g, 0.5, 0.3);
   g.place_chunk(chunk_placer::Splotch {
@@ -144,7 +155,85 @@ pub fn woodland_beach(g: &mut BiomeBuilder) {
     });
   }
 }
-pub fn birch_woodland(g: &mut BiomeBuilder) { grass_and_dirt(g); }
+pub fn birch_woodland(g: &mut BiomeBuilder) {
+  birch_forest_base(g, 12.0, 1.75);
+  g.place_icing(icing_placer::Spread {
+    replace: [block![grass], block![dirt]].into(), place: block![rgen:mossy_carpet],
+    radius: 4..=5, avg_per_chunk: 1.0,
+  }.with_moss_ground());
+  g.place_icing(icing_placer::Spread {
+    replace: block![grass].into(), place: block![rgen:flower[type = "forgetmenot"]],
+    radius: 1..=3, avg_per_chunk: 0.6,
+  });
+}
+
+pub fn birch_woodland_river(g: &mut BiomeBuilder) {
+  birch_forest_base(g, 5.0, 1.75);
+  g.place_chunk(chunk_placer::ShorelineSplotch {
+    replace: [block![grass], block![dirt], block![gravel]].into(),
+    place: vec![block![gravel], block![gravel], block![rgen:mossy_cobblestone_rgen], block![cobblestone]],
+    radius: 1..=2, attempts: 1, avg_per_chunk: 3.0,
+  });
+  woodland_banks(g);
+  woodland_river_bed(g);
+  cherry_river_ground(g);
+  g.place("Birch river boulders", PlacerStage::Tree, placer::MossBoulder {
+    avg_per_chunk: 0.5, ..placer::MossBoulder::default()
+  });
+}
+
+pub fn birch_woodland_beach(g: &mut BiomeBuilder) {
+  birch_forest_base(g, 3.0, 0.2);
+  g.place_chunk(chunk_placer::Splotch {
+    replace: block![grass].into(), below_replace: [block![dirt], block![sand]].into(),
+    place: block![sand], radius: 5..=9, depth: 1..=2, avg_per_chunk: 1.4,
+  });
+  woodland_banks(g);
+  g.place("Birch beach shrubs", PlacerStage::Tree, placer::BasicDryBush {
+    trunk: block![log[variant = "birch", axis = "y"]],
+    leaves: block![leaves[variant = "birch", check_decay = false, decayable = false]],
+    avg_per_chunk: 0.35, ..placer::BasicDryBush::default()
+  });
+  g.place("Birch beach mossy boulders", PlacerStage::Tree, placer::MossBoulder {
+    place_above: [block![grass], block![dirt]].into(),
+    avoid_sand_under_footprint: true,
+    structure_mix: vec![
+      block![mossy_cobblestone], block![mossy_cobblestone],
+      block![rgen:mossy_stone], block![rgen:mossy_stone],
+      block![cobblestone], block![stone[variant = "andesite"]],
+    ],
+    avg_per_chunk: 0.5, ..placer::MossBoulder::default()
+  });
+  for plant in [block![rgen:dune_grass[variant = "a"]], block![rgen:short_grass]] {
+    g.place_icing(icing_placer::Scatter {
+      place_above: block![sand].into(), place: plant,
+      avg_per_chunk: 0.8, ..Default::default()
+    });
+  }
+}
+
+fn birch_forest_base(g: &mut BiomeBuilder, tree_rate: f64, log_rate: f64) {
+  grass_and_dirt(g);
+  g.id = biome![birch_forest];
+  g.color = "#768A6A";
+  g.place("Birch forest trees", PlacerStage::Tree, placer::BasicBirch {
+    place_above: [block![grass], block![dirt]].into(), avg_per_chunk: tree_rate,
+  });
+  g.place("Birch forest fallen logs and stumps", PlacerStage::Tree, placer::LogAndStump {
+    log: block![log[variant = "birch", axis = "y"]],
+    moss_log: block![rgen:mossy_stump[variant = "birch"]],
+    ground: block![grass],
+    plants: [block![tallgrass], block![double_plant], block![red_flower], block![yellow_flower]].into(),
+    avg_per_chunk: log_rate, chance_of_moss: 5, is_shrooms: true,
+    shroom: block![rgen:polypore],
+  });
+  for plant in [block![tallgrass[type = "fern"]], block![tallgrass[type = "tall_grass"]]] {
+    g.place_icing(icing_placer::Scatter {
+      place_above: block![grass].into(), place: plant,
+      avg_per_chunk: 1.0, attempts: 160,
+    });
+  }
+}
 pub fn cherry_blossom_grove(g: &mut BiomeBuilder) {
   grass_and_dirt(g);
   g.id = biome![forest];
@@ -192,6 +281,10 @@ pub fn cherry_blossom_grove_river(g: &mut BiomeBuilder) {
     ..placer::TallStump::default()
   });
   super::mediterranean::add_cedar_boulders(g, 0.2);
+  cherry_river_ground(g);
+}
+
+fn cherry_river_ground(g: &mut BiomeBuilder) {
   let andesite = block![stone[variant = "andesite"]];
   let stone = block![stone];
   let mossy = block![mossy_cobblestone];
@@ -269,6 +362,7 @@ pub fn mountain_oak(g: &mut BiomeBuilder) {
   g.id = biome![forest];
   let leaves = block![leaves[variant = "oak", check_decay = false, decayable = false]];
   g.place("Mountain basic oaks", PlacerStage::Tree, placer::BasicTree {
+    place_above: [block![grass], block![dirt]].into(),
     avg_per_chunk: 0.3, trunk_height: 6..=9, leaves,
     ..placer::BasicTree::default()
   });
@@ -281,14 +375,85 @@ pub fn mountain_oak(g: &mut BiomeBuilder) {
     (placer::MountainOakShape::Starved, "Starved oak"),
   ] {
     g.place(name, PlacerStage::Tree, placer::MountainOak {
-      shape, place_above: block![grass].into(), avg_per_chunk: 2.0,
+      shape, place_above: [block![grass], block![dirt]].into(), avg_per_chunk: 2.0,
     });
   }
   g.place("Mountain creeping oak leaves", PlacerStage::Tree, placer::CreepingLeaves {
     arm_length: 3, place_above: block![grass].into(), leaves, avg_per_chunk: 1.0,
   });
 }
-pub fn birch_aspen(g: &mut BiomeBuilder) { grass_and_dirt(g); }
+pub fn birch_aspen(g: &mut BiomeBuilder) {
+  grass_and_dirt(g);
+  g.id = biome![birch_forest];
+  g.place("Birch Aspen trees", PlacerStage::Tree, placer::AspenTree {
+    place_above: [block![grass], block![dirt]].into(),
+    trunk: block![log[variant = "birch", axis = "y"]],
+    leaves: block![rgen:leaves3[variant = "aspen", check_decay = false, decayable = false]],
+    avg_per_chunk: 5.0,
+    ..placer::AspenTree::default()
+  });
+  g.place_chunk(chunk_placer::RockSurface {
+    avg_per_chunk: 0.8, size: 12,
+    mix_in: vec![block![stone], block![stone[variant = "andesite"]], block![cobblestone]],
+  });
+  g.place("Birch Aspen boulders", PlacerStage::Tree, placer::MossBoulder {
+    avg_per_chunk: 0.8, ..placer::MossBoulder::default()
+  });
+  g.place_chunk(chunk_placer::Splotch {
+    replace: block![grass].into(), below_replace: block![dirt].into(),
+    place: block![gravel], radius: 2..=3, depth: 1..=1, avg_per_chunk: 0.7,
+  });
+  g.place_chunk(chunk_placer::MixedSplotch {
+    replace: block![grass].into(), below_replace: block![dirt].into(),
+    place: vec![block![stone], block![stone[variant = "andesite"]]],
+    radius: 3..=4, depth: 1..=1, avg_per_chunk: 0.3,
+  });
+  for (plant, rate) in [
+    (block![tallgrass[type = "fern"]], 2.0),
+    (block![tallgrass[type = "tall_grass"]], 1.0),
+  ] {
+    g.place_icing(icing_placer::Clumps {
+      place_above: block![grass].into(), place: plant,
+      radius: 2..=5, attempts: 20, avg_per_chunk: rate,
+    });
+  }
+  for (lower, upper, rate) in [
+    (block![double_plant[3]], block![double_plant[11]], 1.5),
+    (block![double_plant[2]], block![double_plant[10]], 0.25),
+  ] {
+    g.place_icing(icing_placer::DoubleClumps {
+      place_above: block![grass].into(), lower, upper,
+      radius: 2..=4, attempts: 14, avg_per_chunk: rate,
+    });
+  }
+  for variant in ["short_1", "short_2", "short_3"] {
+    let plant = match variant {
+      "short_1" => block![rgen:golden_grass[variant = "short_1", half = "lower"]],
+      "short_2" => block![rgen:golden_grass[variant = "short_2", half = "lower"]],
+      _ => block![rgen:golden_grass[variant = "short_3", half = "lower"]],
+    };
+    g.place_icing(icing_placer::Clumps {
+      place_above: block![grass].into(), place: plant,
+      radius: 2..=3, attempts: 10, avg_per_chunk: 0.04,
+    });
+  }
+  for variant in ["tall_1", "tall_2"] {
+    let (lower, upper) = match variant {
+      "tall_1" => (
+        block![rgen:golden_grass[variant = "tall_1", half = "lower"]],
+        block![rgen:golden_grass[variant = "tall_1", half = "upper"]],
+      ),
+      _ => (
+        block![rgen:golden_grass[variant = "tall_2", half = "lower"]],
+        block![rgen:golden_grass[variant = "tall_2", half = "upper"]],
+      ),
+    };
+    g.place_icing(icing_placer::DoubleClumps {
+      place_above: block![grass].into(), lower, upper,
+      radius: 2..=3, attempts: 10, avg_per_chunk: 0.04,
+    });
+  }
+}
 pub fn lavender_beach(g: &mut BiomeBuilder) {
   grass_and_dirt(g);
   g.id = biome![forest];

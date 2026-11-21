@@ -4,6 +4,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct BasicTree {
   pub place_above:   BlockFilter,
@@ -43,6 +44,13 @@ impl Placer for BasicTree {
 
     let below_pos = pos + Pos::new(0, -1, 0);
     if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+      return Err(UndoError);
+    }
+    if self.trunk == block![log[variant = "oak", axis = "y"]]
+      && (trunk_in_3x3(world, pos, self.trunk) || boulder_in_3x3(world, pos)) {
+      return Err(UndoError);
+    }
+    if (0..=height).any(|y| any_wood_adjacent(world, pos + Pos::new(0, y, 0))) {
       return Err(UndoError);
     }
 
@@ -87,4 +95,35 @@ impl Placer for BasicTree {
 
     Ok(())
   }
+}
+
+pub(super) fn trunk_in_3x3(world: &PartialWorld, pos: Pos, trunk: BlockState) -> bool {
+  for x in -1..=1 {
+    for z in -1..=1 {
+      for y in -2..=8 {
+        if world.get(pos + Pos::new(x, y, z)) == trunk {
+          return true;
+        }
+      }
+    }
+  }
+  false
+}
+
+pub(super) fn boulder_in_3x3(world: &PartialWorld, pos: Pos) -> bool {
+  for x in -1..=1 {
+    for z in -1..=1 {
+      for y in -1..=2 {
+        let block = world.get(pos + Pos::new(x, y, z)).block_kind();
+        if block == block![mossy_cobblestone].block
+          || block == block![rgen:mossy_cobblestone_rgen].block
+          || block == block![rgen:mossy_stone].block
+          || block == block![stone_slab].block
+          || block == block![stone_stairs].block {
+          return true;
+        }
+      }
+    }
+  }
+  false
 }

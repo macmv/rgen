@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 /// Places a mossy tree stump and a fallen log, optionally with mushrooms.
 pub struct LogAndStump {
@@ -36,6 +37,9 @@ impl Placer for LogAndStump {
   fn avg_per_chunk(&self) -> f64 { self.avg_per_chunk }
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
+    if any_wood_adjacent(world, pos) {
+      return Err(UndoError);
+    }
     // Ensure a 3x3 area is free for the stump
     for dx in -1..=1 {
       for dz in -1..=1 {
@@ -129,10 +133,11 @@ impl LogAndStump {
       }
 
       // Make sure log path is clear
-      let mut path_clear = true;
-      for i in 1..=length {
+      let mut path_clear = world.get(pos + Pos::new(dx, 0, dz)) == block![air];
+      for i in 2..=length {
         let path_pos = pos + Pos::new(i * dx, 0, i * dz);
-        if world.get(path_pos) != block![air] {
+        if world.get(path_pos) != block![air]
+          || any_wood_adjacent(world, path_pos) {
           path_clear = false;
           break;
         }

@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 /// Cherry tree with stepped limbs and vanilla cherry crowns.
 pub struct CherryV2 {
@@ -11,7 +12,7 @@ pub struct CherryV2 {
 
 impl Default for CherryV2 {
   fn default() -> Self {
-    Self { place_above: block![grass].into(), avg_per_chunk: 1.0 }
+    Self { place_above: [block![grass], block![dirt]].into(), avg_per_chunk: 1.0 }
   }
 }
 
@@ -66,6 +67,10 @@ impl Placer for CherryV2 {
     // Resolve overlapping crowns and logs before measuring obstructions.
     planned.sort_by_key(|(p,state)| (p.x,p.y,p.z, state.block != log.block));
     planned.dedup_by_key(|(p,_)| (p.x,p.y,p.z));
+    if planned.iter().any(|&(p, state)| state.block == log.block
+      && any_wood_adjacent(world, p)) {
+      return Err(UndoError);
+    }
     let mut blocked = 0;
     for &(target, state) in &planned {
       let existing = world.get(target);

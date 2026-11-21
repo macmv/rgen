@@ -14,12 +14,10 @@ import net.minecraftforge.event.terraingen.TerrainGen;
 
 import java.util.Random;
 
-// This is basically all the private fields from the overworld generator, like mineshafts and
-// villages.
+// This is basically all the private fields from the overworld generator, like mineshafts.
 public class VanillaDecorator {
   private MapGenBase caveGenerator = new MapGenCaves();
   private MapGenStronghold strongholdGenerator = new MapGenStronghold();
-  private MapGenVillage villageGenerator = new MapGenVillage();
   private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
   private MapGenScatteredFeature scatteredFeatureGenerator = new MapGenScatteredFeature();
   private MapGenBase ravineGenerator = new MapGenRavine();
@@ -28,7 +26,6 @@ public class VanillaDecorator {
   public VanillaDecorator() {
     caveGenerator = TerrainGen.getModdedMapGen(caveGenerator, InitMapGenEvent.EventType.CAVE);
     strongholdGenerator = (MapGenStronghold) TerrainGen.getModdedMapGen(strongholdGenerator, InitMapGenEvent.EventType.STRONGHOLD);
-    villageGenerator = (MapGenVillage) TerrainGen.getModdedMapGen(villageGenerator, InitMapGenEvent.EventType.VILLAGE);
     mineshaftGenerator = (MapGenMineshaft) TerrainGen.getModdedMapGen(mineshaftGenerator, InitMapGenEvent.EventType.MINESHAFT);
     scatteredFeatureGenerator = (MapGenScatteredFeature) TerrainGen.getModdedMapGen(scatteredFeatureGenerator, InitMapGenEvent.EventType.SCATTERED_FEATURE);
     ravineGenerator = TerrainGen.getModdedMapGen(ravineGenerator, InitMapGenEvent.EventType.RAVINE);
@@ -41,7 +38,6 @@ public class VanillaDecorator {
     // this.ravineGenerator.generate(world, x, z, chunk);
 
     this.mineshaftGenerator.generate(world, x, z, chunk);
-    this.villageGenerator.generate(world, x, z, chunk);
     this.strongholdGenerator.generate(world, x, z, chunk);
     this.scatteredFeatureGenerator.generate(world, x, z, chunk);
     this.oceanMonumentGenerator.generate(world, x, z, chunk);
@@ -49,7 +45,6 @@ public class VanillaDecorator {
 
   public void decorate(World world, Random rand, ChunkPos chunk_pos) {
     this.mineshaftGenerator.generateStructure(world, rand, chunk_pos);
-    this.villageGenerator.generateStructure(world, rand, chunk_pos);
     this.strongholdGenerator.generateStructure(world, rand, chunk_pos);
     this.scatteredFeatureGenerator.generateStructure(world, rand, chunk_pos);
     this.oceanMonumentGenerator.generateStructure(world, rand, chunk_pos);

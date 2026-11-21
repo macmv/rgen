@@ -167,39 +167,39 @@ biome_categories!(
 
     // Warm Temperate groups from the climate page.
     let (GeographicType::Standard, ClimateType::WarmTemperate) = &[
-      b!(55, woodland),
-      b!(25, birch_woodland),
-      b!(20, cherry_blossom_grove),
+      b!(65, woodland),
+      b!(30, birch_woodland),
+      b!(5, cherry_blossom_grove),
     ];
     let (GeographicType::River, ClimateType::WarmTemperate) = &[
-      b!(55, woodland_river),
-      b!(25, birch_woodland),
-      b!(20, cherry_blossom_grove_river),
+      b!(65, woodland_river),
+      b!(30, birch_woodland_river),
+      b!(5, cherry_blossom_grove_river),
     ];
     let (GeographicType::Canyon, ClimateType::WarmTemperate) = &[
-      b!(55, fern_gully),
-      b!(25, fern_gully),
-      b!(20, fern_gully),
+      b!(65, fern_gully),
+      b!(30, fern_gully),
+      b!(5, fern_gully),
     ];
     let (GeographicType::Hills, ClimateType::WarmTemperate) = &[
-      b!(55, woodland),
-      b!(25, birch_woodland),
-      b!(20, cherry_blossom_grove),
+      b!(65, woodland),
+      b!(30, birch_woodland),
+      b!(5, cherry_blossom_grove),
     ];
     let (GeographicType::Mountains, ClimateType::WarmTemperate) = &[
-      b!(55, mountain_oak),
-      b!(25, birch_aspen),
-      b!(20, cherry_blossom_grove_mountains),
+      b!(65, mountain_oak),
+      b!(30, birch_aspen),
+      b!(5, cherry_blossom_grove_mountains),
     ];
     let (GeographicType::Beach, ClimateType::WarmTemperate) = &[
-      b!(55, woodland_beach),
-      b!(25, birch_woodland),
-      b!(20, lavender_beach),
+      b!(65, woodland_beach),
+      b!(30, birch_woodland_beach),
+      b!(5, lavender_beach),
     ];
     let (GeographicType::Delta, ClimateType::WarmTemperate) = &[
-      b!(55, riparian_woodland),
-      b!(25, cypress_swamp),
-      b!(20, cypress_swamp),
+      b!(65, riparian_woodland),
+      b!(30, cypress_swamp),
+      b!(5, cypress_swamp),
     ];
 
     // One solid diagnostic surface color per landform.

@@ -3,6 +3,7 @@ use rgen_llama::Structure;
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct AspenTree {
   pub place_above:   BlockFilter,
@@ -17,7 +18,7 @@ impl Default for AspenTree {
   fn default() -> Self {
     AspenTree {
       avg_per_chunk: 13.0, //40.0,
-      place_above:   block![grass].into(),
+      place_above:   [block![grass], block![dirt]].into(),
       trunk:         block![log[2]],
       leaves:        block![rgen:leaves3[0]],
       drapes_short:  vec![
@@ -47,7 +48,13 @@ impl Placer for AspenTree {
     }
 
     let below_pos = pos + Pos::new(0, -1, 0);
-    if !self.place_above.contains(world.get(below_pos)) || world.get(pos) != block![air] {
+    if !self.place_above.contains(world.get(below_pos))
+      || world.get(pos) != block![air]
+      || super::basic::trunk_in_3x3(world, pos, self.trunk) {
+      return Err(UndoError);
+    }
+
+    if (0..=height).any(|y| any_wood_adjacent(world, pos + Pos::new(0, y, 0))) {
       return Err(UndoError);
     }
 

@@ -129,7 +129,7 @@ public final class RBlocks {
   public static final Block BURNED_TREE_SAPLING = register("burned_tree_sapling", BurnedTreeSapling::new);
   public static final Block SAPLING2 = register("sapling2", SaplingTwo::new);
 
-  public static final Block FLOWER = register("flower", FlowerBlock::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
+  public static final Block FLOWER = register("flower", FlowerBlock::new, new BlockSettings().material(Material.PLANTS).creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));
   public static final Block CACTUS_ARM = register("cactus_arm", CactusArm::new);
   public static final Block RGEN_CACTUS = register("rgen_cactus", RgenCactus::new, new BlockSettings().hardness(0.4f));
   public static final Block CROSS_CACTUS = register("cross_cactus", CrossCactus::new, new BlockSettings().creativeTab(RCreativeTabs.DECORATIONS).soundType(SoundType.PLANT));

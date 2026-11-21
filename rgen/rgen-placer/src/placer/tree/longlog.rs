@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct LongLog {
   pub log:           BlockState,
@@ -30,6 +31,10 @@ impl Placer for LongLog {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     let pos = pos + Pos::new(rng.range(-4..=4), 0, rng.range(-4..=4));
+
+    if world.get(pos) != BlockState::AIR || any_wood_adjacent(world, pos) {
+      return Err(UndoError);
+    }
 
     // Checks to make sure is in open space from other woods
     for rel_x in -2..=2_i32 {
@@ -102,6 +107,9 @@ impl LongLog {
     for i in 1..=length {
       let i_pos = pos + Pos::new(i * dx, 0, i * dz);
       if world.get(i_pos) != BlockState::AIR {
+        return false;
+      }
+      if i >= 2 && any_wood_adjacent(world, i_pos) {
         return false;
       }
     }

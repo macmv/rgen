@@ -7,11 +7,14 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class FlowerBlock extends BlockBush {
   public static PropertyEnum<FlowerType> TYPE = PropertyEnum.create("type", FlowerType.class);
@@ -34,6 +37,12 @@ public class FlowerBlock extends BlockBush {
   @Override
   public boolean isFullCube(IBlockState state) {
     return false;
+  }
+
+  @SideOnly(Side.CLIENT)
+  @Override
+  public BlockRenderLayer getBlockLayer() {
+    return BlockRenderLayer.CUTOUT_MIPPED;
   }
 
 

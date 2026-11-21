@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockInfo, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct AcaciaTree {
   pub place_above:   BlockFilter,
@@ -77,6 +78,8 @@ impl Placer for TallStump {
       || !self.place_above.contains(world.get(below))
       || world.get(pos) != block![air]
       || world.get(above) != block![air]
+      || any_wood_adjacent(world, pos)
+      || any_wood_adjacent(world, above)
     {
       return Err(UndoError);
     }
@@ -248,6 +251,7 @@ fn place_acacia_tree(
     // tree may replace existing leaves or trunk blocks, but nothing else.
     if pieces.iter().any(|(piece_pos, _)| {
       !is_replaceable_tree_block(world.get(*piece_pos))
+        || any_wood_adjacent(world, *piece_pos)
     }) {
       return Err(UndoError);
     }

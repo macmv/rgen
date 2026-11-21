@@ -526,6 +526,7 @@ blocks! {
     axis: ["x", "y", "z", "none"],
   ],
   RgenCoveredOakLog => rgen:covered_oak_log[axis: ["x", "y", "z", "none"]],
+  RgenCoveredSpruceLog => rgen:covered_spruce_log[axis: ["x", "y", "z", "none"]],
   RgenCoveredBirchLog => rgen:covered_birch_log[axis: ["x", "y", "z", "none"]],
   RgenAcaciaGrassLog => rgen:covered_acacia_log[axis: ["x", "y", "z", "none"]],
   RgenDarkOakMossLog => rgen:covered_dark_oak_log[axis: ["x", "y", "z", "none"]],
@@ -584,6 +585,10 @@ blocks! {
   RgenCactus => rgen:cactus,
   RgenCactusArm => rgen:cactus_arm[face: ["north", "east", "south", "west"]],
   RgenShortGrass => rgen:short_grass,
+  RgenGoldenGrass => rgen:golden_grass[
+    half: ["upper", "lower"],
+    variant: ["short_1", "short_2", "short_3", "tall_1", "tall_2"],
+  ],
   RgenLargeCactusFlower => rgen:large_cactus_flower,
   RgenSmallCactusFlower => rgen:small_cactus_flower[face: ["north", "east", "south", "west"]],
   RgenBasalt => rgen:basalt[axis: ["x", "y", "z"]],

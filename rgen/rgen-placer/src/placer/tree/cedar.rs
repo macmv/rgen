@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos, block};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::{WoodSpecies, any_wood_adjacent, different_wood_adjacent};
 
 /// Hardcoded Lebanon cedar forms, based on the supplied glass study.
 pub struct CedarTree {
@@ -74,7 +75,8 @@ impl Placer for CedarTree {
     for y in 0..trunk_height {
       let trunk_pos = pos + Pos::new(0, y, 0);
       let current = world.get(trunk_pos);
-      if current != block![air] && !self.plant_mix.contains(current) {
+      if (current != block![air] && !self.plant_mix.contains(current))
+        || any_wood_adjacent(world, trunk_pos) {
         return Err(UndoError);
       }
     }
@@ -624,6 +626,7 @@ fn place_cedar_roots(tree: &CedarTree, world: &mut PartialWorld, rng: &mut Rng, 
     if !tree.ground_mix.contains(soil)
       || below == block![air]
       || below == block![water]
+      || different_wood_adjacent(world, root_pos, WoodSpecies::Cedar)
       || (!buried && world.get(root_pos) != block![air] && !tree.plant_mix.contains(world.get(root_pos))) {
       continue;
     }
@@ -650,6 +653,7 @@ fn place_cedar_roots(tree: &CedarTree, world: &mut PartialWorld, rng: &mut Rng, 
         if !tree.ground_mix.contains(outer_soil)
           || below_outer == block![air]
           || below_outer == block![water]
+          || different_wood_adjacent(world, outer, WoodSpecies::Cedar)
         {
           break;
         }

@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos, block};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::{any_wood_adjacent, is_wood_log};
 
 /// Concrete test willow with a short core and three rotated branch types.
 pub struct WillowTree {
@@ -21,11 +22,19 @@ impl Placer for WillowTree {
     let ground = pos + Pos::new(0, -1, 0);
     if !self.plantable.contains(world.get(ground)) { return Err(UndoError); }
     for y in 0..4 {
-      if !self.replaceable(world, pos + Pos::new(0, y, 0)) { return Err(UndoError); }
+      let trunk_pos = pos + Pos::new(0, y, 0);
+      if !self.replaceable(world, trunk_pos) || any_wood_adjacent(world, trunk_pos) {
+        return Err(UndoError);
+      }
     }
     // Concrete palette for later visualization: lime/green core; pink, brown,
     // red, orange A/B variants; white, black, blue, lightblue diagonal variants.
-    for y in 0..4 { world.set(pos + Pos::new(0, y, 0), self.log); }
+    let mut own_logs = Vec::new();
+    for y in 0..4 {
+      let trunk_pos = pos + Pos::new(0, y, 0);
+      world.set(trunk_pos, self.log);
+      own_logs.push(trunk_pos);
+    }
 
     // A, B and 1 occupy a fixed diagonal layout, rotated as a group per tree.
     let rotation = rng.range(0..4);
@@ -41,7 +50,7 @@ impl Placer for WillowTree {
       if i < 2 {
         let color = self.log;
         let start = origin + Pos::new(dx, if variant == 2 { 1 } else { 0 }, dz);
-        if self.replaceable(world, start) { world.set(start, color); }
+        self.place_branch_log(world, start, color, &mut own_logs);
         branch_ends.push(start);
         if variant == 3 {
           let (mut other_x, mut other_z) = dirs[1 - i];
@@ -54,7 +63,7 @@ impl Placer for WillowTree {
             start + away + Pos::new(0, 2, 0),
             start + away + Pos::new(0, 3, 0),
           ] {
-            if self.replaceable(world, branch_pos) { world.set(branch_pos, color); }
+            self.place_branch_log(world, branch_pos, color, &mut own_logs);
             branch_ends.push(branch_pos);
           }
           continue;
@@ -67,14 +76,14 @@ impl Placer for WillowTree {
         };
         for &(side, up) in path {
           let branch_pos = start + Pos::new(dx * side, up, dz * side);
-          if self.replaceable(world, branch_pos) { world.set(branch_pos, color); }
+          self.place_branch_log(world, branch_pos, color, &mut own_logs);
           branch_ends.push(branch_pos);
         }
       } else {
         let colors = [self.log; 4];
         let elevated_start = variant >= 2;
         let start = origin + Pos::new(dx, i32::from(elevated_start), dz);
-        if self.replaceable(world, start) { world.set(start, colors[variant as usize]); }
+        self.place_branch_log(world, start, colors[variant as usize], &mut own_logs);
         branch_ends.push(start);
         let count = match variant {
           0 | 1 | 3 => 2,
@@ -83,7 +92,7 @@ impl Placer for WillowTree {
         };
         for step in 1..=count {
           let branch_pos = start + Pos::new(dx * step, step, dz * step);
-          if self.replaceable(world, branch_pos) { world.set(branch_pos, colors[variant as usize]); }
+          self.place_branch_log(world, branch_pos, colors[variant as usize], &mut own_logs);
           branch_ends.push(branch_pos);
         }
       }
@@ -119,6 +128,20 @@ impl Placer for WillowTree {
 }
 
 impl WillowTree {
+  fn place_branch_log(&self, world: &mut PartialWorld, pos: Pos, log: BlockState, own_logs: &mut Vec<Pos>) {
+    if !self.replaceable(world, pos) {
+      return;
+    }
+    for (x, z) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+      let neighbor = pos + Pos::new(x, 0, z);
+      if !own_logs.contains(&neighbor) && is_wood_log(world.get(neighbor)) {
+        return;
+      }
+    }
+    world.set(pos, log);
+    own_logs.push(pos);
+  }
+
   fn replaceable(&self, world: &PartialWorld, pos: Pos) -> bool {
     let block = world.get(pos);
     block == block![air] || self.plants.contains(block)

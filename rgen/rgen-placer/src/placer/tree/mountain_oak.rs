@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Random, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub enum MountainOakShape { Stressed, Starved }
 
@@ -17,7 +18,9 @@ impl Placer for MountainOak {
 
   fn place(&self, world: &mut PartialWorld, rng: &mut Rng, pos: Pos) -> Result {
     if pos.y <= 1 || pos.y + 8 >= 255
-      || !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0))) {
+      || !self.place_above.contains(world.get(pos + Pos::new(0, -1, 0)))
+      || super::basic::trunk_in_3x3(world, pos, block![log[variant = "oak", axis = "y"]])
+      || super::basic::boulder_in_3x3(world, pos) {
       return Err(UndoError);
     }
     let log = block![log[variant = "oak", axis = "y"]];
@@ -61,6 +64,10 @@ impl Placer for MountainOak {
 
     plan.sort_by_key(|(p, state)| (p.x, p.y, p.z, state.block != log.block));
     plan.dedup_by_key(|(p, _)| (p.x, p.y, p.z));
+    if plan.iter().any(|&(p, state)| state.block == log.block
+      && any_wood_adjacent(world, p)) {
+      return Err(UndoError);
+    }
     let blocked = plan.iter().filter(|(p, _)| world.get(*p) != block![air]).count();
     if blocked * 100 >= plan.len() * 5 { return Err(UndoError); }
     for (p, state) in plan {

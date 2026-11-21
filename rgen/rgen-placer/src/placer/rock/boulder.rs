@@ -17,6 +17,8 @@ pub struct MossBoulder {
   pub medium_weight: u8,
   pub medium_plus_weight: u8,
   pub avg_per_chunk: f64,
+  /// Reject sites with sand beneath the boulder's possible footprint.
+  pub avoid_sand_under_footprint: bool,
 }
 
 impl Default for MossBoulder {
@@ -37,6 +39,7 @@ impl Default for MossBoulder {
       medium_weight: 35,
       medium_plus_weight: 15,
       avg_per_chunk: 2.0,
+      avoid_sand_under_footprint: false,
     }
   }
 }
@@ -59,6 +62,16 @@ impl Placer for MossBoulder {
       || world.get(pos + Pos::new(0, -1, 0)) == block![water]
     {
       return Err(UndoError);
+    }
+
+    if self.avoid_sand_under_footprint {
+      for dx in -3..=3 {
+        for dz in -3..=3 {
+          if world.get(pos + Pos::new(dx, -1, dz)) == block![sand] {
+            return Err(UndoError);
+          }
+        }
+      }
     }
 
     // Leave room around existing tree trunks, including trunks whose base is

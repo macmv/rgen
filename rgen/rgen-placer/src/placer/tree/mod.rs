@@ -1,6 +1,7 @@
 mod acacia;
 mod aspen_tree;
 mod basic;
+mod birch;
 mod cactus;
 mod cedar;
 mod cherry;
@@ -15,6 +16,7 @@ mod short_green_cactus;
 pub use acacia::*;
 pub use aspen_tree::*;
 pub use basic::*;
+pub use birch::*;
 pub use cactus::*;
 pub use cedar::*;
 pub use cherry::*;

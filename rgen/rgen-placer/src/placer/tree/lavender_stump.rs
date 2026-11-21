@@ -2,6 +2,7 @@ use rgen_base::{BlockFilter, BlockState, Pos};
 use rgen_world::{PartialWorld, UndoError};
 
 use crate::{Placer, Result, Rng};
+use crate::placer::wood_clearance::any_wood_adjacent;
 
 pub struct LavenderStump {
   pub place_above: BlockFilter,
@@ -18,6 +19,8 @@ impl Placer for LavenderStump {
       || !self.place_above.contains(world.get(pos + Pos::new(0,-1,0)))
       || world.get(pos) != block![air]
       || world.get(pos + Pos::new(0,1,0)) != block![air]
+      || any_wood_adjacent(world, pos)
+      || any_wood_adjacent(world, pos + Pos::new(0, 1, 0))
     {
       return Err(UndoError);
     }
